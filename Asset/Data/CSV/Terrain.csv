@@ -1,2 +1,10 @@
-NormalGround,NormalGround1,0,0,0
-BoundGround,BoundGround1,20,0,0
+NormalGround,NormalGround1,0,0,0,0,0,0,0,0,0,0,0
+BoundGround,BoundGround1,-24,0,0,0,0,0,0,0,0,0,0
+MoveGround,MoveGround1,0,0,80,22,20,80,1,60,0,0,0
+NormalGround,NormalGround2,20,0,0,0,0,0,0,0,0,0,0
+RotationGround,RotationGround1,44,0,0,0,0,0,0,0,0,0,1
+NormalGround,NormalGround3,0,0,-20,0,0,0,0,0,0,0,0
+BoundGround,BoundGround2,-21,0,-20,0,0,0,0,0,0,0,0
+NormalGround,NormalGround4,20,0,-20,0,0,0,0,0,0,0,0
+NormalGround,NormalGround5,0,0,20,0,0,0,0,0,0,0,0
+NormalGround,NormalGround6,20,0,20,0,0,0,0,0,0,0,0

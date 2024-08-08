@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "../BaseCharacter.h"
+#include "../CharacterBase.h"
 
 class CameraBase;
 
-class Player : public BaseCharacter
+class Player : public CharacterBase
 {
 public:
 	Player()										{}
@@ -12,10 +12,6 @@ public:
 	// 更新
 	void Update()						override;
 	void PostUpdate()					override;
-
-	// 描画
-	void GenerateDepthMapFromLight()	override;
-	void DrawLit()						override;
 
 	// 初期化
 	void Init()							override;
@@ -26,6 +22,10 @@ public:
 private:
 	// 当たり判定
 	void HitJudge();
+	// 地面との当たり判定
+	void HitJudgeGround();
+	// 当たったらイベントが発生する系の当たり判定
+	void HitJudgeEvent();
 
 	// オブジェクトに当たった時の反応
 	//void Bound();
@@ -56,10 +56,18 @@ private:
 	// 回転行列
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
 
-	// 動く床の動く前の行列
-	Math::Matrix m_beforeMoveMat	= Math::Matrix::Identity;
-	// 動く床に当たったかどうか
-	bool m_hitMoveGroundFlg			= false;
+	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
+	struct HitMoveTerrain
+	{
+		Math::Matrix transMat	= Math::Matrix::Identity;	// 動く前の行列
+		Math::Matrix rotMat		= Math::Matrix::Identity;	// 回転行列
+		bool hitFlg				= false;					// 当たったかどうか
+	};
+	
+	// 動く床
+	HitMoveTerrain m_moveGround;
+	// 回る床
+	HitMoveTerrain m_rotationGround;
 
 	// アニメーション用
 	bool m_walkAnimeDirFlg = false;

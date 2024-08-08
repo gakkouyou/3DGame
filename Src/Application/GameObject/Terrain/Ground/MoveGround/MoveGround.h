@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "../../BaseTerrain.h"
+#include "../../TerrainBase.h"
 
-class MoveGround : public BaseTerrain
+class MoveGround : public TerrainBase
 {
 public:
 	MoveGround() {}
@@ -11,17 +11,13 @@ public:
 	void PostUpdate()	override;
 	void Init()			override;
 
-	struct Info
-	{
-		Math::Vector3 pos;
-		Math::Vector3 startPos;
-		Math::Vector3 goalPos;
-		float speed;
-		int stayTime;
-	};
+	// 座標をセットする
+	void SetPos(const Math::Vector3& _pos) override { m_info.pos = _pos; }
+	// 座標をゲットする
+	Math::Vector3 GetPos()	const override { return m_info.pos; }
 
-	void SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime);
-	const Info GetInfo() const { return m_info; }
+	// 情報をセットする
+	virtual void SetInfo(Math::Vector3 _startPos = Math::Vector3::Zero, Math::Vector3 _goalPos = Math::Vector3::Zero, float _speed = 0, int _stayTime = 0, Math::Vector3 _degAng = Math::Vector3::Zero) override;
 
 	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
 
@@ -29,9 +25,6 @@ public:
 	void Reset();
 
 private:
-
-	Info m_info;
-
 	// 動くか動かないか
 	bool m_moveFlg = false;
 	// スタート→ゴールか、ゴール→スタートか
@@ -41,4 +34,7 @@ private:
 
 	// 止めるフラグ
 	bool m_stopFlg = false;
+
+	// SetInfoが呼ばれたかどうか
+	bool m_setInfoFlg = false;
 };

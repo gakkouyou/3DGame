@@ -1,10 +1,10 @@
 ﻿#pragma once
 
-class BaseCharacter : public KdGameObject
+class CharacterBase : public KdGameObject
 {
 public:
-	BaseCharacter()											{}
-	virtual ~BaseCharacter()					override	{}
+	CharacterBase()											{}
+	virtual ~CharacterBase()					override	{}
 
 	// 初期化
 	virtual void Init()							override {}
@@ -14,8 +14,8 @@ public:
 	virtual void PostUpdate()					override {}
 
 	// 描画
-	virtual void GenerateDepthMapFromLight()	override {}
-	virtual void DrawLit()						override {}
+	virtual void GenerateDepthMapFromLight()	override;
+	virtual void DrawLit()						override;
 
 	// 生存フラグ
 	const bool GetAlive() const { return m_aliveFlg; }
@@ -35,6 +35,8 @@ protected:
 
 	// スフィア判定　当たったらtrueを返す
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
+	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
+	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
 
 	// モデル
 	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;

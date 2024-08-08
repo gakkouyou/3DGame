@@ -20,7 +20,7 @@ void BackGround::Init()
 		m_spModel->Load("Asset/Models/BackGround/backGround.gltf");
 	}
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(100.0f);
+	//Math::Matrix scaleMat = Math::Matrix::CreateScale(100.0f);
 
-	m_mWorld = scaleMat;
+	//m_mWorld = scaleMat;
 }

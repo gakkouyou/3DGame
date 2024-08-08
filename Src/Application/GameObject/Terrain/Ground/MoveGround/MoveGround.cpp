@@ -6,18 +6,6 @@ void MoveGround::Update()
 {
 	if (!m_stopFlg)
 	{
-		/*if (m_goal > m_goalMax)
-		{
-			m_goal = 0;
-			m_moveVec *= -1;
-			m_moveFlg = false;
-		}
-		if (m_moveFlg && !m_stopFlg)
-		{
-			m_info.pos += m_moveVec * m_info.speed;
-			m_goal += m_info.speed;
-		}*/
-
 		Math::Vector3 moveVec = Math::Vector3::Zero;
 
 		if (m_moveFlg)
@@ -75,6 +63,15 @@ void MoveGround::Update()
 			m_stayCnt = 0;
 		}
 	}
+	// ストップフラグがtrueの時、全てリセットする
+	else
+	{
+		m_moveFlg = false;
+		m_stayCnt = 0;
+		m_moveDirFlg = false;
+		m_info.pos = m_info.startPos;
+		m_stopFlg = false;
+	}
 
 	Math::Matrix transMat;
 	transMat = Math::Matrix::CreateTranslation(m_info.pos.x, m_info.pos.y, m_info.pos.z);
@@ -92,7 +89,7 @@ void MoveGround::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
+		m_spModel->Load("Asset/Models/Terrain/Ground/MoveGround/moveGround.gltf");
 	}
 
 	// 当たり判定
@@ -102,7 +99,7 @@ void MoveGround::Init()
 	m_moveFlg = true;
 
 	// オブジェクトのタイプ
-	m_objectType = KdGameObject::ObjectType::MoveGround;
+	m_objectType = ObjectType::MoveGround;
 
 	// 描画タイプ
 	m_drawType = eDrawTypeLit;
@@ -113,13 +110,16 @@ void MoveGround::Init()
 	m_info.speed	= 0;
 }
 
-void MoveGround::SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime)
+void MoveGround::SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
 	m_info.startPos = _startPos;
 	m_info.pos = _startPos;
 	m_info.goalPos = _goalPos;
 	m_info.speed = _speed;
 	m_info.stayTime = _stayTime;
+
+	m_stopFlg = true;
+	m_setInfoFlg = true;
 }
 
 void MoveGround::Reset()

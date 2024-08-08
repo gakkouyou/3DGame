@@ -13,27 +13,24 @@ public:
 
 	void SetObjectController(const std::shared_ptr<ObjectController>& _spObjectController) { m_wpObjectController = _spObjectController; }
 
-	const Math::Vector3 GetPos() const { return m_pos; }
-	void SetPos(const Math::Vector3 _pos) { m_pos = _pos; }
-
 	// 動く系統の情報
-	struct MoveObjectInfo
+	struct ObjectInfo
 	{
-		Math::Vector3 startPos;
-		Math::Vector3 goalPos;
-		float speed;
-		int stayTime;
+		Math::Vector3 startPos	= Math::Vector3::Zero;
+		Math::Vector3 goalPos	= Math::Vector3::Zero;
+		float speed				= 0;
+		int stayTime			= 0;
+		Math::Vector3 degAng	= Math::Vector3::Zero;
 	};
 	// 動く系統の情報ゲット関数
-	const MoveObjectInfo GetMoveObjectInfo() const { return m_moveObjectInfo; }
+	const ObjectInfo GetObjectInfo() const { return m_objectInfo; }
+	// 動く系統の情報セット関数
+	void SetObjectInfo(ObjectInfo _info) { m_objectInfo = _info; }
 
 private:
 	std::weak_ptr<ObjectController> m_wpObjectController;
 
-	// オブジェクトの座標
-	Math::Vector3	m_pos = Math::Vector3::Zero;
-
-	MoveObjectInfo m_moveObjectInfo{ Math::Vector3::Zero, Math::Vector3::Zero, 0, 0 };
+	ObjectInfo m_objectInfo;
 
 private:
 

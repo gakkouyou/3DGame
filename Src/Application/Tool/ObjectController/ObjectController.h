@@ -1,17 +1,13 @@
 ﻿#pragma once
 
 class TPSCamera;
-class MoveGround;
+class TerrainBase;
 
 class ObjectController : public KdGameObject
 {
 public:
 	ObjectController()			{}
-	~ObjectController()	override
-	{
-		ConfirmObject();
-		CSVWriter();
-	}
+	~ObjectController()	override{}
 
 	void Update()		override;
 	void Init()			override;
@@ -20,7 +16,9 @@ public:
 	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// 今持っているオブジェクトのタイプをゲットする
-	const KdGameObject::ObjectType GetObjectType() const;
+	const ObjectType GetObjectType() const;
+	// 今持っているオブジェクトの名前をゲットする
+	const std::string GetObjectName() const;
 
 	// 作りたいオブジェクト
 	enum class Object
@@ -29,6 +27,7 @@ public:
 		BoundGround,	// 跳ねる床
 		MoveGround,		// 動く床
 		NormalWall,		// 通常の壁
+		RotationGround,	// 回る床
 	};
 
 	// オブジェクトを確定する(wp_ptrをリセットする)
@@ -45,11 +44,11 @@ private:
 	void MouseSelect();
 
 	// 動かすオブジェクト
-	std::weak_ptr<KdGameObject>		m_wpTargetObject;
+	std::weak_ptr<TerrainBase>		m_wpTargetObject;
 
-	// 動く床用
-	std::weak_ptr<MoveGround>		m_wpMoveGround;
-	
+	// 地形リスト
+	std::vector<std::weak_ptr<TerrainBase>> m_wpTerrainList;
+
 	// カメラ
 	std::weak_ptr<const TPSCamera>	m_wpCamera;
 
@@ -64,6 +63,7 @@ private:
 		int NormalGround	= 0;
 		int BoundGround		= 0;
 		int MoveGround		= 0;
+		int RotationGround	= 0;
 	};
 
 	Count m_objectCount;
@@ -73,23 +73,14 @@ private:
 	{
 		std::string type;
 		std::string name;
-		Math::Vector3 pos;
+		Math::Vector3 pos		= Math::Vector3::Zero;
+		Math::Vector3 goalPos	= Math::Vector3::Zero;
+		float speed				= 0;
+		int stayTime			= 0;
+		Math::Vector3 degAng	= Math::Vector3::Zero;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む
 	void CSVLoader();
-
-	// 動く床用のデータ型
-	struct MoveData
-	{
-		std::string type;
-		std::string name;
-		Math::Vector3 startPos;
-		Math::Vector3 goalPos;
-		float speed;
-		int stayTime;
-	};
-	// 配列
-	std::vector<MoveData> m_moveDataList;
 };

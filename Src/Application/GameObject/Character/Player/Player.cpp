@@ -1,7 +1,7 @@
 ﻿#include "Player.h"
 #include "../../../Scene/SceneManager.h"
 #include "../../Camera/CameraBase.h"
-#include "../../Terrain/BaseTerrain.h"
+#include "../../Terrain/TerrainBase.h"
 
 #include "../../../main.h"
 
@@ -218,7 +218,8 @@ void Player::Update()
 		KdEffekseerManager::GetInstance().Play("test.efkefc", { 0, 3, 0 }, { 90.0f, 90.0f, 0 }, 0.1f, 0.5f, true);
 	}
 
-	Application::Instance().m_log.AddLog("%d\n", m_situationType);
+	Application::Instance().m_log.AddLog("pos.x:%.2f pos.y:%.2f pos.z:%.2f\n", m_pos.x, m_pos.y, m_pos.z);
+	Application::Instance().m_log.AddLog("situation:%d\n", m_situationType);
 
 	// 当たり判定
 	HitJudge();
@@ -228,10 +229,10 @@ void Player::PostUpdate()
 {
 	Math::Matrix transMat = Math::Matrix::Identity;
 	// 動く床に当たっていた時の処理
-	if (m_hitMoveGroundFlg && !SceneManager::Instance().GetDebug())
+	if (m_moveGround.hitFlg)
 	{
 		// 動く床の動く前の逆行列
-		Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_beforeMoveMat);
+		Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
 		// 動く床から見たプレイヤーの座標行列
 		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
 
@@ -242,6 +243,12 @@ void Player::PostUpdate()
 		m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
 	}
 
+	// 回る床に当たっていた時の処理
+	if (m_rotationGround.hitFlg)
+	{
+
+	}
+
 	transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	m_mWorld = m_rotMat * transMat;
@@ -250,22 +257,6 @@ void Player::PostUpdate()
 	// 止まっていたらアニメーションしない
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
-}
-
-void Player::GenerateDepthMapFromLight()
-{
-	if (m_spModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-	}
-}
-
-void Player::DrawLit()
-{
-	if (m_spModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-	}
 }
 
 void Player::Init()
@@ -293,14 +284,29 @@ void Player::Init()
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
 	m_pos.y = 5.0f;
+	m_pos.z = -20.0f;
 }
 
 // 当たり判定
 void Player::HitJudge()
 {
+	// 地面との当たり判定
+	HitJudgeGround();
+
+	// 触れたらイベントが発生する
+	HitJudgeEvent();
+}
+
+void Player::HitJudgeGround()
+{
 	// 動く床関連をリセット
-	m_beforeMoveMat = Math::Matrix::Identity;
-	m_hitMoveGroundFlg = false;
+// 動く床
+	m_moveGround.transMat = Math::Matrix::Identity;
+	m_moveGround.hitFlg = false;
+	// 回る床
+	m_rotationGround.transMat = Math::Matrix::Identity;
+	m_rotationGround.rotMat = Math::Matrix::Identity;
+	m_rotationGround.hitFlg = false;
 
 	// スフィアで貫通するようになったらレイ判定
 	if (m_gravity >= 1.0f)
@@ -348,9 +354,21 @@ void Player::HitJudge()
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
 					// 動く床の動く前の行列
-					m_beforeMoveMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					// 動く床に当たったかどうかのフラグ
-					m_hitMoveGroundFlg = true;
+					m_moveGround.hitFlg = true;
+					break;
+
+					// 回る床に乗った場合
+				case ObjectType::RotationGround:
+					// 座標
+					m_pos = hitPos;
+					m_pos.y += m_enableStepHeight;
+					// 重力
+					m_gravity = 0;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
 					break;
 
 				default:
@@ -428,9 +446,26 @@ void Player::HitJudge()
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
 					// 動く床の動く前の行列
-					m_beforeMoveMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					// 動く床に当たったかどうか
-					m_hitMoveGroundFlg = true;
+					m_moveGround.hitFlg = true;
+					break;
+
+					// 回る床
+				case ObjectType::RotationGround:
+					// X軸とZ軸の補正はなし
+					hitDir.x = 0;
+					hitDir.z = 0;
+					hitDir.Normalize();
+					m_pos += hitDir * maxOverLap;
+					// 重力
+					m_gravity = 0.0f;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					// 動く前の行列
+					m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
+					m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					break;
 
 					// 通常
@@ -445,7 +480,6 @@ void Player::HitJudge()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
-
 					break;
 				}
 			}
@@ -456,8 +490,22 @@ void Player::HitJudge()
 			m_situationType |= SituationType::Air;
 		}
 	}
+}
 
-	// ボックス判定
-	KdCollider::BoxInfo boxInfo;
-	boxInfo.m_Abox.Center = m_pos;
+void Player::HitJudgeEvent()
+{
+	Math::Vector3 spherePos = m_pos;
+	spherePos.y += 1.5f;
+
+	bool hitFlg = false;
+	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, true);
+
+	if (hitFlg)
+	{
+		std::shared_ptr<KdGameObject> spHitObject = m_wpHitObject.lock();
+		if (spHitObject)
+		{
+			spHitObject->OnHit();
+		}
+	}
 }

@@ -4,10 +4,11 @@
 #include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../DebugWindow/DebugWindow.h"
 
-#include "../../GameObject/Terrain/BaseTerrain.h"
+#include "../../GameObject/Terrain/TerrainBase.h"
 #include "../../GameObject/Terrain/Ground/NormalGround/NormalGround.h"
 #include "../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
 #include "../../GameObject/Terrain/Ground/MoveGround/MoveGround.h"
+#include "../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
 
 void ObjectController::Update()
 {
@@ -22,39 +23,18 @@ void ObjectController::Update()
 	// マウスでオブジェクトを選択する
 	MouseSelect();
 
-	// 対象のオブジェクトが動く床の場合
-	std::shared_ptr<MoveGround> spMoveGround = m_wpMoveGround.lock();
-	if (spMoveGround)
+	// 対象のオブジェクト
+	std::shared_ptr<TerrainBase> spTargetObject = m_wpTargetObject.lock();
+	if (spTargetObject)
 	{
-		// 情報セット
-		spMoveGround->SetInfo(DebugWindow::Instance().GetMoveObjectInfo().startPos, DebugWindow::Instance().GetMoveObjectInfo().goalPos, DebugWindow::Instance().GetMoveObjectInfo().speed, DebugWindow::Instance().GetMoveObjectInfo().stayTime);
-
-		// 止める
-		spMoveGround->SetStopFlg(true);
-
-		
+		DebugWindow::ObjectInfo debugInfo = DebugWindow::Instance().GetObjectInfo();
+		spTargetObject->SetInfo(debugInfo.startPos, debugInfo.goalPos, debugInfo.speed, debugInfo.stayTime, debugInfo.degAng);
 	}
-	// 通常の場合
-	else
-	{
-		// 対象のオブジェクト
-		std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
-		if (spTargetObject)
-		{
-			// 座標セット
-			spTargetObject->SetPos(DebugWindow::Instance().GetPos());
-		}
-	}
+
 	// DELETEキーで削除する
 	if (GetAsyncKeyState(VK_DELETE) & 0x8000)
 	{
 		DeleteObject();
-	}
-
-	// 動く床は止める
-	if (!m_wpMoveGround.expired())
-	{
-		m_wpMoveGround.lock()->SetStopFlg(true);
 	}
 }
 
@@ -72,170 +52,121 @@ const KdGameObject::ObjectType ObjectController::GetObjectType() const
 	}
 }
 
+const std::string ObjectController::GetObjectName() const
+{
+	if (!m_wpTargetObject.expired())
+	{
+		return m_wpTargetObject.lock()->GetObjectName();
+	}
+	else
+	{
+		return "NoTarget";
+	}
+}
+
 void ObjectController::ConfirmObject()
 {
-	// 動く床用
-	std::shared_ptr<MoveGround> spMoveGround = m_wpMoveGround.lock();
-	if (spMoveGround)
+	// 通常の床用または決定した後のオブジェクト
+	std::shared_ptr<TerrainBase> spTargetObject = m_wpTargetObject.lock();
+	if (spTargetObject)
 	{
 		// もし名前が決められてなかったら新たにdataListに追加する
-		if (spMoveGround->GetObjectName() == "None")
+		if (spTargetObject->GetObjectName() == "None")
 		{
-			MoveData data;
+			Data data;
 			// オブジェクトのタイプと名前を入れる
-			switch (spMoveGround->GetObjectType())
+			switch (spTargetObject->GetObjectType())
 			{
+				// 通常の床の場合
+			case ObjectType::NormalGround:
+				// タイプのセット
+				data.type = "NormalGround";
+				// カウントを進める
+				m_objectCount.NormalGround++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.NormalGround);
+				break;
+
+				// 跳ねる床の場合
+			case ObjectType::BoundGround:
+				// タイプのセット
+				data.type = "BoundGround";
+				// カウントを進める
+				m_objectCount.BoundGround++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.BoundGround);
+				break;
+
+				// 動く床の場合
 			case ObjectType::MoveGround:
 				// タイプのセット
 				data.type = "MoveGround";
 				// カウントを進める
 				m_objectCount.MoveGround++;
-				// 名前のセット
+				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.MoveGround);
 				break;
+
+				// 回る床の場合
+			case ObjectType::RotationGround:
+				// タイプのセット
+				data.type = "RotationGround";
+				// カウントを進める
+				m_objectCount.RotationGround++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.RotationGround);
+				break;
 			}
-
 			// 名前をセットする
-			spMoveGround->SetObjectName(data.name);
-
-			// スタート座標を入れる
-			data.startPos = spMoveGround->GetInfo().startPos;
-
-			// ゴール座標をセットする
-			data.goalPos = spMoveGround->GetInfo().goalPos;
-
-			// スピードをセットする
-			data.speed = spMoveGround->GetInfo().speed;
-
-			// 待機時間をセットする
-			data.stayTime = spMoveGround->GetInfo().stayTime;
-
-			m_moveDataList.push_back(data);
+			spTargetObject->SetObjectName(data.name);
+			// 情報をセットする
+			data.pos		= spTargetObject->GetInfo().pos;		// 座標
+			data.goalPos	= spTargetObject->GetInfo().goalPos;	// ゴール座標
+			data.speed		= spTargetObject->GetInfo().speed;	// スピード
+			data.stayTime	= spTargetObject->GetInfo().stayTime;	// 待機時間
+			data.degAng		= spTargetObject->GetInfo().degAng;	// 回転角度
+			// データが入っているリストにプッシュバックする
+			m_dataList.push_back(data);
+			// 地形のウィークポインタのリストにプッシュバックする
+			m_wpTerrainList.push_back(spTargetObject);
 		}
 		// 決められていたら上書きする
 		else
 		{
 			// 何個目に上書きするかを格納する変数
 			int num;
-			for (int i = 0; i < m_moveDataList.size(); i++)
+			for (int i = 0; i < m_dataList.size(); i++)
 			{
-				if (m_moveDataList[i].name == spMoveGround->GetObjectName())
+				if (m_dataList[i].name == spTargetObject->GetObjectName())
 				{
 					num = i;
 					break;
 				}
 			}
-			// スタート座標を入れる
-			m_moveDataList[num].startPos = spMoveGround->GetInfo().startPos;
-
-			// ゴール座標をセットする
-			m_moveDataList[num].goalPos = spMoveGround->GetInfo().goalPos;
-
-			// スピードをセットする
-			m_moveDataList[num].speed = spMoveGround->GetInfo().speed;
-
-			// 待機時間をセットする
-			m_moveDataList[num].stayTime = spMoveGround->GetInfo().stayTime;
-		}
-		// 止まるフラグをオフにする
-		spMoveGround->SetStopFlg(false);
-	}
-	// 通常の床用または決定した後のオブジェクト
-	else
-	{
-		std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
-		if (spTargetObject)
-		{
-			// もし名前が決められてなかったら新たにdataListに追加する
-			if (spTargetObject->GetObjectName() == "None")
-			{
-				Data data;
-				MoveData moveData;
-				// オブジェクトのタイプと名前を入れる
-				switch (spTargetObject->GetObjectType())
-				{
-				case ObjectType::NormalGround:
-					// タイプのセット
-					data.type = "NormalGround";
-					// カウントを進める
-					m_objectCount.NormalGround++;
-					// 名前のセット
-					data.name = data.type + std::to_string(m_objectCount.NormalGround);
-					// 名前をセットする
-					spTargetObject->SetObjectName(data.name);
-					// 座標を入れる
-					data.pos = spTargetObject->GetPos();
-					m_dataList.push_back(data);
-					break;
-
-				case ObjectType::BoundGround:
-					// タイプのセット
-					data.type = "BoundGround";
-					// カウントを進める
-					m_objectCount.BoundGround++;
-					// 名前のセット
-					data.name = data.type + std::to_string(m_objectCount.BoundGround);
-					// 名前をセットする
-					spTargetObject->SetObjectName(data.name);
-					// 座標を入れる
-					data.pos = spTargetObject->GetPos();
-					m_dataList.push_back(data);
-					break;
-				}
-			}
-			// 決められていたら上書きする
-			else
-			{
-				if (spTargetObject->GetObjectType() != ObjectType::MoveGround)
-				{
-					// 何個目に上書きするかを格納する変数
-					int num;
-					for (int i = 0; i < m_dataList.size(); i++)
-					{
-						if (m_dataList[i].name == spTargetObject->GetObjectName())
-						{
-							num = i;
-							break;
-						}
-					}
-					m_dataList[num].pos = spTargetObject->GetPos();
-				}
-			}
+			m_dataList[num].pos		= spTargetObject->GetInfo().startPos;	// 座標
+			m_dataList[num].goalPos = spTargetObject->GetInfo().goalPos;	// ゴール座標
+			m_dataList[num].speed	= spTargetObject->GetInfo().speed;		// スピード
+			m_dataList[num].stayTime= spTargetObject->GetInfo().stayTime;	// 待機時間
+			m_dataList[num].degAng	= spTargetObject->GetInfo().degAng;		// 回転角度
 		}
 	}
 
-	m_wpMoveGround.reset();
 	m_wpTargetObject.reset();
 }
 
 void ObjectController::DeleteObject()
 {
+	// オブジェクトを削除する
 	if (!m_wpTargetObject.expired())
 	{
-		// 配列からも削除する
-		// 動く系だった場合
-		if (m_wpTargetObject.lock()->GetObjectType() == ObjectType::MoveGround)
+		// データ配列からも削除する
+		for (int i = 0; i < m_dataList.size(); i++)
 		{
-			for (int i = 0; i < m_moveDataList.size(); i++)
+			if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
 			{
-				if (m_moveDataList[i].name == m_wpTargetObject.lock()->GetObjectName())
-				{
-					m_moveDataList.erase(m_moveDataList.begin() + i);
-				}
+				m_dataList.erase(m_dataList.begin() + i);
 			}
 		}
-		// 通常だった場合
-		else
-		{
-			for (int i = 0; i < m_dataList.size(); i++)
-			{
-				if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
-				{
-					m_dataList.erase(m_dataList.begin() + i);
-				}
-			}
-		}
-
 		m_wpTargetObject.lock()->SetExpired(true);
 	}
 }
@@ -245,35 +176,44 @@ void ObjectController::CreateObject(Object _object)
 	switch (_object)
 	{
 		// 通常の床
-		case Object::NormalGround:
-		{
-			std::shared_ptr<NormalGround> object = std::make_shared<NormalGround>();
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			m_wpTargetObject = object;
-			break;
-		}
+	case Object::NormalGround:
+	{
+		std::shared_ptr<NormalGround> object = std::make_shared<NormalGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
 
-		// 跳ねる床
-		case Object::BoundGround:
-		{
-			std::shared_ptr<BoundGround> object = std::make_shared<BoundGround>();
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			m_wpTargetObject = object;
-			break;
-		}
+	// 跳ねる床
+	case Object::BoundGround:
+	{
+		std::shared_ptr<BoundGround> object = std::make_shared<BoundGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
 
-		// 動く床
-		case Object::MoveGround:
-		{
-			std::shared_ptr<MoveGround> object = std::make_shared<MoveGround>();
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			m_wpMoveGround = object;
-			m_wpTargetObject = object;
-			break;
-		}
+	// 動く床
+	case Object::MoveGround:
+	{
+		std::shared_ptr<MoveGround> object = std::make_shared<MoveGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 回る床
+	case Object::RotationGround:
+	{
+		std::shared_ptr<RotationGround> object = std::make_shared<RotationGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
 	}
 }
 
@@ -287,12 +227,18 @@ void ObjectController::BeginCreateObject()
 			std::shared_ptr<NormalGround> object = std::make_shared<NormalGround>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
-			// 名前をセットする
-			object->SetObjectName(data.name);
-			// 座標をセットする
-			object->SetPos(data.pos);
 			// カウントを進める
 			m_objectCount.NormalGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.NormalGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 座標をセットする
+			object->SetInfo(data.pos);
+			// リストに追加
+			m_wpTerrainList.push_back(object);
 		}
 		// 跳ねる床
 		else if (data.type == "BoundGround")
@@ -300,219 +246,173 @@ void ObjectController::BeginCreateObject()
 			std::shared_ptr<BoundGround> object = std::make_shared<BoundGround>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
-			// 名前をセットする
-			object->SetObjectName(data.name);
-			// 座標をセットする
-			object->SetPos(data.pos);
 			// カウントを進める
 			m_objectCount.BoundGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.BoundGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 座標をセットする
+			object->SetInfo(data.pos);
+			m_wpTerrainList.push_back(object);
 		}
-	}
-
-	for (auto& data : m_moveDataList)
-	{
-		// 通常の床
-		if (data.type == "MoveGround")
+		// 動く床
+		else if (data.type == "MoveGround")
 		{
 			std::shared_ptr<MoveGround> object = std::make_shared<MoveGround>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
-			// 名前をセットする
-			object->SetObjectName(data.name);
-			// 座標をセットする
-			object->SetInfo(data.startPos, data.goalPos, data.speed, data.stayTime);
 			// カウントを進める
 			m_objectCount.MoveGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.MoveGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 情報をセットする
+			object->SetInfo(data.pos, data.goalPos, data.speed, data.stayTime);
+			m_wpTerrainList.push_back(object);
+		}
+		// 回る床
+		else if (data.type == "RotationGround")
+		{
+			std::shared_ptr<RotationGround> object = std::make_shared<RotationGround>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.RotationGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.RotationGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 情報をセットする
+			object->SetInfo(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			m_wpTerrainList.push_back(object);
 		}
 	}
 }
 
 void ObjectController::CSVLoader()
 {
-	// 通常の地形
+
+	std::ifstream ifs("Asset/Data/CSV/Terrain.csv");
+	if (!ifs.is_open())
 	{
-		std::ifstream ifs("Asset/Data/CSV/Terrain.csv");
-		if (!ifs.is_open())
-		{
-			return;
-		}
-
-		m_dataList.clear();
-
-		std::string lineString;
-
-		while (std::getline(ifs, lineString))
-		{
-			std::istringstream iss(lineString);
-			std::string commaString;
-
-			int cnt = 0;
-			// 空かどうかを確認するフラグ
-			bool emptyFlg = true;
-			Data data;
-			while (std::getline(iss, commaString, ','))
-			{
-				emptyFlg = false;
-				switch (cnt)
-				{
-				case 0:
-					data.type = commaString;
-					break;
-
-				case 1:
-					data.name = commaString;
-					break;
-
-				case 2:
-					data.pos.x = stof(commaString);
-					break;
-
-				case 3:
-					data.pos.y = stof(commaString);
-					break;
-
-				case 4:
-					data.pos.z = stof(commaString);
-					break;
-				}
-				cnt++;
-			}
-			// 空じゃなかった時だけpush_backする
-			if (emptyFlg == false)
-			{
-				m_dataList.push_back(data);
-			}
-		}
-		ifs.close();
+		return;
 	}
-	// 動く地形用
+
+	m_dataList.clear();
+
+	std::string lineString;
+
+	while (std::getline(ifs, lineString))
 	{
-		std::ifstream ifs("Asset/Data/CSV/MoveTerrain.csv");
-		if (!ifs.is_open())
+		std::istringstream iss(lineString);
+		std::string commaString;
+
+		int cnt = 0;
+		// 空かどうかを確認するフラグ
+		bool emptyFlg = true;
+		Data data;
+		while (std::getline(iss, commaString, ','))
 		{
-			return;
+			emptyFlg = false;
+			switch (cnt)
+			{
+			case 0:
+				data.type = commaString;
+				break;
+
+			case 1:
+				data.name = commaString;
+				break;
+
+			case 2:
+				data.pos.x = stof(commaString);
+				break;
+
+			case 3:
+				data.pos.y = stof(commaString);
+				break;
+
+			case 4:
+				data.pos.z = stof(commaString);
+				break;
+
+			case 5:
+				data.goalPos.x = stof(commaString);
+				break;
+
+			case 6:
+				data.goalPos.y = stof(commaString);
+				break;
+
+			case 7:
+				data.goalPos.z = stof(commaString);
+				break;
+
+			case 8:
+				data.speed = stof(commaString);
+				break;
+
+			case 9:
+				data.stayTime = stoi(commaString);
+				break;
+
+			case 10:
+				data.degAng.x = stoi(commaString);
+				break;
+
+			case 11:
+				data.degAng.y = stoi(commaString);
+				break;
+
+			case 12:
+				data.degAng.z = stoi(commaString);
+				break;
+			}
+			cnt++;
 		}
-
-		m_moveDataList.clear();
-
-		std::string lineString;
-
-		while (std::getline(ifs, lineString))
+		// 空じゃなかった時だけpush_backする
+		if (emptyFlg == false)
 		{
-			std::istringstream iss(lineString);
-			std::string commaString;
-
-			int cnt = 0;
-			// 空かどうかを確認するフラグ
-			bool emptyFlg = true;
-			MoveData data;
-			while (std::getline(iss, commaString, ','))
-			{
-				emptyFlg = false;
-				switch (cnt)
-				{
-				case 0:
-					data.type = commaString;
-					break;
-
-				case 1:
-					data.name = commaString;
-					break;
-
-				case 2:
-					data.startPos.x = stof(commaString);
-					break;
-
-				case 3:
-					data.startPos.y = stof(commaString);
-					break;
-
-				case 4:
-					data.startPos.z = stof(commaString);
-					break;
-
-				case 5:
-					data.goalPos.x = stof(commaString);
-					break;
-
-				case 6:
-					data.goalPos.y = stof(commaString);
-					break;
-
-				case 7:
-					data.goalPos.z = stof(commaString);
-					break;
-
-				case 8:
-					data.speed = stof(commaString);
-					break;
-
-				case 9:
-					data.stayTime = stoi(commaString);
-				}
-				cnt++;
-			}
-			// 空じゃなかった時だけpush_backする
-			if (emptyFlg == false)
-			{
-				m_moveDataList.push_back(data);
-			}
+			m_dataList.push_back(data);
 		}
-		ifs.close();
 	}
+	ifs.close();
 }
 
 void ObjectController::CSVWriter()
 {
-	// 通常の床
+	std::ofstream ofs("Asset/Data/CSV/Terrain.csv");
+
+	for (auto& data : m_dataList)
 	{
-		std::ofstream ofs("Asset/Data/CSV/Terrain.csv");
+		// オブジェクトのタイプ
+		ofs << data.type << ",";
 
-		for (auto& data : m_dataList)
-		{
-			// オブジェクトのタイプ
-			ofs << data.type << ",";
+		// オブジェクトの名前
+		ofs << data.name << ",";
 
-			// オブジェクトの名前
-			ofs << data.name << ",";
+		// 座標
+		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
 
-			// 座標
-			Math::Vector3 pos = data.pos;
+		// ゴール座標
+		ofs << data.goalPos.x << "," << data.goalPos.y << "," << data.goalPos.z << ",";
 
-			//書き込み
-			ofs << pos.x << "," << pos.y << "," << pos.z << std::endl;
-		}
-	}
-	// 動く床
-	{
-		std::ofstream ofs("Asset/Data/CSV/MoveTerrain.csv");
+		// スピード
+		ofs << data.speed << ",";
 
-		for (auto& data : m_moveDataList)
-		{
-			// オブジェクトのタイプ
-			ofs << data.type << ",";
+		// 待機時間
+		ofs << data.stayTime << ",";
 
-			// オブジェクトの名前
-			ofs << data.name << ",";
-
-			// 座標
-			Math::Vector3 pos = data.startPos;
-
-			//書き込み
-			ofs << pos.x << "," << pos.y << "," << pos.z << ",";
-
-			// ゴール座標
-			pos = data.goalPos;
-
-			// 書き込み
-			ofs << pos.x << "," << pos.y << "," << pos.z << ",";
-
-			// スピード
-			ofs << data.speed << ",";
-
-			// 待機時間
-			ofs << data.stayTime << std::endl;
-		}
+		// 回転角度
+		ofs << data.degAng.x << "," << data.degAng.y << "," << data.degAng.z << std::endl;
 	}
 }
 
@@ -547,16 +447,19 @@ void ObjectController::MouseSelect()
 		std::list<KdCollider::CollisionResult> resultList;
 
 		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<KdGameObject>> hitObjList;
+		std::vector<std::weak_ptr<TerrainBase>> hitObjList;
 
 		// 当たり判定
-		for (auto& obj : SceneManager::Instance().GetObjList())
+		for (auto& obj : m_wpTerrainList)
 		{
-			if (obj->Intersects(rayInfo, &resultList))
+			if(!obj.expired())
 			{
-				hitObjList.push_back(obj);
-				// １回でも当たったらリセット
-				ConfirmObject();
+				if (obj.lock()->Intersects(rayInfo, &resultList))
+				{
+					hitObjList.push_back(obj);
+					// １回でも当たったらリセット
+					ConfirmObject();
+				}
 			}
 		}
 
@@ -570,7 +473,10 @@ void ObjectController::MouseSelect()
 			{
 				maxOverLap = ret.m_overlapDistance;
 				m_wpTargetObject = hitObjList[cnt];
-				DebugWindow::Instance().SetPos(m_wpTargetObject.lock()->GetPos());
+
+				TerrainBase::Info info = m_wpTargetObject.lock()->GetInfo();
+				DebugWindow::ObjectInfo setInfo{ info.startPos, info.goalPos, info.speed, info.stayTime, info.degAng };
+				DebugWindow::Instance().SetObjectInfo(setInfo);
 			}
 			cnt++;
 		}

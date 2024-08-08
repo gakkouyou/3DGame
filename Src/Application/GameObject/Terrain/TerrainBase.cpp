@@ -1,6 +1,6 @@
-﻿#include "BaseTerrain.h"
+﻿#include "TerrainBase.h"
 
-void BaseTerrain::GenerateDepthMapFromLight()
+void TerrainBase::GenerateDepthMapFromLight()
 {
 	if (m_drawType & eDrawTypeDepthOfShadow)
 	{
@@ -8,7 +8,7 @@ void BaseTerrain::GenerateDepthMapFromLight()
 	}
 }
 
-void BaseTerrain::DrawLit()
+void TerrainBase::DrawLit()
 {
 	if (m_drawType & eDrawTypeLit)
 	{
@@ -16,7 +16,7 @@ void BaseTerrain::DrawLit()
 	}
 }
 
-void BaseTerrain::DrawBright()
+void TerrainBase::DrawBright()
 {
 	if (m_drawType & eDrawTypeBright)
 	{

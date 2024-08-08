@@ -6,8 +6,10 @@
 #include "../../GameObject/Terrain/Ground/NormalGround/NormalGround.h"
 #include "../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
 #include "../../GameObject/BackGround/BackGround.h"
+#include "../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
+#include "../../GameObject/EventObject/Goal/Goal.h"
+#include "../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
 
-#include "../../Tool/MousePosBox/MousePosBox.h"
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/ObjectController.h"
 
@@ -28,6 +30,7 @@ void GameScene::Event()
 	{
 		m_debugKeyFlg = false;
 	}
+
 }
 
 void GameScene::Init()
@@ -43,7 +46,7 @@ void GameScene::Init()
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
-	//AddObject(backGround);
+	AddObject(backGround);
 
 	// プレイヤー
 	std::shared_ptr<Player> player = std::make_shared<Player>();
@@ -65,4 +68,16 @@ void GameScene::Init()
 
 	// オブジェクトコントローラーにカメラを渡す
 	objectController->SetCamera(tpsCamera);
+
+	// ゴール
+	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
+	goal->Init();
+	goal->SetPos({ 0, 0, 10 });
+	AddObject(goal);
+
+	// 敵
+	std::shared_ptr<NormalEnemy> normalEnemy = std::make_shared<NormalEnemy>();
+	normalEnemy->Init();
+	AddObject(normalEnemy);
+	normalEnemy->SetTarget(player);
 }

@@ -46,6 +46,7 @@ public:
 	virtual Math::Vector3 GetScale() const;
 
 	const Math::Matrix& GetMatrix() const { return m_mWorld; }
+	const Math::Matrix& GetRotationMatrix() const { return m_mRotation; }
 
 	virtual bool IsExpired() const { return m_isExpired; }
 	virtual void SetExpired(const bool _isExpired) { m_isExpired = _isExpired; }
@@ -70,7 +71,6 @@ public:
 	// 当たった時の処理
 	virtual void OnHit() {}
 
-
 	// オブジェクトのタイプ
 	enum class ObjectType
 	{
@@ -80,6 +80,7 @@ public:
 		BoundGround,	// 触れたら跳ねる地形
 		NormalWall,		// 触れても何も起きない壁
 		MoveGround,		// 動く床
+		RotationGround,	// 回転する床
 
 		None,			// ない
 	};
@@ -88,7 +89,7 @@ public:
 	ObjectType GetObjectType() const { return m_objectType; }
 
 	// オブジェクトの名前をセットする
-	void SetObjectName(std::string _objectName) { m_objectName = _objectName; }
+	void SetObjectName(const std::string _objectName) { m_objectName = _objectName; }
 	// オブジェクトの名前をゲットする
 	const std::string GetObjectName() const { return m_objectName; }
 
@@ -107,6 +108,7 @@ protected:
 
 	// 3D空間に存在する機能
 	Math::Matrix	m_mWorld;
+	Math::Matrix	m_mRotation	= Math::Matrix::Identity;
 
 	// 当たり判定クラス
 	std::unique_ptr<KdCollider> m_pCollider = nullptr;

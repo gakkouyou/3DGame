@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "../../BaseTerrain.h"
+#include "../../TerrainBase.h"
 
-class NormalWall : public BaseTerrain
+class NormalWall : public TerrainBase
 {
 public:
 	NormalWall()				{}

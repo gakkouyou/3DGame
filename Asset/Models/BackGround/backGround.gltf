@@ -15,13 +15,18 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"\u7403"
+			"name":"\u7403",
+			"scale":[
+				100,
+				100,
+				100
+			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"\u30de\u30c6\u30ea\u30a2\u30eb.001",
+			"name":"BlueSky",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -33,7 +38,7 @@
 	],
 	"meshes":[
 		{
-			"name":"\u7403.001",
+			"name":"\u7403",
 			"primitives":[
 				{
 					"attributes":{
@@ -55,70 +60,70 @@
 	],
 	"images":[
 		{
-			"mimeType":"image/png",
-			"name":"Explosion",
-			"uri":"Explosion.png"
+			"mimeType":"image/jpeg",
+			"name":"N749_sugasugasiiaozora",
+			"uri":"N749_sugasugasiiaozora.jpg"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":43,
+			"count":1984,
 			"max":[
-				0.9999999403953552,
+				0.9999997019767761,
 				1,
-				0.9999998807907104
+				0.9999993443489075
 			],
 			"min":[
-				-0.9999998807907104,
+				-0.9999990463256836,
 				-1,
-				-0.9999998807907104
+				-1
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":43,
+			"count":1984,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":43,
+			"count":1984,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":144,
+			"count":2880,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":516,
+			"byteLength":23808,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":516,
-			"byteOffset":516,
+			"byteLength":23808,
+			"byteOffset":23808,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":344,
-			"byteOffset":1032,
+			"byteLength":15872,
+			"byteOffset":47616,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
-			"byteOffset":1376,
+			"byteLength":5760,
+			"byteOffset":63488,
 			"target":34963
 		}
 	],
@@ -130,7 +135,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":1664,
+			"byteLength":69248,
 			"uri":"backGround.bin"
 		}
 	]

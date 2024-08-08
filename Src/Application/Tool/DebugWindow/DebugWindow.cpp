@@ -31,6 +31,7 @@ void DebugWindow::Draw()
 			// 地形設置
 			ImGui::Text((const char*)u8"地形設置");
 			ImGui::SameLine();
+			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 			// 地形を確定させる
 			if (ImGui::Button((const char*)u8"確定"))
 			{
@@ -69,26 +70,39 @@ void DebugWindow::Draw()
 			{
 				spObjectController->ConfirmObject();
 				spObjectController->CreateObject(ObjectController::Object::MoveGround);
-				m_moveObjectInfo.goalPos = m_pos;
-				m_moveObjectInfo.speed = 0.1f;
-				m_moveObjectInfo.stayTime = 60;
+				m_objectInfo.goalPos = m_objectInfo.startPos;
+				m_objectInfo.speed = 0.1f;
+				m_objectInfo.stayTime = 60;
+			}
+
+			// 回る床
+			if (ImGui::Button("RotationGround"))
+			{
+				spObjectController->ConfirmObject();
+				spObjectController->CreateObject(ObjectController::Object::RotationGround);
 			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_pos.x, 1.0f);
-			ImGui::InputFloat("Pos.y", &m_pos.y, 1.0f);
-			ImGui::InputFloat("Pos.z", &m_pos.z, 1.0f);
+			ImGui::InputFloat("Pos.x", &m_objectInfo.startPos.x, 1.0f);
+			ImGui::InputFloat("Pos.y", &m_objectInfo.startPos.y, 1.0f);
+			ImGui::InputFloat("Pos.z", &m_objectInfo.startPos.z, 1.0f);
 
 			// 動く床ならゴール座標も変えれる用にする
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::MoveGround)
 			{
-				ImGui::InputFloat("GoalPos.x", &m_moveObjectInfo.goalPos.x, 1.0f);
-				ImGui::InputFloat("GoalPos.y", &m_moveObjectInfo.goalPos.y, 1.0f);
-				ImGui::InputFloat("GoalPos.z", &m_moveObjectInfo.goalPos.z, 1.0f);
-				ImGui::InputFloat("Speed", &m_moveObjectInfo.speed, 0.1f);
-				ImGui::InputInt("StayTime", &m_moveObjectInfo.stayTime, 1);
+				ImGui::InputFloat("GoalPos.x", &m_objectInfo.goalPos.x, 1.0f);
+				ImGui::InputFloat("GoalPos.y", &m_objectInfo.goalPos.y, 1.0f);
+				ImGui::InputFloat("GoalPos.z", &m_objectInfo.goalPos.z, 1.0f);
+				ImGui::InputFloat("Speed", &m_objectInfo.speed, 0.1f);
+				ImGui::InputInt("StayTime", &m_objectInfo.stayTime, 1);
+			}
 
-				m_moveObjectInfo.startPos = m_pos;
+			// 回る床なら角度を変えれる用にする
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::RotationGround)
+			{
+				ImGui::InputFloat("DegAng.x", &m_objectInfo.degAng.x, 1.0f);
+				ImGui::InputFloat("DegAng.y", &m_objectInfo.degAng.y, 1.0f);
+				ImGui::InputFloat("DegAng.z", &m_objectInfo.degAng.z, 1.0f);
 			}
 		}
 	}

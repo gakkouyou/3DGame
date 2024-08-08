@@ -109,9 +109,6 @@
     <Filter Include="Src\Application\Tool\DebugWindow">
       <UniqueIdentifier>{e76140e6-3966-4fdf-9a30-88a41090e1e7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\Tool\MousePosBox">
-      <UniqueIdentifier>{cd4424b0-aceb-44fa-af3f-c981a2761628}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\Tool\ObjectController">
       <UniqueIdentifier>{f8d8d8ad-40ca-4a2c-9165-1ce5dd96230b}</UniqueIdentifier>
     </Filter>
@@ -120,6 +117,24 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\Terrain\Ground\MoveGround">
       <UniqueIdentifier>{c5e4cce7-925c-40a7-9a5e-7c72e1f2121b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Ground\RotationGround">
+      <UniqueIdentifier>{d328dac2-e8bf-4ff5-898a-972a653d60b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject">
+      <UniqueIdentifier>{5a9dc032-e51a-4848-a73e-14510ccdfcf1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\Goal">
+      <UniqueIdentifier>{8b6a797a-37f0-4faa-a204-3726da446164}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Character\Enemy">
+      <UniqueIdentifier>{57097eae-c57a-4c11-a047-f5dab3ec10f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Character\Enemy\NormalEnemy">
+      <UniqueIdentifier>{36173b4d-b03e-46eb-a4bd-9a75a4ef854c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Tool\EnemyController">
+      <UniqueIdentifier>{a29d1e87-1b40-4ec3-8991-4461681f646e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -294,13 +309,13 @@
     <ClInclude Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.h">
       <Filter>Src\Application\GameObject\Camera\TPSCamera</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Character\BaseCharacter.h">
+    <ClInclude Include="Src\Application\GameObject\Character\CharacterBase.h">
       <Filter>Src\Application\GameObject\Character</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Character\Player\Player.h">
       <Filter>Src\Application\GameObject\Character\Player</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Terrain\BaseTerrain.h">
+    <ClInclude Include="Src\Application\GameObject\Terrain\TerrainBase.h">
       <Filter>Src\Application\GameObject\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.h">
@@ -315,9 +330,6 @@
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\Tool\MousePosBox\MousePosBox.h">
-      <Filter>Src\Application\Tool\MousePosBox</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\Tool\ObjectController\ObjectController.h">
       <Filter>Src\Application\Tool\ObjectController</Filter>
     </ClInclude>
@@ -326,6 +338,21 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.h">
       <Filter>Src\Application\GameObject\Terrain\Ground\MoveGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.h">
+      <Filter>Src\Application\GameObject\Terrain\Ground\RotationGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h">
+      <Filter>Src\Application\GameObject\EventObject\Goal</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Character\Enemy\EnemyBase.h">
+      <Filter>Src\Application\GameObject\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.h">
+      <Filter>Src\Application\GameObject\Character\Enemy\NormalEnemy</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Tool\EnemyController\EnemyController.h">
+      <Filter>Src\Application\Tool\EnemyController</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -473,13 +500,13 @@
     <ClCompile Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.cpp">
       <Filter>Src\Application\GameObject\Camera\TPSCamera</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Character\BaseCharacter.cpp">
+    <ClCompile Include="Src\Application\GameObject\Character\CharacterBase.cpp">
       <Filter>Src\Application\GameObject\Character</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Character\Player\Player.cpp">
       <Filter>Src\Application\GameObject\Character\Player</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Terrain\BaseTerrain.cpp">
+    <ClCompile Include="Src\Application\GameObject\Terrain\TerrainBase.cpp">
       <Filter>Src\Application\GameObject\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.cpp">
@@ -494,9 +521,6 @@
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\Tool\MousePosBox\MousePosBox.cpp">
-      <Filter>Src\Application\Tool\MousePosBox</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\Tool\ObjectController\ObjectController.cpp">
       <Filter>Src\Application\Tool\ObjectController</Filter>
     </ClCompile>
@@ -505,6 +529,21 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.cpp">
       <Filter>Src\Application\GameObject\Terrain\Ground\MoveGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Ground\RotationGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp">
+      <Filter>Src\Application\GameObject\EventObject\Goal</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Character\Enemy\EnemyBase.cpp">
+      <Filter>Src\Application\GameObject\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.cpp">
+      <Filter>Src\Application\GameObject\Character\Enemy\NormalEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\EnemyController\EnemyController.cpp">
+      <Filter>Src\Application\Tool\EnemyController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

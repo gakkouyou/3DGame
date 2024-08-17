@@ -58,9 +58,9 @@ void KdShaderManager::Init()
 	KdDirect3D::Instance().WorkDevContext()->RSSetState(m_rasterizerStates[(int)KdRasterizerState::CullBack]);
 
 	// ブレンドステート作成（ピクセルの最終色を決めるときに既に塗られている色と、どう合成するのかの選択ができる
-	m_blendStates[(int)KdBlendState::Alpha]	= KdDirect3D::Instance().CreateBlendState(KdBlendMode::Alpha);
-	m_blendStates[(int)KdBlendState::Add]	= KdDirect3D::Instance().CreateBlendState(KdBlendMode::Add);
-	
+	m_blendStates[(int)KdBlendState::Alpha]		= KdDirect3D::Instance().CreateBlendState(KdBlendMode::Alpha);
+	m_blendStates[(int)KdBlendState::Add]		= KdDirect3D::Instance().CreateBlendState(KdBlendMode::Add);
+	m_blendStates[(int)KdBlendState::Stencil]	= KdDirect3D::Instance().CreateBlendState(KdBlendMode::Stencil);
 
 	// 初期ブレンドステートの設定
 	KdDirect3D::Instance().WorkDevContext()->OMSetBlendState(m_blendStates[(int)KdBlendState::Alpha], Math::Color(0, 0, 0, 0), 0xFFFFFFFF);

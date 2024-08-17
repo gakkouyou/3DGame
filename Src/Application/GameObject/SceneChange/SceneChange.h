@@ -16,8 +16,6 @@ public:
 	void EndScene();
 
 private:
-	// 黒い画像
-	std::shared_ptr<KdTexture> m_spBlackTex	= nullptr;
 	// 白い丸画像
 	std::shared_ptr<KdTexture> m_spCircleTex = nullptr;
 
@@ -26,4 +24,10 @@ private:
 
 	// 画像サイズ
 	Math::Vector2 m_size					= Math::Vector2::Zero;
+
+	// 始まるフラグ
+	bool m_startFlg = false;
+
+	// 終わるフラグ
+	bool m_endFlg = false;
 };

@@ -133,8 +133,14 @@
     <Filter Include="Src\Application\GameObject\Character\Enemy\NormalEnemy">
       <UniqueIdentifier>{36173b4d-b03e-46eb-a4bd-9a75a4ef854c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\Tool\EnemyController">
-      <UniqueIdentifier>{a29d1e87-1b40-4ec3-8991-4461681f646e}</UniqueIdentifier>
+    <Filter Include="Src\Application\Tool\ObjectController\EnemyController">
+      <UniqueIdentifier>{b3be50b8-cb2a-4879-a144-2a708d0f73df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Tool\ObjectController\TerrainController">
+      <UniqueIdentifier>{db0313ba-c76d-4b5d-8782-8720926f936a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\SceneChange">
+      <UniqueIdentifier>{09676046-5b74-459d-9920-db796e6df54d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -330,9 +336,6 @@
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\Tool\ObjectController\ObjectController.h">
-      <Filter>Src\Application\Tool\ObjectController</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\BackGround\BackGround.h">
       <Filter>Src\Application\GameObject\BackGround</Filter>
     </ClInclude>
@@ -351,8 +354,14 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.h">
       <Filter>Src\Application\GameObject\Character\Enemy\NormalEnemy</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\Tool\EnemyController\EnemyController.h">
-      <Filter>Src\Application\Tool\EnemyController</Filter>
+    <ClInclude Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.h">
+      <Filter>Src\Application\Tool\ObjectController\EnemyController</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Tool\ObjectController\TerrainController\TerrainController.h">
+      <Filter>Src\Application\Tool\ObjectController\TerrainController</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\SceneChange\SceneChange.h">
+      <Filter>Src\Application\GameObject\SceneChange</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -521,9 +530,6 @@
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\Tool\ObjectController\ObjectController.cpp">
-      <Filter>Src\Application\Tool\ObjectController</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\BackGround\BackGround.cpp">
       <Filter>Src\Application\GameObject\BackGround</Filter>
     </ClCompile>
@@ -542,8 +548,14 @@
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.cpp">
       <Filter>Src\Application\GameObject\Character\Enemy\NormalEnemy</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\Tool\EnemyController\EnemyController.cpp">
-      <Filter>Src\Application\Tool\EnemyController</Filter>
+    <ClCompile Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.cpp">
+      <Filter>Src\Application\Tool\ObjectController\EnemyController</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\ObjectController\TerrainController\TerrainController.cpp">
+      <Filter>Src\Application\Tool\ObjectController\TerrainController</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\SceneChange\SceneChange.cpp">
+      <Filter>Src\Application\GameObject\SceneChange</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

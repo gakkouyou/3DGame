@@ -71,11 +71,14 @@ public:
 	// 当たった時の処理
 	virtual void OnHit() {}
 
+	// リセット処理
+	virtual void Reset() {}
+
 	// オブジェクトのタイプ
 	enum class ObjectType
 	{
 		Player,			// プレイヤー
-		Enemy,			// 敵
+		NormalEnemy,	// 敵
 		NormalGround,	// 触れても何も起きない地形
 		BoundGround,	// 触れたら跳ねる地形
 		NormalWall,		// 触れても何も起きない壁
@@ -85,8 +88,22 @@ public:
 		None,			// ない
 	};
 
+	// オブジェクトのおおまかな種類
+	enum class BaseObjectType
+	{
+		Player,		// プレイヤー
+		Enemy,		// エネミー
+		Ground,		// 地形
+		Event,		// 触れたらイベントが起こる
+
+		None,		// ない
+	};
+
 	// オブジェクトのタイプをゲットする
 	ObjectType GetObjectType() const { return m_objectType; }
+
+	// 大まかなオブジェクトのタイプをゲットする
+	BaseObjectType GetBaseObjectType() const { return m_baseObjectType; }
 
 	// オブジェクトの名前をセットする
 	void SetObjectName(const std::string _objectName) { m_objectName = _objectName; }
@@ -118,6 +135,9 @@ protected:
 
 	// オブジェクトのタイプ
 	ObjectType m_objectType		= ObjectType::None;
+
+	// 大まかなオブジェクトのタイプ
+	BaseObjectType m_baseObjectType = BaseObjectType::None;
 
 	// オブジェクトの名前
 	std::string m_objectName	= "None";

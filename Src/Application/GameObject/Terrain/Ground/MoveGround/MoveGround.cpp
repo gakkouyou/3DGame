@@ -13,12 +13,12 @@ void MoveGround::Update()
 			// スタート→ゴール
 			if (m_moveDirFlg == false)
 			{
-				moveVec = m_info.goalPos - m_info.pos;
+				moveVec = m_param.goalPos - m_param.pos;
 				// 実際の移動
 				// もしゴールまでの距離がスピードより小さかったら、座標をゴール座標にする
-				if (moveVec.Length() < m_info.speed)
+				if (moveVec.Length() < m_param.speed)
 				{
-					m_info.pos = m_info.goalPos;
+					m_param.pos = m_param.goalPos;
 					m_moveFlg = false;
 					m_moveDirFlg = true;
 				}
@@ -26,18 +26,18 @@ void MoveGround::Update()
 				else
 				{
 					moveVec.Normalize();
-					m_info.pos += moveVec * m_info.speed;
+					m_param.pos += moveVec * m_param.speed;
 				}
 			}
 			// ゴール→スタート
 			else
 			{
-				moveVec = m_info.startPos - m_info.pos;
+				moveVec = m_param.startPos - m_param.pos;
 				// 実際の移動
 				// もしゴールまでの距離がスピードより小さかったら、座標をゴール座標にする
-				if (moveVec.Length() < m_info.speed)
+				if (moveVec.Length() < m_param.speed)
 				{
-					m_info.pos = m_info.startPos;
+					m_param.pos = m_param.startPos;
 					m_moveFlg = false;
 					m_moveDirFlg = !m_moveDirFlg;
 				}
@@ -45,7 +45,7 @@ void MoveGround::Update()
 				else
 				{
 					moveVec.Normalize();
-					m_info.pos += moveVec * m_info.speed;
+					m_param.pos += moveVec * m_param.speed;
 				}
 			}
 		}
@@ -57,7 +57,7 @@ void MoveGround::Update()
 		}
 
 		// 待機が終了したら進める
-		if (m_stayCnt > m_info.stayTime)
+		if (m_stayCnt > m_param.stayTime)
 		{
 			m_moveFlg = true;
 			m_stayCnt = 0;
@@ -69,12 +69,12 @@ void MoveGround::Update()
 		m_moveFlg = false;
 		m_stayCnt = 0;
 		m_moveDirFlg = false;
-		m_info.pos = m_info.startPos;
+		m_param.pos = m_param.startPos;
 		m_stopFlg = false;
 	}
 
 	Math::Matrix transMat;
-	transMat = Math::Matrix::CreateTranslation(m_info.pos.x, m_info.pos.y, m_info.pos.z);
+	transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
 
 	m_mWorld = transMat;
 }
@@ -101,30 +101,33 @@ void MoveGround::Init()
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::MoveGround;
 
+	// 大まかなオブジェクトのタイプ
+	m_baseObjectType = BaseObjectType::Ground;
+
 	// 描画タイプ
 	m_drawType = eDrawTypeLit;
 
-	m_info.pos		= Math::Vector3::Zero;
-	m_info.startPos = Math::Vector3::Zero;
-	m_info.goalPos	= Math::Vector3::Zero;
-	m_info.speed	= 0;
+	m_param.pos		= Math::Vector3::Zero;
+	m_param.startPos = Math::Vector3::Zero;
+	m_param.goalPos	= Math::Vector3::Zero;
+	m_param.speed	= 0;
 }
 
-void MoveGround::SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void MoveGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
-	m_info.startPos = _startPos;
-	m_info.pos = _startPos;
-	m_info.goalPos = _goalPos;
-	m_info.speed = _speed;
-	m_info.stayTime = _stayTime;
+	m_param.startPos = _startPos;
+	m_param.pos = _startPos;
+	m_param.goalPos = _goalPos;
+	m_param.speed = _speed;
+	m_param.stayTime = _stayTime;
 
 	m_stopFlg = true;
-	m_setInfoFlg = true;
+	m_setParamFlg = true;
 }
 
 void MoveGround::Reset()
 {
-	m_info.pos = m_info.startPos;
+	m_param.pos = m_param.startPos;
 
 	m_moveFlg = true;
 

@@ -20,14 +20,18 @@ public:
 	// 生存フラグ
 	const bool GetAlive() const { return m_aliveFlg; }
 
-
-
 	// 座標セット
 	void SetPos(const Math::Vector3 _pos) { m_pos = _pos; }
 	void SetPos(const float _x, const float _y, const float _z) { m_pos = { _x, _y, _z }; }
 
 	// 重力をセットする
 	void SetGravity(const float _gravity) { m_gravity = _gravity; }
+
+	// 当たった時の処理
+	void OnHit()		override {}
+
+	// リセット処理
+	void Reset()		override;
 
 protected:
 	// レイ判定　当たったらtrueを返す
@@ -37,6 +41,10 @@ protected:
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
 	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
+
+
+	// キャラを向かせたい方向に向かせる 回転したらtrue (回転角度, 向きたいベクトル, 回転制御(必要なら))
+	bool RotationCharacter(float& _degAng, Math::Vector3 _toVec, const float _minDegAng = 360);
 
 	// モデル
 	std::shared_ptr<KdModelWork>	m_spModel		= nullptr;
@@ -62,5 +70,5 @@ protected:
 	const float		m_enableStepHeight				= 0.1f;
 
 	// 当たったオブジェクトを保持
-	std::weak_ptr<KdGameObject> m_wpHitObject;
+	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
 };

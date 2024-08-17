@@ -143,71 +143,19 @@ void Player::Update()
 		m_gravity = m_maxGravity;
 	}
 
+	// 落下死
+	if (m_pos.y < -60.0f)
+	{
+		m_aliveFlg = false;
+	}
+
 	// 移動中
 	// 回転処理
 	if (m_situationType & SituationType::Run)
 	{
-		// 今キャラクターが向いている方向
-		// ①キャラの回転行列を作成
-		Math::Matrix nowRotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-		// ②現在の方向を求める
-		// ベースの角度からキャラの角度で変形する？
-		Math::Vector3 nowVec = Math::Vector3::TransformNormal({ 0, 0, -1 }, nowRotMat);
+		// 回転
+		RotationCharacter(m_angle, m_moveVec);
 
-		// もう一つ
-		//Math::Vector3 nowVec = m_mWorld.Backward();
-
-		// 向きたい方向
-		Math::Vector3 toVec = m_moveVec;
-		toVec.Normalize();
-
-		// 内積...ベクトルAとベクトルBとコサインなす角
-		// ベクトルA*ベクトルB*コサインなす角
-		//     1    *    1    *コサインなす角
-		// = コサインなす角
-		// A・B
-		float d = nowVec.Dot(toVec);
-
-		// 丸め誤差...小数点以下を省略した際に生じる誤差
-		// 内積は１～ー１がでる。
-		// ー１～１でdの値をクランプ(遮断)する
-		d = std::clamp(d, -1.0f, 1.0f);
-
-		// アークコサインで角度に変換
-		float ang = DirectX::XMConvertToDegrees(acos(d));
-
-		// ゆっくり回転するように処理
-		if (ang >= 0.1f)
-		{
-			// とりあえず最大で５度回転するように制御
-			if (ang > 5.0f)
-			{
-				ang = 5.0f;
-			}
-
-
-			// 外積...ベクトルAとベクトルBに垂直なベクトル
-			// A×B
-			// 掛け算ではなく「クロス」
-			Math::Vector3 c = toVec.Cross(nowVec);
-
-			if (c.y >= 0)	// 上
-			{
-				m_angle -= ang;
-				if (m_angle < 0)
-				{
-					m_angle += 360;
-				}
-			}
-			else			//下
-			{
-				m_angle += ang;
-				if (m_angle >= 360)
-				{
-					m_angle -= 360;
-				}
-			}
-		}
 		// 回転行列
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
@@ -236,8 +184,22 @@ void Player::PostUpdate()
 		// 動く床から見たプレイヤーの座標行列
 		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
 
+		// 動く床を探す
+		std::shared_ptr<KdGameObject> spHitObject;
+		for (auto& hitObject : m_wpHitObjectList)
+		{
+			if (!hitObject.expired())
+			{
+				if (hitObject.lock()->GetObjectType() == ObjectType::MoveGround)
+				{
+					spHitObject = hitObject.lock();
+					break;
+				}
+			}
+		}
+
 		// 動く床の動いた後の行列
-		Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(m_wpHitObject.lock()->GetMatrix().Translation());
+		Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
 
 		// 座標を確定
 		m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
@@ -275,6 +237,8 @@ void Player::Init()
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::Player;
 
+	m_baseObjectType = BaseObjectType::Player;
+
 	// 移動速度
 	m_moveSpeed = 0.3f;
 
@@ -283,24 +247,53 @@ void Player::Init()
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
+	m_pos.x = 20.0f;
 	m_pos.y = 5.0f;
 	m_pos.z = -20.0f;
+}
+
+void Player::Reset()
+{
+	CharacterBase::Reset();
+
+	// 座標
+	m_pos.x = 20.0f;
+	m_pos.y = 5.0f;
+	m_pos.z = -20.0f;
+	
+	// 生存フラグ
+	m_aliveFlg = true;
+
+	// 状態
+	m_situationType = SituationType::Stop;
+
+	// 角度
+	m_angle = 0;
+
+	// アニメーションフラグ
+	m_walkAnimeDirFlg = false;
 }
 
 // 当たり判定
 void Player::HitJudge()
 {
+	// 当たったオブジェクトリストをリセット
+	m_wpHitObjectList.clear();
+
 	// 地面との当たり判定
 	HitJudgeGround();
 
 	// 触れたらイベントが発生する
 	HitJudgeEvent();
+
+	// 敵との当たり判定
+	HitEnemy();
 }
 
 void Player::HitJudgeGround()
 {
 	// 動く床関連をリセット
-// 動く床
+	// 動く床
 	m_moveGround.transMat = Math::Matrix::Identity;
 	m_moveGround.hitFlg = false;
 	// 回る床
@@ -324,8 +317,21 @@ void Player::HitJudgeGround()
 
 		if (hitFlg)
 		{
-			// 当たったオブジェクトのタイプ
-			std::shared_ptr<KdGameObject> spHitObject = m_wpHitObject.lock();
+			// 当たったオブジェクト
+			std::shared_ptr<KdGameObject> spHitObject;
+
+			// 地面を探す
+			for (auto& hitObject : m_wpHitObjectList)
+			{
+				if (!hitObject.expired())
+				{
+					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
+					{
+						spHitObject = hitObject.lock();
+						break;
+					}
+				}
+			}
 
 			if (spHitObject)
 			{
@@ -411,8 +417,21 @@ void Player::HitJudgeGround()
 		// 当たった場合
 		if (hitFlg)
 		{
-			// 当たったオブジェクトのタイプ
-			std::shared_ptr<KdGameObject> spHitObject = m_wpHitObject.lock();
+			// 当たったオブジェクト
+			std::shared_ptr<KdGameObject> spHitObject;
+
+			// 地面を探す
+			for (auto& hitObject : m_wpHitObjectList)
+			{
+				if (!hitObject.expired())
+				{
+					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
+					{
+						spHitObject = hitObject.lock();
+						break;
+					}
+				}
+			}
 
 			// 当たったオブジェクト毎に処理を変える
 			if (spHitObject)
@@ -502,10 +521,67 @@ void Player::HitJudgeEvent()
 
 	if (hitFlg)
 	{
-		std::shared_ptr<KdGameObject> spHitObject = m_wpHitObject.lock();
+		// 当たったオブジェクト
+		std::shared_ptr<KdGameObject> spHitObject;
+
+		// 地面を探す
+		for (auto& hitObject : m_wpHitObjectList)
+		{
+			if (!hitObject.expired())
+			{
+				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Event)
+				{
+					spHitObject = hitObject.lock();
+					break;
+				}
+			}
+		}
 		if (spHitObject)
 		{
 			spHitObject->OnHit();
 		}
+	}
+}
+
+void Player::HitEnemy()
+{
+	// 方向
+	Math::Vector3 hitDir = Math::Vector3::Zero;
+	// スフィアの中心座標
+	Math::Vector3 centerPos = m_pos;
+	// スフィアの半径
+	float radius = 1.0f;
+	centerPos.y += radius;
+
+	// 当たったかどうかのフラグ
+	bool hitFlg = false;
+	// めり込んだ距離
+	float maxOverLap = 0.0f;
+
+	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeDamage, hitDir, maxOverLap);
+
+	// 当たっていた時の処理
+	if (hitFlg)
+	{
+		// 当たったオブジェクト
+		std::shared_ptr<KdGameObject> spHitObject;
+
+		// 敵を探す
+		for (auto& hitObject : m_wpHitObjectList)
+		{
+			if (!hitObject.expired())
+			{
+				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
+				{
+					spHitObject = hitObject.lock();
+					break;
+				}
+			}
+		}
+
+		// 敵の当たった処理
+		spHitObject->OnHit();
+
+		m_gravity = -1.0f;
 	}
 }

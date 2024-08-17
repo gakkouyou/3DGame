@@ -3,7 +3,7 @@
 void RotationGround::Update()
 {
 	// 回転させる
-	m_rotDegAng += m_info.degAng;
+	m_rotDegAng += m_param.degAng;
 
 	// 角度を0～360に留める
 	if (m_rotDegAng.x > 360.0f)
@@ -31,15 +31,15 @@ void RotationGround::Update()
 		m_rotDegAng.z += 360.0f;
 	}
 
-	if (m_info.degAng.x == 0)
+	if (m_param.degAng.x == 0)
 	{
 		m_rotDegAng.x = 0;
 	}
-	if (m_info.degAng.y == 0)
+	if (m_param.degAng.y == 0)
 	{
 		m_rotDegAng.y = 0;
 	}
-	if (m_info.degAng.z == 0)
+	if (m_param.degAng.z == 0)
 	{
 		m_rotDegAng.z = 0;
 	}
@@ -52,7 +52,7 @@ void RotationGround::Update()
 	// 回転行列
 	m_mRotation = Math::Matrix::CreateFromYawPitchRoll({ radAng.x, radAng.y, radAng.z });
 	// 座標行列
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_info.pos);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
 	
 	m_mWorld = m_mRotation * transMat;
 }
@@ -78,12 +78,12 @@ void RotationGround::Init()
 	m_drawType = eDrawTypeLit;
 }
 
-void RotationGround::SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void RotationGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
 	// 座標
-	m_info.pos = _startPos;
-	m_info.startPos = _startPos;
+	m_param.pos = _startPos;
+	m_param.startPos = _startPos;
 
 	// 回転角度
-	m_info.degAng = _degAng;
+	m_param.degAng = _degAng;
 }

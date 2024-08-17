@@ -5,100 +5,178 @@ void NormalEnemy::Update()
 {
 	// ベクトルリセット
 	m_moveVec = Math::Vector3::Zero;
+
 	Application::Instance().m_log.Clear();
+	Application::Instance().m_log.AddLog("%d\n", m_situationType);
 
-	// 追尾していなければ行動範囲内で動く
-	if ((m_situationType & SituationType::Homing) == 0)
+	if (m_setParamFlg == false)
 	{
-		// 待機中じゃないなら動かす
-		if (m_stayFlg == false)
+		// 追尾、見失ったモーションをしていなければ行動範囲内で動く
+		if (((m_situationType & SituationType::Homing) == 0) && ((m_situationType & SituationType::LostTarget) == 0))
 		{
-			// ゴールまでのベクトル
-			Math::Vector3 vec = m_goalPos - m_pos;
-			vec.y = 0;
-			Application::Instance().m_log.AddLog("%.2f\n", vec.Length());
-			// もしゴールまでの距離がスピードより短くなったら、座標をゴール座標にして、待機させる
-			if (vec.Length() < m_moveSpeed)
+			// 回転中じゃないなら動かす
+			if (m_move.rotFlg == false)
 			{
-				m_pos.x = m_goalPos.x;
-				m_pos.z = m_goalPos.z;
-				m_stayFlg = true;
+				// ゴールまでのベクトル
+				Math::Vector3 vec = m_move.goalPos - m_pos;
+				vec.y = 0;
+				// もしゴールまでの距離がスピードより短くなったら、座標をゴール座標にして、回転させる
+				if (vec.Length() < m_moveSpeed)
+				{
+					m_pos.x = m_move.goalPos.x;
+					m_pos.z = m_move.goalPos.z;
+					m_move.rotFlg = true;
+					m_move.confirmedAngFlg = true;
+				}
+				// 違ったら移動ベクトルを確定
+				else
+				{
+					vec.Normalize();
+					m_moveVec = vec;
+				}
 			}
-			// 違ったら移動ベクトルを確定
-			else
+
+			// ゴール座標を決める
+			if (m_move.confirmedAngFlg == true)
 			{
-				vec.Normalize();
-				m_moveVec = vec;
+				// ゴール座標を求めるための角度を求める
+				// 今の角度の+-90度
+				// 最小の角度
+				float minAng = m_move.degAng + 90;
+
+				float degAng = rand() % 180 + minAng;
+				if (degAng >= 360)
+				{
+					degAng -= 360;
+				}
+				if (degAng < 0)
+				{
+					degAng += 360;
+				}
+				m_move.degAng = degAng;
+				// ゴールの座標を求める
+				m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_move.degAng));
+				m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_move.degAng));
+				m_move.confirmedAngFlg = false;
+			}
+
+			if (m_move.rotFlg == true)
+			{
+				// 向きたい方向 Y座標は無視
+				Math::Vector3 vec = m_move.goalPos - m_pos;
+				vec.y = 0;
+
+				// 回転してなかったら回転処理終了
+				if (!RotationCharacter(m_degAng, vec, m_move.minRotAng))
+				{
+					m_move.rotFlg = false;
+				}
 			}
 		}
 
-		// 待機カウントを進める
-		if (m_stayFlg)
-		{
-			m_stayCnt++;
-		}
-		// 待機終了
-		if (m_stayCnt > m_stayTime)
-		{
-			m_stayFlg = false;
-			
-			// ゴール座標を求めるための角度を求める
-			// 今の角度の+-90度
-			// 最小の角度
-			float minAng = m_degAng + 90;
+		// ホーミング処理前の状態
+		UINT oldSituationType = m_situationType;
 
-			float degAng = rand() % 180 + minAng;
-			if (degAng >= 360)
-			{
-				degAng -= 360;
-			}
-			if (degAng < 0)
-			{
-				degAng += 360;
-			}
-			m_degAng = degAng;
+		// ターゲットの追尾
+		TargetHoming();
 
-			// ゴールの座標を求める
-			m_goalPos.x = m_info.startPos.x + m_info.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
-			m_goalPos.z = m_info.startPos.z + m_info.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
-			m_stayCnt = 0;
+		// ホーミング状態が外れた瞬間見失ったモーションをする
+		if (oldSituationType & SituationType::Homing)
+		{
+			if ((m_situationType & SituationType::Homing) == 0)
+			{
+				// 見失った状態にする
+				m_situationType |= SituationType::LostTarget;
+				// 元の角度を保持
+				m_lostTarget.oldDegAng = m_degAng;
+				// 見失ったモーション用の変数を初期化
+				m_lostTarget.sumLotAng	= 0;					// 回転した角度の合計値
+				m_lostTarget.stayCount	= 0;					// 待機時間カウント
+				m_lostTarget.stayFlg	= false;				// 待機中フラグ
+				m_lostTarget.dir		= m_lostTarget.Left;	// 方向を左にする
+			}
 		}
+
+		// ホーミング状態になった瞬間、見つけた状態にする
+		if (m_situationType & SituationType::Homing)
+		{
+			if ((oldSituationType & SituationType::Homing) == 0)
+			{
+				m_situationType |= SituationType::Find;
+				// 空中じゃなければ少しジャンプ
+				if ((m_situationType & SituationType::Air) == 0)
+				{
+					m_gravity = -m_jumpPow;
+				}
+			}
+		}
+		
+		// 見失っているときに処理
+		if (m_situationType & SituationType::LostTarget)
+		{
+			LostTargetProcess();
+		}
+
+		// 見失ったモーションが終了したら回転処理をする
+		if (oldSituationType & SituationType::LostTarget)
+		{
+			if ((m_situationType & SituationType::LostTarget) == 0)
+			{
+				m_move.rotFlg = true;
+			}
+		}
+
+		// 移動
+		float speed;
+		// ホーミング状態ならスピードを上げる
+		if (m_situationType & SituationType::Homing)
+		{
+			speed = m_homingSpeed;
+		}
+		else
+		{
+			speed = m_moveSpeed;
+		}
+		m_pos += m_moveVec * speed;
+
+		// 重力
+		m_gravity += m_gravityPow;
+		m_pos.y -= m_gravity;
+		// 重力の制限
+		if (m_gravity >= m_maxGravity)
+		{
+			m_gravity = m_maxGravity;
+		}
+
+		// 当たり判定
+		HitJudge();
+	}
+	else
+	{
+		m_pos = m_param.startPos;
+		m_degAng = 0;
+		m_setParamFlg = false;
 	}
 
-	// ターゲットの追尾
-	TargetHoming();
+	Application::Instance().m_log.Clear();
+	Application::Instance().m_log.AddLog("%.2f\n", m_degAng);
 
 	// searchエリア可視化
-	m_pDebugWire->AddDebugSphere(m_pos, m_info.searchArea, kRedColor);
-	Math::Vector3 pos = m_info.startPos;
-	pos.y = 0;
+	m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
+	Math::Vector3 pos = m_param.startPos;
+	pos.y = m_pos.y;
 	// moveエリア可視化
-	m_pDebugWire->AddDebugSphere(pos, m_info.moveArea, kBlackColor);
-
-	// 移動
-	m_pos += m_moveVec * m_moveSpeed;
-
-	// 重力
-	m_gravity += m_gravityPow;
-	m_pos.y -= m_gravity;
-	// 重力の制限
-	if (m_gravity >= m_maxGravity)
-	{
-		m_gravity = m_maxGravity;
-	}
-
-	Application::Instance().m_log.AddLog("ang:%.2f\n", m_degAng);
-	Application::Instance().m_log.AddLog("x:%.2f y:%.2f z%.2f\n", m_pos.x, m_pos.y, m_pos.z);
-	Application::Instance().m_log.AddLog("x:%.2f y:%.2f z%.2f", m_goalPos.x, m_goalPos.y, m_goalPos.z);
-
-	HitJudge();
+	m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
 }
 
 void NormalEnemy::PostUpdate()
 {
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-	m_mWorld = transMat;
+	// 回転行列
+	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+
+	m_mWorld = m_rotMat * transMat;
 }
 
 void NormalEnemy::Init()
@@ -111,31 +189,41 @@ void NormalEnemy::Init()
 		m_spModel->SetModelData("Asset/Models/Character/Enemy/NormalEnemy/normalEnemy.gltf");
 	}
 
-	m_pos = { 20, 6, 20 };
-	m_info.startPos = m_pos;
-
+	// 行列を作っておく
 	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 
-	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
+
+	// スピード
 	m_moveSpeed = 0.1f;
-
-	m_info.moveArea = 10.0f;
-	m_info.searchArea = 15.0f;
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("NormalEnemy", m_spModel, KdCollider::TypeDamage);
 
+	// ゴールの座標を求める
 	m_degAng = rand() % 360;
+	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
+	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
 
-	// ゴールの座標を求める
-	m_goalPos.x = m_info.startPos.x + m_info.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
-	m_goalPos.z = m_info.startPos.z + m_info.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
+	// 回転させる
+	m_move.rotFlg = true;
 
-	// ゴールの座標を求める
-	Application::Instance().m_log.AddLog("x:%.2f y:%.2f z%.2f\n", m_pos.x, m_pos.y, m_pos.z);
-	Application::Instance().m_log.AddLog("x:%.2f y:%.2f z%.2f", m_goalPos.x, m_goalPos.y, m_goalPos.z);
+	// オブジェクトのタイプ
+	m_objectType = ObjectType::NormalEnemy;
+
+	// 大まかなオブジェクトのタイプ
+	m_baseObjectType = BaseObjectType::Enemy;
+
+	EnemyBase::Init();
+
+	// デバッグワイヤー
+	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
+}
+
+void NormalEnemy::Reset()
+{
+
 }
 
 void NormalEnemy::HitJudge()
@@ -160,8 +248,21 @@ void NormalEnemy::HitJudge()
 	// 当たった場合
 	if (hitFlg)
 	{
-		// 当たったオブジェクトのタイプ
-		std::shared_ptr<KdGameObject> spHitObject = m_wpHitObject.lock();
+		// 当たったオブジェクト
+		std::shared_ptr<KdGameObject> spHitObject;
+
+		// 地面を探す
+		for (auto& hitObject : m_wpHitObjectList)
+		{
+			if (!hitObject.expired())
+			{
+				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
+				{
+					spHitObject = hitObject.lock();
+					break;
+				}
+			}
+		}
 
 		// 当たったオブジェクト毎に処理を変える
 		if (spHitObject)
@@ -229,9 +330,14 @@ void NormalEnemy::HitJudge()
 				// 空中にいない
 				m_situationType &= (~SituationType::Air);
 				m_situationType &= (~SituationType::Jump);
+				m_situationType &= (~SituationType::Find);
 				break;
 			}
 		}
+	}
+	else
+	{
+		m_situationType |= SituationType::Air;
 	}
 }
 
@@ -241,17 +347,158 @@ void NormalEnemy::TargetHoming()
 	if (spTarget)
 	{
 		Math::Vector3 vec = spTarget->GetPos() - m_pos;
+		Math::Vector3 forwardVec = m_mWorld.Backward();
 
-		if (vec.Length() < m_info.searchArea)
+		vec.y = 0;
+
+		// プレイヤーが索敵範囲内にいるなら、視野角判定をする
+		if (vec.Length() < m_param.searchArea)
 		{
-			vec.y = 0;
-			vec.Normalize();
-			m_moveVec = vec;
-			m_situationType |= SituationType::Homing;
+			float dot = forwardVec.Dot(vec);
+			dot = std::clamp(dot, -1.0f, 1.0f);
+			float deg = DirectX::XMConvertToDegrees(acos(dot));
+			if (deg < 30)
+			{
+				// 見つけモーション中は動かない
+				if ((m_situationType & SituationType::Find) == 0)
+				{
+					vec.y = 0;
+					vec.Normalize();
+					m_moveVec = vec;
+				}
+				m_situationType |= SituationType::Homing;
+
+				RotationCharacter(m_degAng, vec, 5.0f);
+			}
+			else
+			{
+				m_situationType &= (~SituationType::Homing);
+			}
 		}
 		else
 		{
 			m_situationType &= (~SituationType::Homing);
+		}
+	}
+}
+
+void NormalEnemy::SetParam(Param _param)
+{
+	m_param = _param;
+	m_setParamFlg = true;
+	m_pos = m_param.startPos;
+	// ゴールの座標を求める
+	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
+	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
+}
+
+void NormalEnemy::OnHit()
+{
+	m_isExpired = true;
+}
+
+void NormalEnemy::FindTarget()
+{
+	
+}
+
+void NormalEnemy::LostTargetProcess()
+{
+	// 左を見る
+	if (m_lostTarget.dir == m_lostTarget.Left && m_lostTarget.stayFlg == false)
+	{
+		// 何度回転したか保存しておく
+		m_lostTarget.sumLotAng += m_lostTarget.lotAng;
+		// 回転角度が最大値より大きくなったら、キャラの角度を元の角度-最大値にする
+		if (m_lostTarget.sumLotAng > m_lostTarget.maxLotAng)
+		{
+			m_degAng = m_lostTarget.oldDegAng - m_lostTarget.maxLotAng;
+			// 何度回転したかを最大値にする
+			m_lostTarget.sumLotAng = m_lostTarget.maxLotAng;
+			// 待機させる
+			m_lostTarget.stayFlg = true;
+			// 方向フラグを変える
+			m_lostTarget.dir = m_lostTarget.Right;
+		}
+		else
+		{
+			// 回転させる
+			m_degAng -= m_lostTarget.lotAng;
+		}
+	}
+	
+	// 左→右を見る
+	if (m_lostTarget.dir == m_lostTarget.Right && m_lostTarget.stayFlg == false)
+	{
+		// 何度回転したか保存しておく(すでに最大値になっているはずなので-最大値になるまでする)
+		m_lostTarget.sumLotAng -= m_lostTarget.lotAng;
+		// 回転角度が最大値のマイナスより小さくなったら、キャラの角度を元の角度+最大値にする
+		if (m_lostTarget.sumLotAng < -m_lostTarget.maxLotAng)
+		{
+			m_degAng = m_lostTarget.oldDegAng + m_lostTarget.maxLotAng;
+			// 待機させる
+			m_lostTarget.stayFlg = true;
+			// 方向を変える
+			m_lostTarget.dir = m_lostTarget.Base;
+		}
+		else
+		{
+			// 回転させる
+			m_degAng += m_lostTarget.lotAng;
+		}
+	}
+
+	// 右→元の角度に戻る
+	if (m_lostTarget.dir == m_lostTarget.Base && m_lostTarget.stayFlg == false)
+	{
+		float dif = m_degAng - m_lostTarget.oldDegAng;
+
+		if (dif > 360)
+		{
+			dif -= 360;
+		}
+
+		// 角度の差が回転角度より少なかったら角度を元の角度にする
+		if (dif < m_lostTarget.lotAng)
+		{
+			m_degAng = m_lostTarget.oldDegAng;
+			// 待機させる
+			m_lostTarget.stayFlg = true;
+			// 終了
+			m_lostTarget.dir = m_lostTarget.End;
+		}
+		else
+		{
+			m_degAng -= m_lostTarget.lotAng;
+		}
+	}
+
+	// 角度の調整
+	if (m_degAng < 0)
+	{
+		m_degAng += 360;
+	}
+	if (m_degAng > 360)
+	{
+		m_degAng -= 360;
+	}
+
+	// 待機
+	if (m_lostTarget.stayFlg)
+	{
+		m_lostTarget.stayCount++;
+
+		// 待機終了
+		if (m_lostTarget.stayCount > m_lostTarget.stayTime)
+		{
+			m_lostTarget.stayFlg = false;
+			m_lostTarget.stayCount = 0;
+
+			// もし元に戻ったら見失った状態をやめる
+			if (m_lostTarget.dir == m_lostTarget.End)
+			{
+				m_situationType &= (~SituationType::LostTarget);
+			}
 		}
 	}
 }

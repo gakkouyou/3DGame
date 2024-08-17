@@ -15,7 +15,7 @@ private:
 	Math::Vector3 m_debugPos	= Math::Vector3::Zero;
 	// 移動ベクトル
 	Math::Vector3 m_moveVec		= Math::Vector3::Zero;
-	const float m_moveSpeed		= 0.3f;
+	const float m_moveSpeed		= 0.6f;
 
 	// キーフラグ
 	bool m_shiftFlg;

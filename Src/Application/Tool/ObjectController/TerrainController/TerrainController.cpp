@@ -1,24 +1,24 @@
-﻿#include "ObjectController.h"
-#include "../../main.h"
-#include "../../Scene/SceneManager.h"
-#include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
-#include "../DebugWindow/DebugWindow.h"
+﻿#include "TerrainController.h"
+#include "../../../main.h"
+#include "../../../Scene/SceneManager.h"
+#include "../../../GameObject/Camera/TPSCamera/TPSCamera.h"
+#include "../../DebugWindow/DebugWindow.h"
 
-#include "../../GameObject/Terrain/TerrainBase.h"
-#include "../../GameObject/Terrain/Ground/NormalGround/NormalGround.h"
-#include "../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
-#include "../../GameObject/Terrain/Ground/MoveGround/MoveGround.h"
-#include "../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
+#include "../../../GameObject/Terrain/TerrainBase.h"
+#include "../../../GameObject/Terrain/Ground/NormalGround/NormalGround.h"
+#include "../../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
+#include "../../../GameObject/Terrain/Ground/MoveGround/MoveGround.h"
+#include "../../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
 
-void ObjectController::Update()
+void TerrainController::Update()
 {
 	// 一度だけ実行する
-	if (beginCreateFlg == false)
+	if (m_beginCreateFlg == false)
 	{
 		// 読み込んだデータからオブジェクトを作成する
 		BeginCreateObject();
 	}
-	beginCreateFlg = true;
+	m_beginCreateFlg = true;
 
 	// マウスでオブジェクトを選択する
 	MouseSelect();
@@ -27,8 +27,8 @@ void ObjectController::Update()
 	std::shared_ptr<TerrainBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
 	{
-		DebugWindow::ObjectInfo debugInfo = DebugWindow::Instance().GetObjectInfo();
-		spTargetObject->SetInfo(debugInfo.startPos, debugInfo.goalPos, debugInfo.speed, debugInfo.stayTime, debugInfo.degAng);
+		DebugWindow::TerrainParam debugParam = DebugWindow::Instance().GetTerrainParam();
+		spTargetObject->SetParam(debugParam.startPos, debugParam.goalPos, debugParam.speed, debugParam.stayTime, debugParam.degAng);
 	}
 
 	// DELETEキーで削除する
@@ -38,13 +38,19 @@ void ObjectController::Update()
 	}
 }
 
-void ObjectController::Init()
+void TerrainController::Init()
 {
 	// CSVを読み込む
 	CSVLoader();
 }
 
-const KdGameObject::ObjectType ObjectController::GetObjectType() const
+void TerrainController::Reset()
+{
+	// 再配置
+	m_beginCreateFlg = false;
+}
+
+const KdGameObject::ObjectType TerrainController::GetObjectType() const
 {
 	if (!m_wpTargetObject.expired())
 	{
@@ -52,7 +58,7 @@ const KdGameObject::ObjectType ObjectController::GetObjectType() const
 	}
 }
 
-const std::string ObjectController::GetObjectName() const
+const std::string TerrainController::GetObjectName() const
 {
 	if (!m_wpTargetObject.expired())
 	{
@@ -64,7 +70,7 @@ const std::string ObjectController::GetObjectName() const
 	}
 }
 
-void ObjectController::ConfirmObject()
+void TerrainController::ConfirmedObject()
 {
 	// 通常の床用または決定した後のオブジェクト
 	std::shared_ptr<TerrainBase> spTargetObject = m_wpTargetObject.lock();
@@ -120,11 +126,11 @@ void ObjectController::ConfirmObject()
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
-			data.pos		= spTargetObject->GetInfo().pos;		// 座標
-			data.goalPos	= spTargetObject->GetInfo().goalPos;	// ゴール座標
-			data.speed		= spTargetObject->GetInfo().speed;	// スピード
-			data.stayTime	= spTargetObject->GetInfo().stayTime;	// 待機時間
-			data.degAng		= spTargetObject->GetInfo().degAng;	// 回転角度
+			data.pos		= spTargetObject->GetParam().pos;		// 座標
+			data.goalPos	= spTargetObject->GetParam().goalPos;	// ゴール座標
+			data.speed		= spTargetObject->GetParam().speed;		// スピード
+			data.stayTime	= spTargetObject->GetParam().stayTime;	// 待機時間
+			data.degAng		= spTargetObject->GetParam().degAng;	// 回転角度
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
 			// 地形のウィークポインタのリストにプッシュバックする
@@ -143,18 +149,18 @@ void ObjectController::ConfirmObject()
 					break;
 				}
 			}
-			m_dataList[num].pos		= spTargetObject->GetInfo().startPos;	// 座標
-			m_dataList[num].goalPos = spTargetObject->GetInfo().goalPos;	// ゴール座標
-			m_dataList[num].speed	= spTargetObject->GetInfo().speed;		// スピード
-			m_dataList[num].stayTime= spTargetObject->GetInfo().stayTime;	// 待機時間
-			m_dataList[num].degAng	= spTargetObject->GetInfo().degAng;		// 回転角度
+			m_dataList[num].pos		= spTargetObject->GetParam().startPos;	// 座標
+			m_dataList[num].goalPos = spTargetObject->GetParam().goalPos;	// ゴール座標
+			m_dataList[num].speed	= spTargetObject->GetParam().speed;		// スピード
+			m_dataList[num].stayTime= spTargetObject->GetParam().stayTime;	// 待機時間
+			m_dataList[num].degAng	= spTargetObject->GetParam().degAng;	// 回転角度
 		}
 	}
 
 	m_wpTargetObject.reset();
 }
 
-void ObjectController::DeleteObject()
+void TerrainController::DeleteObject()
 {
 	// オブジェクトを削除する
 	if (!m_wpTargetObject.expired())
@@ -171,7 +177,7 @@ void ObjectController::DeleteObject()
 	}
 }
 
-void ObjectController::CreateObject(Object _object)
+void TerrainController::CreateObject(Object _object)
 {
 	switch (_object)
 	{
@@ -217,7 +223,7 @@ void ObjectController::CreateObject(Object _object)
 	}
 }
 
-void ObjectController::BeginCreateObject()
+void TerrainController::BeginCreateObject()
 {
 	for (auto& data : m_dataList)
 	{
@@ -236,7 +242,7 @@ void ObjectController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetInfo(data.pos);
+			object->SetParam(data.pos);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -255,7 +261,7 @@ void ObjectController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetInfo(data.pos);
+			object->SetParam(data.pos);
 			m_wpTerrainList.push_back(object);
 		}
 		// 動く床
@@ -273,7 +279,7 @@ void ObjectController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 情報をセットする
-			object->SetInfo(data.pos, data.goalPos, data.speed, data.stayTime);
+			object->SetParam(data.pos, data.goalPos, data.speed, data.stayTime);
 			m_wpTerrainList.push_back(object);
 		}
 		// 回る床
@@ -291,13 +297,13 @@ void ObjectController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 情報をセットする
-			object->SetInfo(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
 			m_wpTerrainList.push_back(object);
 		}
 	}
 }
 
-void ObjectController::CSVLoader()
+void TerrainController::CSVLoader()
 {
 
 	std::ifstream ifs("Asset/Data/CSV/Terrain.csv");
@@ -365,15 +371,15 @@ void ObjectController::CSVLoader()
 				break;
 
 			case 10:
-				data.degAng.x = stoi(commaString);
+				data.degAng.x = stof(commaString);
 				break;
 
 			case 11:
-				data.degAng.y = stoi(commaString);
+				data.degAng.y = stof(commaString);
 				break;
 
 			case 12:
-				data.degAng.z = stoi(commaString);
+				data.degAng.z = stof(commaString);
 				break;
 			}
 			cnt++;
@@ -387,7 +393,7 @@ void ObjectController::CSVLoader()
 	ifs.close();
 }
 
-void ObjectController::CSVWriter()
+void TerrainController::CSVWriter()
 {
 	std::ofstream ofs("Asset/Data/CSV/Terrain.csv");
 
@@ -416,7 +422,7 @@ void ObjectController::CSVWriter()
 	}
 }
 
-void ObjectController::MouseSelect()
+void TerrainController::MouseSelect()
 {
 	// マウスでオブジェクトを選択する
 	std::shared_ptr<const TPSCamera> spCamera = m_wpCamera.lock();
@@ -458,7 +464,7 @@ void ObjectController::MouseSelect()
 				{
 					hitObjList.push_back(obj);
 					// １回でも当たったらリセット
-					ConfirmObject();
+					ConfirmedObject();
 				}
 			}
 		}
@@ -474,9 +480,9 @@ void ObjectController::MouseSelect()
 				maxOverLap = ret.m_overlapDistance;
 				m_wpTargetObject = hitObjList[cnt];
 
-				TerrainBase::Info info = m_wpTargetObject.lock()->GetInfo();
-				DebugWindow::ObjectInfo setInfo{ info.startPos, info.goalPos, info.speed, info.stayTime, info.degAng };
-				DebugWindow::Instance().SetObjectInfo(setInfo);
+				TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+				DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.speed, param.stayTime, param.degAng };
+				DebugWindow::Instance().SetTerrainParam(setParam);
 			}
 			cnt++;
 		}

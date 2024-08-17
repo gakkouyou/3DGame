@@ -9,9 +9,11 @@
 #include "../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
 #include "../../GameObject/EventObject/Goal/Goal.h"
 #include "../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
+#include "../../GameObject/SceneChange/SceneChange.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
-#include "../../Tool/ObjectController/ObjectController.h"
+#include "../../Tool/ObjectController/TerrainController/TerrainController.h"
+#include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 
 #include "../../main.h"
 
@@ -31,17 +33,39 @@ void GameScene::Event()
 		m_debugKeyFlg = false;
 	}
 
+	// プレイヤーが死んだときの処理
+	std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
+	if (spPlayer)
+	{
+		if (spPlayer->GetAlive() == false)
+		{
+			
+		}
+	}
+
 }
 
 void GameScene::Init()
 {
 	// マップエディタ的な
-	std::shared_ptr<ObjectController> objectController = std::make_shared<ObjectController>();
+	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
 	objectController->Init();
 	AddObject(objectController);
 
+	// 敵エディタ的な
+	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
+	enemyController->Init();
+	AddObject(enemyController);
+
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetObjectController(objectController);
+	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
+	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
+
+	// シーンを変える
+	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
+	sceneChange->Init();
+	AddObject(sceneChange);
+	sceneChange->EndScene();
 
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
@@ -52,6 +76,8 @@ void GameScene::Init()
 	std::shared_ptr<Player> player = std::make_shared<Player>();
 	player->Init();
 	AddObject(player);
+	// 保持
+	m_wpPlayer = player;
 
 	// TPSカメラ
 	std::shared_ptr<TPSCamera> tpsCamera = std::make_shared<TPSCamera>();
@@ -68,16 +94,14 @@ void GameScene::Init()
 
 	// オブジェクトコントローラーにカメラを渡す
 	objectController->SetCamera(tpsCamera);
+	enemyController->SetCamera(tpsCamera);
+
+	// enemyControllerにプレイヤーを渡す
+	enemyController->SetPlayer(player);
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
 	goal->Init();
 	goal->SetPos({ 0, 0, 10 });
 	AddObject(goal);
-
-	// 敵
-	std::shared_ptr<NormalEnemy> normalEnemy = std::make_shared<NormalEnemy>();
-	normalEnemy->Init();
-	AddObject(normalEnemy);
-	normalEnemy->SetTarget(player);
 }

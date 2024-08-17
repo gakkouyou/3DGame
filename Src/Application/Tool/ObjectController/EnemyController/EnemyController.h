@@ -1,37 +1,37 @@
 ﻿#pragma once
 
+class EnemyBase;
 class TPSCamera;
-class TerrainBase;
+class Player;
 
-class ObjectController : public KdGameObject
+class EnemyController : public KdGameObject
 {
 public:
-	ObjectController()			{}
-	~ObjectController()	override{}
+	EnemyController() {}
+	~EnemyController()	override {}
 
 	void Update()		override;
 	void Init()			override;
+
+	// リセット処理
+	void Reset()		override;
 
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// 今持っているオブジェクトのタイプをゲットする
-	const ObjectType GetObjectType() const;
+	const KdGameObject::ObjectType GetObjectType() const;
 	// 今持っているオブジェクトの名前をゲットする
 	const std::string GetObjectName() const;
 
 	// 作りたいオブジェクト
 	enum class Object
 	{
-		NormalGround,	// 通常の床
-		BoundGround,	// 跳ねる床
-		MoveGround,		// 動く床
-		NormalWall,		// 通常の壁
-		RotationGround,	// 回る床
+		NormalEnemy,	// 通常の敵
 	};
 
 	// オブジェクトを確定する(wp_ptrをリセットする)
-	void ConfirmObject();
+	void ConfirmedObject();
 	// オブジェクトを削除する
 	void DeleteObject();
 	// オブジェクトを作る
@@ -39,15 +39,18 @@ public:
 	// CSVに書き込む
 	void CSVWriter();
 
+	// プレイヤーをセットする
+	void SetPlayer(const std::shared_ptr<Player> _spPlayer) { m_wpPlayer = _spPlayer; }
+
 private:
 	// マウスでオブジェクトを選択する
 	void MouseSelect();
 
 	// 動かすオブジェクト
-	std::weak_ptr<TerrainBase>		m_wpTargetObject;
+	std::weak_ptr<EnemyBase>		m_wpTargetObject;
 
 	// 地形リスト
-	std::vector<std::weak_ptr<TerrainBase>> m_wpTerrainList;
+	std::vector<std::weak_ptr<EnemyBase>> m_wpEnemyList;
 
 	// カメラ
 	std::weak_ptr<const TPSCamera>	m_wpCamera;
@@ -55,15 +58,12 @@ private:
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();
 	// ↑をInitで呼べない為、Updateで1度だけ実行する為のフラグ
-	bool beginCreateFlg = false;
+	bool m_beginCreateFlg = false;
 
 	// オブジェクトの個数
 	struct Count
 	{
-		int NormalGround	= 0;
-		int BoundGround		= 0;
-		int MoveGround		= 0;
-		int RotationGround	= 0;
+		int NormalEnemy = 0;
 	};
 
 	Count m_objectCount;
@@ -74,13 +74,14 @@ private:
 		std::string type;
 		std::string name;
 		Math::Vector3 pos		= Math::Vector3::Zero;
-		Math::Vector3 goalPos	= Math::Vector3::Zero;
-		float speed				= 0;
-		int stayTime			= 0;
-		Math::Vector3 degAng	= Math::Vector3::Zero;
+		float moveArea			= 0;
+		float searchArea		= 0;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む
 	void CSVLoader();
+
+	// 敵のターゲットとなるプレイヤー
+	std::weak_ptr<Player> m_wpPlayer;
 };

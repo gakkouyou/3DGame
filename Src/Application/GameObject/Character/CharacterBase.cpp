@@ -18,6 +18,21 @@ void CharacterBase::DrawLit()
 	}
 }
 
+void CharacterBase::Reset()
+{
+	// 座標
+	m_pos = Math::Vector3::Zero;
+
+	// 移動ベクトル
+	m_moveVec = Math::Vector3::Zero;
+
+	// 重力
+	m_gravity = 0;
+
+	// 当たったオブジェクトリストをリセット
+	m_wpHitObjectList.clear();
+}
+
 bool CharacterBase::RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg)
 {
 	// 地面との当たり判定
@@ -66,7 +81,7 @@ bool CharacterBase::RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _h
 			_hitPos = ret.m_hitPos;
 			
 			// 当たったオブジェクトを保持
-			m_wpHitObject = retObjectList[cnt];
+			m_wpHitObjectList.push_back(retObjectList[cnt]);
 		}
 		cnt++;
 	}
@@ -130,7 +145,7 @@ bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _
 			hitFlg = true;
 
 			// 当たったオブジェクトを保持
-			m_wpHitObject = retObjctList[cnt];
+			m_wpHitObjectList.push_back(retObjctList[cnt]);
 		}
 		cnt++;
 	}
@@ -184,10 +199,70 @@ bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _
 			hitFlg = true;
 
 			// 当たったオブジェクトを保持
-			m_wpHitObject = retObjctList[cnt];
+			m_wpHitObjectList.push_back(retObjctList[cnt]);
 		}
 		cnt++;
 	}
 
 	return hitFlg;
+}
+
+bool CharacterBase::RotationCharacter(float& _degAng, Math::Vector3 _toVec, const float _minDegAng)
+{
+	// 回転したかどうかのフラグ
+	bool rotFlg = false;
+
+	// キャラクターの正面方向
+	Math::Vector3 nowVec = m_mWorld.Backward();
+	nowVec.Normalize();
+
+	// 向きたい方向
+	_toVec.Normalize();
+
+	// 内積
+	float d = nowVec.Dot(_toVec);
+
+	// 丸め誤差
+	d = std::clamp(d, -1.0f, 1.0f);
+
+	// アークコサインで角度に変換
+	float ang = DirectX::XMConvertToDegrees(acos(d));
+
+	// ゆっくり回転するように処理
+	if (ang >= 0.1f)
+	{
+		rotFlg = true;
+
+		// 回転制御
+		if (ang > _minDegAng)
+		{
+			ang = _minDegAng;
+		}
+
+		// 外積
+		Math::Vector3 c = _toVec.Cross(nowVec);
+
+		if (c.y >= 0)	// 上
+		{
+			_degAng -= ang;
+			if (_degAng < 0)
+			{
+				_degAng += 360;
+			}
+		}
+		else			//下
+		{
+			_degAng += ang;
+			if (_degAng >= 360)
+			{
+				_degAng -= 360;
+			}
+		}
+	}
+	else
+	{
+		rotFlg = false;
+	}
+
+	return rotFlg;
 }

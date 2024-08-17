@@ -1,6 +1,7 @@
 ﻿#pragma once
 
-class ObjectController;
+class TerrainController;
+class EnemyController;
 
 class DebugWindow
 {
@@ -11,10 +12,11 @@ public:
 
 	void Release();
 
-	void SetObjectController(const std::shared_ptr<ObjectController>& _spObjectController) { m_wpObjectController = _spObjectController; }
+	void SetTerrainController(const std::shared_ptr<TerrainController>& _spObjectController)	{ m_wpTerrainController = _spObjectController; }
+	void SetEnemyController(const std::shared_ptr<EnemyController>& _spObjectController)		{ m_wpEnemyController = _spObjectController; }
 
-	// 動く系統の情報
-	struct ObjectInfo
+	// Terrain用のパラメータ
+	struct TerrainParam
 	{
 		Math::Vector3 startPos	= Math::Vector3::Zero;
 		Math::Vector3 goalPos	= Math::Vector3::Zero;
@@ -22,15 +24,35 @@ public:
 		int stayTime			= 0;
 		Math::Vector3 degAng	= Math::Vector3::Zero;
 	};
-	// 動く系統の情報ゲット関数
-	const ObjectInfo GetObjectInfo() const { return m_objectInfo; }
-	// 動く系統の情報セット関数
-	void SetObjectInfo(ObjectInfo _info) { m_objectInfo = _info; }
+	// Terrainのパラメータゲット関数
+	const TerrainParam GetTerrainParam() const { return m_terrainParam; }
+	// Terrainのパラメータセット関数
+	void SetTerrainParam(TerrainParam _param) { m_terrainParam = _param; }
+
+	// Enemy用のパラメータ
+	struct EnemyParam
+	{
+		Math::Vector3 pos	= Math::Vector3::Zero;
+		float moveArea		= 0;
+		float searchArea	= 0;
+	};
+	// Enemyのパラメータゲット関数
+	const EnemyParam GetEnemyParam() const { return m_enemyParam; }
+	// Enemyのパラメータセット関数
+	void SetEnemyParam(EnemyParam _param) { m_enemyParam = _param; }
 
 private:
-	std::weak_ptr<ObjectController> m_wpObjectController;
+	// Terrain用
+	std::weak_ptr<TerrainController> m_wpTerrainController;
+	TerrainParam m_terrainParam;
+	// Terrain用のウィンドウ
+	void TerrainWindow();
 
-	ObjectInfo m_objectInfo;
+	// Enemy用
+	std::weak_ptr<EnemyController> m_wpEnemyController;
+	EnemyParam m_enemyParam;
+	// Enemy用のウィンドウ
+	void EnemyWindow();
 
 private:
 

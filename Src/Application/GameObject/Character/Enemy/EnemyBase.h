@@ -10,26 +10,28 @@ public:
 	virtual void Update()		override {}
 	virtual void PostUpdate()	override {}
 
-	virtual void Init()			override {}
+	virtual void Init()			override;
 
 	// ターゲットをセットする
 	void SetTarget(const std::shared_ptr<KdGameObject>& _spTarget) { m_wpTarget = _spTarget; }
 
 	// 情報
-	struct Info
+	struct Param
 	{
 		Math::Vector3 startPos	= Math::Vector3::Zero;	// 最初の座標
 		float moveArea			= 0;					// 行動範囲
 		float searchArea		= 0;					// 索敵範囲
 	};
 
-	// 情報をセットする
-	virtual void SetInfo(Info _info) { m_info = _info; }
+	// パラメータをセットする
+	virtual void SetParam(Param _param) { m_param = _param; }
+	// パラメータをゲットする
+	virtual const Param GetParam()const { return m_param; }
 
 protected:
 	// ターゲット
 	std::weak_ptr<KdGameObject> m_wpTarget;
 
 	// 情報
-	Info m_info;
+	Param m_param;
 };

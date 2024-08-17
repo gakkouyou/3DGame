@@ -2,7 +2,7 @@
 
 void BoundGround::Update()
 {
-	m_mWorld = Math::Matrix::CreateTranslation(m_info.pos);
+	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
 }
 
 void BoundGround::Init()
@@ -11,7 +11,7 @@ void BoundGround::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/BoundGround2/boundGround.gltf");
+		m_spModel->Load("Asset/Models/Terrain/Ground/BoundGround/boundGround.gltf");
 	}
 
 	// 座標セット
@@ -25,6 +25,9 @@ void BoundGround::Init()
 
 	// オブジェクトタイプ
 	m_objectType = ObjectType::BoundGround;
+
+	// 大まかなオブジェクトのタイプ
+	m_baseObjectType = BaseObjectType::Ground;
 }
 
 void BoundGround::OnHit()
@@ -32,8 +35,8 @@ void BoundGround::OnHit()
 	
 }
 
-void BoundGround::SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void BoundGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
-	m_info.pos = _startPos;
-	m_info.startPos = _startPos;
+	m_param.pos = _startPos;
+	m_param.startPos = _startPos;
 }

@@ -45,6 +45,7 @@ enum class KdBlendState
 {
 	Alpha,			// 透明度による色合成
 	Add,			// 加算による色合成
+	Stencil,		// ステンシル
 	Max
 };
 

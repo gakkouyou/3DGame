@@ -55,6 +55,7 @@ void TPSCamera::PostUpdate()
 		// カメラの向きで移動方向を補正
 		m_moveVec = m_moveVec.TransformNormal(m_moveVec, GetRotationMatrix());
 		m_moveVec.Normalize();
+		m_moveVec.y = 0;
 
 		// スペースで上に行く
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000)

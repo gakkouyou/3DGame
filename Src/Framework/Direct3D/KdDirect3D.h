@@ -18,7 +18,8 @@ enum class KdSamplerAddressingMode {
 enum class KdBlendMode {
 	NoBlend,		// ブレンドをしない
 	Alpha,			// 半透明ブレンド
-	Add				// 加算ブレンド
+	Add,			// 加算ブレンド
+	Stencil,		// ステンシル
 };
 
 //=======================================================================================

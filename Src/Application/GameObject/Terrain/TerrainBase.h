@@ -18,7 +18,7 @@ public:
 	// 初期化
 	virtual void Init()							override	{}
 
-	struct Info
+	struct Param
 	{
 		Math::Vector3 pos		= Math::Vector3::Zero;
 		Math::Vector3 startPos	= Math::Vector3::Zero;
@@ -28,14 +28,15 @@ public:
 		Math::Vector3 degAng	= Math::Vector3::Zero;
 	};
 
-	// 動く地形用の情報セット関数
-	virtual void SetInfo(Math::Vector3 _startPos, Math::Vector3 _goalPos = Math::Vector3::Zero, float _speed = 0, int _stayTime = 0, Math::Vector3 _degAng = Math::Vector3::Zero) {}
-	const Info GetInfo() const { return m_info; }
+	// 地形のパラメータセット関数
+	virtual void SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos = Math::Vector3::Zero, float _speed = 0, int _stayTime = 0, Math::Vector3 _degAng = Math::Vector3::Zero) {}
+	// 地形のパラメータゲット関数
+	const Param GetParam() const { return m_param; }
 
 protected:
 	// モデルデータ
 	std::shared_ptr<KdModelData>	m_spModel	= nullptr;
 
-	// 動く地形用の情報変数
-	Info m_info;
+	// 動く地形用のパラメータ変数
+	Param m_param;
 };

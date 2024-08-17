@@ -499,6 +499,18 @@ ID3D11BlendState* KdDirect3D::CreateBlendState(KdBlendMode mode) const
 		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
 		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
 	}
+	// ステンシル
+	else if (mode == KdBlendMode::Stencil)
+	{
+		// 色の合成方法
+		desc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
+		desc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_COLOR;
+		// アルファの合成方法
+		desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		desc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+		desc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+	}
 
 	// ステートオブジェクト作成
 	ID3D11BlendState* state = nullptr;

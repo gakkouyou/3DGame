@@ -3,7 +3,8 @@
 #include"../BaseScene/BaseScene.h"
 
 class TPSCamera;
-class ObjectController;
+class TerrainController;
+class Player;
 
 class GameScene : public BaseScene
 {
@@ -22,6 +23,9 @@ private:
 
 	// TPSカメラ
 	std::weak_ptr<TPSCamera> m_wpCamera;
+
+	// プレイヤー
+	std::weak_ptr<Player> m_wpPlayer;
 
 	// デバッグ用
 	bool m_debugFlg = false;

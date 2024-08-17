@@ -16,6 +16,9 @@ public:
 	// 初期化
 	void Init()							override;
 
+	// リセット処理
+	void Reset()						override;
+
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
@@ -26,6 +29,8 @@ private:
 	void HitJudgeGround();
 	// 当たったらイベントが発生する系の当たり判定
 	void HitJudgeEvent();
+	// 敵との当たり判定
+	void HitEnemy();
 
 	// オブジェクトに当たった時の反応
 	//void Bound();

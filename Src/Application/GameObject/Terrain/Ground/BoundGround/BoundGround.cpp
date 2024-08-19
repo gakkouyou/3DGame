@@ -26,8 +26,7 @@ void BoundGround::Init()
 	// オブジェクトタイプ
 	m_objectType = ObjectType::BoundGround;
 
-	// 大まかなオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Ground;
+	TerrainBase::Init();
 }
 
 void BoundGround::OnHit()

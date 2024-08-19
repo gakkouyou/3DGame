@@ -12,6 +12,9 @@ public:
 
 	void OnHit()	override;
 
+	// リセット処理
+	void Reset()	override;
+
 private:
 	std::shared_ptr<KdModelData> m_spModel;
 

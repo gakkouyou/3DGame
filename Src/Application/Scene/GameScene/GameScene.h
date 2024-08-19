@@ -5,6 +5,7 @@
 class TPSCamera;
 class TerrainController;
 class Player;
+class SceneChange;
 
 class GameScene : public BaseScene
 {
@@ -26,6 +27,15 @@ private:
 
 	// プレイヤー
 	std::weak_ptr<Player> m_wpPlayer;
+
+	// シーンチェンジ
+	std::weak_ptr<SceneChange> m_wpSceneChange;
+
+	// シーンをリセットした時のフラグ
+	bool m_resetFlg = false;
+
+	// シーンが開始した瞬間がわかるフラグ
+	bool m_sceneStartFlg = false;
 
 	// デバッグ用
 	bool m_debugFlg = false;

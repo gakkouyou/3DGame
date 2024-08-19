@@ -18,15 +18,17 @@ void DebugWindow::Draw()
 	//================================================================================
 	// ImGui 描画処理
 	//================================================================================
+	return;
+	if (SceneManager::Instance().GetDebug())
+	{
+		// Terrain用のウィンドウ
+		TerrainWindow();
 
-	// Terrain用のウィンドウ
-	TerrainWindow();
-
-	// Enemy用のウィンドウ
-	EnemyWindow();
+		// Enemy用のウィンドウ
+		EnemyWindow();
+	}
 
 
-	ImGui::End();
 
 	//================================================================================
 	// Imguiのレンダリング：ここより上にimguiの描画はする事
@@ -126,6 +128,20 @@ void DebugWindow::TerrainWindow()
 				spObjectController->CreateObject(TerrainController::Object::RotationGround);
 			}
 
+			// フェンス
+			if (ImGui::Button("Fence"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(TerrainController::Object::Fence);
+			}
+
+			// 片方柵
+			if (ImGui::Button("HalfFence"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(TerrainController::Object::HalfFence);
+			}
+
 			// 座標
 			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 1.0f);
 			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 1.0f);
@@ -141,13 +157,9 @@ void DebugWindow::TerrainWindow()
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}
 
-			// 回る床なら角度を変えれる用にする
-			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::RotationGround)
-			{
-				ImGui::InputFloat("DegAng.x", &m_terrainParam.degAng.x, 1.0f);
-				ImGui::InputFloat("DegAng.y", &m_terrainParam.degAng.y, 1.0f);
-				ImGui::InputFloat("DegAng.z", &m_terrainParam.degAng.z, 1.0f);
-			}
+			ImGui::InputFloat("DegAng.x", &m_terrainParam.degAng.x, 1.0f);
+			ImGui::InputFloat("DegAng.y", &m_terrainParam.degAng.y, 1.0f);
+			ImGui::InputFloat("DegAng.z", &m_terrainParam.degAng.z, 1.0f);
 		}
 	}
 	ImGui::End();
@@ -183,7 +195,7 @@ void DebugWindow::EnemyWindow()
 				spObjectController->CSVWriter();
 			}
 
-			// 通常の地面
+			// 通常の敵
 			if (ImGui::Button("NormalEnemy"))
 			{
 				spObjectController->ConfirmedObject();
@@ -203,4 +215,5 @@ void DebugWindow::EnemyWindow()
 			ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.5f);
 		}
 	}
+	ImGui::End();
 }

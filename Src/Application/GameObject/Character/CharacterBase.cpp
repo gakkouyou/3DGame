@@ -112,7 +112,13 @@ bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _
 	sphereInfo.m_type = _type;
 
 	// デバッグ用
-	m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, sphereInfo.m_sphere.Radius);
+	if (_debugFlg)
+	{
+		if (m_pDebugWire)
+		{
+			m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, sphereInfo.m_sphere.Radius);
+		}
+	}
 
 	// 球に当たったオブジェクト情報を格納
 	std::list<KdCollider::CollisionResult> retSphereList;
@@ -167,7 +173,13 @@ bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _
 	sphereInfo.m_type = _type;
 
 	// デバッグ用
-	m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, sphereInfo.m_sphere.Radius);
+	if (_debugFlg)
+	{
+		if (m_pDebugWire)
+		{
+			m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, sphereInfo.m_sphere.Radius);
+		}
+	}
 
 	// 球に当たったオブジェクト情報を格納
 	std::list<KdCollider::CollisionResult> retSphereList;

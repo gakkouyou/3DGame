@@ -50,11 +50,11 @@ void RotationGround::Update()
 	radAng.z = DirectX::XMConvertToRadians(m_rotDegAng.z);
 	
 	// 回転行列
-	m_mRotation = Math::Matrix::CreateFromYawPitchRoll({ radAng.x, radAng.y, radAng.z });
+	m_rotMat = Math::Matrix::CreateFromYawPitchRoll({ radAng.x, radAng.y, radAng.z });
 	// 座標行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
 	
-	m_mWorld = m_mRotation * transMat;
+	m_mWorld = m_rotMat * transMat;
 }
 
 void RotationGround::Init()
@@ -74,6 +74,8 @@ void RotationGround::Init()
 	// タイプ
 	m_objectType = ObjectType::RotationGround;
 
+	TerrainBase::Init();
+
 	// 描画
 	m_drawType = eDrawTypeLit;
 }
@@ -86,4 +88,10 @@ void RotationGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, f
 
 	// 回転角度
 	m_param.degAng = _degAng;
+}
+
+void RotationGround::Reset()
+{
+	// 角度
+	m_rotDegAng = Math::Vector3::Zero;
 }

@@ -16,7 +16,7 @@ public:
 	void DrawBright()					override;
 
 	// 初期化
-	virtual void Init()							override	{}
+	virtual void Init()							override;
 
 	struct Param
 	{

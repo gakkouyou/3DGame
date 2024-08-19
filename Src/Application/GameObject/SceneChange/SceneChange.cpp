@@ -1,7 +1,41 @@
 ﻿#include "SceneChange.h"
+#include "Application/main.h"
 
 void SceneChange::Update()
 {
+	// シーン開始
+	if (m_startFlg)
+	{
+		m_stayCnt++;
+		if (m_stayCnt > m_stayTime)
+		{
+			// 円を大きくする
+			m_size += m_addSize;
+
+			// サイズが最大値を上回ったら終了
+			if (m_size > m_maxSize)
+			{
+				m_finishFlg = true;
+				m_startFlg = false;
+				m_stayCnt = 0;
+			}
+		}
+	}
+
+	// シーン終了
+	if (m_endFlg)
+	{
+		// 円を小さくする
+		m_size -= m_addSize;
+
+		// サイズが最小値を下回ったら終了
+		if (m_size < m_minSize)
+		{
+			m_finishFlg = true;
+			m_size = m_minSize;
+			//m_endFlg = false;
+		}
+	}
 }
 
 void SceneChange::DrawSprite()
@@ -18,7 +52,7 @@ void SceneChange::DrawSprite()
 	KdShaderManager::Instance().ChangeBlendState(KdBlendState::Alpha);
 
 	// ステンシル画像
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spCircleTex, 0, 0, 180, 180);
+	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spCircleTex, 0, 0, m_size, m_size);
 
 	// 描画先をバックバッファに切り替え
 	KdDirect3D::Instance().WorkDevContext()->OMSetRenderTargets(1, KdDirect3D::Instance().WorkBackBuffer()->WorkRTViewAddress(), KdDirect3D::Instance().WorkZBuffer()->WorkDSView());
@@ -47,14 +81,30 @@ void SceneChange::Init()
 	}
 }
 
+void SceneChange::Reset()
+{
+	m_finishFlg = false;
+	m_startFlg = false;
+	m_endFlg = false;
+	m_stayCnt = 0;
+}
+
 void SceneChange::StartScene()
 {
-	m_size = { 0, 0 };
-	m_startFlg = true;
+	// シーンを始める際は、サイズを0から大きくしていく
+	if (!m_startFlg)
+	{
+		m_size = m_minSize;
+		m_startFlg = true;
+	}
 }
 
 void SceneChange::EndScene()
 {
-	m_size = { 1280, 720 };
-	m_endFlg = true;
+	// シーンを終える際は、サイズを最大から小さくしていく
+	if (!m_endFlg)
+	{
+		m_size = m_maxSize;
+		m_endFlg = true;
+	}
 }

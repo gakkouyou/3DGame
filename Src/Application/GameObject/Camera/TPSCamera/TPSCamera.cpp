@@ -98,9 +98,14 @@ void TPSCamera::Init()
 
 
 	// 注視点
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 12.0f, -20.0f);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 12.0f, -25.0f);
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
+}
+
+void TPSCamera::Reset()
+{
+
 }

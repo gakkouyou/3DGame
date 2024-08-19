@@ -10,6 +10,7 @@ public :
 	enum class SceneType
 	{
 		Title,
+		StageSelect,
 		Game,
 	};
 

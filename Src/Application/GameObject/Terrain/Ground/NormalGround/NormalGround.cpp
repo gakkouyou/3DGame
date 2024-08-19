@@ -22,8 +22,7 @@ void NormalGround::Init()
 	// オブジェクトタイプ
 	m_objectType = ObjectType::NormalGround;
 
-	// 大まかなオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Ground;
+	TerrainBase::Init();
 }
 
 void NormalGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)

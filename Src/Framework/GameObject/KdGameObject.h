@@ -46,7 +46,6 @@ public:
 	virtual Math::Vector3 GetScale() const;
 
 	const Math::Matrix& GetMatrix() const { return m_mWorld; }
-	const Math::Matrix& GetRotationMatrix() const { return m_mRotation; }
 
 	virtual bool IsExpired() const { return m_isExpired; }
 	virtual void SetExpired(const bool _isExpired) { m_isExpired = _isExpired; }
@@ -84,6 +83,8 @@ public:
 		NormalWall,		// 触れても何も起きない壁
 		MoveGround,		// 動く床
 		RotationGround,	// 回転する床
+		Fence,			// 柵
+		HalfFence,		// 片方柵
 
 		None,			// ない
 	};
@@ -125,7 +126,6 @@ protected:
 
 	// 3D空間に存在する機能
 	Math::Matrix	m_mWorld;
-	Math::Matrix	m_mRotation	= Math::Matrix::Identity;
 
 	// 当たり判定クラス
 	std::unique_ptr<KdCollider> m_pCollider = nullptr;

@@ -60,8 +60,16 @@ private:
 	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
 
-	// ホーミング状態のスピード
-	const float m_homingSpeed	= 0.2f;
+	// ホーミング用構造体
+	struct HomingStruct
+	{
+		const float viewingAngle	= 60.0f;
+		const float rotDegAng		= 5.0f;
+		const float speed			= 0.2f;
+	};
+
+	HomingStruct m_homing;
+
 
 	// ターゲットを見つけた時の処理
 	void FindTarget();
@@ -89,5 +97,17 @@ private:
 	LostTargetAnimation m_lostTarget;
 
 	// ジャンプ力
-	const float m_jumpPow	= 0.4f;
+	const float m_jumpPow	= 2.f;
+
+	// 歩くモーション用
+	struct Walk
+	{
+		const float jumpPow		= 0.2f;		// ジャンプ力
+		const float movePow		= 0.4f;		// 動く量
+		const int	stayTime	= 60;		// 待機時間
+		int			stayCount	= 0;		// 待機カウント
+		bool		stayFlg		= false;	// 待機フラグ
+	};
+
+	Walk m_walkMotion;
 };

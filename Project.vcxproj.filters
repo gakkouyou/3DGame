@@ -142,6 +142,27 @@
     <Filter Include="Src\Application\GameObject\SceneChange">
       <UniqueIdentifier>{09676046-5b74-459d-9920-db796e6df54d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object">
+      <UniqueIdentifier>{fc5e0cc9-418f-4f8e-bf81-450fe1175c06}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Fence">
+      <UniqueIdentifier>{9d08345c-f92d-4851-a7e5-6d11d4ef7318}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\HalfFence">
+      <UniqueIdentifier>{88533c81-3b36-4e08-81a6-615023f50c71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Scene\StageSelectScene">
+      <UniqueIdentifier>{955d4cb6-3a83-4d67-a7d8-1ac84349c9bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Character\StageSelectPlayer">
+      <UniqueIdentifier>{9deaefb4-b41d-446b-b9e3-713ea4ef295d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Camera\StageSelectCamera">
+      <UniqueIdentifier>{7bd10deb-263b-48e5-86ff-7f3b5f0aac57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\StageSelectTexture">
+      <UniqueIdentifier>{7d8fa946-bc18-4b89-b4fe-3f06cd34109b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -363,6 +384,24 @@
     <ClInclude Include="Src\Application\GameObject\SceneChange\SceneChange.h">
       <Filter>Src\Application\GameObject\SceneChange</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\Utility.h">
+      <Filter>Src\Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Fence\Fence.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Fence</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\HalfFence\HalfFence.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\HalfFence</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Scene\StageSelectScene\StageSelectScene.h">
+      <Filter>Src\Application\Scene\StageSelectScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.h">
+      <Filter>Src\Application\GameObject\Character\StageSelectPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.h">
+      <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -556,6 +595,21 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\SceneChange\SceneChange.cpp">
       <Filter>Src\Application\GameObject\SceneChange</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Fence\Fence.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Fence</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\HalfFence\HalfFence.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\HalfFence</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Scene\StageSelectScene\StageSelectScene.cpp">
+      <Filter>Src\Application\Scene\StageSelectScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.cpp">
+      <Filter>Src\Application\GameObject\Character\StageSelectPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.cpp">
+      <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

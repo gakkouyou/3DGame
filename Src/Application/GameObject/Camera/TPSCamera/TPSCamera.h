@@ -10,6 +10,8 @@ public:
 	void PostUpdate()		override;
 	void Init()				override;
 
+	void Reset()			override;
+
 private:
 	// マップエディタモードの際に使用する座標
 	Math::Vector3 m_debugPos	= Math::Vector3::Zero;

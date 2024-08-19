@@ -12,7 +12,7 @@ void Goal::Update()
 	}
 
 	Math::Vector3 pos = GetPos();
-	pos.y = sin(DirectX::XMConvertToRadians(m_sinAngle));
+	pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle)) / 20;
 
 	// 回転させる
 	m_degAng += m_moveDegAng;
@@ -53,4 +53,14 @@ void Goal::OnHit()
 {
 	Application::Instance().m_log.Clear();
 	Application::Instance().m_log.AddLog("Clear");
+}
+
+void Goal::Reset()
+{
+	// 少し回転させる
+	m_moveDegAng	= 1.0f;
+	m_degAng		= 0.0f;
+
+	// 上下にふよふよさせる
+	m_sinAngle = 0;
 }

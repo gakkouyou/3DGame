@@ -101,8 +101,7 @@ void MoveGround::Init()
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::MoveGround;
 
-	// 大まかなオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Ground;
+	TerrainBase::Init();
 
 	// 描画タイプ
 	m_drawType = eDrawTypeLit;
@@ -129,7 +128,11 @@ void MoveGround::Reset()
 {
 	m_param.pos = m_param.startPos;
 
-	m_moveFlg = true;
-
 	m_stayCnt = 0;
+
+	m_moveFlg = false;
+	m_stayCnt = 0;
+	m_moveDirFlg = false;
+	m_param.pos = m_param.startPos;
+	m_stopFlg = false;
 }

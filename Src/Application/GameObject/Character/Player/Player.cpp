@@ -160,14 +160,11 @@ void Player::Update()
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
 
-	if (!m_effectFlg)
-	{
-		m_effectFlg = true;
-		KdEffekseerManager::GetInstance().Play("test.efkefc", { 0, 3, 0 }, { 90.0f, 90.0f, 0 }, 0.1f, 0.5f, true);
-	}
-
-	Application::Instance().m_log.AddLog("pos.x:%.2f pos.y:%.2f pos.z:%.2f\n", m_pos.x, m_pos.y, m_pos.z);
-	Application::Instance().m_log.AddLog("situation:%d\n", m_situationType);
+	//if (!m_effectFlg)
+	//{
+	//	m_effectFlg = true;
+	//	KdEffekseerManager::GetInstance().Play("test.efkefc", { 0, 3, 0 }, { 90.0f, 90.0f, 0 }, 0.1f, 0.5f, true);
+	//}
 
 	// 当たり判定
 	HitJudge();
@@ -269,9 +266,11 @@ void Player::Reset()
 
 	// 角度
 	m_angle = 0;
+	m_rotMat = Math::Matrix::CreateRotationY(m_angle);
 
 	// アニメーションフラグ
 	m_walkAnimeDirFlg = false;
+
 }
 
 // 当たり判定
@@ -483,7 +482,7 @@ void Player::HitJudgeGround()
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
 					// 動く前の行列
-					m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
+					//m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
 					m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					break;
 
@@ -517,7 +516,7 @@ void Player::HitJudgeEvent()
 	spherePos.y += 1.5f;
 
 	bool hitFlg = false;
-	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, true);
+	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, false);
 
 	if (hitFlg)
 	{

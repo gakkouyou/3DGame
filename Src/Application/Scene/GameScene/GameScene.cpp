@@ -10,6 +10,7 @@
 #include "../../GameObject/EventObject/Goal/Goal.h"
 #include "../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
 #include "../../GameObject/SceneChange/SceneChange.h"
+#include "../../GameObject/Terrain/Object/Fence/Fence.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -33,13 +34,67 @@ void GameScene::Event()
 		m_debugKeyFlg = false;
 	}
 
-	// プレイヤーが死んだときの処理
-	std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
-	if (spPlayer)
+	// シーンが開始した時の処理
+	if (!m_sceneStartFlg)
 	{
-		if (spPlayer->GetAlive() == false)
+		if (!m_wpSceneChange.expired())
 		{
-			
+			m_wpSceneChange.lock()->StartScene();
+
+			if (m_wpSceneChange.lock()->GetFinishFlg())
+			{
+				m_sceneStartFlg = true;
+				m_wpSceneChange.lock()->Reset();
+			}
+		}
+	}
+
+	// プレイヤーが死んだときの処理
+	if (!m_resetFlg)
+	{
+		std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
+		if (spPlayer)
+		{
+			if (spPlayer->GetAlive() == false)
+			{
+				if (!m_wpSceneChange.expired())
+				{
+					// シーン遷移を終えたらリセット
+					if (m_wpSceneChange.lock()->GetFinishFlg())
+					{
+						for (auto& obj : m_objList)
+						{
+							if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+							{
+								obj->SetExpired(true);
+							}
+
+							obj->Reset();
+							m_resetFlg = true;
+						}
+					}
+					else
+					{
+						m_wpSceneChange.lock()->EndScene();
+					}
+				}
+			}
+		}
+	}
+
+	if (m_resetFlg)
+	{
+		if (!m_wpSceneChange.expired())
+		{
+			if (m_wpSceneChange.lock()->GetFinishFlg())
+			{
+				m_resetFlg = false;
+				m_wpSceneChange.lock()->Reset();
+			}
+			else
+			{
+				m_wpSceneChange.lock()->StartScene();
+			}
 		}
 	}
 
@@ -49,8 +104,10 @@ void GameScene::Init()
 {
 	// マップエディタ的な
 	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
+	objectController->SetCSV("Asset/Data/CSV/Terrain.csv");
 	objectController->Init();
 	AddObject(objectController);
+	// CSVファイルを指定する
 
 	// 敵エディタ的な
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
@@ -65,7 +122,8 @@ void GameScene::Init()
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
 	AddObject(sceneChange);
-	sceneChange->EndScene();
+	// 保持
+	m_wpSceneChange = sceneChange;
 
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
@@ -101,7 +159,7 @@ void GameScene::Init()
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
+	goal->SetPos({ 220, 22, 50 });
 	goal->Init();
-	goal->SetPos({ 0, 0, 10 });
 	AddObject(goal);
 }

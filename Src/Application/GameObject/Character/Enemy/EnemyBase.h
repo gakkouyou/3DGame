@@ -12,6 +12,9 @@ public:
 
 	virtual void Init()			override;
 
+	// リセット処理
+	virtual void Reset()		override;
+
 	// ターゲットをセットする
 	void SetTarget(const std::shared_ptr<KdGameObject>& _spTarget) { m_wpTarget = _spTarget; }
 

@@ -1,13 +1,28 @@
 ﻿#include "NormalEnemy.h"
 #include "Application/main.h"
+#include "../../../../Scene/SceneManager.h"
 
 void NormalEnemy::Update()
 {
+	// デバッグモード中は更新しない
+	if (SceneManager::Instance().GetDebug()) return;
+
+	// Stop以外のフラグが立っていたらStopをおろす
+	if ((m_situationType & (~SituationType::Stop)) && (m_situationType & SituationType::Stop))
+	{
+		m_situationType &= (~SituationType::Stop);
+	}
+	// 何もフラグが立っていなかったらStopにする
+	if (m_situationType == 0)
+	{
+		m_situationType = SituationType::Stop;
+	}
+
 	// ベクトルリセット
 	m_moveVec = Math::Vector3::Zero;
 
-	Application::Instance().m_log.Clear();
-	Application::Instance().m_log.AddLog("%d\n", m_situationType);
+	//Application::Instance().m_log.Clear();
+	Application::Instance().m_log.AddLog("%.2f\n", m_gravity);
 
 	if (m_setParamFlg == false)
 	{
@@ -106,7 +121,7 @@ void NormalEnemy::Update()
 				// 空中じゃなければ少しジャンプ
 				if ((m_situationType & SituationType::Air) == 0)
 				{
-					m_gravity = -m_jumpPow;
+					
 				}
 			}
 		}
@@ -131,13 +146,38 @@ void NormalEnemy::Update()
 		// ホーミング状態ならスピードを上げる
 		if (m_situationType & SituationType::Homing)
 		{
-			speed = m_homingSpeed;
+			speed = m_homing.speed;
+			m_walkMotion.stayCount = m_walkMotion.stayTime;
 		}
 		else
 		{
 			speed = m_moveSpeed;
 		}
-		m_pos += m_moveVec * speed;
+		
+		// 見失ったモーション中でないときに処理
+		if ((m_situationType & SituationType::LostTarget) == 0 && (m_situationType & SituationType::Find) == 0)
+		{
+			// 待機中でなければ動かす
+			if (m_walkMotion.stayFlg == false)
+			{
+				m_pos += m_moveVec * speed;
+			}
+			// 待機中
+			else
+			{
+				m_walkMotion.stayCount++;
+				// 待機時間が終了したら、待機を終了し、少しジャンプさせる
+				if (m_walkMotion.stayCount > m_walkMotion.stayTime)
+				{
+					m_walkMotion.stayFlg = false;
+					if ((m_situationType & SituationType::Air) == 0)
+					{
+						m_gravity = -m_walkMotion.jumpPow;
+					}
+					m_walkMotion.stayCount = 0;
+				}
+			}
+		}
 
 		// 重力
 		m_gravity += m_gravityPow;
@@ -157,26 +197,25 @@ void NormalEnemy::Update()
 		m_degAng = 0;
 		m_setParamFlg = false;
 	}
-
-	Application::Instance().m_log.Clear();
-	Application::Instance().m_log.AddLog("%.2f\n", m_degAng);
-
-	// searchエリア可視化
-	m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
-	Math::Vector3 pos = m_param.startPos;
-	pos.y = m_pos.y;
-	// moveエリア可視化
-	m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
 }
 
 void NormalEnemy::PostUpdate()
 {
+	//// searchエリア可視化
+	//m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
+	//Math::Vector3 pos = m_param.startPos;
+	//pos.y = m_pos.y;
+	//// moveエリア可視化
+	//m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
+
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	// 回転行列
 	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-	m_mWorld = m_rotMat * transMat;
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.5f);
+
+	m_mWorld = scaleMat * m_rotMat * transMat;
 }
 
 void NormalEnemy::Init()
@@ -195,7 +234,7 @@ void NormalEnemy::Init()
 
 
 	// スピード
-	m_moveSpeed = 0.1f;
+	m_moveSpeed = 0.2f;
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
@@ -212,9 +251,6 @@ void NormalEnemy::Init()
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::NormalEnemy;
 
-	// 大まかなオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Enemy;
-
 	EnemyBase::Init();
 
 	// デバッグワイヤー
@@ -223,7 +259,16 @@ void NormalEnemy::Init()
 
 void NormalEnemy::Reset()
 {
+	// ゴールの座標を求める
+	m_degAng = rand() % 360;
+	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
+	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
 
+	// 回転させる
+	m_move.rotFlg = true;
+
+	// 今の状況
+	m_situationType = SituationType::Stop;
 }
 
 void NormalEnemy::HitJudge()
@@ -233,7 +278,7 @@ void NormalEnemy::HitJudge()
 	Math::Vector3 hitDir = Math::Vector3::Zero;
 	// スフィアの中心座標
 	Math::Vector3 centerPos = m_pos;
-	centerPos.y -= 2.0f;
+	//centerPos.y -= 2.0f;
 	// スフィアの半径
 	float radius = 1.0f;
 	centerPos.y += radius;
@@ -299,6 +344,8 @@ void NormalEnemy::HitJudge()
 				//m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 				// 動く床に当たったかどうか
 				//m_moveGround.hitFlg = true;
+
+				m_walkMotion.stayFlg = true;
 				break;
 
 				// 回る床
@@ -316,6 +363,8 @@ void NormalEnemy::HitJudge()
 				// 動く前の行列
 				//m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
 				//m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+
+				m_walkMotion.stayFlg = true;
 				break;
 
 				// 通常
@@ -327,10 +376,17 @@ void NormalEnemy::HitJudge()
 				m_pos += hitDir * maxOverLap;
 				// 重力
 				m_gravity = 0.0f;
+
+				if (m_situationType & SituationType::Find)
+				{
+					m_gravity = -m_jumpPow;
+				}
 				// 空中にいない
 				m_situationType &= (~SituationType::Air);
 				m_situationType &= (~SituationType::Jump);
 				m_situationType &= (~SituationType::Find);
+
+				m_walkMotion.stayFlg = true;
 				break;
 			}
 		}
@@ -357,7 +413,7 @@ void NormalEnemy::TargetHoming()
 			float dot = forwardVec.Dot(vec);
 			dot = std::clamp(dot, -1.0f, 1.0f);
 			float deg = DirectX::XMConvertToDegrees(acos(dot));
-			if (deg < 30)
+			if (deg < m_homing.viewingAngle)
 			{
 				// 見つけモーション中は動かない
 				if ((m_situationType & SituationType::Find) == 0)
@@ -368,7 +424,7 @@ void NormalEnemy::TargetHoming()
 				}
 				m_situationType |= SituationType::Homing;
 
-				RotationCharacter(m_degAng, vec, 5.0f);
+				RotationCharacter(m_degAng, vec, m_homing.rotDegAng);
 			}
 			else
 			{

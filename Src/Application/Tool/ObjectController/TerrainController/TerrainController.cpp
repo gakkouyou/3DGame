@@ -9,6 +9,8 @@
 #include "../../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
 #include "../../../GameObject/Terrain/Ground/MoveGround/MoveGround.h"
 #include "../../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
+#include "../../../GameObject/Terrain/Object/Fence/Fence.h"
+#include "../../../GameObject/Terrain/Object/HalfFence/HalfFence.h"
 
 void TerrainController::Update()
 {
@@ -122,6 +124,26 @@ void TerrainController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.RotationGround);
 				break;
+
+				// 柵の場合
+			case ObjectType::Fence:
+				// タイプのセット
+				data.type = "Fence";
+				// カウントを進める
+				m_objectCount.Fence++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.Fence);
+				break;
+
+				// 片方柵の場合
+			case ObjectType::HalfFence:
+				// タイプのセット
+				data.type = "HalfFence";
+				// カウントを進める
+				m_objectCount.HalfFence++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.HalfFence);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -171,6 +193,7 @@ void TerrainController::DeleteObject()
 			if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
 			{
 				m_dataList.erase(m_dataList.begin() + i);
+				break;
 			}
 		}
 		m_wpTargetObject.lock()->SetExpired(true);
@@ -215,6 +238,26 @@ void TerrainController::CreateObject(Object _object)
 	case Object::RotationGround:
 	{
 		std::shared_ptr<RotationGround> object = std::make_shared<RotationGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 柵
+	case Object::Fence:
+	{
+		std::shared_ptr<Fence> object = std::make_shared<Fence>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 片方柵
+	case Object::HalfFence:
+	{
+		std::shared_ptr<HalfFence> object = std::make_shared<HalfFence>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -300,13 +343,51 @@ void TerrainController::BeginCreateObject()
 			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
 			m_wpTerrainList.push_back(object);
 		}
+		// 柵
+		else if (data.type == "Fence")
+		{
+			std::shared_ptr<Fence> object = std::make_shared<Fence>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.Fence++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.Fence);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 座標をセットする
+			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			// リストに追加
+			m_wpTerrainList.push_back(object);
+		}
+		// 片方の柵
+		else if (data.type == "HalfFence")
+		{
+			std::shared_ptr<HalfFence> object = std::make_shared<HalfFence>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.HalfFence++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.HalfFence);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 座標をセットする
+			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			// リストに追加
+			m_wpTerrainList.push_back(object);
+		}
 	}
 }
 
 void TerrainController::CSVLoader()
 {
+	std::ifstream ifs(m_fileName);
 
-	std::ifstream ifs("Asset/Data/CSV/Terrain.csv");
 	if (!ifs.is_open())
 	{
 		return;
@@ -395,7 +476,7 @@ void TerrainController::CSVLoader()
 
 void TerrainController::CSVWriter()
 {
-	std::ofstream ofs("Asset/Data/CSV/Terrain.csv");
+	std::ofstream ofs(m_fileName);
 
 	for (auto& data : m_dataList)
 	{
@@ -425,7 +506,7 @@ void TerrainController::CSVWriter()
 void TerrainController::MouseSelect()
 {
 	// マウスでオブジェクトを選択する
-	std::shared_ptr<const TPSCamera> spCamera = m_wpCamera.lock();
+	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
 
 	// カメラが無かったら終了
 	if (!spCamera) return;

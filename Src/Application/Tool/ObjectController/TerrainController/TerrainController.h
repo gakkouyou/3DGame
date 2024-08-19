@@ -2,6 +2,7 @@
 
 class TPSCamera;
 class TerrainBase;
+class CameraBase;
 
 class TerrainController : public KdGameObject
 {
@@ -15,8 +16,11 @@ public:
 	// リセット処理
 	void Reset()		override;
 
+	// CSVファイルを指定する
+	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
+
 	// カメラをセットする
-	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
+	void SetCamera(const std::shared_ptr<const CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// 今持っているオブジェクトのタイプをゲットする
 	const ObjectType GetObjectType() const;
@@ -31,6 +35,8 @@ public:
 		MoveGround,		// 動く床
 		NormalWall,		// 通常の壁
 		RotationGround,	// 回る床
+		Fence,			// 柵
+		HalfFence,		// 片方の柵
 	};
 
 	// オブジェクトを確定する(wp_ptrをリセットする)
@@ -43,6 +49,9 @@ public:
 	void CSVWriter();
 
 private:
+	// CSVファイルの名前
+	std::string m_fileName;
+
 	// マウスでオブジェクトを選択する
 	void MouseSelect();
 
@@ -53,7 +62,7 @@ private:
 	std::vector<std::weak_ptr<TerrainBase>> m_wpTerrainList;
 
 	// カメラ
-	std::weak_ptr<const TPSCamera>	m_wpCamera;
+	std::weak_ptr<const CameraBase>	m_wpCamera;
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();
@@ -67,6 +76,8 @@ private:
 		int BoundGround		= 0;
 		int MoveGround		= 0;
 		int RotationGround	= 0;
+		int Fence			= 0;
+		int HalfFence		= 0;
 	};
 
 	Count m_objectCount;

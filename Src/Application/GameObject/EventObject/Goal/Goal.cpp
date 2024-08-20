@@ -3,29 +3,38 @@
 
 void Goal::Update()
 {
-	// 上下にふよふよさせる
-	// sinカーブ
-	m_sinAngle += 1.0f;
-	if (m_sinAngle >= 360)
+	if (!m_goalFlg)
 	{
-		m_sinAngle -= 360;
+		// 上下にふよふよさせる
+		// sinカーブ
+		m_sinAngle += 1.0f;
+		if (m_sinAngle >= 360)
+		{
+			m_sinAngle -= 360;
+		}
+
+		Math::Vector3 pos = m_pos;
+		pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
+
+		// 回転させる
+		m_degAng += m_moveDegAng;
+		if (m_degAng >= 360.0f)
+		{
+			m_degAng -= 360.0f;
+		}
+
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
+
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+
+		m_mWorld = rotMat * transMat;
 	}
-
-	Math::Vector3 pos = GetPos();
-	pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle)) / 20;
-
-	// 回転させる
-	m_degAng += m_moveDegAng;
-	if (m_degAng >= 360.0f)
+	else
 	{
-		m_degAng -= 360.0f;
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+
+		m_mWorld = transMat;
 	}
-
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
-
-	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-
-	m_mWorld = rotMat * transMat;
 }
 
 void Goal::DrawUnLit()
@@ -47,12 +56,16 @@ void Goal::Init()
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+
+	m_baseObjectType = BaseObjectType::Event;
 }
 
 void Goal::OnHit()
 {
 	Application::Instance().m_log.Clear();
 	Application::Instance().m_log.AddLog("Clear");
+
+	m_goalFlg	= true;
 }
 
 void Goal::Reset()

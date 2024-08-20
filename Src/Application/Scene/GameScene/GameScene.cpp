@@ -98,6 +98,17 @@ void GameScene::Event()
 		}
 	}
 
+	// ゴール処理
+	if(!m_wpGoal.expired())
+	{
+		if (m_wpGoal.lock()->GetGoalFlg())
+		{
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetGoalFlg(true);
+			}
+		}
+	}
 }
 
 void GameScene::Init()
@@ -159,7 +170,13 @@ void GameScene::Init()
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
-	goal->SetPos({ 220, 22, 50 });
+	//goal->SetPos({ 220, 30, 50 });
+	goal->SetPos({ 20, 10, -10 });
 	goal->Init();
 	AddObject(goal);
+	// 保持
+	m_wpGoal = goal;
+
+	// カメラにゴールの座標をセットする
+	tpsCamera->SetGoalPos(goal->GetPos());
 }

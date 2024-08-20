@@ -8,6 +8,9 @@
 #include "../../GameObject/Camera/StageSelectCamera/StageSelectCamera.h"
 #include "../../GameObject/Character/StageSelectPlayer/StageSelectPlayer.h"
 
+#include "../../GameObject/StageSelectTexture/StageSelectTexture.h"
+#include "../../GameObject/StageSelectUI//StageSelectUI.h"
+
 void StageSelectScene::Event()
 {
 	// デバッグ用　ENTERを押すと、マップを配置できるデバッグモードになる
@@ -39,7 +42,7 @@ void StageSelectScene::Event()
 		}
 	}
 
-	if (GetAsyncKeyState(VK_RSHIFT) & 0x8000)
+	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 	{
 		if (!m_wpSceneChange.expired())
 		{
@@ -57,6 +60,18 @@ void StageSelectScene::Event()
 			);
 		}
 	}
+
+
+	// 現在のステージをゲット&セット
+	int nowStage = 0;
+	if (!m_wpStageSelectTexture.expired())
+	{
+		nowStage = m_wpStageSelectTexture.lock()->GetNowStage();
+	}
+	if (!m_wpUI.expired())
+	{
+		m_wpUI.lock()->SetNowStage(nowStage);
+	}
 }
 
 void StageSelectScene::Init()
@@ -69,13 +84,6 @@ void StageSelectScene::Init()
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
-
-	// シーンを変える
-	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
-	sceneChange->Init();
-	AddObject(sceneChange);
-	// 保持
-	m_wpSceneChange = sceneChange;
 
 	// プレイヤー
 	std::shared_ptr<StageSelectPlayer> player = std::make_shared<StageSelectPlayer>();
@@ -93,4 +101,29 @@ void StageSelectScene::Init()
 
 	// オブジェクトコントローラーにカメラを渡す
 	objectController->SetCamera(camera);
+
+	// ステージの画像
+	std::shared_ptr<StageSelectTexture> stageSelectTexture = std::make_shared<StageSelectTexture>();
+	stageSelectTexture->Init();
+	AddObject(stageSelectTexture);
+	// 保持
+	m_wpStageSelectTexture = stageSelectTexture;
+	// ステージの上限
+	int maxStage = stageSelectTexture->GetMaxStage();
+
+	// UI
+	std::shared_ptr<StageSelectUI> ui = std::make_shared<StageSelectUI>();
+	ui->Init();
+	AddObject(ui);
+	// 保持
+	m_wpUI = ui;
+	// ステージの上限をセット
+	ui->SetMaxStage(maxStage);
+
+	// シーンを変える
+	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
+	sceneChange->Init();
+	AddObject(sceneChange);
+	// 保持
+	m_wpSceneChange = sceneChange;
 }

@@ -6,6 +6,7 @@ class TPSCamera;
 class TerrainController;
 class Player;
 class SceneChange;
+class Goal;
 
 class GameScene : public BaseScene
 {
@@ -31,6 +32,9 @@ private:
 	// シーンチェンジ
 	std::weak_ptr<SceneChange> m_wpSceneChange;
 
+	// ゴール
+	std::weak_ptr<Goal> m_wpGoal;
+
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
 
@@ -40,4 +44,7 @@ private:
 	// デバッグ用
 	bool m_debugFlg = false;
 	bool m_debugKeyFlg = false;
+
+	// ゴールフラグ
+	bool m_goalFlg = false;
 };

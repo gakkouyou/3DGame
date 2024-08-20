@@ -101,6 +101,7 @@ void SceneChange::StartScene()
 
 void SceneChange::EndScene()
 {
+	if (m_startFlg == true)return;
 	// シーンを終える際は、サイズを最大から小さくしていく
 	if (!m_endFlg)
 	{

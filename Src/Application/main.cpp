@@ -99,7 +99,7 @@ void Application::KdBeginDraw(bool usePostProcess)
 void Application::KdPostDraw()
 {
 	// ImGui処理
-	ImGuiProcess();
+	//ImGuiProcess();
 	// デバッグ用IMGUI
 	DebugWindow::Instance().Draw();
 
@@ -368,27 +368,7 @@ void Application::ImGuiProcess()
 {
 	return;
 
-	//===========================================================
-	// ImGui開始
-	//===========================================================
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
 
-	//===========================================================
-	// 以下にImGui描画処理を記述
-	//===========================================================
-
-	// デバッグウィンドウ
-	//if (ImGui::Begin("Debug Window"))
-	//{
-	//	// FPS
-	//	ImGui::Text("FPS : %d", m_fpsController.m_nowfps);
-	//}
-	//ImGui::End();
-
-	// ログウィンドウ
-	m_log.Draw("Log Window");
 
 	//=====================================================
 	// ログ出力 ・・・ AddLog("～") で追加

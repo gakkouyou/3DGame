@@ -22,6 +22,9 @@ public:
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
+	// クリアしたかどうか
+	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
+
 private:
 	// 当たり判定
 	void HitJudge();
@@ -30,7 +33,7 @@ private:
 	// 当たったらイベントが発生する系の当たり判定
 	void HitJudgeEvent();
 	// 敵との当たり判定
-	void HitEnemy();
+	void HitJudgeEnemy();
 
 	// オブジェクトに当たった時の反応
 	//void Bound();
@@ -79,4 +82,10 @@ private:
 
 	// エフェクシア用フラグ
 	bool m_effectFlg = false;
+
+	// ゴールのフラグ
+	bool m_goalFlg	= false;
+
+	// ゴールした時の処理
+	void GoalProcess();
 };

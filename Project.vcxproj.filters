@@ -163,6 +163,9 @@
     <Filter Include="Src\Application\GameObject\StageSelectTexture">
       <UniqueIdentifier>{7d8fa946-bc18-4b89-b4fe-3f06cd34109b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\StageSelectUI">
+      <UniqueIdentifier>{321515d7-7839-48d9-bdad-69de964528d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -402,6 +405,12 @@
     <ClInclude Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.h">
       <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h">
+      <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.h">
+      <Filter>Src\Application\GameObject\StageSelectUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -610,6 +619,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.cpp">
       <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp">
+      <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.cpp">
+      <Filter>Src\Application\GameObject\StageSelectUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

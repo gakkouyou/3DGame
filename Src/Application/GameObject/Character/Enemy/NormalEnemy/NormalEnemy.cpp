@@ -201,12 +201,15 @@ void NormalEnemy::Update()
 
 void NormalEnemy::PostUpdate()
 {
-	//// searchエリア可視化
-	//m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
-	//Math::Vector3 pos = m_param.startPos;
-	//pos.y = m_pos.y;
-	//// moveエリア可視化
-	//m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
+	if (SceneManager::Instance().GetDebug())
+	{
+		// searchエリア可視化
+		m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
+		Math::Vector3 pos = m_param.startPos;
+		pos.y = m_pos.y;
+		// moveエリア可視化
+		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
+	}
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 

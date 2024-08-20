@@ -15,8 +15,16 @@ public:
 	// リセット処理
 	void Reset()	override;
 
+	void SetPos(const Math::Vector3& _pos)	override { m_pos = _pos; }
+	Math::Vector3 GetPos() const			override { return m_pos; }
+
+	const bool GetGoalFlg() const { return m_goalFlg; }
+
 private:
 	std::shared_ptr<KdModelData> m_spModel;
+
+	Math::Vector3 m_pos	= Math::Vector3::Zero;
+	//Math::Vector3 m_
 
 	// 少し回転させる
 	float m_moveDegAng = 1.0f;
@@ -24,4 +32,7 @@ private:
 
 	// 上下にふよふよさせる
 	float m_sinAngle = 0;
+
+	// ゴールフラグ
+	bool m_goalFlg	= false;
 };

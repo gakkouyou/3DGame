@@ -286,7 +286,7 @@ void Player::HitJudge()
 	HitJudgeEvent();
 
 	// 敵との当たり判定
-	HitEnemy();
+	HitJudgeEnemy();
 }
 
 void Player::HitJudgeGround()
@@ -513,10 +513,10 @@ void Player::HitJudgeGround()
 void Player::HitJudgeEvent()
 {
 	Math::Vector3 spherePos = m_pos;
-	spherePos.y += 1.5f;
+	spherePos.y += 6.f;
 
 	bool hitFlg = false;
-	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, false);
+	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, true);
 
 	if (hitFlg)
 	{
@@ -542,7 +542,7 @@ void Player::HitJudgeEvent()
 	}
 }
 
-void Player::HitEnemy()
+void Player::HitJudgeEnemy()
 {
 	// 方向
 	Math::Vector3 hitDir = Math::Vector3::Zero;
@@ -583,4 +583,9 @@ void Player::HitEnemy()
 
 		m_gravity = -1.0f;
 	}
+}
+
+void Player::GoalProcess()
+{
+	
 }

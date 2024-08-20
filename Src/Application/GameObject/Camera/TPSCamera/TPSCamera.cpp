@@ -88,6 +88,12 @@ void TPSCamera::PostUpdate()
 		m_DegAng = Math::Vector3::Zero;
 		m_mWorld = m_mLocalPos * targetMat;
 	}
+
+	if (m_goalFlg)
+	{
+		GoalProcess();
+	}
+
 	CameraBase::Update();
 }
 
@@ -96,16 +102,26 @@ void TPSCamera::Init()
 	// 親クラスの初期化呼び出し
 	CameraBase::Init();
 
-
 	// 注視点
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 12.0f, -25.0f);
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
+
+	m_goalLocalPos = { 0, 4, -9 };
 }
 
 void TPSCamera::Reset()
 {
 
+}
+
+void TPSCamera::GoalProcess()
+{
+	Math::Matrix goalMat = Math::Matrix::CreateTranslation(m_goalPos);
+
+	Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalLocalPos);
+
+	m_mWorld = localMat * goalMat;
 }

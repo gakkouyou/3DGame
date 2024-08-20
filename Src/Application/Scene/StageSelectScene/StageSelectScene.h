@@ -6,6 +6,8 @@ class StageSelectCamera;
 class TerrainController;
 class StageSelectPlayer;
 class SceneChange;
+class StageSelectTexture;
+class StageSelectUI;
 
 class StageSelectScene : public BaseScene
 {
@@ -30,6 +32,12 @@ private:
 
 	// シーンチェンジ
 	std::weak_ptr<SceneChange> m_wpSceneChange;
+
+	// ステージセレクトの画像クラス
+	std::weak_ptr<StageSelectTexture> m_wpStageSelectTexture;
+
+	// UI
+	std::weak_ptr<StageSelectUI> m_wpUI;
 
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;

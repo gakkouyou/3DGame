@@ -35,4 +35,6 @@ private:
 
 	// ゴールフラグ
 	bool m_goalFlg	= false;
+
+	int cnt = 0;
 };

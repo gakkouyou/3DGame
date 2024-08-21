@@ -109,7 +109,18 @@ void TPSCamera::Init()
 
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
 
-	m_goalLocalPos = { 0, 4, -9 };
+	m_goalProcess.moveFrame = 150;
+	m_goalProcess.startPos	= { 0, 4, -9 };
+	m_goalProcess.endPos	= { 0, 6, -20 };
+	m_goalProcess.nowPos	= m_goalProcess.startPos;
+	m_goalProcess.moveVec	= m_goalProcess.endPos - m_goalProcess.startPos;
+	m_goalProcess.moveVec.Normalize();
+	m_goalProcess.speed		= (m_goalProcess.endPos - m_goalProcess.startPos).Length() / m_goalProcess.moveFrame;
+	m_goalProcess.startDegAng	= { 0, 0, 0 };
+	m_goalProcess.endDegAng		= { 20, 0, 0 };
+	m_goalProcess.nowDegAng		= m_goalProcess.startDegAng;
+	m_goalProcess.moveDegAng.x	= (m_goalProcess.endDegAng.x - m_goalProcess.startDegAng.x) / m_goalProcess.moveFrame;
+	m_goalProcess.stayFrame		= 60;
 }
 
 void TPSCamera::Reset()
@@ -119,9 +130,38 @@ void TPSCamera::Reset()
 
 void TPSCamera::GoalProcess()
 {
-	Math::Matrix goalMat = Math::Matrix::CreateTranslation(m_goalPos);
+	m_goalProcess.stayCount++;
+	if (m_goalProcess.stayCount > m_goalProcess.stayFrame)
+	{
+		m_goalProcess.frameCount++;
 
-	Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalLocalPos);
+		if (m_goalProcess.frameCount < m_goalProcess.moveFrame)
+		{
+			m_goalProcess.nowPos += m_goalProcess.moveVec * m_goalProcess.speed;
 
-	m_mWorld = localMat * goalMat;
+			Math::Matrix targetMat = Math::Matrix::CreateTranslation(m_goalProcess.targetPos);
+
+			Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalProcess.nowPos);
+
+			m_goalProcess.nowDegAng += m_goalProcess.moveDegAng;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_goalProcess.nowDegAng.x));
+
+			m_mWorld = rotMat * localMat * targetMat;
+		}
+		else
+		{
+			Math::Matrix targetMat = Math::Matrix::CreateTranslation(m_goalProcess.targetPos);
+
+			Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalProcess.endPos);
+
+			Math::Vector3 targetPos = m_goalProcess.targetPos;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_goalProcess.endDegAng.x));
+
+			m_mWorld = rotMat * localMat * targetMat;
+
+			m_goalProcess.moveEndFlg = true;
+		}
+	}
 }

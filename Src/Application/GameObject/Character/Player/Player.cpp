@@ -27,26 +27,29 @@ void Player::Update()
 	// 更新前のプレイヤーの状態を保持
 	UINT oldSituationType = m_situationType;
 
-	// WASDで移動
-	if (GetAsyncKeyState('W') & 0x8000)
+	if (m_stopFlg == false)
 	{
-		m_moveVec.z += 1.0f;
-		m_situationType |= SituationType::Run;
-	}
-	if (GetAsyncKeyState('A') & 0x8000)
-	{
-		m_moveVec.x -= 1.0f;
-		m_situationType |= SituationType::Run;
-	}
-	if (GetAsyncKeyState('S') & 0x8000)
-	{
-		m_moveVec.z -= 1.0f;
-		m_situationType |= SituationType::Run;
-	}
-	if (GetAsyncKeyState('D') & 0x8000)
-	{
-		m_moveVec.x += 1.0f;
-		m_situationType |= SituationType::Run;
+		// WASDで移動
+		if (GetAsyncKeyState('W') & 0x8000)
+		{
+			m_moveVec.z += 1.0f;
+			m_situationType |= SituationType::Run;
+		}
+		if (GetAsyncKeyState('A') & 0x8000)
+		{
+			m_moveVec.x -= 1.0f;
+			m_situationType |= SituationType::Run;
+		}
+		if (GetAsyncKeyState('S') & 0x8000)
+		{
+			m_moveVec.z -= 1.0f;
+			m_situationType |= SituationType::Run;
+		}
+		if (GetAsyncKeyState('D') & 0x8000)
+		{
+			m_moveVec.x += 1.0f;
+			m_situationType |= SituationType::Run;
+		}
 	}
 
 	// カメラの向きで移動方向を補正
@@ -59,14 +62,17 @@ void Player::Update()
 		m_situationType &= (~SituationType::Run);
 	}
 
-	// ジャンプ
-	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
+	if (m_stopFlg == false)
 	{
-		if (!(m_situationType & SituationType::Air))
+		// ジャンプ
+		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		{
-			m_situationType |= SituationType::Jump;
-			m_gravity = -m_jumpPow;
-			m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Jump"), false);
+			if (!(m_situationType & SituationType::Air))
+			{
+				m_situationType |= SituationType::Jump;
+				m_gravity = -m_jumpPow;
+				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Jump"), false);
+			}
 		}
 	}
 
@@ -168,6 +174,11 @@ void Player::Update()
 
 	// 当たり判定
 	HitJudge();
+
+	if (m_goalFlg)
+	{
+		GoalProcess();
+	}
 }
 
 void Player::PostUpdate()
@@ -245,7 +256,7 @@ void Player::Init()
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
 	m_pos.x = 20.0f;
-	m_pos.y = 5.0f;
+	m_pos.y = 4.0f;
 	m_pos.z = -20.0f;
 }
 
@@ -255,7 +266,7 @@ void Player::Reset()
 
 	// 座標
 	m_pos.x = 20.0f;
-	m_pos.y = 5.0f;
+	m_pos.y = 4.0f;
 	m_pos.z = -20.0f;
 	
 	// 生存フラグ
@@ -516,7 +527,7 @@ void Player::HitJudgeEvent()
 	spherePos.y += 6.f;
 
 	bool hitFlg = false;
-	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, true);
+	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, false);
 
 	if (hitFlg)
 	{
@@ -581,11 +592,19 @@ void Player::HitJudgeEnemy()
 		// 敵の当たった処理
 		spHitObject->OnHit();
 
-		m_gravity = -1.0f;
+		m_gravity = -0.7f;
 	}
 }
 
 void Player::GoalProcess()
 {
-	
+	cnt++;
+	if (cnt > 60)
+	{
+		m_pos.x = 220;
+		m_pos.z = 50;
+		m_angle = 180;
+		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
+		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Goal"), true);
+	}
 }

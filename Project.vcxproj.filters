@@ -166,6 +166,9 @@
     <Filter Include="Src\Application\GameObject\StageSelectUI">
       <UniqueIdentifier>{321515d7-7839-48d9-bdad-69de964528d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Result">
+      <UniqueIdentifier>{8cf6b13e-8492-45f4-a33b-feda3911f2ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -411,6 +414,9 @@
     <ClInclude Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.h">
       <Filter>Src\Application\GameObject\StageSelectUI</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Result\Result.h">
+      <Filter>Src\Application\GameObject\Result</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -625,6 +631,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.cpp">
       <Filter>Src\Application\GameObject\StageSelectUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Result\Result.cpp">
+      <Filter>Src\Application\GameObject\Result</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

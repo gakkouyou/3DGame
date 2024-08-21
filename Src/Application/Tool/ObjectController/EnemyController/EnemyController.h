@@ -42,6 +42,9 @@ public:
 	// プレイヤーをセットする
 	void SetPlayer(const std::shared_ptr<Player> _spPlayer) { m_wpPlayer = _spPlayer; }
 
+	// 敵を全員殺す
+	void AllDeath();
+
 private:
 	// マウスでオブジェクトを選択する
 	void MouseSelect();
@@ -49,7 +52,7 @@ private:
 	// 動かすオブジェクト
 	std::weak_ptr<EnemyBase>		m_wpTargetObject;
 
-	// 地形リスト
+	// 敵リスト
 	std::vector<std::weak_ptr<EnemyBase>> m_wpEnemyList;
 
 	// カメラ

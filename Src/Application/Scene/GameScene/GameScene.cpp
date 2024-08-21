@@ -11,6 +11,7 @@
 #include "../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Terrain/Object/Fence/Fence.h"
+#include "../../GameObject/Result/Result.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -82,6 +83,7 @@ void GameScene::Event()
 		}
 	}
 
+	// リセットする
 	if (m_resetFlg)
 	{
 		if (!m_wpSceneChange.expired())
@@ -106,6 +108,33 @@ void GameScene::Event()
 			if (!m_wpCamera.expired())
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
+
+				// 動き終わった後の処理
+				if (m_wpCamera.lock()->GetGoalProcessFinish())
+				{
+					if (!m_wpResult.expired())
+					{
+						m_wpResult.lock()->StageClear();
+
+						if (m_wpResult.lock()->GetClearFinish())
+						{
+							if (!m_wpSceneChange.expired())
+							{
+								m_wpSceneChange.lock()->EndScene();
+
+								if (m_wpSceneChange.lock()->GetFinishFlg())
+								{
+									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
+								}
+							}
+						}
+					}
+				}
+			}
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetGoalFlg(true);
+				m_wpPlayer.lock()->SetStopFlg(true);
 			}
 		}
 	}
@@ -115,10 +144,10 @@ void GameScene::Init()
 {
 	// マップエディタ的な
 	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
+	// CSVファイルを指定する
 	objectController->SetCSV("Asset/Data/CSV/Terrain.csv");
 	objectController->Init();
 	AddObject(objectController);
-	// CSVファイルを指定する
 
 	// 敵エディタ的な
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
@@ -128,13 +157,6 @@ void GameScene::Init()
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
-
-	// シーンを変える
-	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
-	sceneChange->Init();
-	AddObject(sceneChange);
-	// 保持
-	m_wpSceneChange = sceneChange;
 
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
@@ -170,8 +192,8 @@ void GameScene::Init()
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
-	//goal->SetPos({ 220, 30, 50 });
-	goal->SetPos({ 20, 10, -10 });
+	goal->SetPos({ 220, 30, 50 });
+	//goal->SetPos({ 20, 12, -10 });
 	goal->Init();
 	AddObject(goal);
 	// 保持
@@ -179,4 +201,20 @@ void GameScene::Init()
 
 	// カメラにゴールの座標をセットする
 	tpsCamera->SetGoalPos(goal->GetPos());
+
+	// リザルト
+	std::shared_ptr<Result> result = std::make_shared<Result>();
+	result->Init();
+	AddObject(result);
+	// 保持
+	m_wpResult = result;
+
+
+
+	// シーンを変える 絶対一番下
+	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
+	sceneChange->Init();
+	AddObject(sceneChange);
+	// 保持
+	m_wpSceneChange = sceneChange;
 }

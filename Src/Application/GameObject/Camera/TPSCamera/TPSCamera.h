@@ -14,7 +14,9 @@ public:
 
 	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
 
-	void SetGoalPos(Math::Vector3 _goalPos) { m_goalPos = _goalPos; }
+	void SetGoalPos(Math::Vector3 _goalPos) { m_goalProcess.targetPos = _goalPos; }
+
+	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
 private:
 	// マップエディタモードの際に使用する座標
@@ -29,10 +31,28 @@ private:
 	// ゴールフラグ
 	bool m_goalFlg				= false;
 
-	// ゴールの座標
-	Math::Vector3 m_goalPos		= Math::Vector3::Zero;
-	// ゴールの処理の時のローカル行列
-	Math::Vector3 m_goalLocalPos = Math::Vector3::Zero;
+	// 視点移動する際に使用する構造体
+	struct Move
+	{
+		float			moveFrame	= 0;					// 何フレームで終えるか
+		float			frameCount	= 0;					// フレームのカウント
+		bool			moveEndFlg	= false;				// 動き終わったかどうかのフラグ
+		Math::Vector3	startPos	= Math::Vector3::Zero;	// 最初のローカル座標
+		Math::Vector3	endPos		= Math::Vector3::Zero;	// 最終的なローカル座標
+		Math::Vector3	nowPos		= Math::Vector3::Zero;	// 今のローカル座標
+		Math::Vector3	moveVec		= Math::Vector3::Zero;	// 移動ベクトル
+		float			speed		= 0;					// 動く速度
+		Math::Vector3	startDegAng	= Math::Vector3::Zero;	// 最初の角度
+		Math::Vector3	endDegAng	= Math::Vector3::Zero;	// 最終的な角度
+		Math::Vector3	moveDegAng	= Math::Vector3::Zero;	// 動く角度
+		Math::Vector3	nowDegAng	= Math::Vector3::Zero;	// 今の角度
+		float			stayFrame	= 0;					// 動き終わりから次の処理へ移行する際の待機フレーム数
+		float			stayCount	= 0;					// 待機カウント
+		bool			endFlg		= false;				// 待機が終了したかどうかのフラグ
+		Math::Vector3	targetPos	= Math::Vector3::Zero;	// ターゲットの座標
+	};
+	// ゴールの処理の時用
+	Move m_goalProcess;
 
 	void GoalProcess();
 };

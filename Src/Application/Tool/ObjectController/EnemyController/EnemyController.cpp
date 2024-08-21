@@ -186,6 +186,17 @@ void EnemyController::CSVWriter()
 	}
 }
 
+void EnemyController::AllDeath()
+{
+	for (auto& enemy : m_wpEnemyList)
+	{
+		if (!enemy.expired())
+		{
+			enemy.lock()->OnHit();
+		}
+	}
+}
+
 void EnemyController::MouseSelect()
 {
 	// マウスでオブジェクトを選択する

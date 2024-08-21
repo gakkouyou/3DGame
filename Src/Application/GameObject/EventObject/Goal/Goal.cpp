@@ -31,9 +31,13 @@ void Goal::Update()
 	}
 	else
 	{
-		Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+		cnt++;
+		if (cnt > 60)
+		{
+			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-		m_mWorld = transMat;
+			m_mWorld = transMat;
+		}
 	}
 }
 

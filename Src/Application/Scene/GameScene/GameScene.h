@@ -3,10 +3,10 @@
 #include"../BaseScene/BaseScene.h"
 
 class TPSCamera;
-class TerrainController;
 class Player;
 class SceneChange;
 class Goal;
+class Result;
 
 class GameScene : public BaseScene
 {
@@ -34,6 +34,9 @@ private:
 
 	// ゴール
 	std::weak_ptr<Goal> m_wpGoal;
+
+	// リザルト
+	std::weak_ptr<Result> m_wpResult;
 
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;

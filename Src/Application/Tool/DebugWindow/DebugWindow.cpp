@@ -40,7 +40,7 @@ void DebugWindow::Draw()
 		//TerrainWindow();
 
 		// Enemy用のウィンドウ
-		EnemyWindow();
+		//EnemyWindow();
 	}
 
 

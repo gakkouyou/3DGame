@@ -39,7 +39,7 @@ private:
 	// 最小サイズ
 	const float m_minSize	= 0;
 
-	const float m_stayTime	= 60;
+	const float m_stayTime	= 5;
 	float		m_stayCnt	= 0;
 
 	// 始まるフラグ

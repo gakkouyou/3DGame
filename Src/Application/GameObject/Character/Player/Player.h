@@ -25,6 +25,9 @@ public:
 	// クリアしたかどうか
 	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
 
+	// 動いていいかのフラグのセット
+	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
+
 private:
 	// 当たり判定
 	void HitJudge();
@@ -88,4 +91,9 @@ private:
 
 	// ゴールした時の処理
 	void GoalProcess();
+
+	// 止めるフラグ
+	bool m_stopFlg = false;
+
+	float cnt = 0;
 };

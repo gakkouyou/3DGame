@@ -1,4 +1,5 @@
 ﻿#include "StageSelectUI.h"
+#include "../StageSelectTexture/StageSelectTexture.h"
 
 void StageSelectUI::Update()
 {
@@ -12,11 +13,18 @@ void StageSelectUI::Update()
 
 void StageSelectUI::DrawSprite()
 {
+	std::shared_ptr<StageSelectTexture> spStage = m_wpStage.lock();
+	if (!spStage) return;
+
+	int nowStage = spStage->GetNowStage();
+	int maxStage = spStage->GetMaxStage();
+	int stageInfo = spStage->GetStageInfo();
+
 	// 三角
 	if (m_triangle.spTex)
 	{
 		// 右三角
-		if (m_nowStage != m_maxStage)
+		if (nowStage < maxStage)
 		{
 			Math::Matrix rotMat = Math::Matrix::CreateRotationZ(DirectX::XMConvertToRadians(-90.0f));
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_triangle.pos.x, m_triangle.pos.y, 0);
@@ -26,7 +34,7 @@ void StageSelectUI::DrawSprite()
 			KdShaderManager::Instance().m_spriteShader.SetMatrix(Math::Matrix::Identity);
 		}
 		// 左三角
-		if (m_nowStage != 0)
+		if (nowStage != 0)
 		{
 			Math::Matrix rotMat = Math::Matrix::CreateRotationZ(DirectX::XMConvertToRadians(90.0f));
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(-m_triangle.pos.x, m_triangle.pos.y, 0);
@@ -47,22 +55,35 @@ void StageSelectUI::DrawSprite()
 	if (m_number.spTex)
 	{
 		Math::Vector2 size = { (float)m_number.spTex->GetWidth() / 10, (float)m_number.spTex->GetHeight() };
-		Math::Rectangle rect = { (long)size.x * (m_nowStage + 1), (long)0, (long)size.x, (long)size.y };
+		Math::Rectangle rect = { (long)size.x * (nowStage + 1), (long)0, (long)size.x, (long)size.y };
 		KdShaderManager::Instance().m_spriteShader.DrawTex(m_number.spTex, m_number.pos.x, m_number.pos.y, size.x, size.y, &rect);
 	}
 
-	// 白い画像
-	if (m_white.spTex)
+	// 挑戦不可能以外なら描画する
+	if (stageInfo != spStage->ImPossible)
 	{
-		Math::Color color = { 1, 1, 1, m_white.alpha };
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_white.spTex, m_white.pos.x, m_white.pos.y, nullptr, &color);
+		// 白い画像
+		if (m_white.spTex)
+		{
+			Math::Color color = { 1, 1, 1, m_white.alpha };
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_white.spTex, m_white.pos.x, m_white.pos.y, nullptr, &color);
+		}
+
+		// "PUSH SPACE"
+		if (m_space.spTex)
+		{
+			Math::Color color = { 1, 1, 1, m_triangle.alpha };
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_space.spTex, m_space.pos.x, m_space.pos.y, nullptr, &color);
+		}
 	}
 
-	// "PUSH SPACE"
-	if (m_space.spTex)
+	// ステージをクリアしているなら、Clear!を描画する
+	if (stageInfo == spStage->Clear)
 	{
-		Math::Color color = { 1, 1, 1, m_triangle.alpha };
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_space.spTex, m_space.pos.x, m_space.pos.y, nullptr, &color);
+		if (m_clear.spTex)
+		{
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y);
+		}
 	}
 
 	//if (m_frame.spTex)
@@ -109,6 +130,7 @@ void StageSelectUI::Init()
 	}
 	m_space.pos = { 0, -250 };
 
+	// プッシュスペースを見やすくするための白い画像
 	if (!m_white.spTex)
 	{
 		m_white.spTex = std::make_shared<KdTexture>();
@@ -117,7 +139,13 @@ void StageSelectUI::Init()
 	m_white.pos = m_space.pos;
 	m_white.alpha = 0.7f;
 
-
+	// "Clear!"
+	if (!m_clear.spTex)
+	{
+		m_clear.spTex = std::make_shared<KdTexture>();
+		m_clear.spTex->Load("Asset/Textures/StageSelect/UI/clear.png");
+	}
+	m_clear.pos = { 500, 300 };
 
 	//// ステージ数の枠
 	//if (!m_frame.spTex)

@@ -169,6 +169,12 @@
     <Filter Include="Src\Application\GameObject\Result">
       <UniqueIdentifier>{8cf6b13e-8492-45f4-a33b-feda3911f2ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\StageStart">
+      <UniqueIdentifier>{307b19a5-0760-48ef-847e-bfd181b0165a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Ground\DropGround">
+      <UniqueIdentifier>{54587157-688e-4d5c-a758-1636df0c1b8b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -417,6 +423,12 @@
     <ClInclude Include="Src\Application\GameObject\Result\Result.h">
       <Filter>Src\Application\GameObject\Result</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\StageStart\StageStart.h">
+      <Filter>Src\Application\GameObject\StageStart</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h">
+      <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -634,6 +646,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp">
       <Filter>Src\Application\GameObject\Result</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\StageStart\StageStart.cpp">
+      <Filter>Src\Application\GameObject\StageStart</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

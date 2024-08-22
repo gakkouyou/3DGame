@@ -165,7 +165,7 @@ void EnemyController::CreateObject(Object _object)
 
 void EnemyController::CSVWriter()
 {
-	std::ofstream ofs("Asset/Data/CSV/Enemy.csv");
+	std::ofstream ofs(m_fileName);
 
 	for (auto& data : m_dataList)
 	{
@@ -298,7 +298,7 @@ void EnemyController::BeginCreateObject()
 
 void EnemyController::CSVLoader()
 {
-	std::ifstream ifs("Asset/Data/CSV/Enemy.csv");
+	std::ifstream ifs(m_fileName);
 	if (!ifs.is_open())
 	{
 		return;

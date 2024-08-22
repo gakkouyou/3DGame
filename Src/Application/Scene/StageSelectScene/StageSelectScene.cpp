@@ -13,19 +13,19 @@
 
 void StageSelectScene::Event()
 {
-	// デバッグ用　ENTERを押すと、マップを配置できるデバッグモードになる
-	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
-	{
-		if (!m_debugKeyFlg)
-		{
-			m_debugFlg = !m_debugFlg;
-			m_debugKeyFlg = true;
-		}
-	}
-	else
-	{
-		m_debugKeyFlg = false;
-	}
+	//// デバッグ用　ENTERを押すと、マップを配置できるデバッグモードになる
+	//if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+	//{
+	//	if (!m_debugKeyFlg)
+	//	{
+	//		m_debugFlg = !m_debugFlg;
+	//		m_debugKeyFlg = true;
+	//	}
+	//}
+	//else
+	//{
+	//	m_debugKeyFlg = false;
+	//}
 
 	// シーンが開始した時の処理
 	if (!m_sceneStartFlg)
@@ -42,6 +42,7 @@ void StageSelectScene::Event()
 		}
 	}
 
+	// シーンを変える
 	if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 	{
 		if (!m_wpSceneChange.expired())
@@ -52,38 +53,45 @@ void StageSelectScene::Event()
 
 	if (!m_wpSceneChange.expired())
 	{
+		// もしフェードアウト、イン中ならステージを変えれないようにする
+		if (m_wpSceneChange.lock()->GetNowSceneChange())
+		{
+			if (!m_wpStageSelectTexture.expired())
+			{
+				m_wpStageSelectTexture.lock()->SetStopFlg(true);
+			}
+		}
+		else
+		{
+			if (!m_wpStageSelectTexture.expired())
+			{
+				m_wpStageSelectTexture.lock()->SetStopFlg(false);
+			}
+		}
+
+		// フェードアウト終了後シーンをゲームシーンに
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			SceneManager::Instance().SetNextScene
-			(
-				SceneManager::SceneType::Game
-			);
+			// ステージをセット
+			if (!m_wpStageSelectTexture.expired())
+			{
+				SceneManager::Instance().SetNowStage(m_wpStageSelectTexture.lock()->GetNowStage());
+			}
+			SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
 		}
-	}
-
-
-	// 現在のステージをゲット&セット
-	int nowStage = 0;
-	if (!m_wpStageSelectTexture.expired())
-	{
-		nowStage = m_wpStageSelectTexture.lock()->GetNowStage();
-	}
-	if (!m_wpUI.expired())
-	{
-		m_wpUI.lock()->SetNowStage(nowStage);
 	}
 }
 
 void StageSelectScene::Init()
 {
-	// マップエディタ的な
-	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
-	objectController->SetCSV("Asset/Data/StageSelectTerrain");
-	objectController->Init();
-	AddObject(objectController);
+	//// マップエディタ的な
+	//std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
+	//objectController->SetCSV("Asset/Data/StageSelectTerrain");
+	//objectController->Init();
+	//AddObject(objectController);
 
-	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
+	//// デバッグウィンドウにオブジェクトコントローラーを渡す
+	//DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
 
 	// プレイヤー
 	std::shared_ptr<StageSelectPlayer> player = std::make_shared<StageSelectPlayer>();
@@ -100,7 +108,7 @@ void StageSelectScene::Init()
 	m_wpCamera = camera;
 
 	// オブジェクトコントローラーにカメラを渡す
-	objectController->SetCamera(camera);
+	//objectController->SetCamera(camera);
 
 	// ステージの画像
 	std::shared_ptr<StageSelectTexture> stageSelectTexture = std::make_shared<StageSelectTexture>();
@@ -117,8 +125,8 @@ void StageSelectScene::Init()
 	AddObject(ui);
 	// 保持
 	m_wpUI = ui;
-	// ステージの上限をセット
-	ui->SetMaxStage(maxStage);
+	// ステージ数とかもってるクラスをセット
+	ui->SetStageSelectTexture(stageSelectTexture);
 
 	// シーンを変える
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

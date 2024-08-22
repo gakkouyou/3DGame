@@ -37,10 +37,10 @@ void DebugWindow::Draw()
 		//Application::Instance().m_log.Draw("Log Window");
 
 		// Terrain用のウィンドウ
-		//TerrainWindow();
+		TerrainWindow();
 
 		// Enemy用のウィンドウ
-		//EnemyWindow();
+		EnemyWindow();
 	}
 
 
@@ -157,6 +157,15 @@ void DebugWindow::TerrainWindow()
 				spObjectController->CreateObject(TerrainController::Object::HalfFence);
 			}
 
+			// 落ちる床
+			if (ImGui::Button("DropGround"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(TerrainController::Object::DropGround);
+				m_terrainParam.speed = 0.3f;
+				m_terrainParam.stayTime = 60;
+			}
+
 			// 座標
 			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 1.0f);
 			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 1.0f);
@@ -168,6 +177,13 @@ void DebugWindow::TerrainWindow()
 				ImGui::InputFloat("GoalPos.x", &m_terrainParam.goalPos.x, 1.0f);
 				ImGui::InputFloat("GoalPos.y", &m_terrainParam.goalPos.y, 1.0f);
 				ImGui::InputFloat("GoalPos.z", &m_terrainParam.goalPos.z, 1.0f);
+				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.1f);
+				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
+			}
+
+			// 落ちる床用
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::DropGround)
+			{
 				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.1f);
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}

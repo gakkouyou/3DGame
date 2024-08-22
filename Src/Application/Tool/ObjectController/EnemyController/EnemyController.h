@@ -16,6 +16,9 @@ public:
 	// リセット処理
 	void Reset()		override;
 
+	// CSVファイルを指定する
+	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
+
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
 
@@ -46,6 +49,9 @@ public:
 	void AllDeath();
 
 private:
+	// CSVファイルの名前
+	std::string m_fileName;
+
 	// マウスでオブジェクトを選択する
 	void MouseSelect();
 

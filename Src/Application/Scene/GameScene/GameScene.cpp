@@ -12,6 +12,8 @@
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Terrain/Object/Fence/Fence.h"
 #include "../../GameObject/Result/Result.h"
+#include "../../GameObject/StageStart/StageStart.h"
+#include "../../GameObject/Terrain/Ground/DropGround/DropGround.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -40,12 +42,30 @@ void GameScene::Event()
 	{
 		if (!m_wpSceneChange.expired())
 		{
-			m_wpSceneChange.lock()->StartScene();
+			m_wpSceneChange.lock()->StartScene(5);
 
 			if (m_wpSceneChange.lock()->GetFinishFlg())
 			{
 				m_sceneStartFlg = true;
 				m_wpSceneChange.lock()->Reset();
+				// フェードインが終了したらプレイヤーを動けるようにする
+				if (!m_wpPlayer.expired())
+				{
+					m_wpPlayer.lock()->SetStopFlg(false);
+				}
+				// フェードインが終了したら"Stage Start"を消していく
+				//if (!m_wpStart.expired())
+				//{
+				//	m_wpStart.lock()->SetEnd();
+				//}
+			}
+			else
+			{
+				// 終わるまでプレイヤーを止める
+				if (!m_wpPlayer.expired())
+				{
+					m_wpPlayer.lock()->SetStopFlg(true);
+				}
 			}
 		}
 	}
@@ -58,6 +78,11 @@ void GameScene::Event()
 		{
 			if (spPlayer->GetAlive() == false)
 			{
+				if (!m_wpResult.expired())
+				{
+					m_wpResult.lock()->GameOver();
+				}
+
 				if (!m_wpSceneChange.expired())
 				{
 					// シーン遷移を終えたらリセット
@@ -65,18 +90,24 @@ void GameScene::Event()
 					{
 						for (auto& obj : m_objList)
 						{
+							// 敵、地形を全消去
 							if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
 							{
 								obj->SetExpired(true);
 							}
-
+							// リセット(敵、地形も作り直される)
 							obj->Reset();
 							m_resetFlg = true;
 						}
 					}
 					else
 					{
-						m_wpSceneChange.lock()->EndScene();
+						m_wpSceneChange.lock()->EndScene(60);
+						// フェードアウト、フェードインが終わるまでプレイヤーを止める
+						if (!m_wpPlayer.expired())
+						{
+							m_wpPlayer.lock()->SetStopFlg(true);
+						}
 					}
 				}
 			}
@@ -92,15 +123,25 @@ void GameScene::Event()
 			{
 				m_resetFlg = false;
 				m_wpSceneChange.lock()->Reset();
+				// フェードイン終了したらプレイヤーを動かせるようにする
+				if (!m_wpPlayer.expired())
+				{
+					m_wpPlayer.lock()->SetStopFlg(false);
+				}
+				// フェードインが終了したら"Stage Start"を消していく
+				//if (!m_wpStart.expired())
+				//{
+				//	m_wpStart.lock()->SetEnd();
+				//}
 			}
 			else
 			{
-				m_wpSceneChange.lock()->StartScene();
+				m_wpSceneChange.lock()->StartScene(5);
 			}
 		}
 	}
 
-	// ゴール処理
+	// クリアした時の処理
 	if(!m_wpGoal.expired())
 	{
 		if (m_wpGoal.lock()->GetGoalFlg())
@@ -108,6 +149,10 @@ void GameScene::Event()
 			if (!m_wpCamera.expired())
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
+				// ステージをクリアにする
+				m_stageInfoList[m_nowStage] = 2;
+				// 次のステージを挑戦可能状態にする
+				m_stageInfoList[m_nowStage + 1] = 1;
 
 				// 動き終わった後の処理
 				if (m_wpCamera.lock()->GetGoalProcessFinish())
@@ -124,6 +169,8 @@ void GameScene::Event()
 
 								if (m_wpSceneChange.lock()->GetFinishFlg())
 								{
+									// CSVに書き込む
+									CSVWriter();
 									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 								}
 							}
@@ -142,15 +189,22 @@ void GameScene::Event()
 
 void GameScene::Init()
 {
+	// ステージをゲット
+	m_nowStage = SceneManager::Instance().GetNowStage();
+
+	// CSVを読み込む
+	CSVLoader();
+
 	// マップエディタ的な
 	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
-	objectController->SetCSV("Asset/Data/CSV/Terrain.csv");
+	objectController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
 	objectController->Init();
 	AddObject(objectController);
 
 	// 敵エディタ的な
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
+	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
 	enemyController->Init();
 	AddObject(enemyController);
 
@@ -209,6 +263,17 @@ void GameScene::Init()
 	// 保持
 	m_wpResult = result;
 
+	// "Stage Start"
+	//std::shared_ptr<StageStart> stageStart = std::make_shared<StageStart>();
+	//stageStart->Init();
+	//AddObject(stageStart);
+	//// 保持
+	//m_wpStart = stageStart;
+
+	std::shared_ptr<DropGround> ground = std::make_shared<DropGround>();
+	ground->Init();
+	AddObject(ground);
+
 
 
 	// シーンを変える 絶対一番下
@@ -217,4 +282,44 @@ void GameScene::Init()
 	AddObject(sceneChange);
 	// 保持
 	m_wpSceneChange = sceneChange;
+}
+
+void GameScene::CSVLoader()
+{
+	std::ifstream ifs("Asset/Data/CSV/StageInfo.csv");
+
+	if (!ifs.is_open())
+	{
+		return;
+	}
+
+	std::string lineString;
+
+	while (std::getline(ifs, lineString))
+	{
+		std::istringstream iss(lineString);
+		std::string commaString;
+
+		while (std::getline(iss, commaString, ','))
+		{
+			m_stageInfoList.push_back(stoi(commaString));
+		}
+	}
+	ifs.close();
+}
+
+void GameScene::CSVWriter()
+{
+	std::ofstream ofs("Asset/Data/CSV/StageInfo.csv");
+
+	for (int i=0; i < m_stageInfoList.size(); i++)
+	{
+		ofs << m_stageInfoList[i];
+		
+		if (i != m_stageInfoList.size() - 1)
+		{
+			ofs << ",";
+		}
+	}
+	ofs << std::endl;
 }

@@ -85,6 +85,7 @@ public:
 		RotationGround,	// 回転する床
 		Fence,			// 柵
 		HalfFence,		// 片方柵
+		DropGround,		// 落ちる床
 
 		None,			// ない
 	};

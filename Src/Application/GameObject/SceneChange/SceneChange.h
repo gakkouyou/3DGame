@@ -16,12 +16,15 @@ public:
 	void Reset()		override;
 
 	// シーンを開始する
-	void StartScene();
+	void StartScene(int _stayTime = 0);
 	// シーンを終了する
-	void EndScene();
+	void EndScene(int _stayTime = 0);
 
 	// シーン遷移が終了したことを伝えるフラグ
 	const bool GetFinishFlg() const { return m_finishFlg; }
+
+	// シーン遷移が行われているかどうかのフラグ
+	const bool GetNowSceneChange() const { return m_startFlg || m_endFlg; }
 
 private:
 	// 白い丸画像
@@ -39,7 +42,7 @@ private:
 	// 最小サイズ
 	const float m_minSize	= 0;
 
-	const float m_stayTime	= 5;
+	float		m_stayTime	= 0;
 	float		m_stayCnt	= 0;
 
 	// 始まるフラグ

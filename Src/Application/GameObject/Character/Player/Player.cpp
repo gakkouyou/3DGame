@@ -198,7 +198,7 @@ void Player::PostUpdate()
 		{
 			if (!hitObject.expired())
 			{
-				if (hitObject.lock()->GetObjectType() == ObjectType::MoveGround)
+				if (hitObject.lock()->GetObjectType() == ObjectType::MoveGround || hitObject.lock()->GetObjectType() == ObjectType::DropGround)
 				{
 					spHitObject = hitObject.lock();
 					break;
@@ -206,11 +206,14 @@ void Player::PostUpdate()
 			}
 		}
 
-		// 動く床の動いた後の行列
-		Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
+		if (spHitObject)
+		{
+			// 動く床の動いた後の行列
+			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
 
-		// 座標を確定
-		m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+			// 座標を確定
+			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+		}
 	}
 
 	// 回る床に当たっていた時の処理
@@ -255,9 +258,9 @@ void Player::Init()
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
-	m_pos.x = 20.0f;
-	m_pos.y = 4.0f;
-	m_pos.z = -20.0f;
+	m_pos = { 30.0f, 2.0f, -40.0f };
+
+	m_stopFlg = true;
 }
 
 void Player::Reset()
@@ -265,9 +268,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos.x = 20.0f;
-	m_pos.y = 4.0f;
-	m_pos.z = -20.0f;
+	m_pos = { 30.0f, 2.0f, -40.0f };
 	
 	// 生存フラグ
 	m_aliveFlg = true;
@@ -281,6 +282,9 @@ void Player::Reset()
 
 	// アニメーションフラグ
 	m_walkAnimeDirFlg = false;
+
+	m_stopFlg = true;
+
 
 }
 
@@ -443,6 +447,8 @@ void Player::HitJudgeGround()
 				}
 			}
 
+			spHitObject->OnHit();
+
 			// 当たったオブジェクト毎に処理を変える
 			if (spHitObject)
 			{
@@ -464,6 +470,7 @@ void Player::HitJudgeGround()
 
 					// 動く床
 				case ObjectType::MoveGround:
+				case ObjectType::DropGround:
 					// X軸とZ軸の補正はなし
 					hitDir.x = 0;
 					hitDir.z = 0;

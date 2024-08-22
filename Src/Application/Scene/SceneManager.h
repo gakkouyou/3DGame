@@ -12,6 +12,7 @@ public :
 		Title,
 		StageSelect,
 		Game,
+		First,
 	};
 
 	void PreUpdate();
@@ -35,6 +36,11 @@ public :
 	// 現在のシーンにオブジェクトを追加
 	void AddObject(const std::shared_ptr<KdGameObject>& obj);
 
+	// ステージをゲット
+	const int GetNowStage() const { return m_nowStage; }
+	// ステージをセット
+	void SetNowStage(int _nowStage) { m_nowStage = _nowStage; }
+
 	// デバッグモードかどうか
 	bool GetDebug() const;
 
@@ -55,10 +61,13 @@ private :
 	std::shared_ptr<BaseScene> m_currentScene = nullptr;
 
 	// 現在のシーンの種類を保持している変数
-	SceneType m_currentSceneType = SceneType::Title;
+	SceneType m_currentSceneType = SceneType::First;
 
 	// 次のシーンの種類を保持している変数
-	SceneType m_nextSceneType = m_currentSceneType;
+	SceneType m_nextSceneType = SceneType::Game;
+
+	// プレイするステージ
+	int m_nowStage	= 0;
 
 private:
 

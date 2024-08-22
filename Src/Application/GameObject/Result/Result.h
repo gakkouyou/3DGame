@@ -10,6 +10,8 @@ public:
 	void DrawSprite()	override;
 	void Init()			override;
 
+	void Reset()		override;
+
 	void StageClear() { m_clearFlg = true; }
 	void GameOver() { m_gameOverFlg = true; }
 
@@ -18,12 +20,14 @@ public:
 private:
 	struct Text
 	{
-		std::shared_ptr<KdTexture>	spTex	= nullptr;				// 画像
-		Math::Vector2				pos		= Math::Vector2::Zero;	// 座標
-		float						alpha	= 0;					// アルファ値
-		float						alphaAdd= 0;					// 足しこむアルファ値
+		std::shared_ptr<KdTexture>	spTex		= nullptr;				// 画像
+		Math::Vector2				pos			= Math::Vector2::Zero;	// 座標
+		Math::Vector2				move		= Math::Vector2::Zero;	// 移動量
+		float						alpha		= 0;					// アルファ値
+		float						alphaAdd	= 0;					// 足しこむアルファ値
 	};
 
+	// クリア
 	Text m_clear;
 
 	// クリア画像を出してから次のシーンに移るまでの待機時間
@@ -33,4 +37,11 @@ private:
 
 	bool m_clearFlg		= false;
 	bool m_gameOverFlg	= false;
+
+	// ミス
+	Text m_miss;
+
+	// ２回バウンドさせる
+	int m_boundCnt = 0;
+	const int m_boundMax	= 2;
 };

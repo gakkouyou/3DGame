@@ -11,6 +11,7 @@
 #include "../../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
 #include "../../../GameObject/Terrain/Object/Fence/Fence.h"
 #include "../../../GameObject/Terrain/Object/HalfFence/HalfFence.h"
+#include "../../../GameObject/Terrain/Ground/DropGround/DropGround.h"
 
 void TerrainController::Update()
 {
@@ -144,6 +145,16 @@ void TerrainController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.HalfFence);
 				break;
+
+				// 落ちる床の場合
+			case ObjectType::DropGround:
+				// タイプのセット
+				data.type = "DropGround";
+				// カウントを進める
+				m_objectCount.DropGround++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.DropGround);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -258,6 +269,16 @@ void TerrainController::CreateObject(Object _object)
 	case Object::HalfFence:
 	{
 		std::shared_ptr<HalfFence> object = std::make_shared<HalfFence>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 落ちる床
+	case Object::DropGround:
+	{
+		std::shared_ptr<DropGround> object = std::make_shared<DropGround>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -379,6 +400,24 @@ void TerrainController::BeginCreateObject()
 			// 座標をセットする
 			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
 			// リストに追加
+			m_wpTerrainList.push_back(object);
+		}
+		// 落ちる床
+		else if (data.type == "DropGround")
+		{
+			std::shared_ptr<DropGround> object = std::make_shared<DropGround>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.DropGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.DropGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// 情報をセットする
+			object->SetParam(data.pos, Math::Vector3::Zero, data.speed, data.stayTime);
 			m_wpTerrainList.push_back(object);
 		}
 	}

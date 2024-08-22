@@ -37,6 +37,7 @@ public:
 		RotationGround,	// 回る床
 		Fence,			// 柵
 		HalfFence,		// 片方の柵
+		DropGround,		// 落ちる床
 	};
 
 	// オブジェクトを確定する(wp_ptrをリセットする)
@@ -78,6 +79,7 @@ private:
 		int RotationGround	= 0;
 		int Fence			= 0;
 		int HalfFence		= 0;
+		int DropGround		= 0;
 	};
 
 	Count m_objectCount;

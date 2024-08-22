@@ -7,6 +7,7 @@ class Player;
 class SceneChange;
 class Goal;
 class Result;
+class StageStart;
 
 class GameScene : public BaseScene
 {
@@ -38,6 +39,9 @@ private:
 	// リザルト
 	std::weak_ptr<Result> m_wpResult;
 
+	// "Stage Start"
+	std::weak_ptr<StageStart> m_wpStart;
+
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
 
@@ -50,4 +54,13 @@ private:
 
 	// ゴールフラグ
 	bool m_goalFlg = false;
+
+	// 今のステージ
+	int m_nowStage	= 0;
+
+	// ステージの状況
+	std::vector<int> m_stageInfoList;
+
+	void CSVLoader();
+	void CSVWriter();
 };

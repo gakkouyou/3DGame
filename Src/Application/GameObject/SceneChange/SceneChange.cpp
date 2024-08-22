@@ -15,9 +15,9 @@ void SceneChange::Update()
 			// サイズが最大値を上回ったら終了
 			if (m_size > m_maxSize)
 			{
-				m_finishFlg = true;
-				m_startFlg = false;
-				m_stayCnt = 0;
+				m_finishFlg	= true;
+				m_startFlg	= false;
+				m_stayCnt	= 0;
 			}
 		}
 	}
@@ -25,15 +25,19 @@ void SceneChange::Update()
 	// シーン終了
 	if (m_endFlg)
 	{
-		// 円を小さくする
-		m_size -= m_addSize;
-
-		// サイズが最小値を下回ったら終了
-		if (m_size < m_minSize)
+		m_stayCnt++;
+		if (m_stayCnt > m_stayTime)
 		{
-			m_finishFlg = true;
-			m_size = m_minSize;
-			//m_endFlg = false;
+			// 円を小さくする
+			m_size -= m_addSize;
+
+			// サイズが最小値を下回ったら終了
+			if (m_size < m_minSize)
+			{
+				m_finishFlg	= true;
+				m_size		= m_minSize;
+				m_stayCnt	= 0;
+			}
 		}
 	}
 }
@@ -89,23 +93,29 @@ void SceneChange::Reset()
 	m_stayCnt = 0;
 }
 
-void SceneChange::StartScene()
+void SceneChange::StartScene(int _stayTime)
 {
+	if (m_endFlg == true) return;
+
 	// シーンを始める際は、サイズを0から大きくしていく
 	if (!m_startFlg)
 	{
 		m_size = m_minSize;
 		m_startFlg = true;
+		m_stayCnt = 0;
+		m_stayTime = _stayTime;
 	}
 }
 
-void SceneChange::EndScene()
+void SceneChange::EndScene(int _stayTime)
 {
-	if (m_startFlg == true)return;
+	if (m_startFlg == true) return;
 	// シーンを終える際は、サイズを最大から小さくしていく
 	if (!m_endFlg)
 	{
 		m_size = m_maxSize;
 		m_endFlg = true;
+		m_stayCnt = 0;
+		m_stayTime = _stayTime;
 	}
 }

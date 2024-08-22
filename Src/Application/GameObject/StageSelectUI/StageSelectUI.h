@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class StageSelectTexture;
+
 class StageSelectUI : public KdGameObject
 {
 public:
@@ -10,9 +12,7 @@ public:
 	void DrawSprite();
 	void Init();
 
-	void SetNowStage(int _nowStage) { m_nowStage = _nowStage; }
-
-	void SetMaxStage(int _maxStage) { m_maxStage = _maxStage; }
+	void SetStageSelectTexture(std::shared_ptr<StageSelectTexture> _spStage) { m_wpStage = _spStage; }
 
 private:
 	// サインカーブ構造体
@@ -44,9 +44,9 @@ private:
 	Texture m_space;
 	// 白い画像
 	Texture m_white;
+	// "Clear!"
+	Texture m_clear;
 
-	// 現在のステージ数
-	int m_nowStage		= 0;
-	// ステージ数上限
-	int m_maxStage		= 0;
+	// ステージ数とか持ってるクラス
+	std::weak_ptr<StageSelectTexture> m_wpStage;
 };

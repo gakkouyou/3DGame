@@ -544,6 +544,7 @@ void TerrainController::CSVWriter()
 
 void TerrainController::MouseSelect()
 {
+	if (SceneManager::Instance().GetDebug() == false) return;
 	// マウスでオブジェクトを選択する
 	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
 

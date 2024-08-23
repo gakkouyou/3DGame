@@ -175,6 +175,9 @@
     <Filter Include="Src\Application\GameObject\Terrain\Ground\DropGround">
       <UniqueIdentifier>{54587157-688e-4d5c-a758-1636df0c1b8b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Character\Enemy\FlyEnemy">
+      <UniqueIdentifier>{967ca4b3-dbe5-44c1-a252-9eac3636af94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -429,6 +432,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h">
       <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.h">
+      <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -652,6 +658,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp">
       <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.cpp">
+      <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

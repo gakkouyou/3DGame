@@ -14,6 +14,7 @@
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/StageStart/StageStart.h"
 #include "../../GameObject/Terrain/Ground/DropGround/DropGround.h"
+#include "../../GameObject/Character/Enemy/FlyEnemy/FlyEnemy.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -270,9 +271,10 @@ void GameScene::Init()
 	//// 保持
 	//m_wpStart = stageStart;
 
-	std::shared_ptr<DropGround> ground = std::make_shared<DropGround>();
-	ground->Init();
-	AddObject(ground);
+	// 飛ぶ敵
+	std::shared_ptr<FlyEnemy> flyEnemy = std::make_shared<FlyEnemy>();
+	flyEnemy->Init();
+	AddObject(flyEnemy);
 
 
 

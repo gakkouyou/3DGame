@@ -365,6 +365,7 @@ void Player::HitJudgeGround()
 
 					// 動く床に乗った場合
 				case ObjectType::MoveGround:
+				case ObjectType::DropGround:
 					// 座標
 					m_pos = hitPos;
 					m_pos.y += m_enableStepHeight;

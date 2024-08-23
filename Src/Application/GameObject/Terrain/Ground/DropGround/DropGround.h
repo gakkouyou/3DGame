@@ -28,4 +28,15 @@ private:
 	bool m_onHitFlg = false;
 
 	bool m_dropFlg	= false;
+
+	// 消えるまでの時間
+	const int	m_vanishTime	= 60;
+	int			m_vanishCount	= 0;
+
+	// 復活までの時間
+	const int	m_respawnTime	= 60;
+	int			m_respawnCount	= 0;
+
+	// 生存フラグ
+	bool m_aliveFlg = false;
 };

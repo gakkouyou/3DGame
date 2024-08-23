@@ -199,6 +199,8 @@ void EnemyController::AllDeath()
 
 void EnemyController::MouseSelect()
 {
+	if (SceneManager::Instance().GetDebug() == false) return;
+
 	// マウスでオブジェクトを選択する
 	std::shared_ptr<const TPSCamera> spCamera = m_wpCamera.lock();
 

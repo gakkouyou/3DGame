@@ -44,6 +44,6 @@ HalfFence,HalfFence16,103,1,68,0,0,0,0,0,0,-90,0
 HalfFence,HalfFence17,63,1,32,0,0,0,0,0,0,-90,0
 HalfFence,HalfFence18,83,1,32,0,0,0,0,0,0,-90,0
 HalfFence,HalfFence19,102,1,32,0,0,0,0,0,0,-90,0
-DropGround,DropGround1,0,0,-42,0,0,0,0.5,30,0,0,0
-DropGround,DropGround2,0,0,-29,0,0,0,0.5,30,0,0,0
-DropGround,DropGround3,0,0,-18,0,0,0,1,0,0,0,0
+DropGround,DropGround1,0,0,-42,0,0,0,0.2,30,0,0,0
+DropGround,DropGround2,0,0,-29,0,0,0,0.2,30,0,0,0
+DropGround,DropGround3,0,0,-18,0,0,0,0.2,0,0,0,0

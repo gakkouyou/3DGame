@@ -97,7 +97,7 @@ private:
 	LostTargetAnimation m_lostTarget;
 
 	// ジャンプ力
-	const float m_jumpPow	= 2.f;
+	const float m_findJumpPow	= 0.4f;
 
 	// 歩くモーション用
 	struct Walk

@@ -31,10 +31,12 @@ void DebugWindow::Draw()
 	// ImGui 描画処理
 	//================================================================================
 	//return;
+
+
+		// ログウィンドウ
+	Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
-		// ログウィンドウ
-		//Application::Instance().m_log.Draw("Log Window");
 
 		// Terrain用のウィンドウ
 		TerrainWindow();
@@ -236,14 +238,43 @@ void DebugWindow::EnemyWindow()
 				m_enemyParam.searchArea = 40.0f;
 			}
 
+			// 飛ぶ敵
+			if (ImGui::Button("FlyEnemy"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(EnemyController::Object::FlyEnemy);
+
+				m_enemyParam.moveArea = 5.0f;
+			}
+
 			// 座標
 			ImGui::InputFloat("Pos.x", &m_enemyParam.pos.x, 1.0f);
 			ImGui::InputFloat("Pos.y", &m_enemyParam.pos.y, 1.0f);
 			ImGui::InputFloat("Pos.z", &m_enemyParam.pos.z, 1.0f);
 			// 動く範囲
 			ImGui::InputFloat("MoveArea", &m_enemyParam.moveArea, 0.5f);
-			// 索敵範囲
-			ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.5f);
+
+			// 通常敵用
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::NormalEnemy)
+			{
+				// 索敵範囲
+				ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.5f);
+			}
+
+			// 飛ぶ敵用
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::FlyEnemy)
+			{
+				// Y軸回転
+				ImGui::InputFloat("RotDegAng", &m_enemyParam.rotDegAng, 90.0f);
+				if (m_enemyParam.rotDegAng >= 360)
+				{
+					m_enemyParam.rotDegAng -= 360;
+				}
+				if (m_enemyParam.rotDegAng < 0)
+				{
+					m_enemyParam.rotDegAng += 360;
+				}
+			}
 		}
 	}
 	ImGui::End();

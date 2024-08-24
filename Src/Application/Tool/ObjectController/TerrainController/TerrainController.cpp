@@ -18,8 +18,7 @@ void TerrainController::Update()
 	// 一度だけ実行する
 	if (m_beginCreateFlg == false)
 	{
-		// 読み込んだデータからオブジェクトを作成する
-		BeginCreateObject();
+		//BeginCreateObject();
 	}
 	m_beginCreateFlg = true;
 
@@ -45,12 +44,18 @@ void TerrainController::Init()
 {
 	// CSVを読み込む
 	CSVLoader();
+
+	// 読み込んだデータからオブジェクトを作成する
+	BeginCreateObject();
 }
 
 void TerrainController::Reset()
 {
-	// 再配置
-	m_beginCreateFlg = false;
+	m_objectCount = m_objectCountReset;
+	m_wpTerrainList.clear();
+
+	// 読み込んだデータからオブジェクトを作成する
+	BeginCreateObject();
 }
 
 const KdGameObject::ObjectType TerrainController::GetObjectType() const

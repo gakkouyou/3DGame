@@ -3,6 +3,8 @@
 #include "../../Camera/CameraBase.h"
 #include "../../Terrain/TerrainBase.h"
 
+#include "../../Effect/PlayerSmoke/PlayerSmoke.h"
+
 #include "../../../main.h"
 
 void Player::Update()
@@ -60,6 +62,25 @@ void Player::Update()
 	if (m_moveVec.LengthSquared() == 0)
 	{
 		m_situationType &= (~SituationType::Run);
+	}
+
+	static int cnt = 0;
+
+	if (m_situationType & SituationType::Run)
+	{
+		if (cnt % 30 == 0)
+		{
+			
+			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+			smoke->Init();
+			smoke->SetPos(m_pos);
+			SceneManager::Instance().AddObject(smoke);
+		}
+		cnt++;
+	}
+	else
+	{
+		cnt = 0;
 	}
 
 	if (m_stopFlg == false)

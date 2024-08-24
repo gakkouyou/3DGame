@@ -77,7 +77,6 @@ public:
 	enum class ObjectType
 	{
 		Player,			// プレイヤー
-		NormalEnemy,	// 敵
 		NormalGround,	// 触れても何も起きない地形
 		BoundGround,	// 触れたら跳ねる地形
 		NormalWall,		// 触れても何も起きない壁
@@ -86,6 +85,9 @@ public:
 		Fence,			// 柵
 		HalfFence,		// 片方柵
 		DropGround,		// 落ちる床
+
+		NormalEnemy,	// 敵
+		FlyEnemy,		// 飛ぶ敵
 
 		None,			// ない
 	};

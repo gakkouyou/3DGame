@@ -31,6 +31,7 @@ public:
 	enum class Object
 	{
 		NormalEnemy,	// 通常の敵
+		FlyEnemy,		// 飛ぶ敵
 	};
 
 	// オブジェクトを確定する(wp_ptrをリセットする)
@@ -73,9 +74,11 @@ private:
 	struct Count
 	{
 		int NormalEnemy = 0;
+		int FlyEnemy	= 0;
 	};
 
 	Count m_objectCount;
+	Count m_objectCountReset;
 
 	// CSVのデータ型
 	struct Data
@@ -83,8 +86,9 @@ private:
 		std::string type;
 		std::string name;
 		Math::Vector3 pos		= Math::Vector3::Zero;
-		float moveArea			= 0;
-		float searchArea		= 0;
+		float moveArea			= 0;	// 動く範囲
+		float searchArea		= 0;	// 索敵範囲
+		float rotDegAng			= 0;	// 回転角度
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;

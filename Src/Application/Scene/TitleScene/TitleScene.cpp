@@ -1,6 +1,7 @@
 ﻿#include "TitleScene.h"
 #include "../SceneManager.h"
 #include "../../GameObject/SceneChange/SceneChange.h"
+#include "Application/main.h"
 
 void TitleScene::Event()
 {
@@ -22,6 +23,12 @@ void TitleScene::Event()
 			);
 		}
 	}
+
+	POINT pos;
+	GetCursorPos(&pos);
+	ScreenToClient(Application::Instance().GetWindowHandle(), &pos);
+
+	Application::Instance().m_log.AddLog("%ld, %ld\n", pos.x, pos.y);
 }
 
 void TitleScene::Init()

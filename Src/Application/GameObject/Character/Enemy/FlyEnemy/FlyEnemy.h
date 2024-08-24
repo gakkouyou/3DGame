@@ -12,6 +12,10 @@ public:
 	void PostUpdate()	override;
 	void Init()			override;
 
-private:
+	void SetParam(Param _param)	override;
 
+	void OnHit()				override;
+
+private:
+	float m_angle	= 0;
 };

@@ -83,6 +83,7 @@ private:
 	};
 
 	Count m_objectCount;
+	Count m_objectCountReset;
 
 	// CSVのデータ型
 	struct Data

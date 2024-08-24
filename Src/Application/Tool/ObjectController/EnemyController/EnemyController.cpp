@@ -6,6 +6,7 @@
 
 #include "../../../GameObject/Character/Enemy/EnemyBase.h"
 #include "../../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
+#include "../../../GameObject/Character/Enemy/FlyEnemy/FlyEnemy.h"
 
 #include "../../../GameObject/Character/Player/Player.h"
 
@@ -14,8 +15,7 @@ void EnemyController::Update()
 	// 一度だけ実行する
 	if (m_beginCreateFlg == false)
 	{
-		// 読み込んだデータからオブジェクトを作成する
-		BeginCreateObject();
+		
 	}
 	m_beginCreateFlg = true;
 
@@ -27,7 +27,7 @@ void EnemyController::Update()
 	if (spTargetObject)
 	{
 		DebugWindow::EnemyParam debugParam = DebugWindow::Instance().GetEnemyParam();
-		EnemyBase::Param setParam{ debugParam.pos, debugParam.moveArea, debugParam.searchArea };
+		EnemyBase::Param setParam{ debugParam.pos, debugParam.moveArea, debugParam.searchArea, debugParam.rotDegAng };
 		spTargetObject->SetParam(setParam);
 	}
 
@@ -42,12 +42,21 @@ void EnemyController::Init()
 {
 	// CSVを読み込む
 	CSVLoader();
+
+	// 読み込んだデータからオブジェクトを作成する
+	BeginCreateObject();
 }
 
 void EnemyController::Reset()
 {
 	// 再配置
-	m_beginCreateFlg = false;
+	//m_beginCreateFlg = false;
+
+	m_objectCount = m_objectCountReset;
+	m_wpEnemyList.clear();
+
+	// 読み込んだデータからオブジェクトを作成する
+	BeginCreateObject();
 }
 
 const KdGameObject::ObjectType EnemyController::GetObjectType() const
@@ -91,6 +100,15 @@ void EnemyController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.NormalEnemy);
 				break;
+
+				// 飛ぶ敵の場合
+			case ObjectType::FlyEnemy:
+				// タイプのセット
+				data.type = "FlyEnemy";
+				// カウントを進める
+				m_objectCount.FlyEnemy++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.FlyEnemy);
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -98,6 +116,7 @@ void EnemyController::ConfirmedObject()
 			data.pos		= spTargetObject->GetParam().startPos;	// 座標
 			data.moveArea	= spTargetObject->GetParam().moveArea;	// 動いていい範囲
 			data.searchArea = spTargetObject->GetParam().searchArea;// 索敵範囲
+			data.rotDegAng	= spTargetObject->GetParam().rotDegAng;	// Y軸回転
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
 			// 地形のウィークポインタのリストにプッシュバックする
@@ -119,6 +138,7 @@ void EnemyController::ConfirmedObject()
 			m_dataList[num].pos			= spTargetObject->GetParam().startPos;	// 座標
 			m_dataList[num].moveArea	= spTargetObject->GetParam().moveArea;	// 動いていい範囲
 			m_dataList[num].searchArea	= spTargetObject->GetParam().searchArea;// 索敵範囲
+			m_dataList[num].rotDegAng	= spTargetObject->GetParam().rotDegAng;	// Y軸回転
 		}
 	}
 
@@ -160,29 +180,21 @@ void EnemyController::CreateObject(Object _object)
 		}
 		break;
 	}
-	}
-}
 
-void EnemyController::CSVWriter()
-{
-	std::ofstream ofs(m_fileName);
-
-	for (auto& data : m_dataList)
+		// 飛ぶ敵
+	case Object::FlyEnemy:
 	{
-		// オブジェクトのタイプ
-		ofs << data.type << ",";
-
-		// オブジェクトの名前
-		ofs << data.name << ",";
-
-		// 座標
-		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
-
-		// 動いていい範囲
-		ofs << data.moveArea << ",";
-
-		// 索敵範囲
-		ofs << data.searchArea << std::endl;
+		std::shared_ptr<FlyEnemy> object = std::make_shared<FlyEnemy>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		// ターゲットをセット
+		if (!m_wpPlayer.expired())
+		{
+			object->SetTarget(m_wpPlayer.lock());
+		}
+		break;
+	}
 	}
 }
 
@@ -295,6 +307,31 @@ void EnemyController::BeginCreateObject()
 			// リストに追加
 			m_wpEnemyList.push_back(object);
 		}
+		// 飛ぶ敵
+		else if (data.type == "FlyEnemy")
+		{
+			std::shared_ptr<FlyEnemy> object = std::make_shared<FlyEnemy>();
+			// パラメータをセットする
+			EnemyBase::Param setParam{ data.pos, data.moveArea, 0, data.rotDegAng };
+			object->SetParam(setParam);
+			// ターゲットをセットする
+			//if (!m_wpPlayer.expired())
+			//{
+			//	object->SetTarget(m_wpPlayer.lock());
+			//}
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.FlyEnemy++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.FlyEnemy);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpEnemyList.push_back(object);
+		}
 	}
 }
 
@@ -351,6 +388,10 @@ void EnemyController::CSVLoader()
 			case 6:
 				data.searchArea = stof(commaString);
 				break;
+
+			case 7:
+				data.rotDegAng	= stof(commaString);
+				break;
 			}
 			cnt++;
 		}
@@ -361,4 +402,30 @@ void EnemyController::CSVLoader()
 		}
 	}
 	ifs.close();
+}
+
+void EnemyController::CSVWriter()
+{
+	std::ofstream ofs(m_fileName);
+
+	for (auto& data : m_dataList)
+	{
+		// オブジェクトのタイプ
+		ofs << data.type << ",";
+
+		// オブジェクトの名前
+		ofs << data.name << ",";
+
+		// 座標
+		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
+
+		// 動いていい範囲
+		ofs << data.moveArea << ",";
+
+		// 索敵範囲
+		ofs << data.searchArea << ",";
+
+		// Y軸回転
+		ofs << data.rotDegAng << std::endl;
+	}
 }

@@ -112,18 +112,16 @@ void NormalEnemy::Update()
 			}
 		}
 
-		// ホーミング状態になった瞬間、見つけた状態にする
-		if (m_situationType & SituationType::Homing)
+		// 見失っている状態で見つけたら見失っている状態を終了させる
+		if ((m_situationType & SituationType::Find) && (m_situationType & SituationType::LostTarget))
 		{
-			if ((oldSituationType & SituationType::Homing) == 0)
-			{
-				m_situationType |= SituationType::Find;
-				// 空中じゃなければ少しジャンプ
-				if ((m_situationType & SituationType::Air) == 0)
-				{
-					
-				}
-			}
+			// 見失ったモーション用の変数を初期化
+			m_lostTarget.sumLotAng = 0;				// 回転した角度の合計値
+			m_lostTarget.stayCount = 0;				// 待機時間カウント
+			m_lostTarget.stayFlg = false;			// 待機中フラグ
+			m_lostTarget.dir = m_lostTarget.Left;	// 方向を左にする
+
+			m_situationType &= (~SituationType::LostTarget);
 		}
 		
 		// 見失っているときに処理
@@ -197,6 +195,12 @@ void NormalEnemy::Update()
 		m_degAng = 0;
 		m_setParamFlg = false;
 	}
+
+	// 落下死
+	if (m_pos.y < -60.0f)
+	{
+		m_isExpired = true;
+	}
 }
 
 void NormalEnemy::PostUpdate()
@@ -208,7 +212,7 @@ void NormalEnemy::PostUpdate()
 		Math::Vector3 pos = m_param.startPos;
 		pos.y = m_pos.y;
 		// moveエリア可視化
-		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kBlackColor);
+		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
 	}
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
@@ -380,14 +384,23 @@ void NormalEnemy::HitJudge()
 				// 重力
 				m_gravity = 0.0f;
 
-				if (m_situationType & SituationType::Find)
+				// 見つけたモーション中
+				if ((m_situationType & SituationType::Find))
 				{
-					m_gravity = -m_jumpPow;
+					// ホーミング状態じゃないときは、少しジャンプする
+					if ((m_situationType & SituationType::Homing) == 0)
+					{
+						m_situationType |= SituationType::Homing;
+						m_gravity = -m_findJumpPow;
+					}
+					else
+					{
+						m_situationType &= (~SituationType::Find);
+					}
 				}
 				// 空中にいない
 				m_situationType &= (~SituationType::Air);
 				m_situationType &= (~SituationType::Jump);
-				m_situationType &= (~SituationType::Find);
 
 				m_walkMotion.stayFlg = true;
 				break;
@@ -418,25 +431,33 @@ void NormalEnemy::TargetHoming()
 			float deg = DirectX::XMConvertToDegrees(acos(dot));
 			if (deg < m_homing.viewingAngle)
 			{
-				// 見つけモーション中は動かない
-				if ((m_situationType & SituationType::Find) == 0)
+				// ホーミング状態ならホーミング
+				if (m_situationType & SituationType::Homing)
 				{
 					vec.y = 0;
 					vec.Normalize();
 					m_moveVec = vec;
 				}
-				m_situationType |= SituationType::Homing;
+				// ホーミング状態じゃないなら、見つけたモーションをする
+				else
+				{
+					m_situationType |= SituationType::Find;
+				}
 
 				RotationCharacter(m_degAng, vec, m_homing.rotDegAng);
 			}
+			// 視野から外れたらホーミング状態と見つけたモーションを終了
 			else
 			{
 				m_situationType &= (~SituationType::Homing);
+				m_situationType &= (~SituationType::Find);
 			}
 		}
+		// 索敵範囲外に行ったら、ホーミング状態と見つけたモーションを終了
 		else
 		{
 			m_situationType &= (~SituationType::Homing);
+			m_situationType &= (~SituationType::Find);
 		}
 	}
 }

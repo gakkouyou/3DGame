@@ -13,7 +13,7 @@ public:
 	virtual void Init()			override;
 
 	// リセット処理
-	virtual void Reset()		override;
+	virtual void Reset()		override {}
 
 	// ターゲットをセットする
 	void SetTarget(const std::shared_ptr<KdGameObject>& _spTarget) { m_wpTarget = _spTarget; }
@@ -24,6 +24,7 @@ public:
 		Math::Vector3 startPos	= Math::Vector3::Zero;	// 最初の座標
 		float moveArea			= 0;					// 行動範囲
 		float searchArea		= 0;					// 索敵範囲
+		float rotDegAng			= 0;					// 回転角度
 	};
 
 	// パラメータをセットする

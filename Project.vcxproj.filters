@@ -178,6 +178,12 @@
     <Filter Include="Src\Application\GameObject\Character\Enemy\FlyEnemy">
       <UniqueIdentifier>{967ca4b3-dbe5-44c1-a252-9eac3636af94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Effect">
+      <UniqueIdentifier>{da86d135-0464-4610-bf32-2bbb267ea4d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Effect\PlayerSmoke">
+      <UniqueIdentifier>{ab8f895d-aa4f-46ba-861d-4eb58f24ab39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -435,6 +441,9 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.h">
       <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.h">
+      <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -661,6 +670,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.cpp">
       <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.cpp">
+      <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -35,6 +35,7 @@ public:
 		Math::Vector3 pos	= Math::Vector3::Zero;
 		float moveArea		= 0;
 		float searchArea	= 0;
+		float rotDegAng		= 0;
 	};
 	// Enemyのパラメータゲット関数
 	const EnemyParam GetEnemyParam() const { return m_enemyParam; }

@@ -3,18 +3,12 @@
 
 #include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../../GameObject/Character/Player/Player.h"
-#include "../../GameObject/Terrain/Ground/NormalGround/NormalGround.h"
-#include "../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
 #include "../../GameObject/BackGround/BackGround.h"
-#include "../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
 #include "../../GameObject/EventObject/Goal/Goal.h"
-#include "../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
 #include "../../GameObject/SceneChange/SceneChange.h"
-#include "../../GameObject/Terrain/Object/Fence/Fence.h"
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/StageStart/StageStart.h"
-#include "../../GameObject/Terrain/Ground/DropGround/DropGround.h"
-#include "../../GameObject/Character/Enemy/FlyEnemy/FlyEnemy.h"
+#include "../../GameObject/Effect/PlayerSmoke/PlayerSmoke.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -89,17 +83,27 @@ void GameScene::Event()
 					// シーン遷移を終えたらリセット
 					if (m_wpSceneChange.lock()->GetFinishFlg())
 					{
+						// 敵、地形を全て削除する
+						auto it = m_objList.begin();
+						while (it != m_objList.end())
+						{
+							if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+							{
+								(*it)->SetExpired(true);
+								it = m_objList.erase(it);
+							}
+							else
+							{
+								it++;
+							}
+						}
+
 						for (auto& obj : m_objList)
 						{
-							// 敵、地形を全消去
-							if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
-							{
-								obj->SetExpired(true);
-							}
 							// リセット(敵、地形も作り直される)
 							obj->Reset();
-							m_resetFlg = true;
 						}
+						m_resetFlg = true;
 					}
 					else
 					{
@@ -196,23 +200,6 @@ void GameScene::Init()
 	// CSVを読み込む
 	CSVLoader();
 
-	// マップエディタ的な
-	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
-	// CSVファイルを指定する
-	objectController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	objectController->Init();
-	AddObject(objectController);
-
-	// 敵エディタ的な
-	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
-	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	enemyController->Init();
-	AddObject(enemyController);
-
-	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
-	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
-
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
@@ -237,13 +224,6 @@ void GameScene::Init()
 
 	// TPSカメラにターゲットをセットする
 	tpsCamera->SetTarget(player);
-
-	// オブジェクトコントローラーにカメラを渡す
-	objectController->SetCamera(tpsCamera);
-	enemyController->SetCamera(tpsCamera);
-
-	// enemyControllerにプレイヤーを渡す
-	enemyController->SetPlayer(player);
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
@@ -271,19 +251,43 @@ void GameScene::Init()
 	//// 保持
 	//m_wpStart = stageStart;
 
-	// 飛ぶ敵
-	std::shared_ptr<FlyEnemy> flyEnemy = std::make_shared<FlyEnemy>();
-	flyEnemy->Init();
-	AddObject(flyEnemy);
-
-
-
-	// シーンを変える 絶対一番下
+	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
 	AddObject(sceneChange);
 	// 保持
 	m_wpSceneChange = sceneChange;
+
+	// マップエディタ的な
+	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
+	// CSVファイルを指定する
+	objectController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	objectController->Init();
+	AddObject(objectController);
+
+	// 敵エディタ的な
+	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
+	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	// enemyControllerにプレイヤーを渡す
+	enemyController->SetPlayer(player);
+	enemyController->Init();
+	AddObject(enemyController);
+
+	// デバッグウィンドウにオブジェクトコントローラーを渡す
+	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
+	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
+
+
+	// オブジェクトコントローラーにカメラを渡す
+	objectController->SetCamera(tpsCamera);
+	enemyController->SetCamera(tpsCamera);
+
+
+
+	//// エフェクト
+	//std::shared_ptr<PlayerSmoke> playerSmoke = std::make_shared<PlayerSmoke>();
+	//playerSmoke->Init();
+	//AddObject(playerSmoke);
 }
 
 void GameScene::CSVLoader()

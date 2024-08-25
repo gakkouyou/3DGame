@@ -9,6 +9,7 @@
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/StageStart/StageStart.h"
 #include "../../GameObject/Effect/PlayerSmoke/PlayerSmoke.h"
+#include "../../GameObject/Pause/Pause.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -18,12 +19,16 @@
 
 void GameScene::Event()
 {
+	// ポーズ画面の時はやらない
 	// デバッグ用　ENTERを押すと、マップを配置できるデバッグモードになる
 	if (GetAsyncKeyState(VK_RETURN) & 0x8000)
 	{
 		if (!m_debugKeyFlg)
 		{
-			m_debugFlg = !m_debugFlg;
+			if (!m_pauseFlg)
+			{
+				m_debugFlg = !m_debugFlg;
+			}
 			m_debugKeyFlg = true;
 		}
 	}
@@ -35,34 +40,7 @@ void GameScene::Event()
 	// シーンが開始した時の処理
 	if (!m_sceneStartFlg)
 	{
-		if (!m_wpSceneChange.expired())
-		{
-			m_wpSceneChange.lock()->StartScene(5);
-
-			if (m_wpSceneChange.lock()->GetFinishFlg())
-			{
-				m_sceneStartFlg = true;
-				m_wpSceneChange.lock()->Reset();
-				// フェードインが終了したらプレイヤーを動けるようにする
-				if (!m_wpPlayer.expired())
-				{
-					m_wpPlayer.lock()->SetStopFlg(false);
-				}
-				// フェードインが終了したら"Stage Start"を消していく
-				//if (!m_wpStart.expired())
-				//{
-				//	m_wpStart.lock()->SetEnd();
-				//}
-			}
-			else
-			{
-				// 終わるまでプレイヤーを止める
-				if (!m_wpPlayer.expired())
-				{
-					m_wpPlayer.lock()->SetStopFlg(true);
-				}
-			}
-		}
+		StartGameScene();
 	}
 
 	// プレイヤーが死んだときの処理
@@ -78,76 +56,67 @@ void GameScene::Event()
 					m_wpResult.lock()->GameOver();
 				}
 
-				if (!m_wpSceneChange.expired())
-				{
-					// シーン遷移を終えたらリセット
-					if (m_wpSceneChange.lock()->GetFinishFlg())
-					{
-						// 敵、地形を全て削除する
-						auto it = m_objList.begin();
-						while (it != m_objList.end())
-						{
-							if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
-							{
-								(*it)->SetExpired(true);
-								it = m_objList.erase(it);
-							}
-							else
-							{
-								it++;
-							}
-						}
-
-						for (auto& obj : m_objList)
-						{
-							// リセット(敵、地形も作り直される)
-							obj->Reset();
-						}
-						m_resetFlg = true;
-					}
-					else
-					{
-						m_wpSceneChange.lock()->EndScene(60);
-						// フェードアウト、フェードインが終わるまでプレイヤーを止める
-						if (!m_wpPlayer.expired())
-						{
-							m_wpPlayer.lock()->SetStopFlg(true);
-						}
-					}
-				}
+				// ゲームシーンは終了せずに終了
+				GameEnd(60);
 			}
 		}
 	}
 
-	// リセットする
-	if (m_resetFlg)
+
+
+	// ポーズ画面の処理
+	if (!m_wpPause.expired())
+	{
+		m_pauseFlg = m_wpPause.lock()->GetPauseFlg();
+	}
+	// ポーズ画面かどうかが変わっていた時だけ処理する
+	if (m_pauseFlg != m_oldPauseFlg)
+	{
+		// ポーズかどうかをオブジェクトに渡す
+		for (auto& obj : m_objList)
+		{
+			if (obj)
+			{
+				obj->SetPauseFlg(m_pauseFlg);
+			}
+		}
+	}
+	// 前のポーズフラグを保持しておく
+	m_oldPauseFlg = m_pauseFlg;
+
+	// 選ばれたポーズのボタンによって、処理を変えていく
+	if (!m_wpPause.expired())
 	{
 		if (!m_wpSceneChange.expired())
 		{
-			if (m_wpSceneChange.lock()->GetFinishFlg())
+			switch (m_wpPause.lock()->GetSelectButton())
 			{
-				m_resetFlg = false;
-				m_wpSceneChange.lock()->Reset();
-				// フェードイン終了したらプレイヤーを動かせるようにする
-				if (!m_wpPlayer.expired())
+			case Pause::Again:	// ステージをやり直す
+				GameEnd(0);
+				break;
+
+			case Pause::Back:	// ステージから出る
+				if (m_wpSceneChange.lock()->GetFinishFlg())
 				{
-					m_wpPlayer.lock()->SetStopFlg(false);
+					SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 				}
-				// フェードインが終了したら"Stage Start"を消していく
-				//if (!m_wpStart.expired())
-				//{
-				//	m_wpStart.lock()->SetEnd();
-				//}
-			}
-			else
-			{
-				m_wpSceneChange.lock()->StartScene(5);
+				else
+				{
+					m_wpSceneChange.lock()->EndScene();
+				}
+				break;
 			}
 		}
 	}
 
+	// シーンを切り替えずに、ゲームシーンを再開する
+	if (m_resetFlg)
+	{
+		GameSceneReStart();
+	}
+
 	// クリアした時の処理
-	if(!m_wpGoal.expired())
+	if (!m_wpGoal.expired())
 	{
 		if (m_wpGoal.lock()->GetGoalFlg())
 		{
@@ -183,15 +152,20 @@ void GameScene::Event()
 					}
 				}
 			}
+			// プレイヤーにゴールしたことを伝え、止める
 			if (!m_wpPlayer.expired())
 			{
 				m_wpPlayer.lock()->SetGoalFlg(true);
 				m_wpPlayer.lock()->SetStopFlg(true);
 			}
+			// ポーズも止める
+			if (!m_wpPause.expired())
+			{
+				m_wpPause.lock()->SetStopFlg(true);
+			}
 		}
 	}
 }
-
 void GameScene::Init()
 {
 	// ステージをゲット
@@ -251,6 +225,23 @@ void GameScene::Init()
 	//// 保持
 	//m_wpStart = stageStart;
 
+	// ポーズ画面
+	std::shared_ptr<Pause> pause = std::make_shared<Pause>();
+	pause->Init();
+	AddObject(pause);
+	// 保持
+	m_wpPause = pause;
+
+
+
+
+
+
+
+
+
+
+
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
@@ -289,6 +280,127 @@ void GameScene::Init()
 	//playerSmoke->Init();
 	//AddObject(playerSmoke);
 }
+
+void GameScene::StartGameScene()
+{
+	if (!m_wpSceneChange.expired())
+	{
+		m_wpSceneChange.lock()->StartScene(5);
+
+		if (m_wpSceneChange.lock()->GetFinishFlg())
+		{
+			m_sceneStartFlg = true;
+			m_wpSceneChange.lock()->Reset();
+			// フェードインが終了したらプレイヤーを動けるようにする
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(false);
+			}
+			// ポーズもできるようにする
+			if (!m_wpPause.expired())
+			{
+				m_wpPause.lock()->SetStopFlg(false);
+			}
+			// フェードインが終了したら"Stage Start"を消していく
+			//if (!m_wpStart.expired())
+			//{
+			//	m_wpStart.lock()->SetEnd();
+			//}
+		}
+		else
+		{
+			// 終わるまでプレイヤーを止める
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(true);
+			}
+			// ポーズも止める
+			if (!m_wpPause.expired())
+			{
+				m_wpPause.lock()->SetStopFlg(true);
+			}
+		}
+	}
+}
+
+void GameScene::GameEnd(int _stayCnt)
+{
+	if (!m_wpSceneChange.expired())
+	{
+		// シーン遷移を終えたらリセット
+		if (m_wpSceneChange.lock()->GetFinishFlg())
+		{
+			// 敵、地形を全て削除する
+			auto it = m_objList.begin();
+			while (it != m_objList.end())
+			{
+				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+				{
+					(*it)->SetExpired(true);
+					it = m_objList.erase(it);
+				}
+				else
+				{
+					it++;
+				}
+			}
+
+			for (auto& obj : m_objList)
+			{
+				// リセット(敵、地形も作り直される)
+				obj->Reset();
+			}
+			m_resetFlg = true;
+		}
+		else
+		{
+			m_wpSceneChange.lock()->EndScene(_stayCnt);
+			// フェードアウト、フェードインが終わるまでプレイヤーを止める
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(true);
+			}
+			// ポーズも止める
+			if (!m_wpPause.expired())
+			{
+				m_wpPause.lock()->SetStopFlg(true);
+			}
+		}
+	}
+}
+
+void GameScene::GameSceneReStart()
+{
+	if (!m_wpSceneChange.expired())
+	{
+		if (m_wpSceneChange.lock()->GetFinishFlg())
+		{
+			m_resetFlg = false;
+			m_wpSceneChange.lock()->Reset();
+			// フェードイン終了したらプレイヤーを動かせるようにする
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(false);
+			}
+			// ポーズも動かせるようにする
+			if (!m_wpPause.expired())
+			{
+				m_wpPause.lock()->SetStopFlg(false);
+			}
+
+			// フェードインが終了したら"Stage Start"を消していく
+			//if (!m_wpStart.expired())
+			//{
+			//	m_wpStart.lock()->SetEnd();
+			//}
+		}
+		else
+		{
+			m_wpSceneChange.lock()->StartScene(5);
+		}
+	}
+}
+
 
 void GameScene::CSVLoader()
 {

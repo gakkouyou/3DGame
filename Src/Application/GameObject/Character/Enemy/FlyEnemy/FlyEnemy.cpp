@@ -3,6 +3,9 @@
 
 void FlyEnemy::Update()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	m_angle++;
 	if (m_angle >= 360)
 	{
@@ -16,6 +19,9 @@ void FlyEnemy::Update()
 
 void FlyEnemy::PostUpdate()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	if (SceneManager::Instance().GetDebug())
 	{
 		// searchエリア可視化
@@ -28,7 +34,7 @@ void FlyEnemy::PostUpdate()
 
 	// アニメーションの更新
 	// 止まっていたらアニメーションしない
-	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
+	m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
 	m_spModel->CalcNodeMatrices();
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);

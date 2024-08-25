@@ -36,6 +36,8 @@ private:
 	// 画像
 	std::shared_ptr<KdTexture> m_spTex[StageNum::Max];
 
+
+
 	// 今のステージ
 	int m_nowStage = Stage1;
 

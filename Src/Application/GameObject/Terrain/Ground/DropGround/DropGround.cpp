@@ -2,6 +2,9 @@
 
 void DropGround::Update()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	// 触れられていなかったらリセット
 	if (!m_onHitFlg)
 	{

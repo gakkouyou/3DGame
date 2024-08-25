@@ -46,6 +46,8 @@ private:
 	Texture m_white;
 	// "Clear!"
 	Texture m_clear;
+	// 黒い画像
+	Texture m_black;
 
 	// ステージ数とか持ってるクラス
 	std::weak_ptr<StageSelectTexture> m_wpStage;

@@ -31,8 +31,8 @@ void Goal::Update()
 	}
 	else
 	{
-		cnt++;
-		if (cnt > 60)
+		m_goalStayCnt++;
+		if (m_goalStayCnt > m_goalStayTime)
 		{
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 

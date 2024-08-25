@@ -18,6 +18,8 @@ public:
 
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
+	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+
 private:
 	// マップエディタモードの際に使用する座標
 	Math::Vector3 m_debugPos	= Math::Vector3::Zero;
@@ -55,4 +57,12 @@ private:
 	Move m_goalProcess;
 
 	void GoalProcess();
+
+	// ポーズ画面かどうか
+	bool m_pauseFlg = false;
+	bool m_oldPauseFlg = false;
+	// ポーズ画面の時のFocus距離？
+	float m_pauseFocus = 0;
+	// 普通のFocus処理
+	float m_defaultFocus = 2000;
 };

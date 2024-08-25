@@ -7,6 +7,9 @@ void NormalEnemy::Update()
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) return;
 
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	// Stop以外のフラグが立っていたらStopをおろす
 	if ((m_situationType & (~SituationType::Stop)) && (m_situationType & SituationType::Stop))
 	{
@@ -20,9 +23,6 @@ void NormalEnemy::Update()
 
 	// ベクトルリセット
 	m_moveVec = Math::Vector3::Zero;
-
-	//Application::Instance().m_log.Clear();
-	Application::Instance().m_log.AddLog("%.2f\n", m_gravity);
 
 	if (m_setParamFlg == false)
 	{
@@ -205,6 +205,9 @@ void NormalEnemy::Update()
 
 void NormalEnemy::PostUpdate()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+	
 	if (SceneManager::Instance().GetDebug())
 	{
 		// searchエリア可視化

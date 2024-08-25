@@ -33,10 +33,15 @@ public:
 	// 地形のパラメータゲット関数
 	const Param GetParam() const { return m_param; }
 
+	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+
 protected:
 	// モデルデータ
 	std::shared_ptr<KdModelData>	m_spModel	= nullptr;
 
 	// 動く地形用のパラメータ変数
 	Param m_param;
+
+	// ポーズ画面かどうか
+	bool m_pauseFlg = false;
 };

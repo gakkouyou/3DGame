@@ -57,6 +57,7 @@ void StageSelectTexture::Init()
 {
 	CSVLoader();
 
+	// ステージの情報をセット
 	for (int i = 0; i < StageNum::Max - 1; i++)
 	{
 		if (m_stageInfoList[i] == StageInfo::Clear)
@@ -69,6 +70,7 @@ void StageSelectTexture::Init()
 		}
 	}
 
+	// ステージの画像をロード
 	for (int i = 0; i < StageNum::Max; i++)
 	{
 		if (!m_spTex[i])

@@ -36,5 +36,6 @@ private:
 	// ゴールフラグ
 	bool m_goalFlg	= false;
 
-	int cnt = 0;
+	int m_goalStayCnt	= 0;
+	int m_goalStayTime	= 60;
 };

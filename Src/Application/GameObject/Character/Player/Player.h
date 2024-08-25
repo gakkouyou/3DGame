@@ -95,5 +95,6 @@ private:
 	// 止めるフラグ
 	bool m_stopFlg = false;
 
-	float cnt = 0;
+	int m_goalStayCnt	= 0;
+	int m_goalStayTime	= 60;
 };

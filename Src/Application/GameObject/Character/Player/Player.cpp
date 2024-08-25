@@ -11,6 +11,8 @@ void Player::Update()
 {
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) return;
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
 
 	// Stop以外のフラグが立っていたらStopをおろす
 	if ((m_situationType & (~SituationType::Stop)) && (m_situationType & SituationType::Stop))
@@ -66,11 +68,11 @@ void Player::Update()
 
 	static int cnt = 0;
 
-	if (m_situationType & SituationType::Run)
+	// 走っていて、空中にいない時、煙を足元に出す
+	if ((m_situationType & SituationType::Run) && ((m_situationType & SituationType::Air) == 0 ))
 	{
-		if (cnt % 30 == 0)
+		if (cnt % 15 == 0)
 		{
-			
 			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
 			smoke->Init();
 			smoke->SetPos(m_pos);
@@ -204,6 +206,9 @@ void Player::Update()
 
 void Player::PostUpdate()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	Math::Matrix transMat = Math::Matrix::Identity;
 	// 動く床に当たっていた時の処理
 	if (m_moveGround.hitFlg)
@@ -279,7 +284,7 @@ void Player::Init()
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
-	m_pos = { 30.0f, 2.0f, -40.0f };
+	m_pos = { 30.0f, 1.0f, -40.0f };
 
 	m_stopFlg = true;
 }
@@ -289,7 +294,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos = { 30.0f, 2.0f, -40.0f };
+	m_pos = { 30.0f, 1.0f, -40.0f };
 	
 	// 生存フラグ
 	m_aliveFlg = true;
@@ -529,8 +534,8 @@ void Player::HitJudgeGround()
 					// 通常
 				default:
 					// X軸とZ軸の補正はなし
-					hitDir.x = 0;
-					hitDir.z = 0;
+					//hitDir.x = 0;
+					//hitDir.z = 0;
 					hitDir.Normalize();
 					m_pos += hitDir * maxOverLap;
 					// 重力
@@ -627,8 +632,8 @@ void Player::HitJudgeEnemy()
 
 void Player::GoalProcess()
 {
-	cnt++;
-	if (cnt > 60)
+	m_goalStayCnt++;
+	if (m_goalStayCnt > m_goalStayTime)
 	{
 		m_pos.x = 220;
 		m_pos.z = 50;

@@ -2,10 +2,14 @@
 
 void PlayerSmoke::Update()
 {
-	m_alpha -= 0.01f;
-	if (m_alpha < 0)
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
+	m_scale -= 0.02f;
+	if (m_scale < 0)
 	{
 		m_isExpired = true;
+		m_scale = 0;
 	}
 }
 
@@ -13,16 +17,13 @@ void PlayerSmoke::DrawLit()
 {
 	if (m_spModel)
 	{
-		Math::Color color = { 1, 1, 1, m_alpha };
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
-		static float scale = 1.0f;
-		scale -= 0.02f;
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos());
 
-		Math::Matrix scaleMat = Math::Matrix::CreateScale(scale);
+		m_mWorld = scaleMat * transMat;
 
-		m_mWorld = scaleMat * GetPos();
-
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld, color);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 	}
 }
 
@@ -33,4 +34,6 @@ void PlayerSmoke::Init()
 		m_spModel = std::make_shared<KdModelWork>();
 		m_spModel->SetModelData("Asset/Models/Effect/Smoke/smoke.gltf");
 	}
+
+	m_scale = 1.0f;
 }

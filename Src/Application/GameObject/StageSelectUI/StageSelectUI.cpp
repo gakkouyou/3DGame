@@ -3,6 +3,7 @@
 
 void StageSelectUI::Update()
 {
+	// 三角の画像のアルファ値を変えていく
 	m_triangle.sinCurve.degAng++;
 	if (m_triangle.sinCurve.degAng >= m_triangle.sinCurve.maxDegAng)
 	{
@@ -60,13 +61,13 @@ void StageSelectUI::DrawSprite()
 	}
 
 	// 挑戦不可能以外なら描画する
-	if (stageInfo != spStage->ImPossible)
+	if (stageInfo != StageSelectTexture::StageInfo::ImPossible)
 	{
 		// 白い画像
 		if (m_white.spTex)
 		{
-			Math::Color color = { 1, 1, 1, m_white.alpha };
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_white.spTex, m_white.pos.x, m_white.pos.y, nullptr, &color);
+			/*Math::Color color = { 1, 1, 1, m_white.alpha };
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_white.spTex, m_white.pos.x, m_white.pos.y, nullptr, &color);*/
 		}
 
 		// "PUSH SPACE"
@@ -78,11 +79,21 @@ void StageSelectUI::DrawSprite()
 	}
 
 	// ステージをクリアしているなら、Clear!を描画する
-	if (stageInfo == spStage->Clear)
+	if (stageInfo == StageSelectTexture::StageInfo::Clear)
 	{
 		if (m_clear.spTex)
 		{
 			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y);
+		}
+	}
+
+	// 挑戦不可能なら黒い画像を半透明に描画する
+	if (stageInfo == StageSelectTexture::StageInfo::ImPossible)
+	{
+		if (m_black.spTex)
+		{
+			Math::Color color = { 1, 1, 1, m_black.alpha };
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_black.spTex, 0, 0, nullptr, &color);
 		}
 	}
 
@@ -118,7 +129,7 @@ void StageSelectUI::Init()
 	if (!m_number.spTex)
 	{
 		m_number.spTex = std::make_shared<KdTexture>();
-		m_number.spTex->Load("Asset/Textures/StageSelect/UI/number - コピー.png");
+		m_number.spTex->Load("Asset/Textures/StageSelect/UI/number.png");
 	}
 	m_number.pos = { -370, 305 };
 
@@ -146,6 +157,14 @@ void StageSelectUI::Init()
 		m_clear.spTex->Load("Asset/Textures/StageSelect/UI/clear.png");
 	}
 	m_clear.pos = { 500, 300 };
+
+	// 黒い画像
+	if (!m_black.spTex)
+	{
+		m_black.spTex = std::make_shared<KdTexture>();
+		m_black.spTex->Load("Asset/Textures/Scene/black.png");
+	}
+	m_black.alpha = 0.5f;
 
 	//// ステージ数の枠
 	//if (!m_frame.spTex)

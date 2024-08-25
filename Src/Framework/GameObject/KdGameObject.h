@@ -114,6 +114,8 @@ public:
 	// オブジェクトの名前をゲットする
 	const std::string GetObjectName() const { return m_objectName; }
 
+	virtual void SetPauseFlg(bool _pauseFlg) {}
+
 protected:
 
 	void Release() {}

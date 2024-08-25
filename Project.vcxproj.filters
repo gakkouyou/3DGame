@@ -184,6 +184,9 @@
     <Filter Include="Src\Application\GameObject\Effect\PlayerSmoke">
       <UniqueIdentifier>{ab8f895d-aa4f-46ba-861d-4eb58f24ab39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Pause">
+      <UniqueIdentifier>{c5311254-915f-490d-b9a9-15e256f3411d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -444,6 +447,9 @@
     <ClInclude Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.h">
       <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Pause\Pause.h">
+      <Filter>Src\Application\GameObject\Pause</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -673,6 +679,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.cpp">
       <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Pause\Pause.cpp">
+      <Filter>Src\Application\GameObject\Pause</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

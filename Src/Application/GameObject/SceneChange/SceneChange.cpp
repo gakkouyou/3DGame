@@ -29,7 +29,7 @@ void SceneChange::Update()
 		if (m_stayCnt > m_stayTime)
 		{
 			// 円を小さくする
-			m_size -= m_addSize;
+			m_size -= m_subSize;
 
 			// サイズが最小値を下回ったら終了
 			if (m_size < m_minSize)

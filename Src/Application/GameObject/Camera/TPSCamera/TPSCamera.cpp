@@ -94,6 +94,20 @@ void TPSCamera::PostUpdate()
 		GoalProcess();
 	}
 
+	// ポーズ画面の処理
+	if (m_oldPauseFlg != m_pauseFlg)
+	{
+		if (m_pauseFlg == true)
+		{
+			m_spCamera->SetFocus(0, 0, m_pauseFocus);
+		}
+		else
+		{
+			m_spCamera->SetFocus(0, 0, m_defaultFocus);
+		}
+	}
+	m_oldPauseFlg = m_pauseFlg;
+
 	CameraBase::Update();
 }
 
@@ -103,7 +117,7 @@ void TPSCamera::Init()
 	CameraBase::Init();
 
 	// 注視点
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 12.0f, -25.0f);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 18.0f, -25.0f);
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 

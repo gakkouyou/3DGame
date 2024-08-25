@@ -33,6 +33,8 @@ public:
 	// リセット処理
 	void Reset()		override;
 
+	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+
 protected:
 	// レイ判定　当たったらtrueを返す
 	bool RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg = false);
@@ -71,4 +73,6 @@ protected:
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
+
+	bool m_pauseFlg = false;
 };

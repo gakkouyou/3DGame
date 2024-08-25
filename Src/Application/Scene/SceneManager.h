@@ -64,7 +64,7 @@ private :
 	SceneType m_currentSceneType = SceneType::First;
 
 	// 次のシーンの種類を保持している変数
-	SceneType m_nextSceneType = SceneType::Game;
+	SceneType m_nextSceneType = SceneType::StageSelect;
 
 	// プレイするステージ
 	int m_nowStage	= 0;

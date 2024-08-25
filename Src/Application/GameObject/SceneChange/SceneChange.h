@@ -35,8 +35,10 @@ private:
 
 	// 画像サイズ
 	float m_size			= 0;
-	// サイズの増減
-	const float m_addSize	= 15 ;
+	// サイズの増える数値
+	const float m_addSize	= 30;
+	// サイズの減る数値
+	const float m_subSize	= 15;
 	// 最大サイズ
 	const float m_maxSize	= 1500;
 	// 最小サイズ

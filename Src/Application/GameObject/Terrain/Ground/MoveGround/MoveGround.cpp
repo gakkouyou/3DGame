@@ -4,6 +4,9 @@
 
 void MoveGround::Update()
 {
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	if (!m_stopFlg)
 	{
 		Math::Vector3 moveVec = Math::Vector3::Zero;

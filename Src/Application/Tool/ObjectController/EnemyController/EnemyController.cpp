@@ -270,7 +270,7 @@ void EnemyController::MouseSelect()
 				m_wpTargetObject = hitObjList[cnt];
 
 				EnemyBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::EnemyParam setParam{ param.startPos, param.moveArea, param.searchArea };
+				DebugWindow::EnemyParam setParam{ param.startPos, param.moveArea, param.searchArea, param.rotDegAng };
 				DebugWindow::Instance().SetEnemyParam(setParam);
 			}
 			cnt++;

@@ -20,6 +20,7 @@ public:
 	{
 		Math::Vector3 startPos	= Math::Vector3::Zero;
 		Math::Vector3 goalPos	= Math::Vector3::Zero;
+		Math::Vector3 scale		= { 1, 1, 1 };
 		float speed				= 0;
 		int stayTime			= 0;
 		Math::Vector3 degAng	= Math::Vector3::Zero;

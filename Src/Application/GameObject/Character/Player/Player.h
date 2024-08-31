@@ -2,22 +2,23 @@
 #include "../CharacterBase.h"
 
 class CameraBase;
+class TerrainController;
 
 class Player : public CharacterBase
 {
 public:
-	Player()										{}
-	~Player()							override	{}
+	Player()					{}
+	~Player()			override{}
 
 	// 更新
-	void Update()						override;
-	void PostUpdate()					override;
+	void Update()		override;
+	void PostUpdate()	override;
 
 	// 初期化
-	void Init()							override;
+	void Init()			override;
 
 	// リセット処理
-	void Reset()						override;
+	void Reset()		override;
 
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
@@ -27,6 +28,9 @@ public:
 
 	// 動いていいかのフラグのセット
 	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
+
+	// ゴールの座標
+	void SetGoalPos(Math::Vector3 _goalPos) { m_goalPos = _goalPos; }
 
 private:
 	// 当たり判定
@@ -46,10 +50,11 @@ private:
 	enum SituationType
 	{
 		Stop	= 1 << 0,	// 止まっている
-		Run		= 1 << 1,	// 走っている
+		Walk	= 1 << 1,	// 歩いている
 		Jump	= 1 << 2,	// ジャンプしている
 		Air		= 1 << 3,	// 空中にいる
 		WallHit	= 1 << 4,	// 壁に触れている
+		Run		= 1 << 5,	// 走っている
 	};
 
 	// カメラのウィークポインタ
@@ -95,6 +100,16 @@ private:
 	// 止めるフラグ
 	bool m_stopFlg = false;
 
+	// ゴールの処理
 	int m_goalStayCnt	= 0;
 	int m_goalStayTime	= 60;
+	Math::Vector3 m_goalPos = Math::Vector3::Zero;
+
+	// 足元の煙用
+	int m_smokeCount	= 0;
+	int m_walkSmokeTime = 15;
+	int m_runSmokeTime	= 7;
+
+	// 走り状態の時のスピード
+	const float m_runSpeed	= 0.5f;
 };

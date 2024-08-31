@@ -53,8 +53,9 @@ void RotationGround::Update()
 	m_rotMat = Math::Matrix::CreateFromYawPitchRoll({ radAng.x, radAng.y, radAng.z });
 	// 座標行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
 	
-	m_mWorld = m_rotMat * transMat;
+	m_mWorld = scaleMat * m_rotMat * transMat;
 }
 
 void RotationGround::Init()
@@ -80,11 +81,12 @@ void RotationGround::Init()
 	m_drawType = eDrawTypeLit;
 }
 
-void RotationGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void RotationGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
 	// 座標
-	m_param.pos = _startPos;
-	m_param.startPos = _startPos;
+	m_param.pos			= _startPos;
+	m_param.startPos	= _startPos;
+	m_param.scale		= _scale;
 
 	// 回転角度
 	m_param.degAng = _degAng;

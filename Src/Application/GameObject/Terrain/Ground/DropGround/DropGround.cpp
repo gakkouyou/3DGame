@@ -20,6 +20,8 @@ void DropGround::Update()
 	if (m_dropFlg)
 	{
 		m_param.pos.y -= m_param.speed;
+		m_param.pos.x = m_param.pos.x;
+		m_param.pos.z = m_param.pos.z;
 
 		// 消えるまでのカウント
 		m_vanishCount++;
@@ -50,10 +52,10 @@ void DropGround::Update()
 		}
 	}
 
-	Math::Matrix transMat;
-	transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
 
-	m_mWorld = transMat;
+	m_mWorld = scaleMat * transMat;
 }
 
 void DropGround::Init()
@@ -90,27 +92,36 @@ void DropGround::OnHit()
 		m_dropFlg = true;
 	}
 
-	int add = rand() % 2;
-
-	if (add == 0)
+	if (m_dropFlg == false)
 	{
-		m_param.pos.x = m_param.startPos.x + 0.2f;
-	}
-	else
-	{
-		m_param.pos.x = m_param.startPos.x - 0.2f;
-	}
+		int add = rand() % 2;
 
-	Math::Matrix transMat;
-	transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+		if (add == 0)
+		{
+			m_param.pos.x = m_param.startPos.x + 0.2f;
+		}
+		else
+		{
+			m_param.pos.x = m_param.startPos.x - 0.2f;
+		}
 
-	m_mWorld = transMat;
+		Math::Matrix transMat;
+		transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+
+		m_mWorld = transMat;
+	}
 }
 
-void DropGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void DropGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
 	m_param.startPos	= _startPos;
 	m_param.pos			= _startPos;
+	m_param.scale		= _scale;
 	m_param.stayTime	= _stayTime;
 	m_param.speed		= _speed;
+
+	Math::Matrix transMat	= Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat	= Math::Matrix::CreateScale(m_param.scale);
+
+	m_mWorld = scaleMat * transMat;
 }

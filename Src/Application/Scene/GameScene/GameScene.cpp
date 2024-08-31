@@ -165,16 +165,19 @@ void GameScene::Event()
 			}
 		}
 	}
+
 }
 void GameScene::Init()
 {
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 3, 3, 3 });
+
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
 
 	// CSVを読み込む
 	CSVLoader();
 
-	// 背景
+	// 背景(最初に描画する！！！！！！)
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
 	AddObject(backGround);
@@ -210,6 +213,8 @@ void GameScene::Init()
 
 	// カメラにゴールの座標をセットする
 	tpsCamera->SetGoalPos(goal->GetPos());
+	// プレイヤーにゴールの座標をセットする
+	player->SetGoalPos(goal->GetPos());
 
 	// リザルト
 	std::shared_ptr<Result> result = std::make_shared<Result>();
@@ -250,11 +255,11 @@ void GameScene::Init()
 	m_wpSceneChange = sceneChange;
 
 	// マップエディタ的な
-	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
+	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
-	objectController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	objectController->Init();
-	AddObject(objectController);
+	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	terrainController->Init();
+	AddObject(terrainController);
 
 	// 敵エディタ的な
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
@@ -265,14 +270,16 @@ void GameScene::Init()
 	AddObject(enemyController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
+	DebugWindow::Instance().SetTerrainController(terrainController);	// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
 
 
 	// オブジェクトコントローラーにカメラを渡す
-	objectController->SetCamera(tpsCamera);
+	terrainController->SetCamera(tpsCamera);
 	enemyController->SetCamera(tpsCamera);
 
+	// プレイヤーにterrainControllerを渡す
+	player->SetTerrainController(terrainController);
 
 
 	//// エフェクト

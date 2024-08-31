@@ -94,11 +94,11 @@ void StageSelectScene::Init()
 	//DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
 
 	// プレイヤー
-	std::shared_ptr<StageSelectPlayer> player = std::make_shared<StageSelectPlayer>();
-	player->Init();
-	AddObject(player);
-	// 保持
-	m_wpPlayer = player;
+	//std::shared_ptr<StageSelectPlayer> player = std::make_shared<StageSelectPlayer>();
+	//player->Init();
+	//AddObject(player);
+	//// 保持
+	//m_wpPlayer = player;
 
 	// TPSカメラ
 	std::shared_ptr<StageSelectCamera> camera = std::make_shared<StageSelectCamera>();

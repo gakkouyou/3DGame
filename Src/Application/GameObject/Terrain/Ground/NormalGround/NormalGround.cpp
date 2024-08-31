@@ -1,9 +1,9 @@
 ﻿#include "NormalGround.h"
 
-void NormalGround::Update()
-{
-	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
-}
+//void NormalGround::Update()
+//{
+//	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
+//}
 
 void NormalGround::Init()
 {
@@ -15,6 +15,7 @@ void NormalGround::Init()
 	}
 
 	m_drawType = eDrawTypeLit;
+	m_drawType |= eDrawTypeDepthOfShadow;
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("Ground", m_spModel, KdCollider::TypeGround);
@@ -25,8 +26,14 @@ void NormalGround::Init()
 	TerrainBase::Init();
 }
 
-void NormalGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void NormalGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
-	m_param.pos = _startPos;
-	m_param.startPos = _startPos;
+	m_param.pos			= _startPos;
+	m_param.startPos	= _startPos;
+	m_param.scale		= _scale;
+
+	Math::Matrix transMat	= Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat	= Math::Matrix::CreateScale(m_param.scale);
+
+	m_mWorld = scaleMat * transMat;
 }

@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+class TerrainController;
+class TerrainBase;
+
 class CharacterBase : public KdGameObject
 {
 public:
@@ -35,14 +38,22 @@ public:
 
 	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
+	// TerrainControllerをセットする
+	void SetTerrainController(std::shared_ptr<TerrainController> _spTerrainController) { m_wpTerrainController = _spTerrainController; }
+
 protected:
 	// レイ判定　当たったらtrueを返す
 	bool RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg = false);
+	// レイ判定　地面
+	bool RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
 
 	// スフィア判定　当たったらtrueを返す
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
 	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
+	
+	// スフィア判定 地面
+	bool SphereHitGround(const Math::Vector3 _centerPos, const float _radius, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
 
 
 	// キャラを向かせたい方向に向かせる 回転したらtrue (回転角度, 向きたいベクトル, 回転制御(必要なら))
@@ -69,10 +80,16 @@ protected:
 	const float		m_maxGravity					= 4.0f;
 
 	// 当たり判定の段差許容範囲
-	const float		m_enableStepHeight				= 0.1f;
+	const float		m_enableStepHeight				= 0.15f;
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
 
 	bool m_pauseFlg = false;
+
+	// TerrainController
+	std::weak_ptr<TerrainController> m_wpTerrainController;
+
+	// 当たった地形を保持
+	std::weak_ptr<TerrainBase> m_wpHitTerrain;
 };

@@ -218,12 +218,15 @@ void NormalEnemy::PostUpdate()
 		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
 	}
 
+	m_pDebugWire->AddDebugSphere(m_pos, 1.0f, kBlueColor);
+
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	// 回転行列
 	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.5f);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
+	//Math::Matrix scaleMat = Math::Matrix::CreateScale(1.5f);
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
 }
@@ -235,9 +238,10 @@ void NormalEnemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
+		//m_spModel->SetModelData("Asset/Models/Character/Enemy/NormalEnemy(old)/normalEnemy.gltf");
 		m_spModel->SetModelData("Asset/Models/Character/Enemy/NormalEnemy/normalEnemy.gltf");
-	}
 
+	}
 	// 行列を作っておく
 	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 
@@ -414,6 +418,36 @@ void NormalEnemy::HitJudge()
 	{
 		m_situationType |= SituationType::Air;
 	}
+
+	HitEnemy();
+}
+
+void NormalEnemy::HitEnemy()
+{
+	// 地面とのスフィア判定
+	// 方向
+	Math::Vector3 hitDir = Math::Vector3::Zero;
+	// スフィアの中心座標
+	Math::Vector3 centerPos = m_pos;
+	//centerPos.y -= 2.0f;
+	// スフィアの半径
+	float radius = 1.0f;
+	centerPos.y += radius;
+
+	// 当たったかどうかのフラグ
+	bool hitFlg = false;
+	// めり込んだ距離
+	float maxOverLap = 0.0f;
+
+	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeDamage, hitDir, maxOverLap);
+
+	// 当たった場合
+	if (hitFlg)
+	{
+		hitDir.y = 0;
+		hitDir.Normalize();
+		m_pos += hitDir * maxOverLap;
+	}
 }
 
 void NormalEnemy::TargetHoming()
@@ -423,12 +457,14 @@ void NormalEnemy::TargetHoming()
 	{
 		Math::Vector3 vec = spTarget->GetPos() - m_pos;
 		Math::Vector3 forwardVec = m_mWorld.Backward();
+		forwardVec.Normalize();
 
 		vec.y = 0;
 
 		// プレイヤーが索敵範囲内にいるなら、視野角判定をする
 		if (vec.Length() < m_param.searchArea)
 		{
+			vec.Normalize();
 			float dot = forwardVec.Dot(vec);
 			dot = std::clamp(dot, -1.0f, 1.0f);
 			float deg = DirectX::XMConvertToDegrees(acos(dot));

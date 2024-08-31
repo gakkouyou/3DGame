@@ -58,7 +58,7 @@ void Result::DrawSprite()
 		{
 			Math::Color color = { 1, 1, 1, m_clear.alpha };
 			Math::Vector2 size = { (float)m_clear.spTex->GetWidth(), (float)m_clear.spTex->GetHeight() };
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y, size.x * 2, size.y * 2, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y, nullptr, &color);
 		}
 	}
 	

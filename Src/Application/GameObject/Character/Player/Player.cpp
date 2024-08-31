@@ -37,22 +37,44 @@ void Player::Update()
 		if (GetAsyncKeyState('W') & 0x8000)
 		{
 			m_moveVec.z += 1.0f;
-			m_situationType |= SituationType::Run;
+			m_situationType |= SituationType::Walk;
 		}
 		if (GetAsyncKeyState('A') & 0x8000)
 		{
 			m_moveVec.x -= 1.0f;
-			m_situationType |= SituationType::Run;
+			m_situationType |= SituationType::Walk;
 		}
 		if (GetAsyncKeyState('S') & 0x8000)
 		{
 			m_moveVec.z -= 1.0f;
-			m_situationType |= SituationType::Run;
+			m_situationType |= SituationType::Walk;
 		}
 		if (GetAsyncKeyState('D') & 0x8000)
 		{
 			m_moveVec.x += 1.0f;
-			m_situationType |= SituationType::Run;
+			m_situationType |= SituationType::Walk;
+		}
+
+		// 歩き状態の時にSHIFTキーを押すと、ダッシュになる
+		if (m_situationType & SituationType::Walk)
+		{
+			if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+			{
+				// 空中でないなら走り状態に移行できる
+				if ((m_situationType & SituationType::Air) == 0)
+				{
+					m_situationType |= SituationType::Run;
+				}
+				// 走り状態なら歩き状態を解除する
+				if (m_situationType & SituationType::Run)
+				{
+					m_situationType &= (~SituationType::Walk);
+				}
+			}
+			else
+			{
+				m_situationType &= (~SituationType::Run);
+			}
 		}
 	}
 
@@ -63,26 +85,43 @@ void Player::Update()
 	// 動いていなかったら止まっている状態にする。
 	if (m_moveVec.LengthSquared() == 0)
 	{
+		m_situationType &= (~SituationType::Walk);
 		m_situationType &= (~SituationType::Run);
 	}
 
-	static int cnt = 0;
-
-	// 走っていて、空中にいない時、煙を足元に出す
-	if ((m_situationType & SituationType::Run) && ((m_situationType & SituationType::Air) == 0 ))
+	// 空中にいなくて動いている時、足元に煙を出す
+	if ((m_situationType & SituationType::Air) == 0)
 	{
-		if (cnt % 15 == 0)
+		// 歩いている時
+		if (m_situationType & SituationType::Walk)
 		{
-			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
-			smoke->Init();
-			smoke->SetPos(m_pos);
-			SceneManager::Instance().AddObject(smoke);
+			if (m_smokeCount % m_walkSmokeTime == 0)
+			{
+				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+				smoke->Init();
+				smoke->SetPos(m_pos);
+				SceneManager::Instance().AddObject(smoke);
+				m_smokeCount = 0;
+			}
+			m_smokeCount++;
 		}
-		cnt++;
+		// 走っている時
+		else if (m_situationType & SituationType::Run)
+		{
+			if (m_smokeCount % m_runSmokeTime == 0)
+			{
+				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+				smoke->Init();
+				smoke->SetPos(m_pos);
+				SceneManager::Instance().AddObject(smoke);
+				m_smokeCount = 0;
+			}
+			m_smokeCount++;
+		}
 	}
 	else
 	{
-		cnt = 0;
+		m_smokeCount = 0;
 	}
 
 	if (m_stopFlg == false)
@@ -101,8 +140,8 @@ void Player::Update()
 
 	if (m_situationType != oldSituationType)
 	{
-		// 止まっている状態→歩き
-		if (m_situationType & SituationType::Run)
+		// 止まっている状態→歩きor走り
+		if ((m_situationType & SituationType::Walk) || (m_situationType & SituationType::Run))
 		{
 			if (oldSituationType & SituationType::Stop)
 			{
@@ -113,20 +152,13 @@ void Player::Update()
 				}
 			}
 		}
-		if (m_situationType & SituationType::Stop)
-		{
-			if (oldSituationType & SituationType::Run)
-			{
-				//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Stop"));
-			}
-		}
 	}
 
 	if (m_spAnimator->IsAnimationEnd())
 	{
-		// 歩いている状態の時
+		// 歩いている状態or走っている状態の時
 		// 空中にいたらアニメーションしない
-		if ((m_situationType & SituationType::Run) && !(m_situationType & SituationType::Air))
+		if (((m_situationType & SituationType::Walk) || (m_situationType & SituationType::Run)) && !(m_situationType & SituationType::Air))
 		{
 			// 右足を出す
 			if (m_walkAnimeDirFlg == true)
@@ -161,7 +193,16 @@ void Player::Update()
 	}
 
 	// 移動
-	m_pos += m_moveVec * m_moveSpeed;
+	// 歩き
+	if (m_situationType & SituationType::Walk)
+	{
+		m_pos += m_moveVec * m_moveSpeed;
+	}
+	// 走り
+	else if (m_situationType & SituationType::Run)
+	{
+		m_pos += m_moveVec * m_runSpeed;
+	}
 
 	// 重力
 	m_gravity += m_gravityPow;
@@ -180,7 +221,7 @@ void Player::Update()
 
 	// 移動中
 	// 回転処理
-	if (m_situationType & SituationType::Run)
+	if (m_situationType & SituationType::Walk || m_situationType & SituationType::Run)
 	{
 		// 回転
 		RotationCharacter(m_angle, m_moveVec);
@@ -219,18 +260,7 @@ void Player::PostUpdate()
 		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
 
 		// 動く床を探す
-		std::shared_ptr<KdGameObject> spHitObject;
-		for (auto& hitObject : m_wpHitObjectList)
-		{
-			if (!hitObject.expired())
-			{
-				if (hitObject.lock()->GetObjectType() == ObjectType::MoveGround || hitObject.lock()->GetObjectType() == ObjectType::DropGround)
-				{
-					spHitObject = hitObject.lock();
-					break;
-				}
-			}
-		}
+		std::shared_ptr<TerrainBase> spHitObject	= m_wpHitTerrain.lock();
 
 		if (spHitObject)
 		{
@@ -245,7 +275,29 @@ void Player::PostUpdate()
 	// 回る床に当たっていた時の処理
 	if (m_rotationGround.hitFlg)
 	{
+		// 当たった地面
+		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
+		// 無かったら終了
+		if (!spHitTerrain) return;
+		Math::Vector3 terrainPos = spHitTerrain->GetPos();
+		// プレイヤーから回転床までの距離
+		Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
+		vec.z = 0;
+		float length = vec.Length();
+		// 移動する前の回転床から見たプレイヤーの角度
+		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+		degAng -= 90;
+		if (degAng < 0)
+		{
+			degAng += 360;
+		}
+		degAng = 360 - degAng;
 
+		// 回転床が回転する角度
+		float lotDegAng = spHitTerrain->GetParam().degAng.z;
+		degAng += lotDegAng;
+		m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+ 		m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
 	}
 
 	transMat = Math::Matrix::CreateTranslation(m_pos);
@@ -254,7 +306,14 @@ void Player::PostUpdate()
 
 	// アニメーションの更新
 	// 止まっていたらアニメーションしない
-	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
+	if (m_situationType == SituationType::Run)
+	{
+		m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
+	}
+	else
+	{
+		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
+	}
 	m_spModel->CalcNodeMatrices();
 }
 
@@ -353,25 +412,12 @@ void Player::HitJudgeGround()
 
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
-		hitFlg = RayHitJudge(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight, KdCollider::TypeGround);
+		hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
 
 		if (hitFlg)
 		{
 			// 当たったオブジェクト
-			std::shared_ptr<KdGameObject> spHitObject;
-
-			// 地面を探す
-			for (auto& hitObject : m_wpHitObjectList)
-			{
-				if (!hitObject.expired())
-				{
-					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
-					{
-						spHitObject = hitObject.lock();
-						break;
-					}
-				}
-			}
+			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 
 			if (spHitObject)
 			{
@@ -416,6 +462,8 @@ void Player::HitJudgeGround()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
+					// 動く前の行列
+					m_rotationGround.hitFlg = true;
 					break;
 
 				default:
@@ -453,32 +501,19 @@ void Player::HitJudgeGround()
 		// めり込んだ距離
 		float maxOverLap = 0.0f;
 
-		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDir, maxOverLap);
+		hitFlg = SphereHitGround(centerPos, radius, hitDir, maxOverLap);
 
 		// 当たった場合
 		if (hitFlg)
 		{
 			// 当たったオブジェクト
-			std::shared_ptr<KdGameObject> spHitObject;
-
-			// 地面を探す
-			for (auto& hitObject : m_wpHitObjectList)
-			{
-				if (!hitObject.expired())
-				{
-					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
-					{
-						spHitObject = hitObject.lock();
-						break;
-					}
-				}
-			}
-
-			spHitObject->OnHit();
+			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 
 			// 当たったオブジェクト毎に処理を変える
 			if (spHitObject)
 			{
+				spHitObject->OnHit();
+
 				switch (spHitObject->GetObjectType())
 				{
 					// 跳ねる床
@@ -527,8 +562,7 @@ void Player::HitJudgeGround()
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
 					// 動く前の行列
-					//m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
-					m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					m_rotationGround.hitFlg = true;
 					break;
 
 					// 通常
@@ -623,10 +657,24 @@ void Player::HitJudgeEnemy()
 			}
 		}
 
-		// 敵の当たった処理
-		spHitObject->OnHit();
-
-		m_gravity = -0.7f;
+		// 敵の座標
+		Math::Vector3 enemyPos = spHitObject->GetPos();
+		enemyPos.y += 2.0f;
+		// 敵からプレイヤーのベクトル
+		Math::Vector3 vec = m_pos - enemyPos;
+		vec.z = 0;
+		// 敵から見たプレイヤーの角度
+		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+		if (degAng < 90 && degAng > -90)
+		{
+			// 敵を踏んだ時の処理
+			spHitObject->OnHit();
+			m_gravity = -0.7f;
+		}
+		else
+		{
+			m_aliveFlg = false;
+		}
 	}
 }
 
@@ -635,8 +683,8 @@ void Player::GoalProcess()
 	m_goalStayCnt++;
 	if (m_goalStayCnt > m_goalStayTime)
 	{
-		m_pos.x = 220;
-		m_pos.z = 50;
+		m_pos.x = m_goalPos.x;
+		m_pos.z = m_goalPos.z;
 		m_angle = 180;
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Goal"), true);

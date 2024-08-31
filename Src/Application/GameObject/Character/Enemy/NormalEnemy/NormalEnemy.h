@@ -15,17 +15,19 @@ public:
 	// リセット処理
 	void Reset()		override;
 
-	// 当たり判定
-	void HitJudge();
-
-	// ターゲットを追尾する
-	void TargetHoming();
-
 	void SetParam(Param _param)	override;
 
 	void OnHit()	override;
 
 private:
+	// 当たり判定
+	void HitJudge();
+	// 敵同士での当たり判定
+	void HitEnemy();
+
+	// ターゲットを追尾する
+	void TargetHoming();
+
 	// 今の状況
 	enum SituationType
 	{

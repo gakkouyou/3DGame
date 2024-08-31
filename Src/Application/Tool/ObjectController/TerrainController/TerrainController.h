@@ -19,6 +19,9 @@ public:
 	// CSVファイルを指定する
 	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
 
+	// 地形のリストを渡す
+	const std::vector<std::weak_ptr<TerrainBase>> GetObjList() const { return m_wpTerrainList; }
+
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
@@ -92,6 +95,7 @@ private:
 		std::string name;
 		Math::Vector3 pos		= Math::Vector3::Zero;
 		Math::Vector3 goalPos	= Math::Vector3::Zero;
+		Math::Vector3 scale		= { 1, 1, 1 };
 		float speed				= 0;
 		int stayTime			= 0;
 		Math::Vector3 degAng	= Math::Vector3::Zero;

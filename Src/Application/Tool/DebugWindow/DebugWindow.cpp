@@ -137,6 +137,7 @@ void DebugWindow::TerrainWindow()
 				m_terrainParam.speed = 0.1f;
 				m_terrainParam.stayTime = 60;
 			}
+			ImGui::SameLine();
 
 			// 回る床
 			if (ImGui::Button("RotationGround"))
@@ -151,6 +152,7 @@ void DebugWindow::TerrainWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(TerrainController::Object::Fence);
 			}
+			ImGui::SameLine();
 
 			// 片方柵
 			if (ImGui::Button("HalfFence"))
@@ -190,6 +192,12 @@ void DebugWindow::TerrainWindow()
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}
 
+			// 拡縮
+			ImGui::InputFloat("Scale.x", &m_terrainParam.scale.x, 0.1f);
+			ImGui::InputFloat("Scale.y", &m_terrainParam.scale.y, 0.1f);
+			ImGui::InputFloat("Scale.z", &m_terrainParam.scale.z, 0.1f);
+
+			// 回転
 			ImGui::InputFloat("DegAng.x", &m_terrainParam.degAng.x, 1.0f);
 			ImGui::InputFloat("DegAng.y", &m_terrainParam.degAng.y, 1.0f);
 			ImGui::InputFloat("DegAng.z", &m_terrainParam.degAng.z, 1.0f);
@@ -237,6 +245,7 @@ void DebugWindow::EnemyWindow()
 				m_enemyParam.moveArea = 20.0f;
 				m_enemyParam.searchArea = 40.0f;
 			}
+			ImGui::SameLine();
 
 			// 飛ぶ敵
 			if (ImGui::Button("FlyEnemy"))

@@ -30,7 +30,7 @@ void TerrainController::Update()
 	if (spTargetObject)
 	{
 		DebugWindow::TerrainParam debugParam = DebugWindow::Instance().GetTerrainParam();
-		spTargetObject->SetParam(debugParam.startPos, debugParam.goalPos, debugParam.speed, debugParam.stayTime, debugParam.degAng);
+		spTargetObject->SetParam(debugParam.startPos, debugParam.goalPos, debugParam.scale, debugParam.speed, debugParam.stayTime, debugParam.degAng);
 	}
 
 	// DELETEキーで削除する
@@ -166,6 +166,7 @@ void TerrainController::ConfirmedObject()
 			// 情報をセットする
 			data.pos		= spTargetObject->GetParam().pos;		// 座標
 			data.goalPos	= spTargetObject->GetParam().goalPos;	// ゴール座標
+			data.scale		= spTargetObject->GetParam().scale;		// 拡縮
 			data.speed		= spTargetObject->GetParam().speed;		// スピード
 			data.stayTime	= spTargetObject->GetParam().stayTime;	// 待機時間
 			data.degAng		= spTargetObject->GetParam().degAng;	// 回転角度
@@ -189,6 +190,7 @@ void TerrainController::ConfirmedObject()
 			}
 			m_dataList[num].pos		= spTargetObject->GetParam().startPos;	// 座標
 			m_dataList[num].goalPos = spTargetObject->GetParam().goalPos;	// ゴール座標
+			m_dataList[num].scale	= spTargetObject->GetParam().scale;		// 拡縮
 			m_dataList[num].speed	= spTargetObject->GetParam().speed;		// スピード
 			m_dataList[num].stayTime= spTargetObject->GetParam().stayTime;	// 待機時間
 			m_dataList[num].degAng	= spTargetObject->GetParam().degAng;	// 回転角度
@@ -311,7 +313,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetParam(data.pos);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -330,7 +332,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetParam(data.pos);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale);
 			m_wpTerrainList.push_back(object);
 		}
 		// 動く床
@@ -348,7 +350,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 情報をセットする
-			object->SetParam(data.pos, data.goalPos, data.speed, data.stayTime);
+			object->SetParam(data.pos, data.goalPos, data.scale, data.speed, data.stayTime);
 			m_wpTerrainList.push_back(object);
 		}
 		// 回る床
@@ -366,7 +368,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 情報をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
 			m_wpTerrainList.push_back(object);
 		}
 		// 柵
@@ -384,7 +386,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -403,7 +405,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, 0, 0, data.degAng);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -422,7 +424,7 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// 情報をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.speed, data.stayTime);
+			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, data.speed, data.stayTime);
 			m_wpTerrainList.push_back(object);
 		}
 	}
@@ -488,22 +490,34 @@ void TerrainController::CSVLoader()
 				break;
 
 			case 8:
-				data.speed = stof(commaString);
+				data.scale.x = stof(commaString);
 				break;
 
 			case 9:
-				data.stayTime = stoi(commaString);
+				data.scale.y = stof(commaString);
 				break;
 
 			case 10:
-				data.degAng.x = stof(commaString);
+				data.scale.z = stof(commaString);
 				break;
 
 			case 11:
-				data.degAng.y = stof(commaString);
+				data.speed = stof(commaString);
 				break;
 
 			case 12:
+				data.stayTime = stoi(commaString);
+				break;
+
+			case 13:
+				data.degAng.x = stof(commaString);
+				break;
+
+			case 14:
+				data.degAng.y = stof(commaString);
+				break;
+
+			case 15:
 				data.degAng.z = stof(commaString);
 				break;
 			}
@@ -535,6 +549,9 @@ void TerrainController::CSVWriter()
 
 		// ゴール座標
 		ofs << data.goalPos.x << "," << data.goalPos.y << "," << data.goalPos.z << ",";
+
+		// 拡縮
+		ofs << data.scale.x << "," << data.scale.y << "," << data.scale.z << ",";
 
 		// スピード
 		ofs << data.speed << ",";
@@ -607,7 +624,7 @@ void TerrainController::MouseSelect()
 				m_wpTargetObject = hitObjList[cnt];
 
 				TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.speed, param.stayTime, param.degAng };
+				DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng };
 				DebugWindow::Instance().SetTerrainParam(setParam);
 			}
 			cnt++;

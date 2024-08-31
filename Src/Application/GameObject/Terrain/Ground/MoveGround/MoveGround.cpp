@@ -76,10 +76,11 @@ void MoveGround::Update()
 		m_stopFlg = false;
 	}
 
-	Math::Matrix transMat;
-	transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
+	
 
-	m_mWorld = transMat;
+	m_mWorld = scaleMat * transMat;
 }
 
 void MoveGround::PostUpdate()
@@ -115,16 +116,22 @@ void MoveGround::Init()
 	m_param.speed	= 0;
 }
 
-void MoveGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void MoveGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
-	m_param.startPos = _startPos;
-	m_param.pos = _startPos;
-	m_param.goalPos = _goalPos;
-	m_param.speed = _speed;
-	m_param.stayTime = _stayTime;
+	m_param.startPos	= _startPos;
+	m_param.pos			= _startPos;
+	m_param.goalPos		= _goalPos;
+	m_param.speed		= _speed;
+	m_param.stayTime	= _stayTime;
+	m_param.scale		= _scale;
 
 	m_stopFlg = true;
 	m_setParamFlg = true;
+
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
+
+	m_mWorld = scaleMat * transMat;
 }
 
 void MoveGround::Reset()

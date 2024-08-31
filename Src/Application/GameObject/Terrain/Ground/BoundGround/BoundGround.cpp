@@ -1,9 +1,9 @@
 ﻿#include "BoundGround.h"
 
-void BoundGround::Update()
-{
-	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
-}
+//void BoundGround::Update()
+//{
+//	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
+//}
 
 void BoundGround::Init()
 {
@@ -34,8 +34,14 @@ void BoundGround::OnHit()
 	
 }
 
-void BoundGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, float _speed, int _stayTime, Math::Vector3 _degAng)
+void BoundGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
 {
 	m_param.pos = _startPos;
 	m_param.startPos = _startPos;
+	m_param.scale		= _scale;
+
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
+
+	m_mWorld = scaleMat * transMat;
 }

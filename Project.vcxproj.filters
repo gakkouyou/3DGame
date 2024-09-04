@@ -163,9 +163,6 @@
     <Filter Include="Src\Application\GameObject\StageSelectTexture">
       <UniqueIdentifier>{7d8fa946-bc18-4b89-b4fe-3f06cd34109b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\StageSelectUI">
-      <UniqueIdentifier>{321515d7-7839-48d9-bdad-69de964528d5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Result">
       <UniqueIdentifier>{8cf6b13e-8492-45f4-a33b-feda3911f2ad}</UniqueIdentifier>
     </Filter>
@@ -186,6 +183,15 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\Pause">
       <UniqueIdentifier>{c5311254-915f-490d-b9a9-15e256f3411d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI">
+      <UniqueIdentifier>{8e47bf77-8737-42cb-8568-3dadfcbf6656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\StageSelectUI">
+      <UniqueIdentifier>{321515d7-7839-48d9-bdad-69de964528d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\UI\GameUI">
+      <UniqueIdentifier>{961ffe16-025a-4170-a41d-5aa1c72fdb52}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -429,9 +435,6 @@
     <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h">
       <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.h">
-      <Filter>Src\Application\GameObject\StageSelectUI</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Result\Result.h">
       <Filter>Src\Application\GameObject\Result</Filter>
     </ClInclude>
@@ -449,6 +452,12 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Pause\Pause.h">
       <Filter>Src\Application\GameObject\Pause</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h">
+      <Filter>Src\Application\GameObject\UI\StageSelectUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h">
+      <Filter>Src\Application\GameObject\UI\GameUI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -662,9 +671,6 @@
     <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp">
       <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\StageSelectUI\StageSelectUI.cpp">
-      <Filter>Src\Application\GameObject\StageSelectUI</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp">
       <Filter>Src\Application\GameObject\Result</Filter>
     </ClCompile>
@@ -682,6 +688,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Pause\Pause.cpp">
       <Filter>Src\Application\GameObject\Pause</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp">
+      <Filter>Src\Application\GameObject\UI\StageSelectUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp">
+      <Filter>Src\Application\GameObject\UI\GameUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

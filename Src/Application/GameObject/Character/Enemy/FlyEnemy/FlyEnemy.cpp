@@ -37,13 +37,14 @@ void FlyEnemy::PostUpdate()
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
 	m_spModel->CalcNodeMatrices();
 
+	// 行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.5f);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
 
 	Math::Matrix rotMat		= Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
 
-	m_mWorld = scaleMat *  rotMat * transMat;
+	m_mWorld = scaleMat * rotMat * transMat;
 }
 
 void FlyEnemy::Init()
@@ -51,7 +52,8 @@ void FlyEnemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		m_spModel->SetModelData("Asset/Models/Character/Enemy/FlyEnemy/flyEnemy.gltf");
+		//m_spModel->SetModelData("Asset/Models/Character/Enemy/FlyEnemy/flyEnemy.gltf");
+		m_spModel->SetModelData("Asset/Models/Character/Enemy/test/normalEnemy.gltf");
 
 		// 初期のアニメーション
 		m_spAnimator = std::make_shared<KdAnimator>();

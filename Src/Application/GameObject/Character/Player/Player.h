@@ -112,4 +112,21 @@ private:
 
 	// 走り状態の時のスピード
 	const float m_runSpeed	= 0.5f;
+
+	// 音
+	struct Sound
+	{
+		std::weak_ptr<KdSoundInstance> wpSound;	// 音
+		bool flg = false;						// 既に鳴っているかどうかのフラグ
+	};
+
+	enum WalkSound
+	{
+		Grass,
+
+		Max,
+	};
+
+	std::weak_ptr<KdSoundInstance> m_wpWalkSound[WalkSound::Max];
+	bool m_walkSoundFlg = false;
 };

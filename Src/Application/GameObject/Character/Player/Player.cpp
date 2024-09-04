@@ -25,6 +25,19 @@ void Player::Update()
 		m_situationType = SituationType::Stop;
 	}
 
+	// 歩いていなかったら歩いている音を止める
+	if (((m_situationType & SituationType::Walk) == 0) || (m_situationType & SituationType::Run))
+	{
+		if (m_walkSoundFlg == true)
+		{
+			if (m_wpWalkSound[WalkSound::Grass].expired() == false)
+			{
+				m_wpWalkSound[WalkSound::Grass].lock()->Stop();
+			}
+			m_walkSoundFlg = false;
+		}
+	}
+
 	// 移動初期化
 	m_moveVec = Math::Vector3::Zero;
 
@@ -149,6 +162,16 @@ void Player::Update()
 				if (!(m_situationType & SituationType::Air))
 				{
 					m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("RightWalk"), false);
+
+					// 歩いた時の音を鳴らす
+					if (m_walkSoundFlg == false)
+					{
+						if (m_wpWalkSound[WalkSound::Grass].expired() == false)
+						{
+							m_wpWalkSound[WalkSound::Grass].lock()->Play();
+							m_walkSoundFlg = true;
+						}
+					}
 				}
 			}
 		}
@@ -156,6 +179,11 @@ void Player::Update()
 
 	if (m_spAnimator->IsAnimationEnd())
 	{
+		if (m_wpWalkSound[WalkSound::Grass].expired() == false)
+		{
+			m_wpWalkSound[WalkSound::Grass].lock()->Stop();
+			m_walkSoundFlg = false;
+		}
 		// 歩いている状態or走っている状態の時
 		// 空中にいたらアニメーションしない
 		if (((m_situationType & SituationType::Walk) || (m_situationType & SituationType::Run)) && !(m_situationType & SituationType::Air))
@@ -164,12 +192,30 @@ void Player::Update()
 			if (m_walkAnimeDirFlg == true)
 			{
 				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("RightWalk"), false);
+				// 歩いた時の音を鳴らす
+				if (m_walkSoundFlg == false)
+				{
+					if (m_wpWalkSound[WalkSound::Grass].expired() == false)
+					{
+						m_wpWalkSound[WalkSound::Grass].lock()->Play();
+						m_walkSoundFlg = true;
+					}
+				}
 				m_walkAnimeDirFlg = false;
 			}
 			// 左足を出す
 			else
 			{
 				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("LeftWalk"), false);
+				// 歩いた時の音を鳴らす
+				if (m_walkSoundFlg == false)
+				{
+					if (m_wpWalkSound[WalkSound::Grass].expired() == false)
+					{
+						m_wpWalkSound[WalkSound::Grass].lock()->Play();
+						m_walkSoundFlg = true;
+					}
+				}
 				m_walkAnimeDirFlg = true;
 			}
 		}
@@ -286,18 +332,22 @@ void Player::PostUpdate()
 		float length = vec.Length();
 		// 移動する前の回転床から見たプレイヤーの角度
 		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-		degAng -= 90;
-		if (degAng < 0)
-		{
-			degAng += 360;
-		}
-		degAng = 360 - degAng;
 
-		// 回転床が回転する角度
-		float lotDegAng = spHitTerrain->GetParam().degAng.z;
-		degAng += lotDegAng;
-		m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
- 		m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+		if (degAng <= 90 && degAng >= -90)
+		{
+			degAng -= 90;
+			if (degAng < 0)
+			{
+				degAng += 360;
+			}
+			degAng = 360 - degAng;
+
+			// 回転床が回転する角度
+			float lotDegAng = spHitTerrain->GetParam().degAng.z;
+			degAng += lotDegAng;
+			m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+			m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+		}
 	}
 
 	transMat = Math::Matrix::CreateTranslation(m_pos);
@@ -306,7 +356,7 @@ void Player::PostUpdate()
 
 	// アニメーションの更新
 	// 止まっていたらアニメーションしない
-	if (m_situationType == SituationType::Run)
+	if (m_situationType bitand SituationType::Run)
 	{
 		m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
 	}
@@ -346,6 +396,16 @@ void Player::Init()
 	m_pos = { 30.0f, 1.0f, -40.0f };
 
 	m_stopFlg = true;
+
+	// 音
+	// 落下音
+	m_wpWalkSound[WalkSound::Grass] = KdAudioManager::Instance().Play("Asset/Sounds/SE/grassWalk.wav", false);
+	if (!m_wpWalkSound[WalkSound::Grass].expired())
+	{
+		m_wpWalkSound[WalkSound::Grass].lock()->SetVolume(0.1f);
+		m_wpWalkSound[WalkSound::Grass].lock()->Stop();
+	}
+	m_walkSoundFlg = false;
 }
 
 void Player::Reset()
@@ -427,7 +487,7 @@ void Player::HitJudgeGround()
 				case ObjectType::BoundGround:
 					// 座標
 					m_pos = hitPos;
-					m_pos.y += m_enableStepHeight;
+					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = -1.0f;
 					//// 空中にいない
@@ -440,7 +500,7 @@ void Player::HitJudgeGround()
 				case ObjectType::DropGround:
 					// 座標
 					m_pos = hitPos;
-					m_pos.y += m_enableStepHeight;
+					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = 0;
 					// 空中にいない
@@ -456,7 +516,7 @@ void Player::HitJudgeGround()
 				case ObjectType::RotationGround:
 					// 座標
 					m_pos = hitPos;
-					m_pos.y += m_enableStepHeight;
+					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = 0;
 					// 空中にいない
@@ -469,7 +529,7 @@ void Player::HitJudgeGround()
 				default:
 					// 座標
 					m_pos = hitPos;
-					m_pos.y += m_enableStepHeight;
+					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = 0;
 					// 空中にいない
@@ -501,7 +561,7 @@ void Player::HitJudgeGround()
 		// めり込んだ距離
 		float maxOverLap = 0.0f;
 
-		hitFlg = SphereHitGround(centerPos, radius, hitDir, maxOverLap);
+		hitFlg = SphereHitGround(centerPos, radius, hitDir, maxOverLap, true);
 
 		// 当たった場合
 		if (hitFlg)
@@ -665,12 +725,14 @@ void Player::HitJudgeEnemy()
 		vec.z = 0;
 		// 敵から見たプレイヤーの角度
 		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+		// 上半分なら倒す
 		if (degAng < 90 && degAng > -90)
 		{
 			// 敵を踏んだ時の処理
 			spHitObject->OnHit();
 			m_gravity = -0.7f;
 		}
+		// 下半分ならダメージを受ける
 		else
 		{
 			m_aliveFlg = false;

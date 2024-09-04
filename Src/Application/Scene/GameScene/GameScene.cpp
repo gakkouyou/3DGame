@@ -10,6 +10,7 @@
 #include "../../GameObject/StageStart/StageStart.h"
 #include "../../GameObject/Effect/PlayerSmoke/PlayerSmoke.h"
 #include "../../GameObject/Pause/Pause.h"
+#include "../../GameObject/UI/GameUI/GameUI.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -171,6 +172,11 @@ void GameScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 3, 3, 3 });
 
+	// ②フォグ(霧)                                                 ↓距離 ↓高さ
+	KdShaderManager::Instance().WorkAmbientController().SetFogEnable(false, true);
+	// 高さフォグ                                                    ↓色       ↓上↓下↓距離
+	KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 1, 1, 1 }, 0, -2, 0.1f);
+
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
 
@@ -237,7 +243,10 @@ void GameScene::Init()
 	// 保持
 	m_wpPause = pause;
 
-
+	// UI
+	std::shared_ptr<GameUI> ui = std::make_shared<GameUI>();
+	ui->Init();
+	AddObject(ui);
 
 
 
@@ -270,7 +279,7 @@ void GameScene::Init()
 	AddObject(enemyController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetTerrainController(terrainController);	// Terrain
+	DebugWindow::Instance().SetTerrainController(terrainController);// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
 
 
@@ -280,12 +289,6 @@ void GameScene::Init()
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
-
-
-	//// エフェクト
-	//std::shared_ptr<PlayerSmoke> playerSmoke = std::make_shared<PlayerSmoke>();
-	//playerSmoke->Init();
-	//AddObject(playerSmoke);
 }
 
 void GameScene::StartGameScene()

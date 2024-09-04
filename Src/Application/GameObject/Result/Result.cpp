@@ -76,14 +76,14 @@ void Result::Init()
 	if (!m_clear.spTex)
 	{
 		m_clear.spTex = std::make_shared<KdTexture>();
-		m_clear.spTex->Load("Asset/Textures/Text/stageClear.png");
+		m_clear.spTex->Load("Asset/Textures/Result/stageClear.png");
 	}
 	m_clear.alphaAdd = 0.05f;
 
 	if (!m_miss.spTex)
 	{
 		m_miss.spTex = std::make_shared<KdTexture>();
-		m_miss.spTex->Load("Asset/Textures/Text/miss.png");
+		m_miss.spTex->Load("Asset/Textures/Result/miss.png");
 	}
 	m_miss.pos = { 0, Screen::HalfHeight + (float)m_miss.spTex->GetHeight() };
 }

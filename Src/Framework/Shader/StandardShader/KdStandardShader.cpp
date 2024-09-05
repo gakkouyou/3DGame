@@ -231,7 +231,7 @@ void KdStandardShader::DrawModel(KdModelWork& rModel, const Math::Matrix& mWorld
 	auto& workNodes = rModel.GetNodes();
 	auto& dataNodes = data->GetOriginalNodes();
 
-	// スキンメッシュモデルだった場合:ボーン情報を書き込み(スキンメッシュ対応)
+	// スキンメッシュモデルの場合:ボーン情報を書き込み(スキンメッシュ対応)
 	if (data->IsSkinMesh())
 	{
 		// ノード内からボーン情報を取得
@@ -413,7 +413,7 @@ void KdStandardShader::DrawVertices(const std::vector<KdPolygon::Vertex>& vertic
 bool KdStandardShader::Init()
 {
 	//-------------------------------------
-	// 頂点シェーダ
+	// 頂点シェーダ(スキンメッシュ対応)
 	//-------------------------------------
 	{
 		// コンパイル済みのシェーダーヘッダーファイルをインクルード
@@ -433,8 +433,8 @@ bool KdStandardShader::Init()
 			{ "COLOR",    0, DXGI_FORMAT_R8G8B8A8_UNORM,		0, 20, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TANGENT",  0, DXGI_FORMAT_R32G32B32_FLOAT,		0, 36, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "SKININDEX",0, DXGI_FORMAT_R16G16B16A16_UINT,		0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "SKINWEIGHT",0, DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "SKININDEX",0, DXGI_FORMAT_R16G16B16A16_UINT,	    0, 48, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "SKINWEIGHT",0,DXGI_FORMAT_R32G32B32A32_FLOAT,	0, 56, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
 		// 頂点入力レイアウト作成

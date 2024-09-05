@@ -9,7 +9,7 @@
 #include "../../GameObject/Character/StageSelectPlayer/StageSelectPlayer.h"
 
 #include "../../GameObject/StageSelectTexture/StageSelectTexture.h"
-#include "../../GameObject/StageSelectUI//StageSelectUI.h"
+#include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
 
 void StageSelectScene::Event()
 {

@@ -120,13 +120,19 @@ private:
 		bool flg = false;						// 既に鳴っているかどうかのフラグ
 	};
 
-	enum WalkSound
+	enum WalkSoundType
 	{
 		Grass,
-
+		Tile,
 		Max,
 	};
 
-	std::weak_ptr<KdSoundInstance> m_wpWalkSound[WalkSound::Max];
-	bool m_walkSoundFlg = false;
+	// 歩く音の配列
+	std::weak_ptr<KdSoundInstance> m_wpWalkSound[WalkSoundType::Max];
+	// 音制御のフラグ
+	bool m_nowWalkSoundFlg	= false;
+	// 歩く音のタイプ
+	UINT m_walkSoundType	= 0;
+	// 歩く音を鳴らすかどうかのフラグ
+	bool m_walkSoundFlg		= false;
 };

@@ -29,7 +29,7 @@ cbuffer cbMaterial : register(b2)
 };
 
 // ボーン行列配列(スキンメッシュ対応)
-cbuffer cbBones : register(b3)
+cbuffer cbBones :  register(b3)
 {
 	row_major float4x4 g_mBones[300];
 };

@@ -8,7 +8,7 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				17
+				19
 			]
 		}
 	],
@@ -199,11 +199,33 @@
 			"skin":0
 		},
 		{
+			"name":"LeftLeg",
+			"translation":[
+				-0.5,
+				0,
+				0
+			]
+		},
+		{
+			"children":[
+				15
+			],
 			"mesh":4,
 			"name":"LegLeft",
 			"skin":0
 		},
 		{
+			"name":"RightLeg",
+			"translation":[
+				0.5,
+				0,
+				0
+			]
+		},
+		{
+			"children":[
+				17
+			],
 			"mesh":5,
 			"name":"LegRight",
 			"skin":0
@@ -214,8 +236,8 @@
 				12,
 				13,
 				14,
-				15,
 				16,
+				18,
 				9,
 				10
 			],
@@ -2260,23 +2282,23 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"body",
-			"uri":"body.png"
+			"name":"body.png",
+			"uri":"body_png.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"face",
-			"uri":"face.png"
+			"name":"face.png",
+			"uri":"face_png.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"backHair",
-			"uri":"backHair.png"
+			"name":"backHair.png",
+			"uri":"backHair_png.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"sideHair",
-			"uri":"sideHair.png"
+			"name":"sideHair.png",
+			"uri":"sideHair_png.png"
 		}
 	],
 	"skins":[

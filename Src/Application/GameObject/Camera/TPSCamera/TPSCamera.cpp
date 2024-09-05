@@ -53,7 +53,8 @@ void TPSCamera::PostUpdate()
 		}
 
 		// カメラの向きで移動方向を補正
-		m_moveVec = m_moveVec.TransformNormal(m_moveVec, GetRotationMatrix());
+		Math::Matrix rotMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_DegAng.y), 0, DirectX::XMConvertToRadians(m_DegAng.z));
+		m_moveVec = m_moveVec.TransformNormal(m_moveVec, rotMat);
 		m_moveVec.Normalize();
 		m_moveVec.y = 0;
 

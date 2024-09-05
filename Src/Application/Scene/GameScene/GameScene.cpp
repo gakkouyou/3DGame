@@ -170,12 +170,14 @@ void GameScene::Event()
 }
 void GameScene::Init()
 {
-	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 3, 3, 3 });
+	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
+
+	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({1000,1000},1000);
 
 	// ②フォグ(霧)                                                 ↓距離 ↓高さ
-	KdShaderManager::Instance().WorkAmbientController().SetFogEnable(false, true);
+	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(false, true);
 	// 高さフォグ                                                    ↓色       ↓上↓下↓距離
-	KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 1, 1, 1 }, 0, -2, 0.1f);
+	//KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 1, 1, 1 }, 0, -2, 0.1f);
 
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();

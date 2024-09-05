@@ -1,5 +1,5 @@
 ﻿#include "StageSelectUI.h"
-#include "../StageSelectTexture/StageSelectTexture.h"
+#include "../../StageSelectTexture/StageSelectTexture.h"
 
 void StageSelectUI::Update()
 {

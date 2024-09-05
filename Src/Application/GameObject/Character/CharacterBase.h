@@ -80,7 +80,7 @@ protected:
 	const float		m_maxGravity					= 4.0f;
 
 	// 当たり判定の段差許容範囲
-	const float		m_enableStepHeight				= 0.15f;
+	const float		m_enableStepHeight				= 0.5f;
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;

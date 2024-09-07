@@ -9,8 +9,8 @@
 #include "../../../GameObject/Terrain/Ground/BoundGround/BoundGround.h"
 #include "../../../GameObject/Terrain/Ground/MoveGround/MoveGround.h"
 #include "../../../GameObject/Terrain/Ground/RotationGround/RotationGround.h"
-#include "../../../GameObject/Terrain/Object/Fence/Fence.h"
-#include "../../../GameObject/Terrain/Object/HalfFence/HalfFence.h"
+#include "../../../GameObject/Terrain/Object/FenceBar/FenceBar.h"
+#include "../../../GameObject/Terrain/Object/FencePillar/FencePillar.h"
 #include "../../../GameObject/Terrain/Ground/DropGround/DropGround.h"
 
 void TerrainController::Update()
@@ -30,7 +30,14 @@ void TerrainController::Update()
 	if (spTargetObject)
 	{
 		DebugWindow::TerrainParam debugParam = DebugWindow::Instance().GetTerrainParam();
-		spTargetObject->SetParam(debugParam.startPos, debugParam.goalPos, debugParam.scale, debugParam.speed, debugParam.stayTime, debugParam.degAng);
+		TerrainBase::Param param;
+		param.startPos	= debugParam.startPos;	// 最初の座標
+		param.goalPos	= debugParam.goalPos;	// ゴールの座標
+		param.scale		= debugParam.scale;		// 拡縮
+		param.speed		= debugParam.speed;		// スピード
+		param.stayTime	= debugParam.stayTime;	// 待機時間
+		param.degAng	= debugParam.degAng;	// 角度
+		spTargetObject->SetParam(param);
 	}
 
 	// DELETEキーで削除する
@@ -131,24 +138,24 @@ void TerrainController::ConfirmedObject()
 				data.name = data.type + std::to_string(m_objectCount.RotationGround);
 				break;
 
-				// 柵の場合
-			case ObjectType::Fence:
+				// 柵の柱の場合
+			case ObjectType::FencePillar:
 				// タイプのセット
-				data.type = "Fence";
+				data.type = "FencePillar";
 				// カウントを進める
-				m_objectCount.Fence++;
+				m_objectCount.FenceBar++;
 				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.Fence);
+				data.name = data.type + std::to_string(m_objectCount.FenceBar);
 				break;
 
-				// 片方柵の場合
-			case ObjectType::HalfFence:
+				// 柵の棒の場合
+			case ObjectType::FenceBar:
 				// タイプのセット
-				data.type = "HalfFence";
+				data.type = "FenceBar";
 				// カウントを進める
-				m_objectCount.HalfFence++;
+				m_objectCount.FencePillar++;
 				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.HalfFence);
+				data.name = data.type + std::to_string(m_objectCount.FencePillar);
 				break;
 
 				// 落ちる床の場合
@@ -218,12 +225,12 @@ void TerrainController::DeleteObject()
 	}
 }
 
-void TerrainController::CreateObject(Object _object)
+void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 {
 	switch (_object)
 	{
 		// 通常の床
-	case Object::NormalGround:
+	case KdGameObject::ObjectType::NormalGround:
 	{
 		std::shared_ptr<NormalGround> object = std::make_shared<NormalGround>();
 		object->Init();
@@ -233,7 +240,7 @@ void TerrainController::CreateObject(Object _object)
 	}
 
 	// 跳ねる床
-	case Object::BoundGround:
+	case KdGameObject::ObjectType::BoundGround:
 	{
 		std::shared_ptr<BoundGround> object = std::make_shared<BoundGround>();
 		object->Init();
@@ -243,7 +250,7 @@ void TerrainController::CreateObject(Object _object)
 	}
 
 	// 動く床
-	case Object::MoveGround:
+	case KdGameObject::ObjectType::MoveGround:
 	{
 		std::shared_ptr<MoveGround> object = std::make_shared<MoveGround>();
 		object->Init();
@@ -253,7 +260,7 @@ void TerrainController::CreateObject(Object _object)
 	}
 
 	// 回る床
-	case Object::RotationGround:
+	case KdGameObject::ObjectType::RotationGround:
 	{
 		std::shared_ptr<RotationGround> object = std::make_shared<RotationGround>();
 		object->Init();
@@ -262,20 +269,20 @@ void TerrainController::CreateObject(Object _object)
 		break;
 	}
 
-	// 柵
-	case Object::Fence:
+	// 柵の柱
+	case KdGameObject::ObjectType::FencePillar:
 	{
-		std::shared_ptr<Fence> object = std::make_shared<Fence>();
+		std::shared_ptr<FencePillar> object = std::make_shared<FencePillar>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
 		break;
 	}
 
-	// 片方柵
-	case Object::HalfFence:
+	// 柵の棒
+	case KdGameObject::ObjectType::FenceBar:
 	{
-		std::shared_ptr<HalfFence> object = std::make_shared<HalfFence>();
+		std::shared_ptr<FenceBar> object = std::make_shared<FenceBar>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -283,7 +290,7 @@ void TerrainController::CreateObject(Object _object)
 	}
 
 	// 落ちる床
-	case Object::DropGround:
+	case KdGameObject::ObjectType::DropGround:
 	{
 		std::shared_ptr<DropGround> object = std::make_shared<DropGround>();
 		object->Init();
@@ -298,6 +305,7 @@ void TerrainController::BeginCreateObject()
 {
 	for (auto& data : m_dataList)
 	{
+		TerrainBase::Param param;
 		// 通常の床
 		if (data.type == "NormalGround")
 		{
@@ -312,8 +320,11 @@ void TerrainController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// パラメータセット
+			param.startPos	= data.pos;		// 座標
+			param.scale		= data.scale;	// 拡縮
 			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale);
+			object->SetParam(param);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -331,8 +342,11 @@ void TerrainController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// パラメータセット
+			param.startPos	= data.pos;		// 座標
+			param.scale		= data.scale;	// 拡縮
 			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale);
+			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
 		}
 		// 動く床
@@ -349,8 +363,14 @@ void TerrainController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// パラメータセット
+			param.startPos	= data.pos;		// 最初の座標
+			param.goalPos	= data.goalPos;	// ゴール座標
+			param.scale		= data.scale;	// 拡縮
+			param.speed		= data.speed;	// スピード
+			param.stayTime	= data.stayTime;// 待機時間
 			// 情報をセットする
-			object->SetParam(data.pos, data.goalPos, data.scale, data.speed, data.stayTime);
+			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
 		}
 		// 回る床
@@ -367,45 +387,57 @@ void TerrainController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// パラメータセット
+			param.startPos	= data.pos;		// 座標
+			param.scale		= data.scale;	// 拡縮
+			param.degAng	= data.degAng;	// 角度
 			// 情報をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
+			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
 		}
-		// 柵
-		else if (data.type == "Fence")
+		// 柵の柱
+		else if (data.type == "FencePillar")
 		{
-			std::shared_ptr<Fence> object = std::make_shared<Fence>();
+			std::shared_ptr<FencePillar> object = std::make_shared<FencePillar>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
-			m_objectCount.Fence++;
+			m_objectCount.FencePillar++;
 			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.Fence);
+			std::string name = data.type + std::to_string(m_objectCount.FencePillar);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
-			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
+			// パラメータセット
+			param.startPos	= data.pos;		// 座標
+			param.scale		= data.scale;	// 拡縮
+			param.degAng	= data.degAng;	// 角度
+			// パラメータをセットする
+			object->SetParam(param);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
 		// 片方の柵
-		else if (data.type == "HalfFence")
+		else if (data.type == "FenceBar")
 		{
-			std::shared_ptr<HalfFence> object = std::make_shared<HalfFence>();
+			std::shared_ptr<FenceBar> object = std::make_shared<FenceBar>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
-			m_objectCount.HalfFence++;
+			m_objectCount.FenceBar++;
 			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.HalfFence);
+			std::string name = data.type + std::to_string(m_objectCount.FenceBar);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
-			// 座標をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, 0, 0, data.degAng);
+			// パラメータセット
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
+			param.degAng = data.degAng;	// 角度
+			// パラメータをセットする
+			object->SetParam(param);
 			// リストに追加
 			m_wpTerrainList.push_back(object);
 		}
@@ -423,8 +455,13 @@ void TerrainController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// パラメータセット
+			param.startPos	= data.pos;			// 座標
+			param.scale		= data.scale;		// 拡縮
+			param.speed		= data.speed;		// スピード
+			param.stayTime	= data.stayTime;	// 待機時間
 			// 情報をセットする
-			object->SetParam(data.pos, Math::Vector3::Zero, data.scale, data.speed, data.stayTime);
+			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
 		}
 	}

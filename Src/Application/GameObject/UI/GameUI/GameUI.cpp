@@ -1,4 +1,5 @@
 ﻿#include "GameUI.h"
+#include "../../Character/Player/Player.h"
 
 void GameUI::Update()
 {
@@ -8,7 +9,13 @@ void GameUI::DrawSprite()
 {
 	if (m_life.spTex)
 	{
-		//KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, m_life.pos.x, m_life.pos.y);
+		if (!m_wpPlayer.expired())
+		{
+			for (int i = 0; i < m_wpPlayer.lock()->GetLife(); i++)
+			{
+				KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, m_life.pos.x + i * m_lifeTexInterval, m_life.pos.y);
+			}
+		}
 	}
 }
 

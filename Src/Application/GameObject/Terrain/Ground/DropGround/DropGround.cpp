@@ -98,11 +98,11 @@ void DropGround::OnHit()
 
 		if (add == 0)
 		{
-			m_param.pos.x = m_param.startPos.x + 0.2f;
+			m_param.pos.x = m_param.startPos.x + 0.05f;
 		}
 		else
 		{
-			m_param.pos.x = m_param.startPos.x - 0.2f;
+			m_param.pos.x = m_param.startPos.x - 0.05f;
 		}
 
 		Math::Matrix transMat;
@@ -112,13 +112,13 @@ void DropGround::OnHit()
 	}
 }
 
-void DropGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
+void DropGround::SetParam(Param _param)
 {
-	m_param.startPos	= _startPos;
-	m_param.pos			= _startPos;
-	m_param.scale		= _scale;
-	m_param.stayTime	= _stayTime;
-	m_param.speed		= _speed;
+	m_param.startPos	= _param.startPos;
+	m_param.pos			= _param.startPos;
+	m_param.scale		= _param.scale;
+	m_param.stayTime	= _param.stayTime;
+	m_param.speed		= _param.speed;
 
 	Math::Matrix transMat	= Math::Matrix::CreateTranslation(m_param.pos);
 	Math::Matrix scaleMat	= Math::Matrix::CreateScale(m_param.scale);

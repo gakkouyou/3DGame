@@ -40,7 +40,7 @@ void FlyEnemy::PostUpdate()
 	// 行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(0.25f);
 
 	Math::Matrix rotMat		= Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
 

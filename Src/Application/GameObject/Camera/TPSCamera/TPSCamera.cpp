@@ -78,7 +78,7 @@ void TPSCamera::PostUpdate()
 		m_mRotation = GetRotationMatrix();
 
 		// ローカル行列変更
-		Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 12.0f, -20.0f);
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 3.0f, -5.0f);
 
 		m_mWorld = m_mRotation * transMat * targetMat * debugMat;
 	}
@@ -118,7 +118,7 @@ void TPSCamera::Init()
 	CameraBase::Init();
 
 	// 注視点
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 18.0f, -25.0f);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 4.5f, -6.0f);
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 
@@ -140,7 +140,7 @@ void TPSCamera::Init()
 
 void TPSCamera::Reset()
 {
-
+	m_pauseFlg = false;
 }
 
 void TPSCamera::GoalProcess()

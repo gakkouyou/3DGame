@@ -82,8 +82,8 @@ public:
 		NormalWall,		// 触れても何も起きない壁
 		MoveGround,		// 動く床
 		RotationGround,	// 回転する床
-		Fence,			// 柵
-		HalfFence,		// 片方柵
+		FenceBar,			// 柵
+		FencePillar,		// 片方柵
 		DropGround,		// 落ちる床
 
 		NormalEnemy,	// 敵
@@ -114,6 +114,7 @@ public:
 	// オブジェクトの名前をゲットする
 	const std::string GetObjectName() const { return m_objectName; }
 
+	// 更新を全て止める
 	virtual void SetPauseFlg(bool _pauseFlg) {}
 
 protected:

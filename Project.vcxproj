@@ -174,8 +174,8 @@
     <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h" />
     <ClInclude Include="Src\Application\GameObject\StageStart\StageStart.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h" />
-    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Fence\Fence.h" />
-    <ClInclude Include="Src\Application\GameObject\Terrain\Object\HalfFence\HalfFence.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\TerrainBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.h" />
@@ -257,8 +257,8 @@
     <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp" />
     <ClCompile Include="Src\Application\GameObject\StageStart\StageStart.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Fence\Fence.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Terrain\Object\HalfFence\HalfFence.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\TerrainBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.cpp" />

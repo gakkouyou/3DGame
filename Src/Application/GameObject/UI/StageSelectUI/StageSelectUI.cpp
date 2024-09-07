@@ -49,7 +49,7 @@ void StageSelectUI::DrawSprite()
 	// "Stage"
 	if (m_stage.spTex)
 	{
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_stage.spTex, m_stage.pos.x, m_stage.pos.y);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_stage.spTex, (int)m_stage.pos.x, (int)m_stage.pos.y);
 	}
 
 	// 数字
@@ -57,7 +57,7 @@ void StageSelectUI::DrawSprite()
 	{
 		Math::Vector2 size = { (float)m_number.spTex->GetWidth() / 10, (float)m_number.spTex->GetHeight() };
 		Math::Rectangle rect = { (long)size.x * (nowStage + 1), (long)0, (long)size.x, (long)size.y };
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_number.spTex, m_number.pos.x, m_number.pos.y, size.x, size.y, &rect);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_number.spTex, (int)m_number.pos.x, (int)m_number.pos.y, (int)size.x, (int)size.y, &rect);
 	}
 
 	// 挑戦不可能以外なら描画する

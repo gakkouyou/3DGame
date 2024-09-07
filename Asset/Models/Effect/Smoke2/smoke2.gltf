@@ -15,74 +15,17 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"ICO\u7403"
-		}
-	],
-	"animations":[
-		{
-			"channels":[
-				{
-					"sampler":0,
-					"target":{
-						"node":0,
-						"path":"translation"
-					}
-				},
-				{
-					"sampler":1,
-					"target":{
-						"node":0,
-						"path":"rotation"
-					}
-				},
-				{
-					"sampler":2,
-					"target":{
-						"node":0,
-						"path":"scale"
-					}
-				}
-			],
-			"name":"Vanish",
-			"samplers":[
-				{
-					"input":4,
-					"interpolation":"STEP",
-					"output":5
-				},
-				{
-					"input":4,
-					"interpolation":"STEP",
-					"output":6
-				},
-				{
-					"input":4,
-					"interpolation":"STEP",
-					"output":7
-				}
+			"name":"ICO\u7403",
+			"scale":[
+				0.25,
+				0.25,
+				0.25
 			]
-		}
-	],
-	"materials":[
-		{
-			"alphaMode":"BLEND",
-			"doubleSided":true,
-			"name":"\u30de\u30c6\u30ea\u30a2\u30eb.001",
-			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.800000011920929,
-					0.800000011920929,
-					0.800000011920929,
-					1
-				],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
-			}
 		}
 	],
 	"meshes":[
 		{
-			"name":"ICO\u7403.002",
+			"name":"ICO\u7403.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -90,8 +33,7 @@
 						"NORMAL":1,
 						"TEXCOORD_0":2
 					},
-					"indices":3,
-					"material":0
+					"indices":3
 				}
 			]
 		}
@@ -102,14 +44,14 @@
 			"componentType":5126,
 			"count":4769,
 			"max":[
-				1.1052007675170898,
-				1.0558080673217773,
-				1.0131536722183228
+				1.0033862590789795,
+				0.9347925782203674,
+				0.8929650187492371
 			],
 			"min":[
-				-1.0574610233306885,
-				-1.0547243356704712,
-				-1.1011189222335815
+				-0.936966598033905,
+				-0.9357666373252869,
+				-0.9921150803565979
 			],
 			"type":"VEC3"
 		},
@@ -130,36 +72,6 @@
 			"componentType":5123,
 			"count":23040,
 			"type":"SCALAR"
-		},
-		{
-			"bufferView":4,
-			"componentType":5126,
-			"count":2,
-			"max":[
-				2.5
-			],
-			"min":[
-				0.041666666666666664
-			],
-			"type":"SCALAR"
-		},
-		{
-			"bufferView":5,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":6,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC4"
-		},
-		{
-			"bufferView":7,
-			"componentType":5126,
-			"count":2,
-			"type":"VEC3"
 		}
 	],
 	"bufferViews":[
@@ -186,31 +98,11 @@
 			"byteLength":46080,
 			"byteOffset":152608,
 			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":8,
-			"byteOffset":198688
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":198696
-		},
-		{
-			"buffer":0,
-			"byteLength":32,
-			"byteOffset":198720
-		},
-		{
-			"buffer":0,
-			"byteLength":24,
-			"byteOffset":198752
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":198776,
+			"byteLength":198688,
 			"uri":"smoke2.bin"
 		}
 	]

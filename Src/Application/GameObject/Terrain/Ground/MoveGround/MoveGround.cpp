@@ -116,14 +116,14 @@ void MoveGround::Init()
 	m_param.speed	= 0;
 }
 
-void MoveGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
+void MoveGround::SetParam(Param _param)
 {
-	m_param.startPos	= _startPos;
-	m_param.pos			= _startPos;
-	m_param.goalPos		= _goalPos;
-	m_param.speed		= _speed;
-	m_param.stayTime	= _stayTime;
-	m_param.scale		= _scale;
+	m_param.startPos	= _param.startPos;
+	m_param.pos			= _param.startPos;
+	m_param.goalPos		= _param.goalPos;
+	m_param.speed		= _param.speed;
+	m_param.stayTime	= _param.stayTime;
+	m_param.scale		= _param.scale;
 
 	m_stopFlg = true;
 	m_setParamFlg = true;

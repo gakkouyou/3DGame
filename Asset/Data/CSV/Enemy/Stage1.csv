@@ -1,3 +1,3 @@
-NormalEnemy,NormalEnemy1,36,3,48,13.5,26,0
-NormalEnemy,NormalEnemy2,29,1,28,13.5,26,0
-FlyEnemy,FlyEnemy1,0,0,0,5,0,180
+FlyEnemy,FlyEnemy1,5.75,0,14.25,2,0,180
+NormalEnemy,NormalEnemy1,3.25,0.25,3,4,8,0
+NormalEnemy,NormalEnemy2,-3.75,0.25,3,4,8,0

@@ -117,7 +117,7 @@ void DebugWindow::TerrainWindow()
 			if (ImGui::Button("NormalGround"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::NormalGround);
+				spObjectController->CreateObject(KdGameObject::ObjectType::NormalGround);
 			}
 			ImGui::SameLine();
 
@@ -125,14 +125,14 @@ void DebugWindow::TerrainWindow()
 			if (ImGui::Button("BoundGround"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::BoundGround);
+				spObjectController->CreateObject(KdGameObject::ObjectType::BoundGround);
 			}
 
 			// 動く床
 			if (ImGui::Button("MoveGround"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::MoveGround);
+				spObjectController->CreateObject(KdGameObject::ObjectType::MoveGround);
 				m_terrainParam.goalPos = m_terrainParam.startPos;
 				m_terrainParam.speed = 0.1f;
 				m_terrainParam.stayTime = 60;
@@ -143,52 +143,52 @@ void DebugWindow::TerrainWindow()
 			if (ImGui::Button("RotationGround"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::RotationGround);
+				spObjectController->CreateObject(KdGameObject::ObjectType::RotationGround);
 			}
 
-			// フェンス
-			if (ImGui::Button("Fence"))
+			// 柵の柱
+			if (ImGui::Button("FencePillar"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::Fence);
+				spObjectController->CreateObject(KdGameObject::ObjectType::FencePillar);
+			}
+
+			// 柵の棒
+			if (ImGui::Button("FenceBar"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::FenceBar);
 			}
 			ImGui::SameLine();
-
-			// 片方柵
-			if (ImGui::Button("HalfFence"))
-			{
-				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::HalfFence);
-			}
 
 			// 落ちる床
 			if (ImGui::Button("DropGround"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(TerrainController::Object::DropGround);
+				spObjectController->CreateObject(KdGameObject::ObjectType::DropGround);
 				m_terrainParam.speed = 0.3f;
 				m_terrainParam.stayTime = 60;
 			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 1.0f);
-			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 1.0f);
-			ImGui::InputFloat("Pos.z", &m_terrainParam.startPos.z, 1.0f);
+			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 0.25f);
+			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 0.25f);
+			ImGui::InputFloat("Pos.z", &m_terrainParam.startPos.z, 0.25f);
 
 			// 動く床ならゴール座標も変えれる用にする
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::MoveGround)
 			{
-				ImGui::InputFloat("GoalPos.x", &m_terrainParam.goalPos.x, 1.0f);
-				ImGui::InputFloat("GoalPos.y", &m_terrainParam.goalPos.y, 1.0f);
-				ImGui::InputFloat("GoalPos.z", &m_terrainParam.goalPos.z, 1.0f);
-				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.1f);
+				ImGui::InputFloat("GoalPos.x", &m_terrainParam.goalPos.x, 0.25f);
+				ImGui::InputFloat("GoalPos.y", &m_terrainParam.goalPos.y, 0.25f);
+				ImGui::InputFloat("GoalPos.z", &m_terrainParam.goalPos.z, 0.25f);
+				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.025f);
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}
 
 			// 落ちる床用
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::DropGround)
 			{
-				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.1f);
+				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.025f);
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}
 
@@ -240,10 +240,10 @@ void DebugWindow::EnemyWindow()
 			if (ImGui::Button("NormalEnemy"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(EnemyController::Object::NormalEnemy);
+				spObjectController->CreateObject(KdGameObject::ObjectType::NormalEnemy);
 
-				m_enemyParam.moveArea = 20.0f;
-				m_enemyParam.searchArea = 40.0f;
+				m_enemyParam.moveArea = 4.0f;
+				m_enemyParam.searchArea = 8.0f;
 			}
 			ImGui::SameLine();
 
@@ -251,23 +251,23 @@ void DebugWindow::EnemyWindow()
 			if (ImGui::Button("FlyEnemy"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(EnemyController::Object::FlyEnemy);
+				spObjectController->CreateObject(KdGameObject::ObjectType::FlyEnemy);
 
-				m_enemyParam.moveArea = 5.0f;
+				m_enemyParam.moveArea = 1.0f;
 			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_enemyParam.pos.x, 1.0f);
-			ImGui::InputFloat("Pos.y", &m_enemyParam.pos.y, 1.0f);
-			ImGui::InputFloat("Pos.z", &m_enemyParam.pos.z, 1.0f);
+			ImGui::InputFloat("Pos.x", &m_enemyParam.pos.x, 0.25f);
+			ImGui::InputFloat("Pos.y", &m_enemyParam.pos.y, 0.25f);
+			ImGui::InputFloat("Pos.z", &m_enemyParam.pos.z, 0.25f);
 			// 動く範囲
-			ImGui::InputFloat("MoveArea", &m_enemyParam.moveArea, 0.5f);
+			ImGui::InputFloat("MoveArea", &m_enemyParam.moveArea, 0.1f);
 
 			// 通常敵用
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::NormalEnemy)
 			{
 				// 索敵範囲
-				ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.5f);
+				ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.1f);
 			}
 
 			// 飛ぶ敵用

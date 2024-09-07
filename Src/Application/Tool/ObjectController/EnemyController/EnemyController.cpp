@@ -162,12 +162,12 @@ void EnemyController::DeleteObject()
 	}
 }
 
-void EnemyController::CreateObject(Object _object)
+void EnemyController::CreateObject(KdGameObject::ObjectType _object)
 {
 	switch (_object)
 	{
 		// 通常の敵
-	case Object::NormalEnemy:
+	case KdGameObject::ObjectType::NormalEnemy:
 	{
 		std::shared_ptr<NormalEnemy> object = std::make_shared<NormalEnemy>();
 		object->Init();
@@ -182,7 +182,7 @@ void EnemyController::CreateObject(Object _object)
 	}
 
 		// 飛ぶ敵
-	case Object::FlyEnemy:
+	case KdGameObject::ObjectType::FlyEnemy:
 	{
 		std::shared_ptr<FlyEnemy> object = std::make_shared<FlyEnemy>();
 		object->Init();

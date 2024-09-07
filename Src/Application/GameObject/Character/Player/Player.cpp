@@ -24,7 +24,6 @@ void Player::Update()
 	{
 		m_situationType = SituationType::Stop;
 	}
-
 	// 移動初期化
 	m_moveVec = Math::Vector3::Zero;
 
@@ -99,33 +98,42 @@ void Player::Update()
 		// 歩いている時
 		if (m_situationType & SituationType::Walk)
 		{
+			// 一定時間置きに煙を出す
 			if (m_smokeCount % m_walkSmokeTime == 0)
 			{
 				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
 				SceneManager::Instance().AddObject(smoke);
+				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
 			}
+			// 煙を出すカウント
 			m_smokeCount++;
 		}
 		// 走っている時
 		else if (m_situationType & SituationType::Run)
 		{
+			// 一定時間置きに煙を出す
 			if (m_smokeCount % m_runSmokeTime == 0)
 			{
+				// 煙を生み出す
 				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
 				SceneManager::Instance().AddObject(smoke);
+				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
 			}
+			// 煙を出すカウント
 			m_smokeCount++;
 		}
 	}
 	else
 	{
 		m_smokeCount = 0;
+		// 歩いている音を止める
+		m_walkSoundFlg = false;
 	}
 
 	if (m_stopFlg == false)
@@ -133,11 +141,22 @@ void Player::Update()
 		// ジャンプ
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		{
+			// 空中じゃなければジャンプする
 			if (!(m_situationType & SituationType::Air))
 			{
 				m_situationType |= SituationType::Jump;
 				m_gravity = -m_jumpPow;
 				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Jump"), false);
+
+				// ジャンプ音を鳴らす
+				if (m_jumpSound.flg == false)
+				{
+					if (!m_jumpSound.wpSound.expired())
+					{
+						m_jumpSound.wpSound.lock()->Play();
+						m_jumpSound.flg = true;
+					}
+				}
 			}
 		}
 	}
@@ -237,7 +256,7 @@ void Player::Update()
 	}
 
 	// 落下死
-	if (m_pos.y < -60.0f)
+	if (m_pos.y < -15.0f)
 	{
 		m_aliveFlg = false;
 	}
@@ -262,6 +281,22 @@ void Player::Update()
 	// 当たり判定
 	HitJudge();
 
+	// ダメージを受けた時の処理
+	if (m_damage.nowDamageFlg == true)
+	{
+		DamageProcess();
+	}
+
+	// 着地した瞬間
+	if ((m_situationType & SituationType::Air) == 0)
+	{
+		if (oldSituationType & SituationType::Air)
+		{
+			// ジャンプ音のフラグをfalseに
+			m_jumpSound.flg = false;
+		}
+	}
+
 	// 何の地面に乗っているかによって、音を変える
 	if (!m_wpHitTerrain.expired())
 	{
@@ -274,8 +309,8 @@ void Player::Update()
 			break;
 
 		// コツコツ見たいな音
-		case ObjectType::Fence:
-		case ObjectType::HalfFence:
+		case ObjectType::FenceBar:
+		case ObjectType::FencePillar:
 		case ObjectType::MoveGround:
 		case ObjectType::DropGround:
 			m_walkSoundType = WalkSoundType::Tile;
@@ -370,8 +405,10 @@ void Player::PostUpdate()
 	}
 
 	transMat = Math::Matrix::CreateTranslation(m_pos);
+	
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
-	m_mWorld = m_rotMat * transMat;
+	m_mWorld = scaleMat * m_rotMat * transMat;
 
 	// アニメーションの更新
 	// 止まっていたらアニメーションしない
@@ -384,6 +421,28 @@ void Player::PostUpdate()
 		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	}
 	m_spModel->CalcNodeMatrices();
+}
+
+void Player::GenerateDepthMapFromLight()
+{
+	if (m_spModel)
+	{
+		if (m_damage.drawFlg)
+		{
+			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		}
+	}
+}
+
+void Player::DrawLit()
+{
+	if (m_spModel)
+	{
+		if (m_damage.drawFlg)
+		{
+			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		}
+	}
 }
 
 void Player::Init()
@@ -405,19 +464,36 @@ void Player::Init()
 	m_baseObjectType = BaseObjectType::Player;
 
 	// 移動速度
-	m_moveSpeed = 0.3f;
+	m_moveSpeed = 0.1f;
+
+	m_pos = { 0, 0.3, 0 };
 
 	// ジャンプ力
-	m_jumpPow = 0.5f;
+	m_jumpPow = 0.125f;
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
-	m_pos = { 30.0f, 1.0f, -40.0f };
-
+	// 移動が出来なくなるフラグ
 	m_stopFlg = true;
+	
+	// ライフ
+	m_life = m_maxLife;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	// 音
-	// 落下音
+	// 草の上を歩いた音
 	m_wpWalkSound[WalkSoundType::Grass] = KdAudioManager::Instance().Play("Asset/Sounds/SE/grassWalk.wav", false);
 	if (!m_wpWalkSound[WalkSoundType::Grass].expired())
 	{
@@ -425,6 +501,40 @@ void Player::Init()
 		m_wpWalkSound[WalkSoundType::Grass].lock()->Stop();
 	}
 	m_nowWalkSoundFlg = false;
+	// かたい地面を歩いた音
+	m_wpWalkSound[WalkSoundType::Tile] = KdAudioManager::Instance().Play("Asset/Sounds/SE/tileWalk.wav", false);
+	if (!m_wpWalkSound[WalkSoundType::Tile].expired())
+	{
+		m_wpWalkSound[WalkSoundType::Tile].lock()->SetVolume(0.1f);
+		m_wpWalkSound[WalkSoundType::Tile].lock()->Stop();
+	}
+
+	// ジャンプ音
+	m_jumpSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/jump.wav", false);
+	if (!m_jumpSound.wpSound.expired())
+	{
+		m_jumpSound.wpSound.lock()->SetVolume(0.02f);
+		m_jumpSound.wpSound.lock()->Stop();
+	}
+	m_jumpSound.flg = false;
+
+	// 敵を踏んだ時の音
+	m_stampSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/stamp.wav", false);
+	if (!m_stampSound.wpSound.expired())
+	{
+		m_stampSound.wpSound.lock()->SetVolume(0.02f);
+		m_stampSound.wpSound.lock()->Stop();
+	}
+	m_stampSound.flg = false;
+
+	// キノコではねた時の音
+	m_boundSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/bound.wav", false);
+	if (!m_boundSound.wpSound.expired())
+	{
+		m_boundSound.wpSound.lock()->SetVolume(0.02f);
+		m_boundSound.wpSound.lock()->Stop();
+	}
+	m_boundSound.flg = false;
 }
 
 void Player::Reset()
@@ -432,7 +542,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos = { 30.0f, 1.0f, -40.0f };
+	m_pos = { 0, 0.3, 0 };
 	
 	// 生存フラグ
 	m_aliveFlg = true;
@@ -449,7 +559,13 @@ void Player::Reset()
 
 	m_stopFlg = true;
 
+	// ライフ
+	m_life = m_maxLife;
 
+	// ダメージ受けた時の変数をリセット
+	m_damage.nowDamageFlg = false;
+	m_damage.damageCount = 0;
+	m_damage.drawFlg = true;
 }
 
 // 当たり判定
@@ -461,11 +577,14 @@ void Player::HitJudge()
 	// 地面との当たり判定
 	HitJudgeGround();
 
-	// 触れたらイベントが発生する
-	HitJudgeEvent();
+	if (m_stopFlg == false)
+	{
+		// 触れたらイベントが発生する
+		HitJudgeEvent();
 
-	// 敵との当たり判定
-	HitJudgeEnemy();
+		// 敵との当たり判定
+		HitJudgeEnemy();
+	}
 }
 
 void Player::HitJudgeGround()
@@ -502,6 +621,7 @@ void Player::HitJudgeGround()
 		{
 			// 右足の場所
 			nodePos = m_spModel->FindNode("RightLeg")->m_localTransform.Translation();
+			nodePos *= m_scale;
 			// 回転処理
 			startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle));
 			startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle));
@@ -521,6 +641,7 @@ void Player::HitJudgeGround()
 		{
 			// 左足の場所
 			nodePos = m_spModel->FindNode("LeftLeg")->m_localTransform.Translation();
+			nodePos *= m_scale;
 			// 回転処理
 			startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle));
 			startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle));
@@ -538,6 +659,9 @@ void Player::HitJudgeGround()
 			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 			Application::Instance().m_log.Clear();
 
+			// 音のフラグをリセットする
+			m_boundSound.flg = false;	// きのこで跳ねた時の音
+
 			if (spHitObject)
 			{
 				spHitObject->OnHit();
@@ -548,13 +672,20 @@ void Player::HitJudgeGround()
 				case ObjectType::BoundGround:
 					// 座標
 					m_pos.y = hitPos.y;
-					//m_pos.y += m_enableStepHeight;
 					// 重力
-					m_gravity = -1.0f;
+					m_gravity = -0.25f;
 					//// 空中にいない
-					//m_situationType &= (~SituationType::Air);
-					//m_situationType &= (~SituationType::Jump);
 					Application::Instance().m_log.AddLog("Bound\n");
+
+					// 跳ねた時の音を鳴らす
+					if (m_boundSound.flg == false)
+					{
+						if (!m_boundSound.wpSound.expired())
+						{
+							m_boundSound.wpSound.lock()->Play();
+							m_boundSound.flg = true;
+						}
+					}
 					break;
 
 					// 動く床に乗った場合
@@ -562,7 +693,6 @@ void Player::HitJudgeGround()
 				case ObjectType::DropGround:
 					// 座標
 					m_pos.y = hitPos.y;
-					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = 0;
 					// 空中にいない
@@ -584,7 +714,7 @@ void Player::HitJudgeGround()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
-					// 動く前の行列
+					// 当たったかどうか
 					m_rotationGround.hitFlg = true;
 					Application::Instance().m_log.AddLog("Rot\n");
 					break;
@@ -609,44 +739,46 @@ void Player::HitJudgeGround()
 		}
 	}
 
-	// 地面とのスフィア判定
+	// 地面(壁)とのスフィア判定
 	{
 		// 方向
-		Math::Vector3 hitDir = Math::Vector3::Zero;
+		std::list<Math::Vector3> hitDirList;
 		// スフィアの中心座標
 		Math::Vector3 centerPos = m_pos;
 		// スフィアの半径
-		float radius = 1.0f;
-		centerPos.y += radius + 3.0f;
+		float radius = 0.25f;
+		centerPos.y += radius + 0.75f;
 
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
 		// めり込んだ距離
 		float maxOverLap = 0.0f;
 
-		hitFlg = SphereHitGround(centerPos, radius, hitDir, maxOverLap, true);
+		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
 
 		if (hitFlg == false)
 		{
 			centerPos = m_pos;
-			centerPos.y += radius + 2.0f;
-			hitFlg = SphereHitGround(centerPos, radius, hitDir, maxOverLap, true);
+			centerPos.y += radius + 0.25f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
 		}
+
+		Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
 
 		// 当たった場合
 		if (hitFlg)
 		{
-			// 当たったオブジェクト
-			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
+			Math::Vector3 dir;
 
-			// 当たったオブジェクト毎に処理を変える
-			if (spHitObject)
+			for (auto& hitDir : hitDirList)
 			{
-				// Y軸の補正はなし
-				hitDir.y = 0;
-				hitDir.Normalize();
-				m_pos += hitDir * maxOverLap;
+				dir += hitDir;
 			}
+
+			// Y軸の補正はなし
+			dir.y = 0;
+			dir.Normalize();
+			m_pos += dir * maxOverLap;
 		}
 	}
 }
@@ -690,7 +822,7 @@ void Player::HitJudgeEnemy()
 	// スフィアの中心座標
 	Math::Vector3 centerPos = m_pos;
 	// スフィアの半径
-	float radius = 1.0f;
+	float radius = 0.25f;
 	centerPos.y += radius;
 
 	// 当たったかどうかのフラグ
@@ -698,13 +830,16 @@ void Player::HitJudgeEnemy()
 	// めり込んだ距離
 	float maxOverLap = 0.0f;
 
-	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeDamage, hitDir, maxOverLap);
+	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeDamage, hitDir, maxOverLap, true);
 
 	// 当たっていた時の処理
 	if (hitFlg)
 	{
 		// 当たったオブジェクト
 		std::shared_ptr<KdGameObject> spHitObject;
+
+		// 音のフラグをリセット
+		m_stampSound.flg = false;	// 敵を踏んだ時の音
 
 		// 敵を探す
 		for (auto& hitObject : m_wpHitObjectList)
@@ -721,7 +856,7 @@ void Player::HitJudgeEnemy()
 
 		// 敵の座標
 		Math::Vector3 enemyPos = spHitObject->GetPos();
-		enemyPos.y += 2.0f;
+		enemyPos.y += 0.5f;
 		// 敵からプレイヤーのベクトル
 		Math::Vector3 vec = m_pos - enemyPos;
 		vec.z = 0;
@@ -732,12 +867,53 @@ void Player::HitJudgeEnemy()
 		{
 			// 敵を踏んだ時の処理
 			spHitObject->OnHit();
-			m_gravity = -0.7f;
+			m_gravity = -0.15f;
+
+			// 敵を踏んだ時の音
+			if (m_stampSound.flg == false)
+			{
+				if (!m_stampSound.wpSound.expired())
+				{
+					m_stampSound.wpSound.lock()->Play();
+					m_stampSound.flg = true;
+				}
+			}
 		}
 		// 下半分ならダメージを受ける
 		else
 		{
-			m_aliveFlg = false;
+			if (m_damage.nowDamageFlg == false)
+			{
+				// ダメージ処理をする
+				m_damage.nowDamageFlg = true;
+				// ライフを減らす
+				m_life -= 1;
+				// ライフが０以下になったら死亡
+				if (m_life <= 0)
+				{
+					m_aliveFlg = false;
+				}
+			}
+		}
+	}
+}
+
+void Player::DamageProcess()
+{
+	// 生きている時だけ
+	if (m_aliveFlg == true)
+	{
+		m_damage.damageCount++;
+		if (m_damage.damageCount % m_damage.blinkingTime == 0)
+		{
+			m_damage.drawFlg = !m_damage.drawFlg;
+		}
+
+		if (m_damage.damageCount > m_damage.damageTime)
+		{
+			m_damage.nowDamageFlg = false;
+			m_damage.damageCount = 0;
+			m_damage.drawFlg = true;
 		}
 	}
 }

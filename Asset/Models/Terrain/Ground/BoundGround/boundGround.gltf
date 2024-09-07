@@ -17,9 +17,9 @@
 			"mesh":0,
 			"name":"\u5186\u67f1",
 			"scale":[
-				9.989999771118164,
-				0.30000001192092896,
-				10
+				2.5,
+				0.125,
+				2.5
 			]
 		}
 	],
@@ -84,8 +84,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"kinoko",
-			"uri":"kinoko.png"
+			"name":"kinoko.png",
+			"uri":"kinoko_png.png"
 		}
 	],
 	"accessors":[

@@ -36,7 +36,7 @@ public:
 	// リセット処理
 	void Reset()		override;
 
-	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+	virtual void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
 	// TerrainControllerをセットする
 	void SetTerrainController(std::shared_ptr<TerrainController> _spTerrainController) { m_wpTerrainController = _spTerrainController; }
@@ -51,6 +51,8 @@ protected:
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
 	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
+	// 複数のオブジェクトと当たり判定をしたい場合
+	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap, const bool _debugFlg = false);
 	
 	// スフィア判定 地面
 	bool SphereHitGround(const Math::Vector3 _centerPos, const float _radius, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
@@ -76,11 +78,11 @@ protected:
 
 	// 重力
 	float			m_gravity						= 0;
-	float			m_gravityPow					= 0.02f;
-	const float		m_maxGravity					= 4.0f;
+	float			m_gravityPow					= 0.005f;
+	const float		m_maxGravity					= 1.0f;
 
 	// 当たり判定の段差許容範囲
-	const float		m_enableStepHeight				= 0.5f;
+	const float		m_enableStepHeight				= 0.125f;
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;

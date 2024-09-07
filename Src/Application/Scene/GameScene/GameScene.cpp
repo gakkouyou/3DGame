@@ -57,6 +57,12 @@ void GameScene::Event()
 					m_wpResult.lock()->GameOver();
 				}
 
+				for (auto& obj : m_objList)
+				{
+					// 全てのオブジェクトを止める(プレイヤーは止まらない)
+					obj->SetPauseFlg(true);
+				}
+
 				// ゲームシーンは終了せずに終了
 				GameEnd(60);
 			}
@@ -172,12 +178,16 @@ void GameScene::Init()
 {
 	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
 
-	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({1000,1000},1000);
+	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
 
 	// ②フォグ(霧)                                                 ↓距離 ↓高さ
-	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(false, true);
+	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(true, true);
+
+	// 距離フォグ                                                        ↓色RGB      ↓密度
+	KdShaderManager::Instance().WorkAmbientController().SetDistanceFog({ 0, 0, 0.5 }, 0.001);
+
 	// 高さフォグ                                                    ↓色       ↓上↓下↓距離
-	//KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 1, 1, 1 }, 0, -2, 0.1f);
+	KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 0, 0, 0.5 }, 10, -10, 0.001f);
 
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
@@ -189,6 +199,15 @@ void GameScene::Init()
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
 	AddObject(backGround);
+
+	// ゴール
+	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
+	goal->SetPos({ 220, 30, 50 });
+	//goal->SetPos({ 20, 12, -10 });
+	goal->Init();
+	AddObject(goal);
+	// 保持
+	m_wpGoal = goal;
 
 	// プレイヤー
 	std::shared_ptr<Player> player = std::make_shared<Player>();
@@ -209,15 +228,6 @@ void GameScene::Init()
 
 	// TPSカメラにターゲットをセットする
 	tpsCamera->SetTarget(player);
-
-	// ゴール
-	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
-	goal->SetPos({ 220, 30, 50 });
-	//goal->SetPos({ 20, 12, -10 });
-	goal->Init();
-	AddObject(goal);
-	// 保持
-	m_wpGoal = goal;
 
 	// カメラにゴールの座標をセットする
 	tpsCamera->SetGoalPos(goal->GetPos());
@@ -249,6 +259,8 @@ void GameScene::Init()
 	std::shared_ptr<GameUI> ui = std::make_shared<GameUI>();
 	ui->Init();
 	AddObject(ui);
+	// プレイヤーを渡す
+	ui->SetPlayer(player);
 
 
 
@@ -265,13 +277,6 @@ void GameScene::Init()
 	// 保持
 	m_wpSceneChange = sceneChange;
 
-	// マップエディタ的な
-	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
-	// CSVファイルを指定する
-	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	terrainController->Init();
-	AddObject(terrainController);
-
 	// 敵エディタ的な
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
 	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
@@ -279,6 +284,13 @@ void GameScene::Init()
 	enemyController->SetPlayer(player);
 	enemyController->Init();
 	AddObject(enemyController);
+
+	// マップエディタ的な
+	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
+	// CSVファイルを指定する
+	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	terrainController->Init();
+	AddObject(terrainController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(terrainController);// Terrain

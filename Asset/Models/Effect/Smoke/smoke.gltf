@@ -47,17 +47,17 @@
 			"samplers":[
 				{
 					"input":4,
-					"interpolation":"LINEAR",
+					"interpolation":"STEP",
 					"output":5
 				},
 				{
 					"input":4,
-					"interpolation":"LINEAR",
+					"interpolation":"STEP",
 					"output":6
 				},
 				{
 					"input":4,
-					"interpolation":"LINEAR",
+					"interpolation":"STEP",
 					"output":7
 				}
 			]
@@ -128,9 +128,9 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":1,
+			"count":2,
 			"max":[
-				0.041666666666666664
+				2.5
 			],
 			"min":[
 				0.041666666666666664
@@ -140,19 +140,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":1,
+			"count":2,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":1,
+			"count":2,
 			"type":"VEC4"
 		},
 		{
 			"bufferView":7,
 			"componentType":5126,
-			"count":1,
+			"count":2,
 			"type":"VEC3"
 		}
 	],
@@ -183,28 +183,28 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":4,
+			"byteLength":8,
 			"byteOffset":198688
 		},
 		{
 			"buffer":0,
-			"byteLength":12,
-			"byteOffset":198692
+			"byteLength":24,
+			"byteOffset":198696
 		},
 		{
 			"buffer":0,
-			"byteLength":16,
-			"byteOffset":198704
-		},
-		{
-			"buffer":0,
-			"byteLength":12,
+			"byteLength":32,
 			"byteOffset":198720
+		},
+		{
+			"buffer":0,
+			"byteLength":24,
+			"byteOffset":198752
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":198732,
+			"byteLength":198776,
 			"uri":"smoke.bin"
 		}
 	]

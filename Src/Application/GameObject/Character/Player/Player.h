@@ -14,11 +14,18 @@ public:
 	void Update()		override;
 	void PostUpdate()	override;
 
+	// 描画
+	void GenerateDepthMapFromLight()	override;
+	void DrawLit()		override;
+
 	// 初期化
 	void Init()			override;
 
 	// リセット処理
 	void Reset()		override;
+
+	// ポーズフラグセット
+	void SetPauseFlg(bool _pauseFlg)	override { if (m_aliveFlg == true) m_pauseFlg = _pauseFlg; }
 
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
@@ -32,6 +39,9 @@ public:
 	// ゴールの座標
 	void SetGoalPos(Math::Vector3 _goalPos) { m_goalPos = _goalPos; }
 
+	// ライフをゲット
+	const int GetLife() const { return m_life; }
+
 private:
 	// 当たり判定
 	void HitJudge();
@@ -42,9 +52,8 @@ private:
 	// 敵との当たり判定
 	void HitJudgeEnemy();
 
-	// オブジェクトに当たった時の反応
-	//void Bound();
-	
+	// ダメージを受けた時の処理
+	void DamageProcess();
 
 	// 今の状況
 	enum SituationType
@@ -71,6 +80,9 @@ private:
 
 	// 回転行列
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
+
+	// スケール
+	const float m_scale = 0.25f;
 
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
 	struct HitMoveTerrain
@@ -111,7 +123,7 @@ private:
 	int m_runSmokeTime	= 7;
 
 	// 走り状態の時のスピード
-	const float m_runSpeed	= 0.5f;
+	const float m_runSpeed	= 0.125f;
 
 	// 音
 	struct Sound
@@ -135,4 +147,26 @@ private:
 	UINT m_walkSoundType	= 0;
 	// 歩く音を鳴らすかどうかのフラグ
 	bool m_walkSoundFlg		= false;
+
+	// ジャンプ
+	Sound m_jumpSound;
+	// 敵を踏んだ時の音
+	Sound m_stampSound;
+	// きのこで跳ねた時の音
+	Sound m_boundSound;
+
+	// ライフ
+	int m_life = 0;
+	const int m_maxLife = 3;
+
+	// ダメージを受けた時の処理用
+	struct Damage
+	{
+		bool		nowDamageFlg	= false;	// ダメージを受けている最中
+		const int	damageTime		= 90;		// 無敵時間
+		int			damageCount		= 0;		// ダメージを受けた時からのカウント
+		const int	blinkingTime	= 5;		// 点滅の間隔の時間
+		bool		drawFlg			= true;		// 描画するフラグ
+	};
+	Damage m_damage;
 };

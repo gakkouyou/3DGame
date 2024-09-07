@@ -30,25 +30,12 @@ public:
 	// 今持っているオブジェクトの名前をゲットする
 	const std::string GetObjectName() const;
 
-	// 作りたいオブジェクト
-	enum class Object
-	{
-		NormalGround,	// 通常の床
-		BoundGround,	// 跳ねる床
-		MoveGround,		// 動く床
-		NormalWall,		// 通常の壁
-		RotationGround,	// 回る床
-		Fence,			// 柵
-		HalfFence,		// 片方の柵
-		DropGround,		// 落ちる床
-	};
-
 	// オブジェクトを確定する(wp_ptrをリセットする)
 	void ConfirmedObject();
 	// オブジェクトを削除する
 	void DeleteObject();
 	// オブジェクトを作る
-	void CreateObject(Object _object);
+	void CreateObject(KdGameObject::ObjectType _object);
 	// CSVに書き込む
 	void CSVWriter();
 
@@ -80,8 +67,8 @@ private:
 		int BoundGround		= 0;
 		int MoveGround		= 0;
 		int RotationGround	= 0;
-		int Fence			= 0;
-		int HalfFence		= 0;
+		int FencePillar			= 0;
+		int FenceBar		= 0;
 		int DropGround		= 0;
 	};
 

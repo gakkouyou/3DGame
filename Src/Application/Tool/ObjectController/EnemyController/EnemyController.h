@@ -27,19 +27,12 @@ public:
 	// 今持っているオブジェクトの名前をゲットする
 	const std::string GetObjectName() const;
 
-	// 作りたいオブジェクト
-	enum class Object
-	{
-		NormalEnemy,	// 通常の敵
-		FlyEnemy,		// 飛ぶ敵
-	};
-
 	// オブジェクトを確定する(wp_ptrをリセットする)
 	void ConfirmedObject();
 	// オブジェクトを削除する
 	void DeleteObject();
 	// オブジェクトを作る
-	void CreateObject(Object _object);
+	void CreateObject(KdGameObject::ObjectType _object);
 	// CSVに書き込む
 	void CSVWriter();
 

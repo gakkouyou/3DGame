@@ -32,6 +32,11 @@ void CharacterBase::Reset()
 
 	// 当たったオブジェクトリストをリセット
 	m_wpHitObjectList.clear();
+
+	// 当たった地形をリセット
+	m_wpHitTerrain.reset();
+
+	m_pauseFlg = false;
 }
 
 bool CharacterBase::RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg)
@@ -284,6 +289,67 @@ bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _
 
 			// 当たったオブジェクトを保持
 			m_wpHitObjectList.push_back(retObjctList[cnt]);
+		}
+		cnt++;
+	}
+
+	return hitFlg;
+}
+
+bool CharacterBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap,  const bool _debugFlg)
+{
+	//==================
+	// 球判定
+	//==================
+	KdCollider::SphereInfo sphereInfo;
+	// 球の中心位置を設定(座標)
+	sphereInfo.m_sphere.Center = _centerPos;
+	// 球の半径を設定
+	sphereInfo.m_sphere.Radius = _radius;
+	// 当たり判定をしたいタイプを設定
+	sphereInfo.m_type = _type;
+
+	// デバッグ用
+	if (_debugFlg)
+	{
+		if (m_pDebugWire)
+		{
+			m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, sphereInfo.m_sphere.Radius);
+		}
+	}
+
+	// 球に当たったオブジェクト情報を格納
+	std::list<KdCollider::CollisionResult> retSphereList;
+
+	// 球に当たったオブジェクトを格納するリスト
+	std::vector<std::weak_ptr<KdGameObject>> retObjList;
+
+	// 当たり判定！！！！！！！！！！！！！！！
+	for (auto& obj : SceneManager::Instance().GetObjList())
+	{
+		if (obj->Intersects(sphereInfo, &retSphereList))
+		{
+			// 当たったオブジェクトをリストで保持
+			retObjList.push_back(obj);
+		}
+	}
+
+	// 球に当たったリストから一番近いオブジェクトを検出
+	_maxOverLap = 0;
+	bool hitFlg = false;
+
+	int cnt = 0;
+
+	for (auto& ret : retSphereList)
+	{
+		if (_maxOverLap < ret.m_overlapDistance)
+		{
+			_maxOverLap = ret.m_overlapDistance;
+			_hitDirList.push_back(ret.m_hitDir);
+			hitFlg = true;
+
+			// 当たったオブジェクトを保持
+			m_wpHitObjectList.push_back(retObjList[cnt]);
 		}
 		cnt++;
 	}

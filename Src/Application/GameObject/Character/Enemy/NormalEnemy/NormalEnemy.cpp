@@ -1,6 +1,7 @@
 ﻿#include "NormalEnemy.h"
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
+#include "../../../Terrain/TerrainBase.h"
 
 void NormalEnemy::Update()
 {
@@ -197,7 +198,7 @@ void NormalEnemy::Update()
 	}
 
 	// 落下死
-	if (m_pos.y < -60.0f)
+	if (m_pos.y < -15.0f)
 	{
 		m_isExpired = true;
 	}
@@ -220,13 +221,65 @@ void NormalEnemy::PostUpdate()
 
 	m_pDebugWire->AddDebugSphere(m_pos, 1.0f, kBlueColor);
 
+	// 動く床に当たっていた時の処理
+	if (m_moveGround.hitFlg)
+	{
+		// 動く床の動く前の逆行列
+		Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
+		// 動く床から見たプレイヤーの座標行列
+		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
+
+		// 動く床を探す
+		std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
+
+		if (spHitObject)
+		{
+			// 動く床の動いた後の行列
+			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
+
+			// 座標を確定
+			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+		}
+	}
+
+	// 回る床に当たっていた時の処理
+	if (m_rotationGround.hitFlg)
+	{
+		// 当たった地面
+		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
+		// 無かったら終了
+		if (!spHitTerrain) return;
+		Math::Vector3 terrainPos = spHitTerrain->GetPos();
+		// プレイヤーから回転床までの距離
+		Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
+		vec.z = 0;
+		float length = vec.Length();
+		// 移動する前の回転床から見たプレイヤーの角度
+		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+
+		if (degAng <= 90 && degAng >= -90)
+		{
+			degAng -= 90;
+			if (degAng < 0)
+			{
+				degAng += 360;
+			}
+			degAng = 360 - degAng;
+
+			// 回転床が回転する角度
+			float lotDegAng = spHitTerrain->GetParam().degAng.z;
+			degAng += lotDegAng;
+			m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+			m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+		}
+	}
+
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	// 回転行列
 	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
-	//Math::Matrix scaleMat = Math::Matrix::CreateScale(1.5f);
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
 }
@@ -248,7 +301,7 @@ void NormalEnemy::Init()
 
 
 	// スピード
-	m_moveSpeed = 0.2f;
+	m_moveSpeed = 0.05f;
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
@@ -294,7 +347,7 @@ void NormalEnemy::HitJudge()
 	Math::Vector3 centerPos = m_pos;
 	//centerPos.y -= 2.0f;
 	// スフィアの半径
-	float radius = 1.0f;
+	float radius = 0.25f;
 	centerPos.y += radius;
 
 	// 当たったかどうかのフラグ
@@ -422,6 +475,146 @@ void NormalEnemy::HitJudge()
 	HitEnemy();
 }
 
+void NormalEnemy::HitGround()
+{
+	// 動く床関連をリセット
+	// 動く床
+	m_moveGround.transMat = Math::Matrix::Identity;
+	m_moveGround.hitFlg = false;
+	// 回る床
+	m_rotationGround.transMat = Math::Matrix::Identity;
+	m_rotationGround.rotMat = Math::Matrix::Identity;
+	m_rotationGround.hitFlg = false;
+
+	// 当たった地面をリセット
+	m_wpHitTerrain.reset();
+
+	// 地面とのレイ当たり判定
+	{
+		// 当たった座標
+		Math::Vector3 hitPos = Math::Vector3::Zero;
+		// レイのスタート座標
+		Math::Vector3 startPos = Math::Vector3::Zero;
+		// ノードの座標
+		Math::Vector3 nodePos = Math::Vector3::Zero;
+		bool hitFlg = false;
+
+		// 真ん中からレイ判定
+		startPos.y = m_enableStepHeight;
+		startPos += m_pos;
+		hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
+		if (hitFlg)
+		{
+			// 当たったオブジェクト
+			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
+			Application::Instance().m_log.Clear();
+
+			if (spHitObject)
+			{
+				spHitObject->OnHit();
+
+				switch (spHitObject->GetObjectType())
+				{
+					// バウンドする床に乗った場合
+				case ObjectType::BoundGround:
+					// 座標
+					m_pos.y = hitPos.y;
+					//m_pos.y += m_enableStepHeight;
+					// 重力
+					m_gravity = -0.25f;
+					//// 空中にいない
+					//m_situationType &= (~SituationType::Air);
+					//m_situationType &= (~SituationType::Jump);
+					Application::Instance().m_log.AddLog("Bound\n");
+					break;
+
+					// 動く床に乗った場合
+				case ObjectType::MoveGround:
+				case ObjectType::DropGround:
+					// 座標
+					m_pos.y = hitPos.y;
+					//m_pos.y += m_enableStepHeight;
+					// 重力
+					m_gravity = 0;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					// 動く床の動く前の行列
+					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					// 動く床に当たったかどうかのフラグ
+					m_moveGround.hitFlg = true;
+					Application::Instance().m_log.AddLog("Move\n");
+					break;
+
+					// 回る床に乗った場合
+				case ObjectType::RotationGround:
+					// 座標
+					m_pos.y = hitPos.y;
+					// 重力
+					m_gravity = 0;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					// 動く前の行列
+					m_rotationGround.hitFlg = true;
+					Application::Instance().m_log.AddLog("Rot\n");
+					break;
+
+				default:
+					// 座標
+					m_pos.y = hitPos.y;
+					// 重力
+					m_gravity = 0;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					Application::Instance().m_log.AddLog("Normal\n");
+					break;
+				}
+			}
+		}
+		else
+		{
+			// 空中にいる
+			m_situationType |= SituationType::Air;
+		}
+	}
+
+	// 地面とのスフィア判定
+	{
+		// 方向
+		std::list<Math::Vector3> hitDirList;
+		// スフィアの中心座標
+		Math::Vector3 centerPos = m_pos;
+		// スフィアの半径
+		float radius = 0.25f;
+		centerPos.y += radius + 0.25f;
+
+		// 当たったかどうかのフラグ
+		bool hitFlg = false;
+		// めり込んだ距離
+		float maxOverLap = 0.0f;
+
+		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
+
+		// 当たった場合
+		if (hitFlg)
+		{
+			Math::Vector3 dir;
+
+			for (auto& hitDir : hitDirList)
+			{
+				dir += hitDir;
+			}
+
+			// Y軸の補正はなし
+			dir.y = 0;
+			dir.Normalize();
+			m_pos += dir * maxOverLap;
+		}
+	}
+}
+
 void NormalEnemy::HitEnemy()
 {
 	// 地面とのスフィア判定
@@ -431,7 +624,7 @@ void NormalEnemy::HitEnemy()
 	Math::Vector3 centerPos = m_pos;
 	//centerPos.y -= 2.0f;
 	// スフィアの半径
-	float radius = 1.0f;
+	float radius = 0.25f;
 	centerPos.y += radius;
 
 	// 当たったかどうかのフラグ

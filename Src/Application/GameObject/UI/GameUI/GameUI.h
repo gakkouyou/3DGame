@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+class Player;
+
 class GameUI : public KdGameObject
 {
 public:
@@ -10,6 +12,9 @@ public:
 	void DrawSprite()	override;
 	void Init()			override;
 
+	// プレイヤーをセット
+	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
+
 private:
 	struct Texture
 	{
@@ -17,4 +22,7 @@ private:
 		Math::Vector2				pos		= Math::Vector2::Zero;	// 座標
 	};
 	Texture m_life;
+	const int m_lifeTexInterval = 70;
+
+	std::weak_ptr<Player> m_wpPlayer;
 };

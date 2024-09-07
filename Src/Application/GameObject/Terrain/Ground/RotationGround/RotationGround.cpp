@@ -81,15 +81,15 @@ void RotationGround::Init()
 	m_drawType = eDrawTypeLit;
 }
 
-void RotationGround::SetParam(Math::Vector3 _startPos, Math::Vector3 _goalPos, Math::Vector3 _scale, float _speed, int _stayTime, Math::Vector3 _degAng)
+void RotationGround::SetParam(Param _param)
 {
 	// 座標
-	m_param.pos			= _startPos;
-	m_param.startPos	= _startPos;
-	m_param.scale		= _scale;
+	m_param.pos			= _param.startPos;
+	m_param.startPos	= _param.startPos;
+	m_param.scale		= _param.scale;
 
 	// 回転角度
-	m_param.degAng = _degAng;
+	m_param.degAng = _param.degAng;
 }
 
 void RotationGround::Reset()

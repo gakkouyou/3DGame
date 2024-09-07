@@ -22,6 +22,8 @@ public:
 private:
 	// 当たり判定
 	void HitJudge();
+	// 地面との当たり判定
+	void HitGround();
 	// 敵同士での当たり判定
 	void HitEnemy();
 
@@ -67,7 +69,7 @@ private:
 	{
 		const float viewingAngle	= 60.0f;
 		const float rotDegAng		= 5.0f;
-		const float speed			= 0.2f;
+		const float speed			= 0.05f;
 	};
 
 	HomingStruct m_homing;
@@ -99,17 +101,32 @@ private:
 	LostTargetAnimation m_lostTarget;
 
 	// ジャンプ力
-	const float m_findJumpPow	= 0.4f;
+	const float m_findJumpPow	= 0.1f;
 
 	// 歩くモーション用
 	struct Walk
 	{
-		const float jumpPow		= 0.2f;		// ジャンプ力
-		const float movePow		= 0.4f;		// 動く量
+		const float jumpPow		= 0.05f;		// ジャンプ力
+		const float movePow		= 0.05f;		// 動く量
 		const int	stayTime	= 60;		// 待機時間
 		int			stayCount	= 0;		// 待機カウント
 		bool		stayFlg		= false;	// 待機フラグ
 	};
 
 	Walk m_walkMotion;
+
+
+
+	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
+	struct HitMoveTerrain
+	{
+		Math::Matrix transMat = Math::Matrix::Identity;	// 動く前の行列
+		Math::Matrix rotMat = Math::Matrix::Identity;	// 回転行列
+		bool hitFlg = false;					// 当たったかどうか
+	};
+
+	// 動く床
+	HitMoveTerrain m_moveGround;
+	// 回る床
+	HitMoveTerrain m_rotationGround;
 };

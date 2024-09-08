@@ -108,34 +108,34 @@ void Pause::DrawSprite()
 			{
 				color = { 1, 1, 0, 1 };
 			}
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, m_return.pos.x, m_return.pos.y, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, (int)m_return.pos.x, (int)m_return.pos.y, nullptr, &color);
 			color = { 1, 1, 1, 1 };
 			if (m_nowSelect == Select::Again)
 			{
 				color = { 1, 1, 0, 1 };
 			}
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, m_again.pos.x, m_again.pos.y, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, (int)m_again.pos.x, (int)m_again.pos.y, nullptr, &color);
 			color = { 1, 1, 1, 1 };
 			if (m_nowSelect == Select::Back)
 			{
 				color = { 1, 1, 0, 1 };
 			}
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, m_back.pos.x, m_back.pos.y, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, (int)m_back.pos.x, (int)m_back.pos.y, nullptr, &color);
 		}
 
 		if (m_return.spTex)
 		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_return.spTex, m_return.pos.x, m_return.pos.y);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_return.spTex, (int)m_return.pos.x, (int)m_return.pos.y);
 		}
 
 		if (m_again.spTex)
 		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_again.spTex, m_again.pos.x, m_again.pos.y);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_again.spTex, (int)m_again.pos.x, (int)m_again.pos.y);
 		}
 
 		if (m_back.spTex)
 		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_back.spTex, m_back.pos.x, m_back.pos.y);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_back.spTex, (int)m_back.pos.x, (int)m_back.pos.y);
 		}
 	}
 }

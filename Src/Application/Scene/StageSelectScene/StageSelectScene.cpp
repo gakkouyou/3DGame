@@ -116,8 +116,6 @@ void StageSelectScene::Init()
 	AddObject(stageSelectTexture);
 	// 保持
 	m_wpStageSelectTexture = stageSelectTexture;
-	// ステージの上限
-	int maxStage = stageSelectTexture->GetMaxStage();
 
 	// UI
 	std::shared_ptr<StageSelectUI> ui = std::make_shared<StageSelectUI>();

@@ -308,7 +308,7 @@ void NormalEnemy::Init()
 	m_pCollider->RegisterCollisionShape("NormalEnemy", m_spModel, KdCollider::TypeDamage);
 
 	// ゴールの座標を求める
-	m_degAng = rand() % 360;
+	m_degAng = float(rand() % 360);
 	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
 	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
 
@@ -327,7 +327,7 @@ void NormalEnemy::Init()
 void NormalEnemy::Reset()
 {
 	// ゴールの座標を求める
-	m_degAng = rand() % 360;
+	m_degAng = float(rand() % 360);
 	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
 	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
 

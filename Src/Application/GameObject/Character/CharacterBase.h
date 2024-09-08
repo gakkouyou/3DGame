@@ -21,7 +21,7 @@ public:
 	virtual void DrawLit()						override;
 
 	// 生存フラグ
-	const bool GetAlive() const { return m_aliveFlg; }
+	const bool GetAliveFlg() const { return m_aliveFlg; }
 
 	// 座標セット
 	void SetPos(const Math::Vector3 _pos) { m_pos = _pos; }

@@ -1,11 +1,12 @@
 ﻿#include "TPSCamera.h"
 #include "../../../Scene/SceneManager.h"
+#include "../../Character/Player/Player.h"
 
 void TPSCamera::PostUpdate()
 {
 	// ターゲットの行列(有効な場合利用する)
 	Math::Matrix								targetMat	= Math::Matrix::Identity;
-	const std::shared_ptr<const KdGameObject>	spTarget	= m_wpTarget.lock();
+	const std::shared_ptr<const Player>	spTarget	= m_wpTarget.lock();
 	if (spTarget)
 	{
 		targetMat = Math::Matrix::CreateTranslation(spTarget->GetPos());
@@ -141,6 +142,18 @@ void TPSCamera::Init()
 void TPSCamera::Reset()
 {
 	m_pauseFlg = false;
+}
+
+void TPSCamera::SetPauseFlg(bool _pauseFlg)
+{
+	if (m_wpTarget.expired() == false)
+	{
+		// プレイヤーが生きている時だけポーズ処理をする
+		if (m_wpTarget.lock()->GetAliveFlg() == true)
+		{
+			m_pauseFlg = _pauseFlg;
+		}
+	}
 }
 
 void TPSCamera::GoalProcess()

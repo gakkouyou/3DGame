@@ -71,6 +71,10 @@ const KdGameObject::ObjectType TerrainController::GetObjectType() const
 	{
 		return m_wpTargetObject.lock()->GetObjectType();
 	}
+	else
+	{
+		return KdGameObject::ObjectType::None;
+	}
 }
 
 const std::string TerrainController::GetObjectName() const
@@ -186,8 +190,8 @@ void TerrainController::ConfirmedObject()
 		else
 		{
 			// 何個目に上書きするかを格納する変数
-			int num;
-			for (int i = 0; i < m_dataList.size(); i++)
+			int num = 0;
+			for (int i = 0; i < (int)m_dataList.size(); i++)
 			{
 				if (m_dataList[i].name == spTargetObject->GetObjectName())
 				{
@@ -213,7 +217,7 @@ void TerrainController::DeleteObject()
 	if (!m_wpTargetObject.expired())
 	{
 		// データ配列からも削除する
-		for (int i = 0; i < m_dataList.size(); i++)
+		for (int i = 0; i < (int)m_dataList.size(); i++)
 		{
 			if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
 			{

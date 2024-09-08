@@ -272,11 +272,17 @@ void Player::Update()
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
 
-	//if (!m_effectFlg)
-	//{
-	//	m_effectFlg = true;
-	//	KdEffekseerManager::GetInstance().Play("test.efkefc", { 0, 3, 0 }, { 90.0f, 90.0f, 0 }, 0.1f, 0.5f, true);
-	//}
+	// エフェクシア座標追尾===========================================================
+	if (!m_wpEffekseer.expired())
+	{
+		m_wpEffekseer.lock()->SetPos(m_pos);
+		if (!m_wpEffekseer.lock()->IsPlaying() == true)
+		{
+			m_wpEffekseer.reset();
+		}
+	}
+	// ===============================================================================
+
 
 	// 当たり判定
 	HitJudge();
@@ -466,7 +472,7 @@ void Player::Init()
 	// 移動速度
 	m_moveSpeed = 0.1f;
 
-	m_pos = { 0, 0.3, 0 };
+	m_pos = { 0, 0.3f, 0 };
 
 	// ジャンプ力
 	m_jumpPow = 0.125f;
@@ -542,7 +548,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos = { 0, 0.3, 0 };
+	m_pos = { 0, 0.3f, 0 };
 	
 	// 生存フラグ
 	m_aliveFlg = true;
@@ -754,13 +760,13 @@ void Player::HitJudgeGround()
 		// めり込んだ距離
 		float maxOverLap = 0.0f;
 
-		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
+		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
 
 		if (hitFlg == false)
 		{
 			centerPos = m_pos;
 			centerPos.y += radius + 0.25f;
-			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
 		}
 
 		Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
@@ -786,17 +792,17 @@ void Player::HitJudgeGround()
 void Player::HitJudgeEvent()
 {
 	Math::Vector3 spherePos = m_pos;
-	spherePos.y += 6.f;
+	spherePos.y += 1.0f;
 
 	bool hitFlg = false;
-	hitFlg = SphereHitJudge(spherePos, 2.0f, KdCollider::TypeEvent, false);
+	hitFlg = SphereHitJudge(spherePos, 0.25f, KdCollider::TypeEvent, true);
 
 	if (hitFlg)
 	{
 		// 当たったオブジェクト
 		std::shared_ptr<KdGameObject> spHitObject;
 
-		// 地面を探す
+		// 探す
 		for (auto& hitObject : m_wpHitObjectList)
 		{
 			if (!hitObject.expired())
@@ -806,6 +812,16 @@ void Player::HitJudgeEvent()
 					spHitObject = hitObject.lock();
 					break;
 				}
+			}
+		}
+		if (spHitObject->GetObjectType() == ObjectType::HealItem)
+		{
+			m_life += 1;
+			// 回復エフェクト
+			if (!m_effectFlg)
+			{
+				m_effectFlg = true;
+				m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
 			}
 		}
 		if (spHitObject)

@@ -193,6 +193,12 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\FencePillar">
       <UniqueIdentifier>{88533c81-3b36-4e08-81a6-615023f50c71}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\Item">
+      <UniqueIdentifier>{5742a779-8f50-499f-a727-1937e9ee9223}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\Item\Heart">
+      <UniqueIdentifier>{b5a0a909-6225-49b7-a09a-2bf2c3d70d03}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -459,6 +465,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.h">
       <Filter>Src\Application\GameObject\Terrain\Object\FencePillar</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\Heart\Heart.h">
+      <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -694,6 +703,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\FencePillar</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\Heart\Heart.cpp">
+      <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

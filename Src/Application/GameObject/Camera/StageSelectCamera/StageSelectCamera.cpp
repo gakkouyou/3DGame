@@ -1,5 +1,6 @@
 ﻿#include "StageSelectCamera.h"
 #include "../../../Scene/SceneManager.h"
+#include "../../Character/Player/Player.h"
 
 void StageSelectCamera::PostUpdate()
 {

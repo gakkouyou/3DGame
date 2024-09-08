@@ -18,7 +18,7 @@ public:
 
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
-	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+	void SetPauseFlg(bool _pauseFlg)override;
 
 private:
 	// マップエディタモードの際に使用する座標

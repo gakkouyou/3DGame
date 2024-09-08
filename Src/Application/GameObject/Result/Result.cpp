@@ -58,7 +58,7 @@ void Result::DrawSprite()
 		{
 			Math::Color color = { 1, 1, 1, m_clear.alpha };
 			Math::Vector2 size = { (float)m_clear.spTex->GetWidth(), (float)m_clear.spTex->GetHeight() };
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y, nullptr, &color);
 		}
 	}
 	
@@ -66,7 +66,7 @@ void Result::DrawSprite()
 	{
 		if (m_miss.spTex)
 		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_miss.spTex, m_miss.pos.x, m_miss.pos.y);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_miss.spTex, (int)m_miss.pos.x, (int)m_miss.pos.y);
 		}
 	}
 }

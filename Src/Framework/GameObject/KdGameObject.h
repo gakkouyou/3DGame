@@ -89,6 +89,8 @@ public:
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
 
+		HealItem,		// 回復アイテム
+
 		None,			// ない
 	};
 
@@ -104,10 +106,10 @@ public:
 	};
 
 	// オブジェクトのタイプをゲットする
-	ObjectType GetObjectType() const { return m_objectType; }
+	const ObjectType GetObjectType() const { return m_objectType; }
 
 	// 大まかなオブジェクトのタイプをゲットする
-	BaseObjectType GetBaseObjectType() const { return m_baseObjectType; }
+	const BaseObjectType GetBaseObjectType() const { return m_baseObjectType; }
 
 	// オブジェクトの名前をセットする
 	void SetObjectName(const std::string _objectName) { m_objectName = _objectName; }
@@ -115,7 +117,7 @@ public:
 	const std::string GetObjectName() const { return m_objectName; }
 
 	// 更新を全て止める
-	virtual void SetPauseFlg(bool _pauseFlg) {}
+	virtual void SetPauseFlg([[maybe_unused]] bool _pauseFlg) {}
 
 protected:
 
@@ -140,7 +142,7 @@ protected:
 	std::unique_ptr<KdDebugWireFrame> m_pDebugWire = nullptr;
 
 	// オブジェクトのタイプ
-	ObjectType m_objectType		= ObjectType::None;
+	ObjectType m_objectType			= ObjectType::None;
 
 	// 大まかなオブジェクトのタイプ
 	BaseObjectType m_baseObjectType = BaseObjectType::None;

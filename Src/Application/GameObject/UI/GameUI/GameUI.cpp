@@ -13,7 +13,7 @@ void GameUI::DrawSprite()
 		{
 			for (int i = 0; i < m_wpPlayer.lock()->GetLife(); i++)
 			{
-				KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, m_life.pos.x + i * m_lifeTexInterval, m_life.pos.y);
+				KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, int(m_life.pos.x + i * m_lifeTexInterval), (int)m_life.pos.y);
 			}
 		}
 	}

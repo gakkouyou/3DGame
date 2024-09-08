@@ -56,7 +56,7 @@ void SceneChange::DrawSprite()
 	KdShaderManager::Instance().ChangeBlendState(KdBlendState::Alpha);
 
 	// ステンシル画像
-	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spCircleTex, 0, 0, m_size, m_size);
+	KdShaderManager::Instance().m_spriteShader.DrawTex(m_spCircleTex, 0, 0, (int)m_size, (int)m_size);
 
 	// 描画先をバックバッファに切り替え
 	KdDirect3D::Instance().WorkDevContext()->OMSetRenderTargets(1, KdDirect3D::Instance().WorkBackBuffer()->WorkRTViewAddress(), KdDirect3D::Instance().WorkZBuffer()->WorkDSView());

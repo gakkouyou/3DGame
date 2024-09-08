@@ -30,7 +30,7 @@ public:
 	};
 
 	// 地形のパラメータセット関数
-	virtual void SetParam(Param _param) {}
+	virtual void SetParam([[maybe_unused]] Param _param) {}
 	// 地形のパラメータゲット関数
 	const Param GetParam() const { return m_param; }
 

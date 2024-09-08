@@ -12,6 +12,8 @@
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
 
+#include "../../GameObject/EventObject/Heart/Heart.h"
+
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
@@ -50,7 +52,7 @@ void GameScene::Event()
 		std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
 		if (spPlayer)
 		{
-			if (spPlayer->GetAlive() == false)
+			if (spPlayer->GetAliveFlg() == false)
 			{
 				if (!m_wpResult.expired())
 				{
@@ -178,16 +180,16 @@ void GameScene::Init()
 {
 	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
 
-	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
+	//KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
 
 	// ②フォグ(霧)                                                 ↓距離 ↓高さ
 	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(true, true);
 
 	// 距離フォグ                                                        ↓色RGB      ↓密度
-	KdShaderManager::Instance().WorkAmbientController().SetDistanceFog({ 0, 0, 0.5 }, 0.001);
+	//KdShaderManager::Instance().WorkAmbientController().SetDistanceFog({ 0, 0, 0.5 }, 0.001);
 
 	// 高さフォグ                                                    ↓色       ↓上↓下↓距離
-	KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 0, 0, 0.5 }, 10, -10, 0.001f);
+	//KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 0, 0, 0.5 }, 10, -10, 0.001f);
 
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
@@ -263,6 +265,10 @@ void GameScene::Init()
 	ui->SetPlayer(player);
 
 
+	// 回復アイテム
+	std::shared_ptr<Heart> heart = std::make_shared<Heart>();
+	heart->Init();
+	AddObject(heart);
 
 
 
@@ -454,11 +460,11 @@ void GameScene::CSVWriter()
 {
 	std::ofstream ofs("Asset/Data/CSV/StageInfo.csv");
 
-	for (int i=0; i < m_stageInfoList.size(); i++)
+	for (int i = 0; i < (int)m_stageInfoList.size(); i++)
 	{
 		ofs << m_stageInfoList[i];
-		
-		if (i != m_stageInfoList.size() - 1)
+
+		if (i != (int)m_stageInfoList.size() - 1)
 		{
 			ofs << ",";
 		}

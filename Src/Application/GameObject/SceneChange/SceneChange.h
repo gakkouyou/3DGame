@@ -44,8 +44,8 @@ private:
 	// 最小サイズ
 	const float m_minSize	= 0;
 
-	float		m_stayTime	= 0;
-	float		m_stayCnt	= 0;
+	int			m_stayTime	= 0;
+	int			m_stayCnt	= 0;
 
 	// 始まるフラグ
 	bool m_startFlg = false;

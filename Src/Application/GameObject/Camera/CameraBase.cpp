@@ -21,7 +21,7 @@ void CameraBase::Init()
 	KdEffekseerManager::GetInstance().SetCamera(m_spCamera);
 }
 
-void CameraBase::SetTarget(const std::shared_ptr<KdGameObject>& target)
+void CameraBase::SetTarget(const std::shared_ptr<Player>& target)
 {
 	if (!target) { return; }
 
@@ -38,6 +38,7 @@ void CameraBase::UpdateRotateByMouse()
 	_mouseMove.x = _nowPos.x - m_FixMousePos.x;
 	_mouseMove.y = _nowPos.y - m_FixMousePos.y;
 
+	// カーソルを元の座標に戻す
 	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
 
 	// 実際にカメラを回転させる処理(0.15はただの補正値)

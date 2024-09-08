@@ -21,5 +21,5 @@ private:
 	const float m_moveSpeed = 0.6f;
 
 	// キーフラグ
-	bool m_shiftFlg;
+	bool m_shiftFlg = false;
 };

@@ -102,6 +102,8 @@ private:
 
 	// エフェクシア用フラグ
 	bool m_effectFlg = false;
+	// エフェクシア用ウィークポインタ
+	std::weak_ptr<KdEffekseerObject> m_wpEffekseer;
 
 	// ゴールのフラグ
 	bool m_goalFlg	= false;

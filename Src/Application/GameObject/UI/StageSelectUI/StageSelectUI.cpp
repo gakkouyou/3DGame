@@ -74,7 +74,7 @@ void StageSelectUI::DrawSprite()
 		if (m_space.spTex)
 		{
 			Math::Color color = { 1, 1, 1, m_triangle.alpha };
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_space.spTex, m_space.pos.x, m_space.pos.y, nullptr, &color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_space.spTex, (int)m_space.pos.x, (int)m_space.pos.y, nullptr, &color);
 		}
 	}
 
@@ -83,7 +83,7 @@ void StageSelectUI::DrawSprite()
 	{
 		if (m_clear.spTex)
 		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, m_clear.pos.x, m_clear.pos.y);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y);
 		}
 	}
 

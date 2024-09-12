@@ -63,8 +63,6 @@ void FlyEnemy::Init()
 	// 行列を作っておく
 	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 
-	m_param.moveArea = 5.0f;
-
 	// スピード
 	m_moveSpeed = 5.f;
 

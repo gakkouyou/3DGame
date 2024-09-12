@@ -128,8 +128,11 @@ bool KdCollider::Intersects(const BoxInfo& targetShape, const Math::Matrix& owne
 		KdCollider::CollisionResult tmpRes;
 		KdCollider::CollisionResult* pTmpRes = pResults ? &tmpRes : nullptr;
 
-		bool isIntersects = (targetShape.CheckBoxType(BoxInfo::BoxType::BoxAABB)) ? collisionShape.second->Intersects(targetShape.m_Abox, ownerMatrix, pTmpRes) :
-			collisionShape.second->Intersects(targetShape.m_Obox, ownerMatrix, pTmpRes);
+		//bool isIntersects = (targetShape.CheckBoxType(BoxInfo::BoxType::BoxAABB)) ? collisionShape.second->Intersects(targetShape.m_Abox, ownerMatrix, pTmpRes) :
+		//	collisionShape.second->Intersects(targetShape.m_Obox, ownerMatrix, pTmpRes);
+
+		bool isIntersects = collisionShape.second->Intersects(targetShape.m_Abox, ownerMatrix, pTmpRes);
+
 		if (isIntersects)
 		{
 			isHit = true;
@@ -442,9 +445,63 @@ bool KdModelCollision::Intersects(const DirectX::BoundingSphere& target, const M
 // 判定回数は メッシュの個数 x 各メッシュのポリゴン数 計算回数がモデルのデータ依存のため処理効率は不安定
 // 単純に計算回数が多くなる可能性があるため重くなりがち
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-bool KdModelCollision::Intersects(const DirectX::BoundingBox& /*target*/, const Math::Matrix& /*world*/, KdCollider::CollisionResult* /*pRes*/)
+bool KdModelCollision::Intersects(const DirectX::BoundingBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes)
 {
 	// TODO: 当たり計算は各自必要に応じて拡張して下さい
+		// 当たり判定が無効 or 形状が解放済みなら判定せず返る
+	if (!m_enable || !m_shape) { return false; }
+
+	std::shared_ptr<KdModelData> spModelData = m_shape->GetData();
+
+	// データが無ければ判定不能なので返る
+	if (!spModelData) { return false; }
+
+	CollisionMeshResult nearestResult;
+
+	bool isHit = false;
+
+	const std::vector<KdModelData::Node>& dataNodes = spModelData->GetOriginalNodes();
+	const std::vector<KdModelWork::Node>& workNodes = m_shape->GetNodes();
+
+	for (int index : spModelData->GetCollisionMeshNodeIndices())
+	{
+		const KdModelData::Node& dataNode = dataNodes[index];
+		const KdModelWork::Node& workNode = workNodes[index];
+
+		if (!dataNode.m_spMesh) { continue; }
+
+		CollisionMeshResult tmpResult;
+		CollisionMeshResult* pTmpResult = pRes ? &tmpResult : nullptr;
+
+		if (!MeshIntersect(*dataNode.m_spMesh, target,
+			workNode.m_worldTransform * world, pTmpResult))
+		{
+			continue;
+		}
+
+		// 詳細リザルトが必要無ければ即結果を返す
+		if (!pRes) { return true; }
+
+		isHit = true;
+
+		if (tmpResult.m_overlapDistance > nearestResult.m_overlapDistance)
+		{
+			nearestResult = tmpResult;
+		}
+	}
+
+	if (pRes && isHit)
+	{
+		// 最も近くで当たったヒット情報をコピーする
+		pRes->m_hitPos = nearestResult.m_hitPos;
+
+		pRes->m_hitDir = nearestResult.m_hitDir;
+
+		pRes->m_overlapDistance = nearestResult.m_overlapDistance;
+	}
+
+	return isHit;
+
 	return false;
 }
 

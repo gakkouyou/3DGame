@@ -82,9 +82,10 @@ public:
 		NormalWall,		// 触れても何も起きない壁
 		MoveGround,		// 動く床
 		RotationGround,	// 回転する床
-		FenceBar,			// 柵
-		FencePillar,		// 片方柵
+		FenceBar,		// 柵
+		FencePillar,	// 片方柵
 		DropGround,		// 落ちる床
+		Propeller,		// プロペラ
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵

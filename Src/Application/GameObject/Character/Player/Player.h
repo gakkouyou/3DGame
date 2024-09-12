@@ -171,4 +171,13 @@ private:
 		bool		drawFlg			= true;		// 描画するフラグ
 	};
 	Damage m_damage;
+
+
+
+
+
+
+
+
+	bool flg[4] = { false, false, false, false };
 };

@@ -27,3 +27,7 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingSphere& sphere,
 // 点 vs 三角形面との最近接点を求める
 void KdPointToTriangle(const DirectX::XMVECTOR& point, const DirectX::XMVECTOR& v1,
 	const DirectX::XMVECTOR& v2, const DirectX::XMVECTOR& v3, DirectX::XMVECTOR& nearestPoint);
+
+// ボックスの当たり判定
+bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box,
+	const DirectX::XMMATRIX& matrix, CollisionMeshResult* pResult = nullptr);

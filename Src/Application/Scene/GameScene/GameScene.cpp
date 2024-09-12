@@ -18,6 +18,8 @@
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 
+#include "../../GameObject/Terrain/Object/Propeller/Propeller.h"
+
 #include "../../main.h"
 
 void GameScene::Event()
@@ -272,6 +274,10 @@ void GameScene::Init()
 
 
 
+	// プロペラ
+	std::shared_ptr<Propeller> propeller = std::make_shared<Propeller>();
+	propeller->Init();
+	AddObject(propeller);
 
 
 

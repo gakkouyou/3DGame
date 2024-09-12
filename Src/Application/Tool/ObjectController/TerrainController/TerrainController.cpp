@@ -12,6 +12,7 @@
 #include "../../../GameObject/Terrain/Object/FenceBar/FenceBar.h"
 #include "../../../GameObject/Terrain/Object/FencePillar/FencePillar.h"
 #include "../../../GameObject/Terrain/Ground/DropGround/DropGround.h"
+#include "../../../GameObject/Terrain/Object/Propeller/Propeller.h"
 
 void TerrainController::Update()
 {
@@ -171,6 +172,15 @@ void TerrainController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.DropGround);
 				break;
+
+				// プロペラの場合
+			case ObjectType::Propeller:
+				// タイプのセット
+				data.type = "Propeller";
+				// カウントを進める
+				m_objectCount.Propeller++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.Propeller);
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -297,6 +307,16 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	case KdGameObject::ObjectType::DropGround:
 	{
 		std::shared_ptr<DropGround> object = std::make_shared<DropGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// プロペラ
+	case KdGameObject::ObjectType::Propeller:
+	{
+		std::shared_ptr<Propeller> object = std::make_shared<Propeller>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -464,6 +484,29 @@ void TerrainController::BeginCreateObject()
 			param.scale		= data.scale;		// 拡縮
 			param.speed		= data.speed;		// スピード
 			param.stayTime	= data.stayTime;	// 待機時間
+			// 情報をセットする
+			object->SetParam(param);
+			m_wpTerrainList.push_back(object);
+		}
+		// プロペラ
+		else if (data.type == "Propeller")
+		{
+			std::shared_ptr<Propeller> object = std::make_shared<Propeller>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.Propeller++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.Propeller);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// パラメータセット
+			param.startPos = data.pos;		// 座標
+			param.scale = data.scale;		// 拡縮
+			param.speed	= data.speed;		// スピード
+			param.degAng = data.degAng;		// 回転角度
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);

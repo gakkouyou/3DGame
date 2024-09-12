@@ -170,6 +170,13 @@ void DebugWindow::TerrainWindow()
 				m_terrainParam.stayTime = 60;
 			}
 
+			// プロペラ
+			if (ImGui::Button("Propeller"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Propeller);
+			}
+
 			// 座標
 			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 0.25f);
 			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 0.25f);

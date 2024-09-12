@@ -2,10 +2,21 @@
 
 void Heart::Update()
 {
+
+}
+
+void Heart::GenerateDepthMapFromLight()
+{
+	if (!m_aliveFlg) return;
+	if (m_spModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	}
 }
 
 void Heart::DrawLit()
 {
+	if (!m_aliveFlg) return;
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
@@ -14,6 +25,7 @@ void Heart::DrawLit()
 
 void Heart::DrawBright()
 {
+	if (!m_aliveFlg) return;
 	if (m_spModel)
 	{
 		Math::Color color = { 0.5f, 0.5f, 0.5f, 1.0f };
@@ -48,5 +60,12 @@ void Heart::Init()
 
 void Heart::OnHit()
 {
-	m_isExpired = true;
+	m_aliveFlg = false;
+	m_pCollider->SetEnable("Heart", false);
+}
+
+void Heart::Reset()
+{
+	m_aliveFlg = true;
+	m_pCollider->SetEnable("Heart", true);
 }

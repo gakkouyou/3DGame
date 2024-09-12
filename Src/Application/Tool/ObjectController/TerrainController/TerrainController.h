@@ -67,9 +67,10 @@ private:
 		int BoundGround		= 0;
 		int MoveGround		= 0;
 		int RotationGround	= 0;
-		int FencePillar			= 0;
+		int FencePillar		= 0;
 		int FenceBar		= 0;
 		int DropGround		= 0;
+		int Propeller		= 0;
 	};
 
 	Count m_objectCount;

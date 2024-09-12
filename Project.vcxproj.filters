@@ -199,6 +199,9 @@
     <Filter Include="Src\Application\GameObject\EventObject\Item\Heart">
       <UniqueIdentifier>{b5a0a909-6225-49b7-a09a-2bf2c3d70d03}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Propeller">
+      <UniqueIdentifier>{2cdaa582-f7ab-491b-a7b3-390efcf944df}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -468,6 +471,9 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\Heart\Heart.h">
       <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -706,6 +712,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\Heart\Heart.cpp">
       <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

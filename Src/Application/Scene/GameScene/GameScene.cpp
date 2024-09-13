@@ -277,7 +277,7 @@ void GameScene::Init()
 	// プロペラ
 	std::shared_ptr<Propeller> propeller = std::make_shared<Propeller>();
 	propeller->Init();
-	AddObject(propeller);
+	//AddObject(propeller);
 
 
 

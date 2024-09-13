@@ -816,6 +816,7 @@ static bool HitCheck(Math::Vector3& finalPos, Math::Vector3& finalHitPos,
 	vec = keepVec;
 	vec.Normalize();
 
+	// 押し戻し
 	finalPos -= vec * radius;
 
 	finalHitPos = nearPoint;

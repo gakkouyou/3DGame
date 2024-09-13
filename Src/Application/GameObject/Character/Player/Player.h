@@ -82,7 +82,7 @@ private:
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
 
 	// スケール
-	const float m_scale = 0.25f;
+	const float m_scale = 8.f;
 
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
 	struct HitMoveTerrain
@@ -172,7 +172,8 @@ private:
 	};
 	Damage m_damage;
 
-
+	// 移動前の座標
+	Math::Vector3 m_oldPos;
 
 
 

@@ -299,7 +299,7 @@ void EnemyController::BeginCreateObject()
 				object->SetTarget(m_wpPlayer.lock());
 			}
 			object->Init();
-			SceneManager::Instance().AddObject(object);
+			//SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.NormalEnemy++;
 			// 名前の数値をリセットする

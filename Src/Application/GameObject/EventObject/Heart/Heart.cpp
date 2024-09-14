@@ -42,7 +42,7 @@ void Heart::Init()
 		m_spModel->Load("Asset/Models/EventObject/Item/Heart/heart.gltf");
 	}
 
-	m_mWorld.Translation({ 0, 2, 3 });
+	m_mWorld.Translation({ 0, 4, 3 });
 
 	// コライダー
 	if (!m_pCollider)

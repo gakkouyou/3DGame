@@ -10,7 +10,7 @@
 void Player::Update()
 {
 	// デバッグモード中は更新しない
-	if (SceneManager::Instance().GetDebug()) return;
+	if (SceneManager::Instance().GetDebug()) m_stopFlg = true;
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
@@ -194,6 +194,34 @@ void Player::Update()
 		m_walkSoundFlg = false;
 	}
 
+	if (m_situationType != oldSituationType)
+	{
+		// 止まっている状態→歩き
+		if (m_situationType & SituationType::Walk)
+		{
+			// 空中ではアニメーションしない
+			if (!(m_situationType & SituationType::Air))
+			{
+				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), true);
+
+				// 歩く音を鳴らす状態にする
+				m_walkSoundFlg = true;
+			}
+		}
+		// 止まっている状態→歩き
+		if (m_situationType & SituationType::Run)
+		{
+			// 空中ではアニメーションしない
+			if (!(m_situationType & SituationType::Air))
+			{
+				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Run"), true);
+
+				// 歩く音を鳴らす状態にする
+				m_walkSoundFlg = true;
+			}
+		}
+	}
+
 	if (m_stopFlg == false)
 	{
 		// ジャンプ
@@ -214,40 +242,6 @@ void Player::Update()
 						m_jumpSound.wpSound.lock()->Play();
 						m_jumpSound.flg = true;
 					}
-				}
-			}
-		}
-	}
-
-	if (m_situationType != oldSituationType)
-	{
-		// 止まっている状態→歩き
-		if (m_situationType & SituationType::Walk)
-		{
-			if ((oldSituationType & SituationType::Stop) || (oldSituationType & SituationType::Run))
-			{
-				// 空中ではアニメーションしない
-				if (!(m_situationType & SituationType::Air))
-				{
-					m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), true);
-
-					// 歩く音を鳴らす状態にする
-					m_walkSoundFlg = true;
-				}
-			}
-		}
-		// 止まっている状態→歩き
-		if (m_situationType & SituationType::Run)
-		{
-			if ((oldSituationType & SituationType::Stop) || (oldSituationType & SituationType::Walk))
-			{
-				// 空中ではアニメーションしない
-				if (!(m_situationType & SituationType::Air))
-				{
-					m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Run"), true);
-
-					// 歩く音を鳴らす状態にする
-					m_walkSoundFlg = true;
 				}
 			}
 		}
@@ -306,7 +300,9 @@ void Player::Update()
 		//	m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Idle"), true);
 		//}
 	//}
-	if (m_situationType == SituationType::Stop)
+
+	// 完全に停止している場合、アニメーションをIdleに切り替える
+	if ((m_situationType ^ SituationType::Stop) == 0)
 	{
 		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Idle"), true);
 	}
@@ -379,7 +375,23 @@ void Player::Update()
 		{
 			// ジャンプ音のフラグをfalseに
 			m_jumpSound.flg = false;
+
+			// 地面に触れた瞬間に歩きor走りをしていたらアニメーションを開始する
+			if (m_situationType & SituationType::Walk)
+			{
+				m_spAnimator->SetAnimation(m_spModel->GetAnimation("Walk"), true);
+			}
+			else if (m_situationType & SituationType::Run)
+			{
+				m_spAnimator->SetAnimation(m_spModel->GetAnimation("Run"), true);
+			}
 		}
+	}
+
+	// ジャンプをせず空中にいる場合
+	if ((m_situationType & SituationType::Air) && ((m_situationType & Jump) == 0))
+	{
+		m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), false);
 	}
 
 	// 何の地面に乗っているかによって、音を変える
@@ -512,7 +524,7 @@ void Player::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
-		if (m_damage.drawFlg)
+		if (m_damage.drawFlg || m_aliveFlg == false)
 		{
 			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 		}
@@ -523,7 +535,7 @@ void Player::DrawLit()
 {
 	if (m_spModel)
 	{
-		if (m_damage.drawFlg)
+		if (m_damage.drawFlg || m_aliveFlg == false)
 		{
 			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 		}
@@ -705,39 +717,37 @@ void Player::HitJudgeGround()
 		// 当たっていなかったら右足からのレイ判定をする
 		if (hitFlg == false)
 		{
-			//// 右足の場所
-			//nodePos = m_spModel->FindNode("RightLeg")->m_localTransform.Translation();
-			//nodePos *= m_scale;
-			//// 回転処理
-			//startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle));
-			//startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle));
-			//// 段差許容
-			//startPos.y = m_enableStepHeight;
-			//// 座標足しこみ
-			//startPos += m_pos;
-			//// 右足からのレイ判定
-			//hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
+			// 右足の場所
+			nodePos = m_spModel->FindNode("Right")->m_worldTransform.Translation();
+			// 回転処理
+			startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle));
+			startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle));
+			// 段差許容
+			startPos.y = m_enableStepHeight;
+			// 座標足しこみ
+			startPos += m_pos;
+			// 右足からのレイ判定
+			hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
 
-			//m_pDebugWire->AddDebugSphere(startPos, 0.5f);
+			m_pDebugWire->AddDebugSphere(startPos, 0.1f);
 		}
 
 
 		// 当たっていなかったら左足からのレイ判定をする
 		if (hitFlg == false)
 		{
-			//// 左足の場所
-			//nodePos = m_spModel->FindNode("LeftLeg")->m_localTransform.Translation();
-			//nodePos *= m_scale;
-			//// 回転処理
-			//startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle));
-			//startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle));
-			//// 段差許容
-			//startPos.y = m_enableStepHeight;
-			//// 座標足しこみ
-			//startPos += m_pos;
-			//// 左足からのレイ判定
-			//hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
-			//m_pDebugWire->AddDebugSphere(startPos, 0.5f, kBlueColor);
+			// 左足の場所
+			nodePos = m_spModel->FindNode("Left")->m_worldTransform.Translation();
+			// 回転処理
+			startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle));
+			startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle));
+			// 段差許容
+			startPos.y = m_enableStepHeight;
+			// 座標足しこみ
+			startPos += m_pos;
+			// 左足からのレイ判定
+			hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
+			m_pDebugWire->AddDebugSphere(startPos, 0.1f, kBlueColor);
 		}
 		if (hitFlg)
 		{
@@ -760,8 +770,9 @@ void Player::HitJudgeGround()
 					m_pos.y = hitPos.y;
 					// 重力
 					m_gravity = -0.25f;
-					//// 空中にいない
-					//Application::Instance().m_log.AddLog("Bound\n");
+
+					// ジャンプ状態にする
+					m_situationType |= SituationType::Jump;
 
 					// 跳ねた時の音を鳴らす
 					if (m_boundSound.flg == false)
@@ -772,6 +783,7 @@ void Player::HitJudgeGround()
 							m_boundSound.flg = true;
 						}
 					}
+					m_spAnimator->SetAnimation(m_spModel->GetAnimation("Jump"), false);
 					break;
 
 					// 動く床に乗った場合
@@ -788,7 +800,6 @@ void Player::HitJudgeGround()
 					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					// 動く床に当たったかどうかのフラグ
 					m_moveGround.hitFlg = true;
-					//Application::Instance().m_log.AddLog("Move\n");
 					break;
 
 					// 回る床に乗った場合
@@ -802,7 +813,6 @@ void Player::HitJudgeGround()
 					m_situationType &= (~SituationType::Jump);
 					// 当たったかどうか
 					m_rotationGround.hitFlg = true;
-					//Application::Instance().m_log.AddLog("Rot\n");
 					break;
 
 				case ObjectType::Propeller:
@@ -823,7 +833,6 @@ void Player::HitJudgeGround()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
-					//Application::Instance().m_log.AddLog("Normal\n");
 					break;
 				}
 			}
@@ -837,53 +846,53 @@ void Player::HitJudgeGround()
 
 	// 地面(壁)とのスフィア判定
 	{
-		//// 方向
-		//std::list<Math::Vector3> hitDirList;
-		//// スフィアの中心座標
-		//Math::Vector3 centerPos = m_pos;
-		//// スフィアの半径
-		//float radius = 0.25f;
-		//centerPos.y += radius + 0.01f;
+		// 方向
+		std::list<Math::Vector3> hitDirList;
+		// スフィアの中心座標
+		Math::Vector3 centerPos = m_pos;
+		// スフィアの半径
+		float radius = 0.25f;
+		centerPos.y += radius + 0.01f;
 
-		//// 当たったかどうかのフラグ
-		//bool hitFlg = false;
-		//// めり込んだ距離
-		//float maxOverLap = 0.0f;
+		// 当たったかどうかのフラグ
+		bool hitFlg = false;
+		// めり込んだ距離
+		float maxOverLap = 0.0f;
 
-		//hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-		//if (hitFlg == false)
-		//{
-		//	centerPos.y += 0.5f;
-		//	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-		//}
-		//if (hitFlg == false)
-		//{
-		//	centerPos.y += 0.5f;
-		//	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-		//}
-		//if (hitFlg == false)
-		//{
-		//	centerPos.y += 0.5f;
-		//	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-		//}
+		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
 
-		//Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
+		Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
 
-		//// 当たった場合
-		//if (hitFlg)
-		//{
-		//	Math::Vector3 dir;
+		// 当たった場合
+		if (hitFlg)
+		{
+			Math::Vector3 dir;
 
-		//	for (auto& hitDir : hitDirList)
-		//	{
-		//		dir += hitDir;
-		//	}
+			for (auto& hitDir : hitDirList)
+			{
+				dir += hitDir;
+			}
 
-		//	// Y軸の補正はなし
-		//	dir.y = 0;
-		//	dir.Normalize();
-		//	m_pos += dir * maxOverLap;
-		//}
+			// Y軸の補正はなし
+			dir.y = 0;
+			dir.Normalize();
+			m_pos += dir * maxOverLap;
+		}
 	}
 
 	// ボックス判定
@@ -977,95 +986,78 @@ void Player::HitJudgeEvent()
 {	
 	// ボックス判定
 	{
-		//{
-			// ボックス判定
-	//	KdCollider::BoxInfo boxInfo;
-	//	// 右前上のノード
-	//	const KdModelWork::Node* rightForwardUpNode = m_spModel->FindNode("RightForwardUp");
-	//	// 左後上のノード
-	//	const KdModelWork::Node* leftBackwardUpNode = m_spModel->FindNode("LeftBackwardUp");
-	//	// キャラクターの高さ
-	//	float charaHighLength = rightForwardUpNode->m_localTransform.Translation().y * m_scale;
-	//	// 中心座標(キャラクターの真ん中)
-	//	boxInfo.m_Abox.Center = m_pos;
-	//	boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
-	//	// キャラクターの横幅(半径)
-	//	float charaSideRadius = abs(rightForwardUpNode->m_localTransform.Translation().x) * m_scale;
-	//	// キャラクターの奥行幅(直径)
-	//	float charaZLength = abs(rightForwardUpNode->m_localTransform.Translation().z - leftBackwardUpNode->m_localTransform.Translation().z) * m_scale;
-	//	// ボックスのサイズ
-	//	//boxInfo.m_Abox.Extents = { 5, 5, 5 };
-	//	boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2 - 0.01f, charaZLength / 2 };
-	//	// 回転？
-	//	//boxInfo.m_Abox.Orientation = { 0, 0, 0, 0 };
-	//	//boxInfo.m_type = KdCollider::TypeGround;
-	//	// 当たり判定をするタイプ
-	//	boxInfo.m_type |= KdCollider::TypeEvent;
+		// ボックス判定
+		KdCollider::BoxInfo boxInfo;
+		// 右前上のノード
+		Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
+		// 左後上のノード
+		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
+		// キャラクターの高さ
+		float charaHighLength = rightBackUpPos.y;
+		// 中心座標(キャラクターの真ん中)
+		boxInfo.m_Abox.Center = m_pos;
+		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
+		// キャラクターの横幅(半径)
+		float charaSideRadius = abs(rightBackUpPos.x);
+		// キャラクターの奥行幅(直径)
+		float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
+		// ボックスのサイズ
+		//boxInfo.m_Abox.Extents = { 5, 5, 5 };
+		boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2, charaZLength / 2 };
+		// 当たり判定をするタイプ
+		boxInfo.m_type |= KdCollider::TypeEvent;
 
-	//	//Math::Vector3 center = boxInfo.m_Abox.Center;
-	//	//Math::Vector3 size = boxInfo.m_Abox.Extents;
-
-	//	//float left = center.x - size.x;	// 左端
-	//	//float right = center.x + size.x;// 右端
-
-	//	//float up = center.y + size.y;	// 上端
-	//	//float down = center.y - size.y;	// 下端
-
-	//	//float front = center.z + size.z;// 前面(奥)
-	//	//float back = center.z - size.z;	// 後ろ(手前)
-
-	//	//Application::Instance().m_log.AddLog("\ncenter.x:%.4f y:%.4f z:%.4f", center.x, center.y, center.z);
-	//	//Application::Instance().m_log.AddLog("\nleft:%.4f right:%.4f\n", left, right);
-	//	//Application::Instance().m_log.AddLog("up:%.4f down:%.4f\n", up, down);
-	//	//Application::Instance().m_log.AddLog("front:%.4f back:%.4f\n", front, back);
+		m_pDebugWire->AddDebugSphere(rightBackUpPos + m_pos, 0.1f);
+		m_pDebugWire->AddDebugSphere(leftFrontUpPos + m_pos, 0.1f);
+		m_pDebugWire->AddDebugBox(Math::Matrix::CreateTranslation(boxInfo.m_Abox.Center), boxInfo.m_Abox.Extents);
 
 
-	//	// 当たり判定の結果格納リスト
-	//	std::list<KdCollider::CollisionResult> resultList;
+		// 当たり判定の結果格納リスト
+		std::list<KdCollider::CollisionResult> resultList;
 
-	//	bool hitFlg = false;
+		bool hitFlg = false;
 
-	//	for (auto& obj : SceneManager::Instance().GetObjList())
-	//	{
-	//		if (obj->Intersects(boxInfo, &resultList))
-	//		{
-	//			m_wpHitObjectList.push_back(obj);
-	//			hitFlg = true;
-	//		}
-	//	}
+		for (auto& obj : SceneManager::Instance().GetObjList())
+		{
+			if (obj->Intersects(boxInfo, &resultList))
+			{
+				m_wpHitObjectList.push_back(obj);
+				hitFlg = true;
+			}
+		}
 
-	//	if (hitFlg)
-	//	{
-	//		// 当たったオブジェクト
-	//		std::shared_ptr<KdGameObject> spHitObject;
+		if (hitFlg)
+		{
+			// 当たったオブジェクト
+			std::shared_ptr<KdGameObject> spHitObject;
 
-	//		// 探す
-	//		for (auto& hitObject : m_wpHitObjectList)
-	//		{
-	//			if (!hitObject.expired())
-	//			{
-	//				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Event)
-	//				{
-	//					spHitObject = hitObject.lock();
-	//					break;
-	//				}
-	//			}
-	//		}
-	//		if (spHitObject)
-	//		{
-	//			if (spHitObject->GetObjectType() == ObjectType::HealItem)
-	//			{
-	//				m_life += 1;
-	//				// 回復エフェクト
-	//				if (!m_effectFlg)
-	//				{
-	//					//m_effectFlg = true;
-	//					m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
-	//				}
-	//			}
-	//			spHitObject->OnHit();
-	//		}
-	//	}
+			// 探す
+			for (auto& hitObject : m_wpHitObjectList)
+			{
+				if (!hitObject.expired())
+				{
+					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Event)
+					{
+						spHitObject = hitObject.lock();
+						break;
+					}
+				}
+			}
+			if (spHitObject)
+			{
+				if (spHitObject->GetObjectType() == ObjectType::HealItem)
+				{
+					m_life += 1;
+					// 回復エフェクト
+					if (!m_effectFlg)
+					{
+						//m_effectFlg = true;
+						m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
+					}
+				}
+				spHitObject->OnHit();
+			}
+		}
 	}
 }
 
@@ -1122,6 +1114,17 @@ void Player::HitJudgeEnemy()
 			// 敵を踏んだ時の処理
 			spHitObject->OnHit();
 			m_gravity = -0.15f;
+
+			// もしジャンプ状態ならジャンプのアニメーションをする
+			if (m_situationType & SituationType::Jump)
+			{
+				m_spAnimator->SetAnimation(m_spModel->GetAnimation("Jump"), false);
+			}
+			// 違うならジャンプ状態にする
+			else
+			{
+				m_situationType |= SituationType::Jump;
+			}
 
 			// 敵を踏んだ時の音
 			if (m_stampSound.flg == false)

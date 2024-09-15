@@ -40,7 +40,7 @@ protected:
 	// モデルデータ
 	std::shared_ptr<KdModelData>	m_spModel	= nullptr;
 
-	// 動く地形用のパラメータ変数
+	// パラメータ変数
 	Param m_param;
 
 	// ポーズ画面かどうか

@@ -24,8 +24,10 @@ public:
 	const bool GetAliveFlg() const { return m_aliveFlg; }
 
 	// 座標セット
-	void SetPos(const Math::Vector3 _pos) { m_pos = _pos; }
+	void SetPos(const Math::Vector3& _pos)	override { m_pos = _pos; }
 	void SetPos(const float _x, const float _y, const float _z) { m_pos = { _x, _y, _z }; }
+	// 座標ゲット
+	Math::Vector3 GetPos() const	override { return m_pos; }
 
 	// 重力をセットする
 	void SetGravity(const float _gravity) { m_gravity = _gravity; }
@@ -79,7 +81,7 @@ protected:
 	// 重力
 	float			m_gravity						= 0;
 	float			m_gravityPow					= 0.005f;
-	const float		m_maxGravity					= 1.0f;
+	const float		m_maxGravity					= 0.6f;
 
 	// 当たり判定の段差許容範囲
 	const float		m_enableStepHeight				= 0.125f;

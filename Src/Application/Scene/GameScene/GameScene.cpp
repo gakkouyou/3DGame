@@ -14,9 +14,12 @@
 
 #include "../../GameObject/EventObject/Heart/Heart.h"
 
+#include "../../GameObject/Terrain/CarryObject/Box/Box.h"
+
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
+#include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 
 #include "../../GameObject/Terrain/Object/Propeller/Propeller.h"
 
@@ -274,11 +277,10 @@ void GameScene::Init()
 
 
 
-	// プロペラ
-	std::shared_ptr<Propeller> propeller = std::make_shared<Propeller>();
-	propeller->Init();
-	//AddObject(propeller);
-
+	// 箱
+	std::shared_ptr<Box> box = std::make_shared<Box>();
+	box->Init();
+	AddObject(box);
 
 
 
@@ -298,6 +300,13 @@ void GameScene::Init()
 	AddObject(enemyController);
 
 	// マップエディタ的な
+	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
+	// CSVファイルを指定する
+	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	carryObjectController->Init();
+	AddObject(carryObjectController);
+
+	// マップエディタ的な
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
 	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
@@ -307,11 +316,13 @@ void GameScene::Init()
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(terrainController);// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
+	DebugWindow::Instance().SetCarryObjectController(carryObjectController);	// CarryObject
 
 
 	// オブジェクトコントローラーにカメラを渡す
 	terrainController->SetCamera(tpsCamera);
 	enemyController->SetCamera(tpsCamera);
+	carryObjectController->SetCamera(tpsCamera);
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);

@@ -28,4 +28,6 @@ FencePillar,FencePillar13,-7,0.25,3.75,0,0,0,1,1,1,0,0,0,0,0
 FencePillar,FencePillar14,-7,0.25,7.25,0,0,0,1,1,1,0,0,0,0,0
 FenceBar,FenceBar3,-7,0.25,0,0,0,0,1,1,2.9,0,0,0,0,0
 FencePillar,FencePillar15,3.5,0.25,-7.25,0,0,0,1,1,1,0,0,0,0,0
-FenceBar,FenceBar16,0,0.25,7.25,0,0,0,1,1,2.8,0,0,0,90,0
+FenceBar,FenceBar4,0,0.25,7.25,0,0,0,1,1,2.8,0,0,0,90,0
+Propeller,Propeller1,14.25,1.5,0,0,0,0,1,1,1,0,0,0,1,0
+RotationGround,RotationGround1,-10,0,0,0,0,0,0.3,0.3,0.3,0,0,0,0,1

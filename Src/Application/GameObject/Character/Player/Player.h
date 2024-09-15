@@ -3,6 +3,7 @@
 
 class CameraBase;
 class TerrainController;
+class CarryObjectController;
 
 class Player : public CharacterBase
 {
@@ -13,16 +14,22 @@ public:
 	// 更新
 	void Update()		override;
 	void PostUpdate()	override;
-
 	// 描画
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()		override;
-
 	// 初期化
 	void Init()			override;
 
 	// リセット処理
 	void Reset()		override;
+
+	// 角度ゲット
+	const float GetAngle()const { return m_angle; }
+
+	// モデルをゲット
+	const std::shared_ptr<KdModelWork>& GetModel() const { return m_spModel; }
+
+
 
 	// ポーズフラグセット
 	void SetPauseFlg(bool _pauseFlg)	override { if (m_aliveFlg == true) m_pauseFlg = _pauseFlg; }
@@ -42,6 +49,9 @@ public:
 	// ライフをゲット
 	const int GetLife() const { return m_life; }
 
+	// 運べるオブジェクトのコントローラーをセット
+	void SetCarryObjectContoller(const std::shared_ptr<CarryObjectController>& _spCarryObjectController) { m_wpCarryObjectController = _spCarryObjectController; }
+
 private:
 	// 当たり判定
 	void HitJudge();
@@ -51,6 +61,8 @@ private:
 	void HitJudgeEvent();
 	// 敵との当たり判定
 	void HitJudgeEnemy();
+	// 運べるオブジェクトとの当たり判定
+	void HitJudgeCarryObject();
 
 	// ダメージを受けた時の処理
 	void DamageProcess();
@@ -58,19 +70,20 @@ private:
 	// 今の状況
 	enum SituationType
 	{
-		Stop	= 1 << 0,	// 止まっている
+		Idle	= 1 << 0,	// 止まっている
 		Walk	= 1 << 1,	// 歩いている
 		Jump	= 1 << 2,	// ジャンプしている
 		Air		= 1 << 3,	// 空中にいる
 		WallHit	= 1 << 4,	// 壁に触れている
 		Run		= 1 << 5,	// 走っている
+		Carry	= 1 << 6,	// 持っている
 	};
 
 	// カメラのウィークポインタ
 	std::weak_ptr<CameraBase> m_wpCamera;
 
 	// 今の状況
-	UINT m_situationType	= Stop;
+	UINT m_situationType	= Idle;
 
 	// ジャンプ力
 	float m_jumpPow			= 0;
@@ -175,7 +188,8 @@ private:
 	// 移動前の座標
 	Math::Vector3 m_oldPos;
 
-
+	// 運べるオブジェクトコントローラー
+	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
 
 
 

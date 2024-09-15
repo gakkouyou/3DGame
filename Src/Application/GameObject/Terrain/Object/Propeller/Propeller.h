@@ -11,6 +11,11 @@ public:
 	void Update()	override;
 	void Init()		override;
 
-private:
+	void SetParam([[maybe_unused]] Param _param) override;
 
+	void Reset()	override;
+
+private:
+	// 回転角度
+	Math::Vector3 m_rotDegAng = Math::Vector3::Zero;
 };

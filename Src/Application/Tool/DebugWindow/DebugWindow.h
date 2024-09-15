@@ -2,6 +2,9 @@
 
 class TerrainController;
 class EnemyController;
+class CarryObjectController;
+
+class TerrainBase;
 
 class DebugWindow
 {
@@ -12,8 +15,9 @@ public:
 
 	void Release();
 
-	void SetTerrainController(const std::shared_ptr<TerrainController>& _spObjectController)	{ m_wpTerrainController = _spObjectController; }
-	void SetEnemyController(const std::shared_ptr<EnemyController>& _spObjectController)		{ m_wpEnemyController = _spObjectController; }
+	void SetTerrainController(const std::shared_ptr<TerrainController>& _spObjectController)		{ m_wpTerrainController = _spObjectController; }
+	void SetEnemyController(const std::shared_ptr<EnemyController>& _spObjectController)			{ m_wpEnemyController = _spObjectController; }
+	void SetCarryObjectController(const std::shared_ptr<CarryObjectController>& _spObjectController) { m_wpCarryObjectController = _spObjectController; }
 
 	// Terrain用のパラメータ
 	struct TerrainParam
@@ -43,6 +47,17 @@ public:
 	// Enemyのパラメータセット関数
 	void SetEnemyParam(EnemyParam _param) { m_enemyParam = _param; }
 
+	// 運べるオブジェクト用のパラメータ
+	struct CarryObjectParam
+	{
+		Math::Vector3 pos = Math::Vector3::Zero;
+		float area = 0;
+	};
+	// 運べるオブジェクト用のパラメータゲット関数
+	const CarryObjectParam GetCarryObjectParam() const { return m_carryObjectParam; }
+	// 運べるオブジェクト用のパラメータセット関数
+	void SetCarryObjectParam(CarryObjectParam _param) { m_carryObjectParam = _param; }
+
 private:
 	// Terrain用
 	std::weak_ptr<TerrainController> m_wpTerrainController;
@@ -55,6 +70,12 @@ private:
 	EnemyParam m_enemyParam;
 	// Enemy用のウィンドウ
 	void EnemyWindow();
+
+	// 運べるオブジェクト用
+	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
+	CarryObjectParam m_carryObjectParam;
+	// 運べるオブジェクト用のウィンドウ
+	void CarryObjectWindow();
 
 private:
 

@@ -5,27 +5,31 @@
 
 #include "../../Effect/PlayerSmoke/PlayerSmoke.h"
 
+#include "../../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
+#include "../../Terrain/CarryObject/CarryObjectBase.h"
+
 #include "../../../main.h"
 
 void Player::Update()
 {
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) m_stopFlg = true;
+	else m_stopFlg = false;
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
 	// 移動前の座標を保存
 	m_oldPos = m_pos;
 
-	// Stop以外のフラグが立っていたらStopをおろす
-	if ((m_situationType & (~SituationType::Stop)) && (m_situationType & SituationType::Stop))
+	// Idle以外のフラグが立っていたらStopをおろす
+	if (m_situationType ^ SituationType::Idle)
 	{
-		m_situationType &= (~SituationType::Stop);
+		m_situationType &= (~SituationType::Idle);
 	}
-	// 何もフラグが立っていなかったらStopにする
+	// 何もフラグが立っていなかったらIdleにする
 	if (m_situationType == 0)
 	{
-		m_situationType = SituationType::Stop;
+		m_situationType = SituationType::Idle;
 	}
 	// 移動初期化
 	m_moveVec = Math::Vector3::Zero;
@@ -115,22 +119,26 @@ void Player::Update()
 		// 歩き状態の時にSHIFTキーを押すと、ダッシュになる
 		if (m_situationType & SituationType::Walk)
 		{
-			if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+			// 運んでいる状態ならダッシュをできないようにする
+			if ((m_situationType & SituationType::Carry) == 0)
 			{
-				// 空中でないなら走り状態に移行できる
-				if ((m_situationType & SituationType::Air) == 0)
+				if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 				{
-					m_situationType |= SituationType::Run;
+					// 空中でないなら走り状態に移行できる
+					if ((m_situationType & SituationType::Air) == 0)
+					{
+						m_situationType |= SituationType::Run;
+					}
+					// 走り状態なら歩き状態を解除する
+					if (m_situationType & SituationType::Run)
+					{
+						m_situationType &= (~SituationType::Walk);
+					}
 				}
-				// 走り状態なら歩き状態を解除する
-				if (m_situationType & SituationType::Run)
+				else
 				{
-					m_situationType &= (~SituationType::Walk);
+					m_situationType &= (~SituationType::Run);
 				}
-			}
-			else
-			{
-				m_situationType &= (~SituationType::Run);
 			}
 		}
 	}
@@ -202,7 +210,15 @@ void Player::Update()
 			// 空中ではアニメーションしない
 			if (!(m_situationType & SituationType::Air))
 			{
-				m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), true);
+				// 運んでいる状態の時はアニメーションを変える
+				if (m_situationType & SituationType::Carry)
+				{
+					m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("CarryWalk"), true);
+				}
+				else
+				{
+					m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), true);
+				}
 
 				// 歩く音を鳴らす状態にする
 				m_walkSoundFlg = true;
@@ -247,64 +263,15 @@ void Player::Update()
 		}
 	}
 
-	//if (m_spAnimator->IsAnimationEnd())
-	//{
-	//	// 歩く音を止める
-	//	if (m_wpWalkSound[WalkSoundType::Grass].expired() == false)
-	//	{
-	//		m_wpWalkSound[WalkSoundType::Grass].lock()->Stop();
-	//		m_nowWalkSoundFlg = false;
-	//	}
-	//	// 歩いている状態or走っている状態の時
-	//	// 空中にいたらアニメーションしない
-	//	if (((m_situationType & SituationType::Walk) || (m_situationType & SituationType::Run)) && !(m_situationType & SituationType::Air))
-	//	{
-	//		// 右足を出す
-	//		if (m_walkAnimeDirFlg == true)
-	//		{
-	//			// アニメーションセット
-	//			m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), false);
-	//			// 左足を出す状態にする
-	//			m_walkAnimeDirFlg = false;
-
-	//			// 歩く音を鳴らす状態にする
-	//			m_walkSoundFlg = true;
-	//		}
-	//		// 左足を出す
-	//		else
-	//		{
-	//			// アニメーションセット
-	//			m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), false);
-	//			// 右足を出す状態にする
-	//			m_walkAnimeDirFlg = true;
-
-	//			// 歩く音を鳴らす状態にする
-	//			m_walkSoundFlg = true;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// 歩いていなかったら歩きアニメーションの方向フラグをfalseにする
-	//		m_walkAnimeDirFlg = false;
-	//	}
-
-		// ジャンプ状態の時
-		if (m_situationType & SituationType::Jump)
-		{
-			//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Jump"), false);
-		}
-
-		//// アニメーションが終わった時に止まっていたら止まっているアニメーションをする
-		//if (m_situationType & SituationType::Stop)
-		//{
-		//	m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Idle"), true);
-		//}
-	//}
-
 	// 完全に停止している場合、アニメーションをIdleに切り替える
-	if ((m_situationType ^ SituationType::Stop) == 0)
+	if ((m_situationType ^ SituationType::Idle) == 0)
 	{
 		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Idle"), true);
+	}
+	// 運び状態で停止している場合、アニメーションを切り替える
+	if ((m_situationType ^ SituationType::Carry) == 0)
+	{
+		m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Carry"), true);
 	}
 
 	// 移動
@@ -362,6 +329,7 @@ void Player::Update()
 	// 当たり判定
 	HitJudge();
 
+
 	// ダメージを受けた時の処理
 	if (m_damage.nowDamageFlg == true)
 	{
@@ -379,7 +347,16 @@ void Player::Update()
 			// 地面に触れた瞬間に歩きor走りをしていたらアニメーションを開始する
 			if (m_situationType & SituationType::Walk)
 			{
-				m_spAnimator->SetAnimation(m_spModel->GetAnimation("Walk"), true);
+				// 運び状態の時
+				if (m_situationType & SituationType::Carry)
+				{
+					m_spAnimator->SetAnimation(m_spModel->GetAnimation("CarryWalk"), true);
+				}
+				// 運び状態じゃない時
+				else
+				{
+					m_spAnimator->SetAnimation(m_spModel->GetAnimation("Walk"), true);
+				}
 			}
 			else if (m_situationType & SituationType::Run)
 			{
@@ -391,7 +368,16 @@ void Player::Update()
 	// ジャンプをせず空中にいる場合
 	if ((m_situationType & SituationType::Air) && ((m_situationType & Jump) == 0))
 	{
-		m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), false);
+		// 運び状態の時
+		if (m_situationType & SituationType::Carry)
+		{
+			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Carry"), true);
+		}
+		// 運び状態じゃない時
+		else
+		{
+			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), false);
+		}
 	}
 
 	// 何の地面に乗っているかによって、音を変える
@@ -479,25 +465,58 @@ void Player::PostUpdate()
 		Math::Vector3 terrainPos = spHitTerrain->GetPos();
 		// プレイヤーから回転床までの距離
 		Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
-		vec.z = 0;
-		float length = vec.Length();
-		// 移動する前の回転床から見たプレイヤーの角度
-		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+		// 回転床が回転する角度
+		Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
 
-		if (degAng <= 90 && degAng >= -90)
+		// Z軸回転の場合
+		if (lotDegAng.z != 0)
 		{
-			degAng -= 90;
-			if (degAng < 0)
-			{
-				degAng += 360;
-			}
-			degAng = 360 - degAng;
+			vec.z = 0;
+			float length = vec.Length();
+			// 移動する前の回転床から見たプレイヤーの角度
+			float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
 
-			// 回転床が回転する角度
-			float lotDegAng = spHitTerrain->GetParam().degAng.z;
-			degAng += lotDegAng;
-			m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-			m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+			if (degAng <= 90 && degAng >= -90)
+			{
+				degAng -= 90;
+				if (degAng < 0)
+				{
+					degAng += 360;
+				}
+				degAng = 360 - degAng;
+
+				degAng += lotDegAng.z;
+				m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+				m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+			}
+		}
+		// Y軸回転の場合
+		else if (lotDegAng.y != 0)
+		{
+			vec = m_pos - spHitTerrain->GetPos();
+			vec.y = 0;
+			float length = vec.Length();
+			// 移動する前の回転床から見たプレイヤーの角度
+			float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
+
+			//if (degAng <= 90 && degAng >= -90)
+			{
+				degAng -= 90;
+				if (degAng < 0)
+				{
+					degAng += 360;
+				}
+				if (degAng >= 360)
+				{
+					degAng -= 360;
+				}
+				degAng = 360 - degAng;
+
+				// 回転床が回転する角度
+				degAng -= lotDegAng.y;
+				m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+				m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
+			}
 		}
 	}
 
@@ -646,7 +665,7 @@ void Player::Reset()
 	m_aliveFlg = true;
 
 	// 状態
-	m_situationType = SituationType::Stop;
+	m_situationType = SituationType::Idle;
 
 	// 角度
 	m_angle = 0;
@@ -675,13 +694,16 @@ void Player::HitJudge()
 	// 地面との当たり判定
 	HitJudgeGround();
 
-	//if (m_stopFlg == false)
+	if (m_stopFlg == false)
 	{
 		// 触れたらイベントが発生する
 		HitJudgeEvent();
 
 		// 敵との当たり判定
 		HitJudgeEnemy();
+
+		// 運べるオブジェクトとの当たり判定
+		HitJudgeCarryObject();
 	}
 }
 
@@ -804,6 +826,7 @@ void Player::HitJudgeGround()
 
 					// 回る床に乗った場合
 				case ObjectType::RotationGround:
+				case ObjectType::Propeller:
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
@@ -813,16 +836,6 @@ void Player::HitJudgeGround()
 					m_situationType &= (~SituationType::Jump);
 					// 当たったかどうか
 					m_rotationGround.hitFlg = true;
-					break;
-
-				case ObjectType::Propeller:
-					// 座標
-					m_pos.y = hitPos.y;
-					// 重力
-					m_gravity = 0;
-					// 空中にいない
-					m_situationType &= (~SituationType::Air);
-					m_situationType &= (~SituationType::Jump);
 					break;
 
 				default:
@@ -852,7 +865,7 @@ void Player::HitJudgeGround()
 		Math::Vector3 centerPos = m_pos;
 		// スフィアの半径
 		float radius = 0.25f;
-		centerPos.y += radius + 0.01f;
+		centerPos.y += radius + 0.1f;
 
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
@@ -1153,6 +1166,40 @@ void Player::HitJudgeEnemy()
 			}
 		}
 	}
+}
+
+void Player::HitJudgeCarryObject()
+{
+	if (m_wpCarryObjectController.expired()) return;
+		for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
+		{
+			// 消えていたら飛ばす
+			if (obj.expired() == true) continue;
+
+			// プレイヤーとオブジェクトの距離
+			Math::Vector3 vec = obj.lock()->GetPos() - m_pos;
+			// プレイヤーの正面
+			Math::Vector3 forwardVec = m_mWorld.Backward();
+
+			// 設定されている距離より短かったら視野角判定
+			if (vec.Length() < obj.lock()->GetParam().area)
+			{
+				// 視野角判定
+				vec.Normalize();
+				float dot = forwardVec.Dot(vec);
+				dot = std::clamp(dot, -1.0f, 1.0f);
+				float deg = DirectX::XMConvertToDegrees(acos(dot));
+				// 視野角内なら持てる用にする
+				if (deg < 90)
+				{
+					if (GetAsyncKeyState('F') & 0x8000)
+					{
+						m_situationType |= SituationType::Carry;
+					}
+				}
+			}
+		}
+	
 }
 
 void Player::DamageProcess()

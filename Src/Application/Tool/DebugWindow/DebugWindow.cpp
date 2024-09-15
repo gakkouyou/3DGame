@@ -3,6 +3,7 @@
 #include "../../Scene/SceneManager.h"
 #include "../ObjectController/TerrainController/TerrainController.h"
 #include "../ObjectController/EnemyController/EnemyController.h"
+#include "../ObjectController/CarryObjectController/CarryObjectController.h"
 
 void DebugWindow::Draw()
 {
@@ -43,6 +44,9 @@ void DebugWindow::Draw()
 
 		// Enemy用のウィンドウ
 		EnemyWindow();
+
+		// CarryObject用のウィンドウ
+		CarryObjectWindow();
 	}
 
 
@@ -291,6 +295,56 @@ void DebugWindow::EnemyWindow()
 					m_enemyParam.rotDegAng += 360;
 				}
 			}
+		}
+	}
+	ImGui::End();
+}
+
+void DebugWindow::CarryObjectWindow()
+{
+	// デバッグウィンドウ
+	if (ImGui::Begin("CarryObjectController"))
+	{
+		// Controllerがあるときに処理
+		std::shared_ptr<CarryObjectController> spObjectController = m_wpCarryObjectController.lock();
+		if (spObjectController)
+		{
+			// オブジェクト設置
+			ImGui::Text((const char*)u8"運べるオブジェクト設置   PKEY");
+			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
+			// オブジェクトを確定させる
+			if (ImGui::Button((const char*)u8"確定"))
+			{
+				spObjectController->ConfirmedObject();
+			}
+			ImGui::SameLine();
+			// オブジェクトを削除する
+			if (ImGui::Button((const char*)u8"削除"))
+			{
+				spObjectController->DeleteObject();
+			}
+			ImGui::SameLine();
+			// セーブ
+			if (ImGui::Button((const char*)u8"セーブ"))
+			{
+				spObjectController->CSVWriter();
+			}
+
+			// 箱
+			if (ImGui::Button("Box"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Box);
+
+				m_carryObjectParam.area = 2.0f;
+			}
+
+			// 座標
+			ImGui::InputFloat("Pos.x", &m_carryObjectParam.pos.x, 0.25f);
+			ImGui::InputFloat("Pos.y", &m_carryObjectParam.pos.y, 0.25f);
+			ImGui::InputFloat("Pos.z", &m_carryObjectParam.pos.z, 0.25f);
+			// 触れれるエリア
+			ImGui::InputFloat("Area", &m_carryObjectParam.area, 0.1f);
 		}
 	}
 	ImGui::End();

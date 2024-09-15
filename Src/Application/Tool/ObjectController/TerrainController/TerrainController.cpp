@@ -505,7 +505,6 @@ void TerrainController::BeginCreateObject()
 			// パラメータセット
 			param.startPos = data.pos;		// 座標
 			param.scale = data.scale;		// 拡縮
-			param.speed	= data.speed;		// スピード
 			param.degAng = data.degAng;		// 回転角度
 			// 情報をセットする
 			object->SetParam(param);

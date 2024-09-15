@@ -202,6 +202,15 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\Propeller">
       <UniqueIdentifier>{2cdaa582-f7ab-491b-a7b3-390efcf944df}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\CarryObject">
+      <UniqueIdentifier>{74bcc48a-7b1f-4516-94b9-6f4fdc042351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\CarryObject\Box">
+      <UniqueIdentifier>{512057d7-8c9d-4b25-a9ab-ed0c2145a995}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Tool\ObjectController\CarryObjectController">
+      <UniqueIdentifier>{d3cff8ae-367f-47f1-b4b6-1428bc7839be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -474,6 +483,15 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.h">
       <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.h">
+      <Filter>Src\Application\GameObject\Terrain\CarryObject\Box</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.h">
+      <Filter>Src\Application\GameObject\Terrain\CarryObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.h">
+      <Filter>Src\Application\Tool\ObjectController\CarryObjectController</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -715,6 +733,15 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.cpp">
+      <Filter>Src\Application\GameObject\Terrain\CarryObject\Box</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.cpp">
+      <Filter>Src\Application\GameObject\Terrain\CarryObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.cpp">
+      <Filter>Src\Application\Tool\ObjectController\CarryObjectController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

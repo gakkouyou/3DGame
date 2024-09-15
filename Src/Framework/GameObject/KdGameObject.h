@@ -92,6 +92,8 @@ public:
 
 		HealItem,		// 回復アイテム
 
+		Box,			// 箱
+
 		None,			// ない
 	};
 
@@ -102,6 +104,7 @@ public:
 		Enemy,		// エネミー
 		Ground,		// 地形
 		Event,		// 触れたらイベントが起こる
+		CarryObject,// 運べるオブジェクト
 
 		None,		// ない
 	};

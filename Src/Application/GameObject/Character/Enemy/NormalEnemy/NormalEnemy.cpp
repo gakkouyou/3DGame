@@ -519,12 +519,9 @@ void NormalEnemy::HitGround()
 				case ObjectType::BoundGround:
 					// 座標
 					m_pos.y = hitPos.y;
-					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = -0.25f;
 					//// 空中にいない
-					//m_situationType &= (~SituationType::Air);
-					//m_situationType &= (~SituationType::Jump);
 					Application::Instance().m_log.AddLog("Bound\n");
 					break;
 
@@ -533,7 +530,6 @@ void NormalEnemy::HitGround()
 				case ObjectType::DropGround:
 					// 座標
 					m_pos.y = hitPos.y;
-					//m_pos.y += m_enableStepHeight;
 					// 重力
 					m_gravity = 0;
 					// 空中にいない
@@ -586,6 +582,7 @@ void NormalEnemy::HitGround()
 		std::list<Math::Vector3> hitDirList;
 		// スフィアの中心座標
 		Math::Vector3 centerPos = m_pos;
+		centerPos.y += 0.01f;
 		// スフィアの半径
 		float radius = 0.25f;
 		centerPos.y += radius + 0.25f;

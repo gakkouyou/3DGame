@@ -4,6 +4,8 @@
 #include "../../../main.h"
 #include "../../../GameObject/Camera/TPSCamera/TPSCamera.h"
 
+#include "../TerrainController/TerrainController.h"
+
 #include "../../../GameObject/Terrain/CarryObject/Box/Box.h"
 
 #include "../../../GameObject/Character/Player/Player.h"
@@ -160,6 +162,10 @@ void CarryObjectController::CreateObject(KdGameObject::ObjectType _object)
 		{
 			object->SetPlayer(m_wpPlayer.lock());
 		}
+		if (!m_wpTerrainController.expired())
+		{
+			object->SetTerrainController(m_wpTerrainController.lock());
+		}
 		break;
 	}
 	}
@@ -192,7 +198,7 @@ void CarryObjectController::MouseSelect()
 
 		Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
 
-		KdCollider::RayInfo rayInfo(KdCollider::TypeDamage, cameraPos, endRayPos);
+		KdCollider::RayInfo rayInfo(KdCollider::TypeGround, cameraPos, endRayPos);
 
 		// 当たり判定の結果
 		std::list<KdCollider::CollisionResult> resultList;
@@ -251,6 +257,10 @@ void CarryObjectController::BeginCreateObject()
 				object->SetPlayer(m_wpPlayer.lock());
 			}
 			object->Init();
+			if (!m_wpTerrainController.expired())
+			{
+				object->SetTerrainController(m_wpTerrainController.lock());
+			}
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.Box++;

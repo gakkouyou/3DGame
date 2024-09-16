@@ -2,6 +2,7 @@
 
 class Player;
 class TerrainController;
+class TerrainBase;
 
 class CarryObjectBase : public KdGameObject
 {
@@ -17,6 +18,9 @@ public:
 
 	// プレイヤーのセット
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
+
+	// 運ぶ運ばれていないを切り替える
+	virtual void CarryFlg(const bool _carryFlg) { m_carryFlg = _carryFlg; }
 
 	Math::Vector3 GetPos()	const				override { return m_pos; }
 
@@ -41,8 +45,25 @@ protected:
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
 	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
-	// スフィア判定　地面と
-	bool SphereHitGround(const Math::Vector3 _centerPos, const float _radius, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
+	// 複数のオブジェクトと当たり判定をしたい場合
+	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap, const bool _debugFlg = false);
+
+
+	// レイ判定　地面と
+	bool RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
+
+
+	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
+	struct HitMoveTerrain
+	{
+		Math::Matrix transMat = Math::Matrix::Identity;	// 動く前の行列
+		bool hitFlg = false;							// 当たったかどうか
+	};
+
+	// 動く床
+	HitMoveTerrain m_moveGround;
+	// 回る床
+	HitMoveTerrain m_rotationGround;
 
 
 	// モデル
@@ -70,4 +91,10 @@ protected:
 
 	// TerrainController
 	std::weak_ptr<TerrainController> m_wpTerrainController;
+
+	// 当たった地形を保持
+	std::weak_ptr<TerrainBase> m_wpHitTerrain;
+
+	// 当たったオブジェクトを保持
+	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
 };

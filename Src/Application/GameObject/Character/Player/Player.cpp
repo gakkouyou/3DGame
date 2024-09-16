@@ -380,6 +380,31 @@ void Player::Update()
 		}
 	}
 
+	// 運び状態を解除する
+	if (GetAsyncKeyState('F') & 0x8000)
+	{
+		if (m_situationType & SituationType::Carry)
+		{
+			if (m_carryKeyFlg == false)
+			{
+				if (m_wpCarryObject.expired() == false)
+				{
+					// 運ばれている状態にする
+					m_wpCarryObject.lock()->CarryFlg(false);
+					m_wpCarryObject.reset();
+				}
+				// 状態の切り替え
+				m_situationType &= (~SituationType::Carry);
+				// キーフラグ
+				m_carryKeyFlg = true;
+			}
+		}
+	}
+	else
+	{
+		m_carryKeyFlg = false;
+	}
+
 	// 何の地面に乗っているかによって、音を変える
 	if (!m_wpHitTerrain.expired())
 	{
@@ -715,7 +740,6 @@ void Player::HitJudgeGround()
 	m_moveGround.hitFlg = false;
 	// 回る床
 	m_rotationGround.transMat = Math::Matrix::Identity;
-	m_rotationGround.rotMat = Math::Matrix::Identity;
 	m_rotationGround.hitFlg = false;
 
 	// 当たった地面をリセット
@@ -751,7 +775,7 @@ void Player::HitJudgeGround()
 			// 右足からのレイ判定
 			hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
 
-			m_pDebugWire->AddDebugSphere(startPos, 0.1f);
+			//m_pDebugWire->AddDebugSphere(startPos, 0.1f);
 		}
 
 
@@ -769,7 +793,7 @@ void Player::HitJudgeGround()
 			startPos += m_pos;
 			// 左足からのレイ判定
 			hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
-			m_pDebugWire->AddDebugSphere(startPos, 0.1f, kBlueColor);
+			//m_pDebugWire->AddDebugSphere(startPos, 0.1f, kBlueColor);
 		}
 		if (hitFlg)
 		{
@@ -889,7 +913,7 @@ void Player::HitJudgeGround()
 			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
 		}
 
-		Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
+		//Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
 
 		// 当たった場合
 		if (hitFlg)
@@ -1020,8 +1044,8 @@ void Player::HitJudgeEvent()
 		// 当たり判定をするタイプ
 		boxInfo.m_type |= KdCollider::TypeEvent;
 
-		m_pDebugWire->AddDebugSphere(rightBackUpPos + m_pos, 0.1f);
-		m_pDebugWire->AddDebugSphere(leftFrontUpPos + m_pos, 0.1f);
+		//m_pDebugWire->AddDebugSphere(rightBackUpPos + m_pos, 0.1f);
+		//m_pDebugWire->AddDebugSphere(leftFrontUpPos + m_pos, 0.1f);
 		m_pDebugWire->AddDebugBox(Math::Matrix::CreateTranslation(boxInfo.m_Abox.Center), boxInfo.m_Abox.Extents);
 
 
@@ -1170,12 +1194,81 @@ void Player::HitJudgeEnemy()
 
 void Player::HitJudgeCarryObject()
 {
+
 	if (m_wpCarryObjectController.expired()) return;
 		for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
 		{
 			// 消えていたら飛ばす
 			if (obj.expired() == true) continue;
 
+			// レイ判定
+			// 当たった座標
+			Math::Vector3 hitPos = Math::Vector3::Zero;
+			// レイのスタート座標
+			Math::Vector3 startPos = Math::Vector3::Zero;
+			// ノードの座標
+			Math::Vector3 nodePos = Math::Vector3::Zero;
+			bool hitFlg = false;
+
+			// 真ん中からレイ判定
+			startPos.y = m_enableStepHeight;
+			startPos += m_pos;
+			hitFlg = RayHitJudge(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight, KdCollider::TypeGround);
+
+			// 当たっていなかったら右足からのレイ判定をする
+			if (hitFlg == false)
+			{
+				// 右足の場所
+				nodePos = m_spModel->FindNode("Right")->m_worldTransform.Translation();
+				// 回転処理
+				startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(360 - m_angle));
+				startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(360 - m_angle));
+				// 段差許容
+				startPos.y = m_enableStepHeight;
+				// 座標足しこみ
+				startPos += m_pos;
+				// 右足からのレイ判定
+				hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight, KdCollider::TypeGround);
+
+				//m_pDebugWire->AddDebugSphere(startPos, 0.1f);
+				//Application::Instance().m_log.Clear();
+				//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", m_pos.x, m_pos.y, m_pos.z);
+				//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", startPos.x, startPos.y, startPos.z);
+			}
+
+
+			// 当たっていなかったら左足からのレイ判定をする
+			if (hitFlg == false)
+			{
+				// 左足の場所
+				nodePos = m_spModel->FindNode("Left")->m_worldTransform.Translation();
+				// 回転処理
+				startPos.x = nodePos.x * cos(DirectX::XMConvertToRadians(360 - m_angle));
+				startPos.z = nodePos.x * sin(DirectX::XMConvertToRadians(360 - m_angle));
+				// 段差許容
+				startPos.y = m_enableStepHeight;
+				// 座標足しこみ
+				startPos += m_pos;
+				// 左足からのレイ判定
+				hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight, KdCollider::TypeGround);
+				//m_pDebugWire->AddDebugSphere(startPos, 0.1f, kBlueColor);
+				//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", startPos.x, startPos.y, startPos.z);
+			}
+
+			if (hitFlg)
+			{
+				// 座標
+				m_pos.y = hitPos.y;
+				// 重力
+				m_gravity = 0;
+				// 空中にいない
+				m_situationType &= (~SituationType::Air);
+				m_situationType &= (~SituationType::Jump);
+			}
+
+
+
+			// 持てるか持てないかの判定
 			// プレイヤーとオブジェクトの距離
 			Math::Vector3 vec = obj.lock()->GetPos() - m_pos;
 			// プレイヤーの正面
@@ -1194,7 +1287,25 @@ void Player::HitJudgeCarryObject()
 				{
 					if (GetAsyncKeyState('F') & 0x8000)
 					{
-						m_situationType |= SituationType::Carry;
+						// 運んでいる状態なら処理しない
+						if ((m_situationType & SituationType::Carry) == 0)
+						{
+							if (m_carryKeyFlg == false)
+							{
+								// 運ばれている状態にする
+								obj.lock()->CarryFlg(true);
+								// オブジェクトを保持
+								m_wpCarryObject = obj;
+								// 状態の切り替え
+								m_situationType |= SituationType::Carry;
+								// キーフラグ
+								m_carryKeyFlg = true;
+							}
+						}
+					}
+					else
+					{
+						m_carryKeyFlg == false;
 					}
 				}
 			}

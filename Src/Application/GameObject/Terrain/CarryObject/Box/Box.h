@@ -12,6 +12,8 @@ public:
 	void PostUpdate()			override;
 	void Init()					override;
 
+	void CarryFlg(bool _carryFlg) override;
+
 	void SetParam(Param _param)	override;
 
 private:
@@ -20,4 +22,19 @@ private:
 
 	// 角度
 	float m_degAng	= 0;
+
+	enum Dir
+	{
+		RightFront,
+		RightBack,
+		LeftFront,
+		LeftBack,
+		Up,
+		Down,
+		Max
+	};
+	Math::Vector3 m_edgeBasePos[Max] = {};
+	Math::Vector3 m_edgePos[Max] = {};
+
+	Math::Vector3 m_centerPos;
 };

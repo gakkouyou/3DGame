@@ -3,6 +3,7 @@
 class TPSCamera;
 class Player;
 class CarryObjectBase;
+class TerrainController;
 
 class CarryObjectController : public KdGameObject
 {
@@ -40,7 +41,10 @@ public:
 	void CSVWriter();
 
 	// プレイヤーをセットする
-	void SetPlayer(const std::shared_ptr<Player> _spPlayer) { m_wpPlayer = _spPlayer; }
+	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
+
+	// TerrainControllerをセットする
+	void SetTerrainController(const std::shared_ptr<TerrainController>& _spTerrainController) { m_wpTerrainController = _spTerrainController; }
 
 private:
 	// CSVファイルの名前
@@ -87,4 +91,7 @@ private:
 
 	// ターゲットとなるプレイヤー
 	std::weak_ptr<Player> m_wpPlayer;
+
+	// TerrainController
+	std::weak_ptr<TerrainController> m_wpTerrainController;
 };

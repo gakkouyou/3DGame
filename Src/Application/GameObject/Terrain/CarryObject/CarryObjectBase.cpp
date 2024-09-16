@@ -141,18 +141,18 @@ bool CarryObjectBase::SphereHitJudge(const Math::Vector3 _centerPos, const float
 	return hitFlg;
 }
 
-bool CarryObjectBase::SphereHitGround(const Math::Vector3 _centerPos, const float _radius, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg)
+bool CarryObjectBase::SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap, const bool _debugFlg)
 {
 	//==================
-	// 球判定
-	//==================
+// 球判定
+//==================
 	KdCollider::SphereInfo sphereInfo;
 	// 球の中心位置を設定(座標)
 	sphereInfo.m_sphere.Center = _centerPos;
 	// 球の半径を設定
 	sphereInfo.m_sphere.Radius = _radius;
 	// 当たり判定をしたいタイプを設定
-	sphereInfo.m_type = KdCollider::TypeGround;
+	sphereInfo.m_type = _type;
 
 	// デバッグ用
 	if (_debugFlg)
@@ -183,18 +183,92 @@ bool CarryObjectBase::SphereHitGround(const Math::Vector3 _centerPos, const floa
 	_maxOverLap = 0;
 	bool hitFlg = false;
 
+	int cnt = 0;
+
 	for (auto& ret : retSphereList)
 	{
 		if (_maxOverLap < ret.m_overlapDistance)
 		{
 			_maxOverLap = ret.m_overlapDistance;
-			_hitDir = ret.m_hitDir;
+			_hitDirList.push_back(ret.m_hitDir);
 			hitFlg = true;
 
-			// // 当たった地形を保持
-			std::weak_ptr<TerrainBase> m_wpHitTerrain;
+			// 当たったオブジェクトを保持
+			m_wpHitObjectList.push_back(retObjList[cnt]);
 		}
+		cnt++;
 	}
 
 	return hitFlg;
+}
+
+bool CarryObjectBase::RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg)
+{
+	// テレインコントローラーがセットされていなければ終了
+	if (m_wpTerrainController.expired()) return false;
+
+	// 地面との当たり判定
+	KdCollider::RayInfo rayInfo;
+
+	// レイの発射位置
+	rayInfo.m_pos = _startPos;
+
+	// レイの方向
+	rayInfo.m_dir = Math::Vector3::Down;
+
+	// レイの長さ
+	rayInfo.m_range = _range;
+
+	// 当たり判定のタイプ
+	rayInfo.m_type = KdCollider::TypeGround;
+
+	// レイに当たったオブジェクト情報を格納するリスト
+	std::list<KdCollider::CollisionResult> retRayList;
+
+	// レイに当たったオブジェクトのタイプを格納するリスト
+	std::vector<std::weak_ptr<TerrainBase>> retObjectList;
+
+	// 当たり判定
+	for (auto& obj : m_wpTerrainController.lock()->GetObjList())
+	{
+		if (!obj.expired())
+		{
+			if (obj.lock()->Intersects(rayInfo, &retRayList))
+			{
+				// 当たったオブジェクトをリストで保持
+				retObjectList.push_back(obj);
+			}
+		}
+	}
+
+	// 一番近いオブジェクト
+	bool hit = false;
+	float maxOverLap = 0;
+
+	int cnt = 0;
+
+	for (auto& ret : retRayList)
+	{
+		if (ret.m_overlapDistance > maxOverLap)
+		{
+			hit = true;
+			maxOverLap = ret.m_overlapDistance;
+			_hitPos = ret.m_hitPos;
+
+			// 当たったオブジェクトを保持
+			m_wpHitTerrain = retObjectList[cnt];
+		}
+		cnt++;
+	}
+
+	// デバッグ
+	if (_debugFlg)
+	{
+		if (m_pDebugWire)
+		{
+			m_pDebugWire->AddDebugLine(_startPos, _dir, _range);
+		}
+	}
+
+	return hit;
 }

@@ -12,14 +12,57 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				4
 			]
 		}
 	],
 	"nodes":[
 		{
+			"name":"Carry",
+			"translation":[
+				0,
+				0,
+				0.9000000357627869
+			]
+		},
+		{
+			"name":"Center",
+			"translation":[
+				0,
+				1,
+				0
+			]
+		},
+		{
+			"name":"LeftFrontDown",
+			"translation":[
+				-1,
+				0,
+				-1
+			]
+		},
+		{
+			"name":"RightBackUp",
+			"translation":[
+				1,
+				2,
+				1
+			]
+		},
+		{
+			"children":[
+				0,
+				1,
+				2,
+				3
+			],
 			"mesh":0,
-			"name":"Cube"
+			"name":"Cube",
+			"scale":[
+				0.6000000238418579,
+				0.6000000238418579,
+				0.6000000238418579
+			]
 		}
 	],
 	"materials":[
@@ -78,12 +121,12 @@
 			"count":24,
 			"max":[
 				1,
-				1,
+				2,
 				1
 			],
 			"min":[
 				-1,
-				-1,
+				0,
 				-1
 			],
 			"type":"VEC3"

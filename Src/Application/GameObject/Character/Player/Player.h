@@ -4,6 +4,7 @@
 class CameraBase;
 class TerrainController;
 class CarryObjectController;
+class CarryObjectBase;
 
 class Player : public CharacterBase
 {
@@ -101,7 +102,6 @@ private:
 	struct HitMoveTerrain
 	{
 		Math::Matrix transMat	= Math::Matrix::Identity;	// 動く前の行列
-		Math::Matrix rotMat		= Math::Matrix::Identity;	// 回転行列
 		bool hitFlg				= false;					// 当たったかどうか
 	};
 	
@@ -191,7 +191,10 @@ private:
 	// 運べるオブジェクトコントローラー
 	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
 
+	// 運ぶキー制御
+	bool m_carryKeyFlg = false;
 
+	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
 
 
 	bool flg[4] = { false, false, false, false };

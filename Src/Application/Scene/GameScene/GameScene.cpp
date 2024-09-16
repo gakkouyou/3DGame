@@ -278,9 +278,9 @@ void GameScene::Init()
 
 
 	// 箱
-	std::shared_ptr<Box> box = std::make_shared<Box>();
-	box->Init();
-	AddObject(box);
+	//std::shared_ptr<Box> box = std::make_shared<Box>();
+	//box->Init();
+	//AddObject(box);
 
 
 
@@ -300,22 +300,26 @@ void GameScene::Init()
 	AddObject(enemyController);
 
 	// マップエディタ的な
-	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
-	// CSVファイルを指定する
-	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	carryObjectController->Init();
-	AddObject(carryObjectController);
-
-	// マップエディタ的な
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
 	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
 	terrainController->Init();
+
+	// マップエディタ的な
+	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
+	// CSVファイルを指定する
+	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	carryObjectController->SetTerrainController(terrainController);
+	carryObjectController->SetPlayer(player);
+	carryObjectController->Init();
+	AddObject(carryObjectController);
+
+
 	AddObject(terrainController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
-	DebugWindow::Instance().SetTerrainController(terrainController);// Terrain
-	DebugWindow::Instance().SetEnemyController(enemyController);	// Enemy
+	DebugWindow::Instance().SetTerrainController(terrainController);			// Terrain
+	DebugWindow::Instance().SetEnemyController(enemyController);				// Enemy
 	DebugWindow::Instance().SetCarryObjectController(carryObjectController);	// CarryObject
 
 
@@ -326,6 +330,7 @@ void GameScene::Init()
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
+	player->SetCarryObjectContoller(carryObjectController);
 }
 
 void GameScene::StartGameScene()
@@ -377,11 +382,13 @@ void GameScene::GameEnd(int _stayCnt)
 		// シーン遷移を終えたらリセット
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			// 敵、地形を全て削除する
+			// 敵、地形、運べるオブジェクトを全て削除する
 			auto it = m_objList.begin();
 			while (it != m_objList.end())
 			{
-				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy || (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
+					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground
+					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject)
 				{
 					(*it)->SetExpired(true);
 					it = m_objList.erase(it);
@@ -394,7 +401,7 @@ void GameScene::GameEnd(int _stayCnt)
 
 			for (auto& obj : m_objList)
 			{
-				// リセット(敵、地形も作り直される)
+				// リセット(敵、地形、運べるオブジェクトも作り直される)
 				obj->Reset();
 			}
 			m_resetFlg = true;

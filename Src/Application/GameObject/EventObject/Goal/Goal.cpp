@@ -66,8 +66,8 @@ void Goal::Init()
 
 void Goal::OnHit()
 {
-	Application::Instance().m_log.Clear();
-	Application::Instance().m_log.AddLog("Clear");
+	//Application::Instance().m_log.Clear();
+	//Application::Instance().m_log.AddLog("Clear");
 
 	m_goalFlg	= true;
 }

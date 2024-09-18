@@ -21,6 +21,9 @@ public:
 	// 情報をセットする
 	void SetParam(Param _param) override;
 
+	// 動くオブジェクト
+	bool IsRideable() const		override { return true; }
+
 private:
 	int m_stayCount = 0;
 

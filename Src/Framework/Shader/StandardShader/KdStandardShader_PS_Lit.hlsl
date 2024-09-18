@@ -276,5 +276,12 @@ float4 main(VSOutput In) : SV_Target0
 	//------------------------------------------
 	// 出力
 	//------------------------------------------
-	return float4(outColor, baseColor.a);
+	if(g_colorElable)
+	{
+		return float4(outColor + float3(0.4, 0.4, 0.4), baseColor.a);
+	}
+	else
+	{
+		return float4(outColor, baseColor.a);
+	}
 }

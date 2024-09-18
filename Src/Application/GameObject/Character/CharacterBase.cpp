@@ -1,7 +1,9 @@
 ﻿#include "CharacterBase.h"
 #include "../../Scene/SceneManager.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
+#include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../Terrain/TerrainBase.h"
+#include "../Terrain/CarryObject/CarryObjectBase.h"
 
 void CharacterBase::GenerateDepthMapFromLight()
 {
@@ -159,6 +161,77 @@ bool CharacterBase::RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _
 
 			// 当たったオブジェクトを保持
 			m_wpHitTerrain = retObjectList[cnt];
+		}
+		cnt++;
+	}
+
+	// デバッグ
+	if (_debugFlg)
+	{
+		if (m_pDebugWire)
+		{
+			m_pDebugWire->AddDebugLine(_startPos, _dir, _range);
+		}
+	}
+
+	return hit;
+}
+
+bool CharacterBase::RayHitCarryObject(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg)
+{
+	// セットされていなければ終了
+	if (m_wpCarryObjectController.expired()) return false;
+
+	// 地面との当たり判定
+	KdCollider::RayInfo rayInfo;
+
+	// レイの発射位置
+	rayInfo.m_pos = _startPos;
+
+	// レイの方向
+	rayInfo.m_dir = Math::Vector3::Down;
+
+	// レイの長さ
+	rayInfo.m_range = _range;
+
+	// 当たり判定のタイプ
+	rayInfo.m_type = KdCollider::TypeGround;
+
+	// レイに当たったオブジェクト情報を格納するリスト
+	std::list<KdCollider::CollisionResult> retRayList;
+
+	// レイに当たったオブジェクトのタイプを格納するリスト
+	std::vector<std::weak_ptr<CarryObjectBase>> retObjectList;
+
+	// 当たり判定
+	for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
+	{
+		if (!obj.expired())
+		{
+			if (obj.lock()->Intersects(rayInfo, &retRayList))
+			{
+				// 当たったオブジェクトをリストで保持
+				retObjectList.push_back(obj);
+			}
+		}
+	}
+
+	// 一番近いオブジェクト
+	bool hit = false;
+	float maxOverLap = 0;
+
+	int cnt = 0;
+
+	for (auto& ret : retRayList)
+	{
+		if (ret.m_overlapDistance > maxOverLap)
+		{
+			hit = true;
+			maxOverLap = ret.m_overlapDistance;
+			_hitPos = ret.m_hitPos;
+
+			// 当たったオブジェクトを保持
+			m_wpHitCarryObject = retObjectList[cnt];
 		}
 		cnt++;
 	}

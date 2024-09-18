@@ -14,6 +14,9 @@ public:
 
 	void Reset()	override;
 
+	// 動くオブジェクト
+	bool IsRideable() const		override { return true; }
+
 private:
 	// 回転角度
 	Math::Vector3 m_rotDegAng = Math::Vector3::Zero;

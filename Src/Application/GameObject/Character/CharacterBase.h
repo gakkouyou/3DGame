@@ -2,6 +2,8 @@
 
 class TerrainController;
 class TerrainBase;
+class CarryObjectController;
+class CarryObjectBase;
 
 class CharacterBase : public KdGameObject
 {
@@ -43,11 +45,16 @@ public:
 	// TerrainControllerをセットする
 	void SetTerrainController(std::shared_ptr<TerrainController> _spTerrainController) { m_wpTerrainController = _spTerrainController; }
 
+	// 運べるオブジェクトのコントローラーをセット
+	void SetCarryObjectContoller(const std::shared_ptr<CarryObjectController>& _spCarryObjectController) { m_wpCarryObjectController = _spCarryObjectController; }
+
 protected:
 	// レイ判定　当たったらtrueを返す
 	bool RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg = false);
 	// レイ判定　地面
 	bool RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
+	// レイ判定　運べるオブジェクト
+	bool RayHitCarryObject(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
 
 	// スフィア判定　当たったらtrueを返す
 	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
@@ -96,4 +103,10 @@ protected:
 
 	// 当たった地形を保持
 	std::weak_ptr<TerrainBase> m_wpHitTerrain;
+
+	// 運べるオブジェクトコントローラー
+	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
+
+	// 運べるオブジェクト当たった奴
+	std::weak_ptr<CarryObjectBase> m_wpHitCarryObject;
 };

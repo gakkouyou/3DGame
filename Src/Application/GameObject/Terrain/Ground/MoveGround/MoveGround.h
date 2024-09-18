@@ -18,6 +18,9 @@ public:
 
 	// 情報をセットする
 	void SetParam(Param _param) override;
+
+	// 動くオブジェクト
+	bool IsRideable() const		override { return true; }
 	
 	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
 

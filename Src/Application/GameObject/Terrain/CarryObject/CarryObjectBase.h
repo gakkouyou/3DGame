@@ -22,6 +22,9 @@ public:
 	// 運ぶ運ばれていないを切り替える
 	virtual void CarryFlg(const bool _carryFlg) { m_carryFlg = _carryFlg; }
 
+	// 少し白くするどうかをセットする
+	virtual void SetSelectWhite(const bool _whiteFlg) { m_whiteFlg = _whiteFlg; }
+
 	Math::Vector3 GetPos()	const				override { return m_pos; }
 
 	struct Param
@@ -39,6 +42,9 @@ public:
 
 	// TerrainControllerをセットする
 	void SetTerrainController(std::shared_ptr<TerrainController> _spTerrainController) { m_wpTerrainController = _spTerrainController; }
+
+	// 当たっている地形を渡す
+	const std::weak_ptr<TerrainBase> GetHitTerrain() const { return m_wpHitTerrain; }
 
 protected:
 	// スフィア判定　当たったらtrueを返す
@@ -97,4 +103,7 @@ protected:
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
+
+	// 少し白くする
+	bool m_whiteFlg = false;
 };

@@ -625,7 +625,7 @@ static bool HitCheck(const Math::Vector3 center, const float left, const float r
 
 // 当たり判定２
 static bool HitCheck(Math::Vector3& finalPos, Math::Vector3& finalHitPos,
-	const Math::Vector3& nearPoint, const Math::Vector3 center, const float left, const float right, const float up, const float down, const float front, const float back)
+	const Math::Vector3& nearPoint, const Math::Vector3& center, const float left, const float right, const float up, const float down, const float front, const float back)
 {
 	// ボックスの外なら当たっていない
 	if (nearPoint.x < left || nearPoint.x > right || nearPoint.y < down || nearPoint.y > up || nearPoint.z < back || nearPoint.z > front)
@@ -633,237 +633,37 @@ static bool HitCheck(Math::Vector3& finalPos, Math::Vector3& finalHitPos,
 		return false;
 	}
 
+	float adjust = 0;
 
-	// boxの中心座標から判定をする点へのベクトル
-	Math::Vector3 vec = nearPoint - finalPos;
-	const Math::Vector3 keepVec = vec;
-	float vecLength = vec.Length();
-	vec.Normalize();
-
-	// ベクトルを大きくする
-	vec *= 10;
-
-	// 半径
-	float radius = 0;
-
-	// 中心点から判定する面までの距離
-	float m = 0;
-	// 判定する面から中心点から当たった点のベクトルの延長の先端の距離
-	float n = 0;
-	// 中心点から当たった点のベクトルの延長と判定する面の当たった座標
-	Math::Vector3 p;
-
-	// 右の面
-	if (vec.x > 0)
+	// 左側にある場合
+	if (nearPoint.x < center.x)
 	{
-		// 右面と判定
-		m = right - finalPos.x;
-		n = vec.x + finalPos.x - right;
-		p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-		// 前面と判定
-		if (p.z > front)
-		{
-			m = front - finalPos.z;
-			n = vec.z + finalPos.z - front;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
-		// 後ろ面と判定
-		else if (p.z < back)
-		{
-			m = back - finalPos.z;
-			n = vec.z + finalPos.z - back;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
+		adjust = nearPoint.x - left;
+		finalPos.x += adjust;
 	}
-	// 左の面
-	else if(vec.x < 0)
-	{
-		// 左面と判定
-		m = left - finalPos.x;
-		n = vec.x + finalPos.x - left;
-		Math::Vector3 p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-		// 前面と判定
-		if (p.z > front)
-		{
-			m = front - finalPos.z;
-			n = vec.z + finalPos.z - front;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
-		// 後ろ面と判定
-		else if (p.z < back)
-		{
-			m = back - finalPos.z;
-			n = vec.z + finalPos.z - back;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
-	}
+	// 右側にある場合
 	else
 	{
-
-		// 前の面
-		if (vec.z > 0)
-		{
-			// 前面と判定
-			m = front - finalPos.z;
-			n = vec.z + finalPos.z - front;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
-		// 後ろ面
-		else if (vec.z < 0)
-		{
-			// 後ろ面と判定
-			m = back - finalPos.z;
-			n = vec.z + finalPos.z - back;
-			p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			// 上面と判定
-			if (p.y > up)
-			{
-				m = up - finalPos.y;
-				n = vec.y + finalPos.y - up;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-			// 下面と判定
-			else if (p.y < down)
-			{
-				m = down - finalPos.y;
-				n = vec.y + finalPos.y - down;
-				p = (finalPos * n + (vec + finalPos) * m) / (m + n);
-			}
-		}
+		adjust = nearPoint.x - right;
+		finalPos.x += adjust;
 	}
-
-	//p.y = 0;
-
-	// 半径を求める
-	radius = (p - nearPoint).Length();
-
-	vec = keepVec;
-	vec.Normalize();
-
-	// 押し戻し
-	finalPos -= vec * radius;
+	
+	// 後ろ側にある場合
+	if (nearPoint.z < center.z)
+	{
+		adjust = nearPoint.z - back;
+		finalPos.z += adjust;
+	}
+	// 前側にある場合
+	else
+	{
+		adjust = nearPoint.z - front;
+		finalPos.z += adjust;
+	}
 
 	finalHitPos = nearPoint;
 
 	return true;
-
-	//// 押し戻し計算
-	//// めり込んでいるぶんのベクトルを計算
-	//DirectX::XMVECTOR vPush = DirectX::XMVector3Normalize(vToCenter);
-
-	//vPush *= sphereRadius - DirectX::XMVector3Length(vToCenter).m128_f32[0];
-
-	//// 球の中心座標を更新
-	//finalPos += vPush;
-
-	//finalHitPos = nearPoint;
-
-
-
-	//// 最近接点→球の中心　ベクトルを求める
-	//DirectX::XMVECTOR vToCenter = finalPos - nearPoint;
-
-	//// XYZ軸が別々の大きさで拡縮されてる状態の場合、球が変形してる状態なため正確な半径がわからない。
-	//// そこでscaleをかけてXYZ軸のスケールが均等な座標系へ変換する
-	//vToCenter *= objScale;
-
-	//// 最近接点が半径の2乗より遠い場合は、衝突していない
-	//if (DirectX::XMVector3LengthSq(vToCenter).m128_f32[0] > radiusSqr)
-	//{
-	//	return false;
-	//}
-
-	//// 押し戻し計算
-	//// めり込んでいるぶんのベクトルを計算
-	//DirectX::XMVECTOR vPush = DirectX::XMVector3Normalize(vToCenter);
-
-	//vPush *= sphereRadius - DirectX::XMVector3Length(vToCenter).m128_f32[0];
-
-	//// 拡縮を考慮した座標系へ戻す
-	//vPush /= objScale;
-
-	//// 球の中心座標を更新
-	//finalPos += vPush;
-
-	//finalHitPos = nearPoint;
-
-	//return true;
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -950,7 +750,7 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box, const Di
 		//if (HitCheck(center, left, right, up, down, front, back, a, b, c, pos))
 		if(HitCheck(finalPos, finalHitPos, nearPoint, center, left, right, up, down, front, back))
 		{
-			Application::Instance().m_log.AddLog("true");
+			//Application::Instance().m_log.AddLog("true");
 			pos = nearPoint;
 			isHit = true;
 		}

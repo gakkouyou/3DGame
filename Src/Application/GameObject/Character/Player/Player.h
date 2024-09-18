@@ -50,8 +50,7 @@ public:
 	// ライフをゲット
 	const int GetLife() const { return m_life; }
 
-	// 運べるオブジェクトのコントローラーをセット
-	void SetCarryObjectContoller(const std::shared_ptr<CarryObjectController>& _spCarryObjectController) { m_wpCarryObjectController = _spCarryObjectController; }
+
 
 private:
 	// 当たり判定
@@ -109,9 +108,6 @@ private:
 	HitMoveTerrain m_moveGround;
 	// 回る床
 	HitMoveTerrain m_rotationGround;
-
-	// アニメーション用
-	bool m_walkAnimeDirFlg = false;
 
 	// エフェクシア用フラグ
 	bool m_effectFlg = false;
@@ -188,14 +184,31 @@ private:
 	// 移動前の座標
 	Math::Vector3 m_oldPos;
 
-	// 運べるオブジェクトコントローラー
-	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
-
 	// 運ぶキー制御
 	bool m_carryKeyFlg = false;
+	
+	HitMoveTerrain m_carryObjectHitTerrain;
 
+	HitMoveTerrain m_carryObject;
+
+	// 運んでいるオブジェクト
 	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
 
+	// アニメーション用
+	enum class AnimationType
+	{
+		Idle,		// 立ち状態
+		Walk,		// 歩き
+		Run,		// 走り
+		Jump,		// ジャンプ
+		Air,		// 空中
+		Carry,		// 運び立ち状態
+		CarryWalk,	// 運び歩き状態
+	};
+	AnimationType m_animationType;
+
+	// アニメーションをセットする関数
+	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
 
 	bool flg[4] = { false, false, false, false };
 };

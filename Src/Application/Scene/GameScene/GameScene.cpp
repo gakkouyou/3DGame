@@ -303,18 +303,21 @@ void GameScene::Init()
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
 	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	terrainController->Init();
 
 	// マップエディタ的な
 	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
 	// CSVファイルを指定する
 	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	// Initより先に書く
 	carryObjectController->SetTerrainController(terrainController);
 	carryObjectController->SetPlayer(player);
 	carryObjectController->Init();
 	AddObject(carryObjectController);
 
-
+	// ===========================================================================
+	// 全てのオブジェクトコントローラーの後に更新するように一番後ろに書く
+	// ===========================================================================
+	terrainController->Init();
 	AddObject(terrainController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す

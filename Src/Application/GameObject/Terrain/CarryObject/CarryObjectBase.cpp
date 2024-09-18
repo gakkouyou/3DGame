@@ -15,6 +15,11 @@ void CarryObjectBase::DrawLit()
 {
 	if (m_spModel)
 	{
+		if (m_whiteFlg)
+		{
+			KdShaderManager::Instance().m_StandardShader.SetColorEnable(true);
+			m_whiteFlg = false;
+		}
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 	}
 }

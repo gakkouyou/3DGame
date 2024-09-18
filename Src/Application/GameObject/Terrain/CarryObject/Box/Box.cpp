@@ -5,11 +5,6 @@
 
 void Box::Update()
 {
-
-}
-
-void Box::PostUpdate()
-{
 	if (m_pauseFlg) return;
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
@@ -25,6 +20,105 @@ void Box::PostUpdate()
 
 		Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * m_mWorld).Translation();
 		m_pDebugWire->AddDebugSphere(carryPos, 0.1f, kRedColor);
+	}
+
+	m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+
+	HitJudge();
+}
+
+void Box::PostUpdate()
+{
+	if (m_pauseFlg) return;
+	// 運ばれていない時の処理
+	if (m_carryFlg == false)
+	{
+		Math::Matrix transMat = Math::Matrix::Identity;
+		// 動く床に当たっていた時の処理
+		if (m_moveGround.hitFlg)
+		{
+			// 動く床の動く前の逆行列
+			Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
+			// 動く床から見たプレイヤーの座標行列
+			Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
+
+			// 動く床を探す
+			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
+
+			if (spHitObject)
+			{
+				// 動く床の動いた後の行列
+				Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
+
+				// 座標を確定
+				m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+			}
+		}
+
+		// 回る床に当たっていた時の処理
+		if (m_rotationGround.hitFlg)
+		{
+			// 当たった地面
+			std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
+			// 無かったら終了
+			if (!spHitTerrain) return;
+			Math::Vector3 terrainPos = spHitTerrain->GetPos();
+			// プレイヤーから回転床までの距離
+			Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
+			// 回転床が回転する角度
+			Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+
+			// Z軸回転の場合
+			if (lotDegAng.z != 0)
+			{
+				vec.z = 0;
+				float length = vec.Length();
+				// 移動する前の回転床から見た箱の角度
+				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+
+				if (degAng <= 90 && degAng >= -90)
+				{
+					degAng -= 90;
+					if (degAng < 0)
+					{
+						degAng += 360;
+					}
+					degAng = 360 - degAng;
+
+					degAng += lotDegAng.z;
+					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+					m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+				}
+			}
+			// Y軸回転の場合
+			else if (lotDegAng.y != 0)
+			{
+				vec = m_pos - spHitTerrain->GetPos();
+				vec.y = 0;
+				float length = vec.Length();
+				// 移動する前の回転床から見たプレイヤーの角度
+				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
+
+				//if (degAng <= 90 && degAng >= -90)
+				{
+					degAng -= 90;
+					if (degAng < 0)
+					{
+						degAng += 360;
+					}
+					if (degAng >= 360)
+					{
+						degAng -= 360;
+					}
+					degAng = 360 - degAng;
+
+					// 回転床が回転する角度
+					degAng -= lotDegAng.y;
+					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+					m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
+				}
+			}
+		}
 	}
 	// 運ばれている時の処理
 	else
@@ -61,8 +155,6 @@ void Box::PostUpdate()
 			m_pos += playerCarryPos - carryPos;
 		}
 	}
-
-	HitJudge();
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
@@ -132,6 +224,9 @@ void Box::SetParam(Param _param)
 
 void Box::HitJudge()
 {
+	// 運ばれている状態なら当たり判定をしない
+	if (m_carryFlg == true)return;
+	
 	// レイ判定
 	// 動く床関連をリセット
 	// 動く床

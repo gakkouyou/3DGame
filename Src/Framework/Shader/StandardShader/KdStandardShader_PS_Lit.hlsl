@@ -278,7 +278,7 @@ float4 main(VSOutput In) : SV_Target0
 	//------------------------------------------
 	if(g_colorElable)
 	{
-		return float4(outColor + float3(0.4, 0.4, 0.4), baseColor.a);
+		return float4(outColor + g_color, baseColor.a);
 	}
 	else
 	{

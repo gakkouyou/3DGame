@@ -111,6 +111,8 @@ void TPSCamera::PostUpdate()
 	m_oldPauseFlg = m_pauseFlg;
 
 	CameraBase::Update();
+
+	KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
 }
 
 void TPSCamera::Init()

@@ -14,8 +14,7 @@
 void Player::Update()
 {
 	// デバッグモード中は更新しない
-	if (SceneManager::Instance().GetDebug()) m_stopFlg = true;
-	else m_stopFlg = false;
+	if (SceneManager::Instance().GetDebug()) return;
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
@@ -712,20 +711,96 @@ void Player::PostUpdate()
 	// 運べるオブジェクトに乗っている時の処理(地面に触れている場合)
 	if (m_carryObjectHitTerrain.hitFlg)
 	{
-		// 動く床の動く前の逆行列
-		Math::Matrix inverseMatrix = m_carryObjectHitTerrain.transMat.Invert();
-		// 動く床から見たプレイヤーの座標行列
-		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-		// 動く床の場合
-		std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-		if (spHitObject)
+		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
+		if (spHitTerrain)
 		{
-			// 動く床の動いた後の行列
-			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
+			switch (spHitTerrain->GetObjectType())
+			{
+					// 動く床の場合
+				case ObjectType::MoveGround:
+				{
+					// 動く床の動く前の逆行列
+					Math::Matrix inverseMatrix = m_carryObjectHitTerrain.transMat.Invert();
+					// 動く床から見たプレイヤーの座標行列
+					Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
 
-			// 座標を確定
-			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+					// 動く床の動いた後の行列
+					Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitTerrain->GetMatrix().Translation());
+
+					// 座標を確定
+					m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
+					break;
+				}
+				// 回る床の場合(Z軸)
+				case ObjectType::RotationGround:
+				{
+					Math::Vector3 terrainPos = spHitTerrain->GetPos();
+					// プレイヤーから回転床までの距離
+					Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
+					// 回転床が回転する角度
+					Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+
+					// Z軸回転の場合
+					if (lotDegAng.z != 0)
+					{
+						vec.z = 0;
+						float length = vec.Length();
+						// 移動する前の回転床から見たプレイヤーの角度
+						float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+
+						if (degAng <= 90 && degAng >= -90)
+						{
+							degAng -= 90;
+							if (degAng < 0)
+							{
+								degAng += 360;
+							}
+							degAng = 360 - degAng;
+
+							degAng += lotDegAng.z;
+							m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+							m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+						}
+					}
+					break;
+				}
+				case ObjectType::Propeller:
+				{
+					Math::Vector3 terrainPos = spHitTerrain->GetPos();
+					// プレイヤーから回転床までの距離
+					Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
+					// 回転床が回転する角度
+					Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+					// Y軸回転の場合
+					if (lotDegAng.y != 0)
+					{
+						vec = m_pos - spHitTerrain->GetPos();
+						vec.y = 0;
+						float length = vec.Length();
+						// 移動する前の回転床から見たプレイヤーの角度
+						float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
+
+						//if (degAng <= 90 && degAng >= -90)
+						{
+							degAng -= 90;
+							if (degAng < 0)
+							{
+								degAng += 360;
+							}
+							if (degAng >= 360)
+							{
+								degAng -= 360;
+							}
+							degAng = 360 - degAng;
+
+							// 回転床が回転する角度
+							degAng -= lotDegAng.y;
+							m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+							m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
+						}
+					}
+				}
+			}
 		}
 	}
 	// 運べるオブジェクトに乗っている時の処理(地面に触れていない場合)
@@ -765,6 +840,8 @@ void Player::PostUpdate()
 		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	}
 	m_spModel->CalcNodeMatrices();
+
+	//KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
 }
 
 void Player::GenerateDepthMapFromLight()
@@ -1038,6 +1115,7 @@ void Player::HitJudgeGround()
 					// 動く床に乗った場合
 				case ObjectType::MoveGround:
 				case ObjectType::DropGround:
+				case ObjectType::Switch:
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
@@ -1084,56 +1162,56 @@ void Player::HitJudgeGround()
 		}
 	}
 
-	//// 地面(壁)とのスフィア判定
-	//{
-	//	// 方向
-	//	std::list<Math::Vector3> hitDirList;
-	//	// スフィアの中心座標
-	//	Math::Vector3 centerPos = m_pos;
-	//	// スフィアの半径
-	//	float radius = 0.25f;
-	//	centerPos.y += radius + 0.1f;
+	// 地面(壁)とのスフィア判定
+	{
+		// 方向
+		std::list<Math::Vector3> hitDirList;
+		// スフィアの中心座標
+		Math::Vector3 centerPos = m_pos;
+		// スフィアの半径
+		float radius = 0.25f;
+		centerPos.y += radius + 0.1f;
 
-	//	// 当たったかどうかのフラグ
-	//	bool hitFlg = false;
-	//	// めり込んだ距離
-	//	float maxOverLap = 0.0f;
+		// 当たったかどうかのフラグ
+		bool hitFlg = false;
+		// めり込んだ距離
+		float maxOverLap = 0.0f;
 
-	//	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-	//	if (hitFlg == false)
-	//	{
-	//		centerPos.y += 0.5f;
-	//		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-	//	}
-	//	if (hitFlg == false)
-	//	{
-	//		centerPos.y += 0.5f;
-	//		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-	//	}
-	//	if (hitFlg == false)
-	//	{
-	//		centerPos.y += 0.5f;
-	//		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
-	//	}
+		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
+		if (hitFlg == false)
+		{
+			centerPos.y += 0.5f;
+			hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, false);
+		}
 
-	//	//Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
+		//Application::Instance().m_log.AddLog("%d\n", hitDirList.size());
 
-	//	// 当たった場合
-	//	if (hitFlg)
-	//	{
-	//		Math::Vector3 dir;
+		// 当たった場合
+		if (hitFlg)
+		{
+			Math::Vector3 dir;
 
-	//		for (auto& hitDir : hitDirList)
-	//		{
-	//			dir += hitDir;
-	//		}
+			for (auto& hitDir : hitDirList)
+			{
+				dir += hitDir;
+			}
 
-	//		// Y軸の補正はなし
-	//		dir.y = 0;
-	//		dir.Normalize();
-	//		m_pos += dir * maxOverLap;
-	//	}
-	//}
+			// Y軸の補正はなし
+			dir.y = 0;
+			dir.Normalize();
+			m_pos += dir * maxOverLap;
+		}
+	}
 
 	// ボックス判定
 	{
@@ -1378,19 +1456,17 @@ void Player::HitJudgeEnemy()
 
 void Player::HitJudgeCarryObject()
 {
-	// 運んでいる状態なら当たり判定しない
-	if (m_situationType & SituationType::Carry) return;
-	// オブジェクトリストを入手できない状態なら当たり判定しない
-	if (m_wpCarryObjectController.expired()) return;
-
+	m_wpHitCarryObject.reset();
 	// 当たったオブジェクト系をリセット
 	m_carryObjectHitTerrain.hitFlg = false;
 	m_carryObjectHitTerrain.transMat = Math::Matrix::Identity;
 
 	m_carryObject.hitFlg = false;
 	m_carryObject.transMat = Math::Matrix::Identity;
-
-	m_wpHitCarryObject.reset();
+	// 運んでいる状態なら当たり判定しない
+	if (m_situationType & SituationType::Carry) return;
+	// オブジェクトリストを入手できない状態なら当たり判定しない
+	if (m_wpCarryObjectController.expired()) return;
 
 	// レイ判定
 	// 当たった座標
@@ -1473,18 +1549,13 @@ void Player::HitJudgeCarryObject()
 					m_wpHitTerrain = wpHitTerrain;
 				}
 			}
-			// 地面に当たっていなかった時の処理
-			else
-			{
-				m_carryObject.hitFlg = true;
-				m_carryObject.transMat.Translation(m_wpHitCarryObject.lock()->GetMatrix().Translation());
-			}
 		}
 	}
 
 
 	for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
 	{
+		if (obj.expired() == true) continue;
 		// 持てるか持てないかの判定
 		// プレイヤーとオブジェクトの距離
 		Math::Vector3 vec = obj.lock()->GetPos() - m_pos;

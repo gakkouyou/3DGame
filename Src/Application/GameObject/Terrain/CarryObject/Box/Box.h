@@ -37,4 +37,7 @@ private:
 	Math::Vector3 m_edgePos[Max] = {};
 
 	Math::Vector3 m_centerPos;
+
+	// レイを少し上から出す処理をやめるフラグ
+	bool m_rayDownFlg	= false;
 };

@@ -90,6 +90,8 @@ void RotationGround::SetParam(Param _param)
 
 	// 回転角度
 	m_param.degAng = _param.degAng;
+
+	m_setParamFlg = true;
 }
 
 void RotationGround::Reset()

@@ -185,7 +185,7 @@ void GameScene::Init()
 {
 	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
 
-	//KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
+	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
 
 	// ②フォグ(霧)                                                 ↓距離 ↓高さ
 	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(true, true);
@@ -209,8 +209,8 @@ void GameScene::Init()
 
 	// ゴール
 	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
-	goal->SetPos({ 220, 30, 50 });
-	//goal->SetPos({ 20, 12, -10 });
+	//goal->SetPos({ 220, 30, 50 });
+	goal->SetPos({ 0, 3, 20 });
 	goal->Init();
 	AddObject(goal);
 	// 保持
@@ -274,15 +274,6 @@ void GameScene::Init()
 	std::shared_ptr<Heart> heart = std::make_shared<Heart>();
 	heart->Init();
 	AddObject(heart);
-
-
-
-	// 箱
-	//std::shared_ptr<Box> box = std::make_shared<Box>();
-	//box->Init();
-	//AddObject(box);
-
-
 
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

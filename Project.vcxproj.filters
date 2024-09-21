@@ -211,6 +211,12 @@
     <Filter Include="Src\Application\Tool\ObjectController\CarryObjectController">
       <UniqueIdentifier>{d3cff8ae-367f-47f1-b4b6-1428bc7839be}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Switch">
+      <UniqueIdentifier>{f866fe54-03f9-4d77-9d0d-c34c58a18fa5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Door">
+      <UniqueIdentifier>{3cbbca77-275f-4d2d-9e48-2bf05d6d325c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -492,6 +498,12 @@
     <ClInclude Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.h">
       <Filter>Src\Application\Tool\ObjectController\CarryObjectController</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Switch</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\Door.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -742,6 +754,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.cpp">
       <Filter>Src\Application\Tool\ObjectController\CarryObjectController</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Switch</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\Door.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

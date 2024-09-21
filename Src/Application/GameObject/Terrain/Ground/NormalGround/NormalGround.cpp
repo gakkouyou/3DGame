@@ -36,4 +36,6 @@ void NormalGround::SetParam(Param _param)
 	Math::Matrix scaleMat	= Math::Matrix::CreateScale(m_param.scale);
 
 	m_mWorld = scaleMat * transMat;
+
+	m_setParamFlg = true;
 }

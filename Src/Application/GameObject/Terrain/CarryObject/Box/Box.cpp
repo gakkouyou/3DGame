@@ -76,6 +76,14 @@ void Box::PostUpdate()
 				// 移動する前の回転床から見た箱の角度
 				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
 
+				Application::Instance().m_log.Clear();
+				Application::Instance().m_log.AddLog("%.2f", degAng);
+
+				if (degAng < -90)
+				{
+					m_rayDownFlg = true;
+				}
+
 				if (degAng <= 90 && degAng >= -90)
 				{
 					degAng -= 90;
@@ -253,8 +261,16 @@ void Box::HitJudge()
 
 		// 真ん中からレイ判定
 		startPos = m_pos;
-		startPos.y += enableStepHeight;
+		if (!m_rayDownFlg)
+		{
+			startPos.y += enableStepHeight;
+		}
+		else
+		{
+			return;
+		}
 		hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight, true);
+
 
 		float right = m_edgePos[RightBack].x;
 		float back	= m_edgePos[RightBack].z;
@@ -327,6 +343,7 @@ void Box::HitJudge()
 					// 動く床に乗った場合
 				case ObjectType::MoveGround:
 				case ObjectType::DropGround:
+				case ObjectType::Switch:
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
@@ -358,6 +375,7 @@ void Box::HitJudge()
 			}
 		}
 	}
+	m_rayDownFlg = false;
 
 	// 地面(壁)とのスフィア判定
 	{

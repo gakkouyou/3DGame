@@ -177,9 +177,11 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\Door.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\TerrainBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.h" />
@@ -265,9 +267,11 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\Door.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\TerrainBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.cpp" />

@@ -34,7 +34,7 @@ public:
 
 		int ColorEnable = 0;
 
-		Math::Vector3 blank{};
+		Math::Vector3 Color = { 0.4f, 0.4f, 0.4f };
 	};
 
 	// 定数バッファ(メッシュ単位更新)
@@ -65,9 +65,10 @@ public:
 	// 設定・取得
 	//================================================
 
-	void SetColorEnable(bool _enable)
+	void SetColorEnable(bool _enable, Math::Vector3 _color = { 0.4f, 0.4f, 0.4f })
 	{
 		m_cb0_Obj.Work().ColorEnable = _enable;
+		m_cb0_Obj.Work().Color = _color;
 		m_dirtyCBObj = true;
 	}
 

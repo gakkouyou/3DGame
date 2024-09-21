@@ -39,6 +39,9 @@ public:
 	// CSVに書き込む
 	void CSVWriter();
 
+	// スイッチのターゲット選択モードの切替
+	void TargetSelect() { m_targetFlg = !m_targetFlg; };
+
 private:
 	// CSVファイルの名前
 	std::string m_fileName;
@@ -71,6 +74,8 @@ private:
 		int FenceBar		= 0;
 		int DropGround		= 0;
 		int Propeller		= 0;
+		int Switch			= 0;
+		int Door			= 0;
 	};
 
 	Count m_objectCount;
@@ -87,9 +92,16 @@ private:
 		float speed				= 0;
 		int stayTime			= 0;
 		Math::Vector3 degAng	= Math::Vector3::Zero;
+		std::string targetName;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む
 	void CSVLoader();
+
+	// マウスクリックの制御フラグ
+	bool m_rightClickFlg = false;
+
+	// ターゲットセレクトモードに移行する為のフラグ
+	bool m_targetFlg = false;
 };

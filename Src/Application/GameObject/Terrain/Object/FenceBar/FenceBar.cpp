@@ -34,4 +34,6 @@ void FenceBar::SetParam(Param _param)
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
 
 	m_mWorld = scaleMat * rotMat * transMat;
+
+	m_setParamFlg = true;
 }

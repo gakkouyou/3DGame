@@ -13,6 +13,8 @@
 #include "../../../GameObject/Terrain/Object/FencePillar/FencePillar.h"
 #include "../../../GameObject/Terrain/Ground/DropGround/DropGround.h"
 #include "../../../GameObject/Terrain/Object/Propeller/Propeller.h"
+#include "../../../GameObject/Terrain/Object/Switch/Switch.h"
+#include "../../../GameObject/Terrain/Object/Door/Door.h"
 
 void TerrainController::Update()
 {
@@ -32,12 +34,14 @@ void TerrainController::Update()
 	{
 		DebugWindow::TerrainParam debugParam = DebugWindow::Instance().GetTerrainParam();
 		TerrainBase::Param param;
-		param.startPos	= debugParam.startPos;	// 最初の座標
-		param.goalPos	= debugParam.goalPos;	// ゴールの座標
-		param.scale		= debugParam.scale;		// 拡縮
-		param.speed		= debugParam.speed;		// スピード
-		param.stayTime	= debugParam.stayTime;	// 待機時間
-		param.degAng	= debugParam.degAng;	// 角度
+		param.startPos		= debugParam.startPos;	// 最初の座標
+		param.goalPos		= debugParam.goalPos;	// ゴールの座標
+		param.scale			= debugParam.scale;		// 拡縮
+		param.speed			= debugParam.speed;		// スピード
+		param.stayTime		= debugParam.stayTime;	// 待機時間
+		param.degAng		= debugParam.degAng;	// 角度
+		param.targetName	= debugParam.targetName;// ターゲットのオブジェクトの名前
+		
 		spTargetObject->SetParam(param);
 	}
 
@@ -82,7 +86,14 @@ const std::string TerrainController::GetObjectName() const
 {
 	if (!m_wpTargetObject.expired())
 	{
-		return m_wpTargetObject.lock()->GetObjectName();
+		if (m_targetFlg == false)
+		{
+			return m_wpTargetObject.lock()->GetObjectName();
+		}
+		else
+		{
+			return m_wpTargetObject.lock()->GetObjectName() + " TargetSelect";
+		}
 	}
 	else
 	{
@@ -181,16 +192,37 @@ void TerrainController::ConfirmedObject()
 				m_objectCount.Propeller++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Propeller);
+				break;
+
+				// スイッチの場合
+			case ObjectType::Switch:
+				// タイプのセット
+				data.type = "Switch";
+				// カウントを進める
+				m_objectCount.Switch++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.Switch);
+				break;
+
+				// ドアの場合
+			case ObjectType::Door:
+				// タイプのセット
+				data.type = "Door";
+				// カウントを進める
+				m_objectCount.Door++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.Door);
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
-			data.pos		= spTargetObject->GetParam().pos;		// 座標
-			data.goalPos	= spTargetObject->GetParam().goalPos;	// ゴール座標
-			data.scale		= spTargetObject->GetParam().scale;		// 拡縮
-			data.speed		= spTargetObject->GetParam().speed;		// スピード
-			data.stayTime	= spTargetObject->GetParam().stayTime;	// 待機時間
-			data.degAng		= spTargetObject->GetParam().degAng;	// 回転角度
+			data.pos		= spTargetObject->GetParam().pos;			// 座標
+			data.goalPos	= spTargetObject->GetParam().goalPos;		// ゴール座標
+			data.scale		= spTargetObject->GetParam().scale;			// 拡縮
+			data.speed		= spTargetObject->GetParam().speed;			// スピード
+			data.stayTime	= spTargetObject->GetParam().stayTime;		// 待機時間
+			data.degAng		= spTargetObject->GetParam().degAng;		// 回転角度
+			data.targetName = spTargetObject->GetParam().targetName;	// ターゲットのオブジェクトの名前
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
 			// 地形のウィークポインタのリストにプッシュバックする
@@ -209,12 +241,13 @@ void TerrainController::ConfirmedObject()
 					break;
 				}
 			}
-			m_dataList[num].pos		= spTargetObject->GetParam().startPos;	// 座標
-			m_dataList[num].goalPos = spTargetObject->GetParam().goalPos;	// ゴール座標
-			m_dataList[num].scale	= spTargetObject->GetParam().scale;		// 拡縮
-			m_dataList[num].speed	= spTargetObject->GetParam().speed;		// スピード
-			m_dataList[num].stayTime= spTargetObject->GetParam().stayTime;	// 待機時間
-			m_dataList[num].degAng	= spTargetObject->GetParam().degAng;	// 回転角度
+			m_dataList[num].pos			= spTargetObject->GetParam().startPos;	// 座標
+			m_dataList[num].goalPos		= spTargetObject->GetParam().goalPos;	// ゴール座標
+			m_dataList[num].scale		= spTargetObject->GetParam().scale;		// 拡縮
+			m_dataList[num].speed		= spTargetObject->GetParam().speed;		// スピード
+			m_dataList[num].stayTime	= spTargetObject->GetParam().stayTime;	// 待機時間
+			m_dataList[num].degAng		= spTargetObject->GetParam().degAng;	// 回転角度
+			m_dataList[num].targetName	= spTargetObject->GetParam().targetName;// ターゲットの名前
 		}
 	}
 
@@ -322,6 +355,26 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 		m_wpTargetObject = object;
 		break;
 	}
+
+	// スイッチ
+	case KdGameObject::ObjectType::Switch:
+	{
+		std::shared_ptr<Switch> object = std::make_shared<Switch>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// ドア
+	case KdGameObject::ObjectType::Door:
+	{
+		std::shared_ptr<Door> object = std::make_shared<Door>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
 	}
 }
 
@@ -345,8 +398,8 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;		// 座標
-			param.scale		= data.scale;	// 拡縮
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
 			// 座標をセットする
 			object->SetParam(param);
 			// リストに追加
@@ -367,8 +420,8 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;		// 座標
-			param.scale		= data.scale;	// 拡縮
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
 			// 座標をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
@@ -388,11 +441,11 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;		// 最初の座標
-			param.goalPos	= data.goalPos;	// ゴール座標
-			param.scale		= data.scale;	// 拡縮
-			param.speed		= data.speed;	// スピード
-			param.stayTime	= data.stayTime;// 待機時間
+			param.startPos = data.pos;		// 最初の座標
+			param.goalPos = data.goalPos;	// ゴール座標
+			param.scale = data.scale;		// 拡縮
+			param.speed = data.speed;		// スピード
+			param.stayTime = data.stayTime;	// 待機時間
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
@@ -412,9 +465,9 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;		// 座標
-			param.scale		= data.scale;	// 拡縮
-			param.degAng	= data.degAng;	// 角度
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
+			param.degAng = data.degAng;	// 角度
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
@@ -434,9 +487,9 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;		// 座標
-			param.scale		= data.scale;	// 拡縮
-			param.degAng	= data.degAng;	// 角度
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
+			param.degAng = data.degAng;	// 角度
 			// パラメータをセットする
 			object->SetParam(param);
 			// リストに追加
@@ -480,10 +533,10 @@ void TerrainController::BeginCreateObject()
 			// 配列の名前を変更する
 			data.name = name;
 			// パラメータセット
-			param.startPos	= data.pos;			// 座標
-			param.scale		= data.scale;		// 拡縮
-			param.speed		= data.speed;		// スピード
-			param.stayTime	= data.stayTime;	// 待機時間
+			param.startPos = data.pos;		// 座標
+			param.scale = data.scale;		// 拡縮
+			param.speed = data.speed;		// スピード
+			param.stayTime = data.stayTime;	// 待機時間
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
@@ -509,6 +562,67 @@ void TerrainController::BeginCreateObject()
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
+		}
+		// スイッチ
+		else if (data.type == "Switch")
+		{
+			std::shared_ptr<Switch> object = std::make_shared<Switch>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.Switch++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.Switch);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// パラメータセット
+			param.startPos = data.pos;			// 座標
+			param.scale = data.scale;			// 拡縮
+			param.targetName = data.targetName;	// ターゲットの名前
+			// 情報をセットする
+			object->SetParam(param);
+			m_wpTerrainList.push_back(object);
+		}
+		// ドア
+		else if (data.type == "Door")
+		{
+			std::shared_ptr<Door> object = std::make_shared<Door>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.Door++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.Door);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// パラメータセット
+			param.startPos = data.pos;			// 座標
+			param.scale = data.scale;			// 拡縮
+			// 情報をセットする
+			object->SetParam(param);
+			m_wpTerrainList.push_back(object);
+		}
+	}
+
+	// スイッチにターゲットをセットする処理
+	for (auto& obj : m_wpTerrainList)
+	{
+		// なかったら飛ばす
+		if (obj.expired() == true) continue;
+		// スイッチじゃなかったら飛ばす
+		if (obj.lock()->GetObjectType() != ObjectType::Switch) continue;
+		for (auto& target : m_wpTerrainList)
+		{
+			// なかったら飛ばす
+			if (target.expired() == true) continue;
+			if (obj.lock()->GetParam().targetName == target.lock()->GetObjectName())
+			{
+				obj.lock()->SetTarget(target);
+			}
 		}
 	}
 }
@@ -603,6 +717,10 @@ void TerrainController::CSVLoader()
 			case 15:
 				data.degAng.z = stof(commaString);
 				break;
+
+			case 16:
+				data.targetName = commaString;
+				break;
 			}
 			cnt++;
 		}
@@ -643,7 +761,10 @@ void TerrainController::CSVWriter()
 		ofs << data.stayTime << ",";
 
 		// 回転角度
-		ofs << data.degAng.x << "," << data.degAng.y << "," << data.degAng.z << std::endl;
+		ofs << data.degAng.x << "," << data.degAng.y << "," << data.degAng.z << ",";
+
+		// 名前
+		ofs << data.targetName << std::endl;
 	}
 }
 
@@ -659,6 +780,8 @@ void TerrainController::MouseSelect()
 	// クリックしたら選んだオブジェクトをセットする
 	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
 	{
+		if (m_rightClickFlg == true) return;
+		m_rightClickFlg = true;
 		// マウス位置の取得
 		POINT mousePos;
 		GetCursorPos(&mousePos);
@@ -689,8 +812,12 @@ void TerrainController::MouseSelect()
 				if (obj.lock()->Intersects(rayInfo, &resultList))
 				{
 					hitObjList.push_back(obj);
-					// １回でも当たったらリセット
-					ConfirmedObject();
+					// ターゲットモードじゃなかったら
+					if (!m_targetFlg)
+					{
+						// １回でも当たったらリセット
+						ConfirmedObject();
+					}
 				}
 			}
 		}
@@ -704,13 +831,35 @@ void TerrainController::MouseSelect()
 			if (ret.m_overlapDistance > maxOverLap)
 			{
 				maxOverLap = ret.m_overlapDistance;
-				m_wpTargetObject = hitObjList[cnt];
 
-				TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng };
-				DebugWindow::Instance().SetTerrainParam(setParam);
+				// ターゲットセレクトモードじゃなかったら
+				if (!m_targetFlg)
+				{
+					m_wpTargetObject = hitObjList[cnt];
+
+					TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+					DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+					DebugWindow::Instance().SetTerrainParam(setParam);
+				}
+				// ターゲットセレクトモードの場合
+				else
+				{
+					if (m_wpTargetObject.expired() == false)
+					{
+						m_wpTargetObject.lock()->SetTarget(hitObjList[cnt]);
+						TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+						DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+						DebugWindow::Instance().SetTerrainParam(setParam);
+						// ターゲットセレクトモードを終了する
+						m_targetFlg = false;
+					}
+				}
 			}
 			cnt++;
 		}
+	}
+	else
+	{
+		m_rightClickFlg = false;
 	}
 }

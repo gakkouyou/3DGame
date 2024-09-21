@@ -3,6 +3,8 @@
 
 void Goal::Update()
 {
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
+
 	if (!m_goalFlg)
 	{
 		// 上下にふよふよさせる
@@ -27,7 +29,7 @@ void Goal::Update()
 
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-		m_mWorld = rotMat * transMat;
+		m_mWorld = scaleMat * rotMat * transMat;
 	}
 	else
 	{
@@ -36,8 +38,14 @@ void Goal::Update()
 		{
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-			m_mWorld = transMat;
+			m_mWorld = scaleMat * transMat;
 		}
+	}
+
+	if (m_flg == false)
+	{
+		//m_wpSound.lock()->Play(true);
+		m_flg = true;
 	}
 }
 
@@ -54,7 +62,7 @@ void Goal::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/EventObject/Goal/goal.gltf");
+		m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
 	}
 
 	// コライダー
@@ -62,6 +70,14 @@ void Goal::Init()
 	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
 
 	m_baseObjectType = BaseObjectType::Event;
+
+	m_wpSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/clock.wav", m_pos, true);
+	if (!m_wpSound.expired())
+	{
+		m_wpSound.lock()->SetVolume(0.1f);
+		m_wpSound.lock()->Stop();
+	}
+	m_flg = false;
 }
 
 void Goal::OnHit()

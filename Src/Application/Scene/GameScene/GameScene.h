@@ -78,4 +78,6 @@ private:
 
 	void CSVLoader();
 	void CSVWriter();
+
+	void PlayerSetProcess(const std::shared_ptr<Player>& _spPlayer);
 };

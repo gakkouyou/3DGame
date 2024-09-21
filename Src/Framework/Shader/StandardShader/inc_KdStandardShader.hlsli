@@ -13,6 +13,7 @@ cbuffer cbObject : register(b0)
 	float3 g_dissolveEmissive;	// 境界の色
 
 	int g_colorElable;
+	float3 g_color;
 };
 
 // 定数バッファ(メッシュ単位)

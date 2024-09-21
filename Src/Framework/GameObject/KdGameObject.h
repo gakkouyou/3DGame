@@ -86,6 +86,8 @@ public:
 		FencePillar,	// 片方柵
 		DropGround,		// 落ちる床
 		Propeller,		// プロペラ
+		Switch,			// スイッチ
+		Door,
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵

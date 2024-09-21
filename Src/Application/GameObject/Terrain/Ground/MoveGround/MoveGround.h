@@ -37,7 +37,4 @@ private:
 
 	// 止めるフラグ
 	bool m_stopFlg = false;
-
-	// SetParamが呼ばれたかどうか
-	bool m_setParamFlg = false;
 };

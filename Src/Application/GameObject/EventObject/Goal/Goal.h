@@ -24,7 +24,9 @@ private:
 	std::shared_ptr<KdModelData> m_spModel;
 
 	Math::Vector3 m_pos	= Math::Vector3::Zero;
-	//Math::Vector3 m_
+
+	// スケール
+	const float m_scale = 0.5f;
 
 	// 少し回転させる
 	float m_moveDegAng = 1.0f;
@@ -38,4 +40,7 @@ private:
 
 	int m_goalStayCnt	= 0;
 	int m_goalStayTime	= 60;
+
+	std::weak_ptr<KdSoundInstance> m_wpSound;
+	bool m_flg = false;
 };

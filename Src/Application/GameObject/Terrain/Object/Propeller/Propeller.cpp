@@ -2,6 +2,8 @@
 
 void Propeller::Update()
 {
+	if (m_pauseFlg == true)return;
+
 	// 回転させる
 	m_rotDegAng += m_param.degAng;
 
@@ -59,7 +61,7 @@ void Propeller::Init()
 		m_spModel->Load("Asset/Models/Terrain/Object/Propeller/propeller.gltf");
 	}
 
-	m_drawType = eDrawTypeLit;
+	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("Propeller", m_spModel, KdCollider::TypeGround);
@@ -76,6 +78,8 @@ void Propeller::SetParam(Param _param)
 	m_param.startPos	= _param.startPos;
 	m_param.scale		= _param.scale;
 	m_param.degAng		= _param.degAng;
+
+	m_setParamFlg = true;
 }
 
 void Propeller::Reset()

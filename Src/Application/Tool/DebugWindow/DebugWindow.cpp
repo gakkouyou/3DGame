@@ -98,7 +98,6 @@ void DebugWindow::TerrainWindow()
 		{
 			// オブジェクトを設置
 			ImGui::Text((const char*)u8"地形設置  RBUTTON");
-			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 			// オブジェクトを確定させる
 			if (ImGui::Button((const char*)u8"確定"))
 			{
@@ -180,11 +179,42 @@ void DebugWindow::TerrainWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::Propeller);
 			}
+			ImGui::SameLine();
+
+			// スイッチ
+			if (ImGui::Button("Switch"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Switch);
+			}
+
+			// ドア
+			if (ImGui::Button("Door"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Door);
+			}
+
+			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
+
+			// スイッチならターゲットを設定できるようにする
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch)
+			{
+				ImGui::InputText("TargetName", &m_terrainParam.targetName);
+				ImGui::SameLine;
+				// ターゲットセレクトモードの切り替え
+				if (ImGui::Button("TargetSelect"))
+				{
+					spObjectController->TargetSelect();
+				}
+			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 0.25f);
-			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 0.25f);
-			ImGui::InputFloat("Pos.z", &m_terrainParam.startPos.z, 0.25f);
+			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 5.0f);
+			//ImGui::DragFloat("Pos.x", &m_terrainParam.startPos.x, 0.25f);
+			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 5.0f);
+			ImGui::InputFloat("Pos.z", &m_terrainParam.startPos.z, 5.0f);
+
 
 			// 動く床ならゴール座標も変えれる用にする
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::MoveGround)

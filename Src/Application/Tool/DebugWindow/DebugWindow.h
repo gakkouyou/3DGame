@@ -28,6 +28,7 @@ public:
 		float speed				= 0;
 		int stayTime			= 0;
 		Math::Vector3 degAng	= Math::Vector3::Zero;
+		std::string targetName;
 	};
 	// Terrainのパラメータゲット関数
 	const TerrainParam GetTerrainParam() const { return m_terrainParam; }

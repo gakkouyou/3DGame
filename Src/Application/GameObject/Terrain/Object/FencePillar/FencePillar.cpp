@@ -13,8 +13,8 @@ void FencePillar::Init()
 	m_drawType |= eDrawTypeDepthOfShadow;
 
 	// 当たり判定
-	//m_pCollider = std::make_unique<KdCollider>();
-	//m_pCollider->RegisterCollisionShape("FencePillar", m_spModel, KdCollider::TypeGround);
+	m_pCollider = std::make_unique<KdCollider>();
+	m_pCollider->RegisterCollisionShape("FencePillar", m_spModel, KdCollider::TypeGround);
 
 	// オブジェクトのタイプ
 	m_objectType = KdGameObject::ObjectType::FencePillar;
@@ -34,4 +34,6 @@ void FencePillar::SetParam(Param _param)
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
 
 	m_mWorld = scaleMat * rotMat * transMat;
+
+	m_setParamFlg = true;
 }

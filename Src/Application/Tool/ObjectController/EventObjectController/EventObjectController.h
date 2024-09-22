@@ -1,15 +1,13 @@
 ﻿#pragma once
 
-class EnemyBase;
 class TPSCamera;
 class Player;
-class TerrainController;
 
-class EnemyController : public KdGameObject
+class EventObjectController : public KdGameObject
 {
 public:
-	EnemyController() {}
-	~EnemyController()	override {}
+	EventObjectController() {}
+	~EventObjectController()	override {}
 
 	void Update()		override;
 	void Init()			override;
@@ -21,7 +19,13 @@ public:
 	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
 
 	// カメラをセットする
-	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
+	void SetCamera(const std::shared_ptr<TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
+
+	// プレイヤーをセットする
+	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
+
+	// オブジェクトリストを渡す
+	const std::vector<std::weak_ptr<KdGameObject>> GetObjList() const { return m_wpObjectList; }
 
 	// 今持っているオブジェクトのタイプをゲットする
 	const KdGameObject::ObjectType GetObjectType() const;
@@ -37,15 +41,6 @@ public:
 	// CSVに書き込む
 	void CSVWriter();
 
-	// プレイヤーをセットする
-	void SetPlayer(const std::shared_ptr<Player> _spPlayer) { m_wpPlayer = _spPlayer; }
-
-	// TerrainController
-	void SetTerrainController(const std::weak_ptr<TerrainController>& _wpTerrainController) { m_wpTerrainController = _wpTerrainController; }
-
-	// 敵を全員殺す
-	void AllDeath();
-
 private:
 	// CSVファイルの名前
 	std::string m_fileName;
@@ -54,24 +49,23 @@ private:
 	void MouseSelect();
 
 	// 動かすオブジェクト
-	std::weak_ptr<EnemyBase>		m_wpTargetObject;
+	std::weak_ptr<KdGameObject>		m_wpTargetObject;
 
-	// 敵リスト
-	std::vector<std::weak_ptr<EnemyBase>> m_wpEnemyList;
+	// リスト
+	std::vector<std::weak_ptr<KdGameObject>> m_wpObjectList;
 
 	// カメラ
-	std::weak_ptr<const TPSCamera>	m_wpCamera;
+	std::weak_ptr<TPSCamera>	m_wpCamera;
+	// プレイヤー
+	std::weak_ptr<Player> m_wpPlayer;
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();
-	// ↑をInitで呼べない為、Updateで1度だけ実行する為のフラグ
-	bool m_beginCreateFlg = false;
 
 	// オブジェクトの個数
 	struct Count
 	{
-		int NormalEnemy = 0;
-		int FlyEnemy	= 0;
+		int Goal = 0;
 	};
 
 	Count m_objectCount;
@@ -82,19 +76,10 @@ private:
 	{
 		std::string type;
 		std::string name;
-		Math::Vector3 pos		= Math::Vector3::Zero;
-		float moveArea			= 0;	// 動く範囲
-		float searchArea		= 0;	// 索敵範囲
-		float rotDegAng			= 0;	// 回転角度
+		Math::Vector3 pos = Math::Vector3::Zero;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む
 	void CSVLoader();
-
-	// 敵のターゲットとなるプレイヤー
-	std::weak_ptr<Player> m_wpPlayer;
-
-	// TerrainController
-	std::weak_ptr<TerrainController> m_wpTerrainController;
 };

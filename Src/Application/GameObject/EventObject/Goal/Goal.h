@@ -18,8 +18,6 @@ public:
 	void SetPos(const Math::Vector3& _pos)	override { m_pos = _pos; }
 	Math::Vector3 GetPos() const			override { return m_pos; }
 
-	const bool GetGoalFlg() const { return m_goalFlg; }
-
 private:
 	std::shared_ptr<KdModelData> m_spModel;
 

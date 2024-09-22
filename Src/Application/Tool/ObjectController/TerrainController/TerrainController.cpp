@@ -159,9 +159,9 @@ void TerrainController::ConfirmedObject()
 				// タイプのセット
 				data.type = "FencePillar";
 				// カウントを進める
-				m_objectCount.FenceBar++;
+				m_objectCount.FencePillar++;
 				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.FenceBar);
+				data.name = data.type + std::to_string(m_objectCount.FencePillar);
 				break;
 
 				// 柵の棒の場合
@@ -169,9 +169,9 @@ void TerrainController::ConfirmedObject()
 				// タイプのセット
 				data.type = "FenceBar";
 				// カウントを進める
-				m_objectCount.FencePillar++;
+				m_objectCount.FenceBar++;
 				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.FencePillar);
+				data.name = data.type + std::to_string(m_objectCount.FenceBar);
 				break;
 
 				// 落ちる床の場合

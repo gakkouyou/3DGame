@@ -5,17 +5,17 @@
 void TPSCamera::PostUpdate()
 {
 	// ターゲットの行列(有効な場合利用する)
-	Math::Matrix								targetMat	= Math::Matrix::Identity;
 	const std::shared_ptr<const Player>	spTarget	= m_wpTarget.lock();
-	if (spTarget)
-	{
-		targetMat = Math::Matrix::CreateTranslation(spTarget->GetPos());
-	}
+	if (!spTarget) return;
+	// ターゲットの座標
+	Math::Vector3	targetPos = spTarget->GetPos();
+	// ターゲットの座標行列
+	Math::Matrix	targetMat = Math::Matrix::CreateTranslation(targetPos);
 
-	Math::Matrix debugMat = Math::Matrix::Identity;
 
 	if (SceneManager::Instance().GetDebug())
 	{
+		Math::Matrix debugMat = Math::Matrix::Identity;
 		m_moveVec = Math::Vector3::Zero;
 
 		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
@@ -85,10 +85,57 @@ void TPSCamera::PostUpdate()
 	}
 	else
 	{
-		m_debugPos = Math::Vector3::Zero;
-		debugMat = Math::Matrix::Identity;
-		m_DegAng = Math::Vector3::Zero;
-		m_mWorld = m_mLocalPos * targetMat;
+		if (m_pauseFlg == false)
+		{
+			m_debugPos = Math::Vector3::Zero;
+			m_DegAng = Math::Vector3::Zero;
+
+			if (((m_oldPlayerSituationType & Player::SituationType::Air) == 0) && (spTarget->GetSituationType() & Player::SituationType::Air))
+			{
+				m_airFlg = true;
+			}
+
+			if ((spTarget->GetSituationType() & Player::SituationType::Air) == 0)
+			{
+				m_airFlg = false;
+			}
+
+			// 空中では追尾しないようにする
+			if (m_airFlg == true)
+			{
+				const float up = 2.0f;
+				const float down = 0.0f;
+				// 一定以上上に上がった時追尾する
+				if (targetPos.y - m_oldPos.y >= up)
+				{
+					targetPos.y = m_oldPos.y + (targetPos.y - m_oldPos.y) - up;
+				}
+				// 一定以上下に下がった時追尾する
+				else if (targetPos.y - m_oldPos.y <= -down)
+				{
+					targetPos.y = m_oldPos.y + (targetPos.y - m_oldPos.y) + down;
+				}
+				// 追尾しない
+				else
+				{
+					targetPos.y = m_oldPos.y;
+				}
+			}
+
+			// 滑らかに動くようにする
+			targetMat.Translation(Math::Vector3::Lerp(m_mWorld.Translation() - m_mLocalPos.Translation(), targetPos, 0.1));
+
+			// 行列確定
+			m_mWorld = m_mLocalPos * targetMat;
+
+			// 更新前のプレイヤーのタイプを保持しておく
+			m_oldPlayerSituationType = spTarget->GetSituationType();
+			// 空中にいないなら、更新前のプレイヤーの座標を保持
+			if (m_airFlg == false)
+			{
+				m_oldPos = targetPos;
+			}
+		}
 	}
 
 	if (m_goalFlg)
@@ -125,7 +172,10 @@ void TPSCamera::Init()
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 
-	SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
+	if (m_wpTarget.expired() == false)
+	{
+		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpTarget.lock()->GetPos());
+	}
 
 	m_goalProcess.moveFrame = 150;
 	m_goalProcess.startPos	= { 0, 4, -9 };
@@ -144,6 +194,11 @@ void TPSCamera::Init()
 void TPSCamera::Reset()
 {
 	m_pauseFlg = false;
+
+	if (m_wpTarget.expired() == false)
+	{
+		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpTarget.lock()->GetPos());
+	}
 }
 
 void TPSCamera::SetPauseFlg(bool _pauseFlg)

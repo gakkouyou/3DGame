@@ -71,6 +71,8 @@ void Goal::Init()
 
 	m_baseObjectType = BaseObjectType::Event;
 
+	m_objectType = ObjectType::Goal;
+
 	m_wpSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/clock.wav", m_pos, true);
 	if (!m_wpSound.expired())
 	{
@@ -82,9 +84,6 @@ void Goal::Init()
 
 void Goal::OnHit()
 {
-	//Application::Instance().m_log.Clear();
-	//Application::Instance().m_log.AddLog("Clear");
-
 	m_goalFlg	= true;
 }
 

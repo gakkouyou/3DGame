@@ -1,27 +1,24 @@
-﻿#include "CarryObjectController.h"
+﻿#include "EventObjectController.h"
 #include "../../DebugWindow/DebugWindow.h"
 #include "../../../Scene/SceneManager.h"
 #include "../../../main.h"
 #include "../../../GameObject/Camera/TPSCamera/TPSCamera.h"
-
-#include "../TerrainController/TerrainController.h"
-
-#include "../../../GameObject/Terrain/CarryObject/Box/Box.h"
-
 #include "../../../GameObject/Character/Player/Player.h"
 
-void CarryObjectController::Update()
+#include "../../../GameObject/EventObject/Goal/Goal.h"
+
+void EventObjectController::Update()
 {
 	// マウスでオブジェクトを選択する
 	MouseSelect();
 
 	// 対象のオブジェクト
-	std::shared_ptr<CarryObjectBase> spTargetObject = m_wpTargetObject.lock();
+	std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
 	{
-		DebugWindow::CarryObjectParam debugParam = DebugWindow::Instance().GetCarryObjectParam();
-		CarryObjectBase::Param setParam{ debugParam.pos, debugParam.area };
-		spTargetObject->SetParam(setParam);
+		DebugWindow::EventObjectParam debugParam = DebugWindow::Instance().GetEventObjectParam();
+		Math::Vector3 pos = debugParam.pos;
+		spTargetObject->SetPos(pos);
 	}
 
 	// DELETEキーで削除する
@@ -31,7 +28,7 @@ void CarryObjectController::Update()
 	}
 }
 
-void CarryObjectController::Init()
+void EventObjectController::Init()
 {
 	// CSVを読み込む
 	CSVLoader();
@@ -40,7 +37,7 @@ void CarryObjectController::Init()
 	BeginCreateObject();
 }
 
-void CarryObjectController::Reset()
+void EventObjectController::Reset()
 {
 	m_objectCount = m_objectCountReset;
 	m_wpObjectList.clear();
@@ -49,7 +46,7 @@ void CarryObjectController::Reset()
 	BeginCreateObject();
 }
 
-const KdGameObject::ObjectType CarryObjectController::GetObjectType() const
+const KdGameObject::ObjectType EventObjectController::GetObjectType() const
 {
 	if (!m_wpTargetObject.expired())
 	{
@@ -61,7 +58,7 @@ const KdGameObject::ObjectType CarryObjectController::GetObjectType() const
 	}
 }
 
-const std::string CarryObjectController::GetObjectName() const
+const std::string EventObjectController::GetObjectName() const
 {
 	if (!m_wpTargetObject.expired())
 	{
@@ -73,9 +70,9 @@ const std::string CarryObjectController::GetObjectName() const
 	}
 }
 
-void CarryObjectController::ConfirmedObject()
+void EventObjectController::ConfirmedObject()
 {
-	std::shared_ptr<CarryObjectBase> spTargetObject = m_wpTargetObject.lock();
+	std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
 	{
 		// もし名前が決められてなかったら新たにdataListに追加する
@@ -86,20 +83,28 @@ void CarryObjectController::ConfirmedObject()
 			switch (spTargetObject->GetObjectType())
 			{
 				// 通常の敵の場合
-			case ObjectType::Box:
+			case ObjectType::Goal:
 				// タイプのセット
-				data.type = "Box";
+				data.type = "Goal";
 				// カウントを進める
-				m_objectCount.Box++;
+				m_objectCount.Goal++;
 				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.Box);
+				data.name = data.type + std::to_string(m_objectCount.Goal);
 				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
-			data.pos = spTargetObject->GetParam().startPos;	// 座標
-			data.area = spTargetObject->GetParam().area;	// 動いていい範囲
+			data.pos = spTargetObject->GetPos();	// 座標
+			// プレイヤーとカメラにゴールの座標を渡す
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetGoalPos(data.pos);
+			}
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetGoalPos(data.pos);
+			}
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
 			// リストにプッシュバックする
@@ -118,15 +123,23 @@ void CarryObjectController::ConfirmedObject()
 					break;
 				}
 			}
-			m_dataList[num].pos = spTargetObject->GetParam().startPos;	// 座標
-			m_dataList[num].area = spTargetObject->GetParam().area;		// 触れれる範囲
+			m_dataList[num].pos = spTargetObject->GetPos();	// 座標
+			// プレイヤーとカメラにゴールの座標を渡す
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetGoalPos(m_dataList[num].pos);
+			}
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetGoalPos(m_dataList[num].pos);
+			}
 		}
 	}
 
 	m_wpTargetObject.reset();
 }
 
-void CarryObjectController::DeleteObject()
+void EventObjectController::DeleteObject()
 {
 	// オブジェクトを削除する
 	if (!m_wpTargetObject.expired())
@@ -143,32 +156,23 @@ void CarryObjectController::DeleteObject()
 	}
 }
 
-void CarryObjectController::CreateObject(KdGameObject::ObjectType _object)
+void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 {
 	switch (_object)
 	{
-		// 通常の敵
-	case KdGameObject::ObjectType::Box:
+		// ゴール
+	case KdGameObject::ObjectType::Goal:
 	{
-		std::shared_ptr<Box> object = std::make_shared<Box>();
+		std::shared_ptr<Goal> object = std::make_shared<Goal>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
-		// ターゲットをセット
-		if (!m_wpPlayer.expired())
-		{
-			object->SetPlayer(m_wpPlayer.lock());
-		}
-		if (!m_wpTerrainController.expired())
-		{
-			object->SetTerrainController(m_wpTerrainController.lock());
-		}
 		break;
 	}
 	}
 }
 
-void CarryObjectController::MouseSelect()
+void EventObjectController::MouseSelect()
 {
 	if (SceneManager::Instance().GetDebug() == false) return;
 
@@ -179,7 +183,7 @@ void CarryObjectController::MouseSelect()
 	if (!spCamera) return;
 
 	// クリックしたら選んだオブジェクトをセットする
-	if (GetAsyncKeyState('P') & 0x8000)
+	if (GetAsyncKeyState('E') & 0x8000)
 	{
 		// マウス位置の取得
 		POINT mousePos;
@@ -195,13 +199,13 @@ void CarryObjectController::MouseSelect()
 
 		Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
 
-		KdCollider::RayInfo rayInfo(KdCollider::TypeGround, cameraPos, endRayPos);
+		KdCollider::RayInfo rayInfo(KdCollider::TypeEvent, cameraPos, endRayPos);
 
 		// 当たり判定の結果
 		std::list<KdCollider::CollisionResult> resultList;
 
 		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<CarryObjectBase>> hitObjList;
+		std::vector<std::weak_ptr<KdGameObject>> hitObjList;
 
 		// 当たり判定
 		for (auto& obj : m_wpObjectList)
@@ -228,52 +232,52 @@ void CarryObjectController::MouseSelect()
 				maxOverLap = ret.m_overlapDistance;
 				m_wpTargetObject = hitObjList[cnt];
 
-				CarryObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::CarryObjectParam setParam{ param.startPos, param.area };
-				DebugWindow::Instance().SetCarryObjectParam(setParam);
+				Math::Vector3 pos = m_wpTargetObject.lock()->GetPos();
+				DebugWindow::EventObjectParam setParam{ pos };
+				DebugWindow::Instance().SetEventObjectParam(setParam);
 			}
 			cnt++;
 		}
 	}
 }
 
-void CarryObjectController::BeginCreateObject()
+void EventObjectController::BeginCreateObject()
 {
 	for (auto& data : m_dataList)
 	{
 		// 箱
-		if (data.type == "Box")
+		if (data.type == "Goal")
 		{
-			std::shared_ptr<Box> object = std::make_shared<Box>();
+			std::shared_ptr<Goal> object = std::make_shared<Goal>();
 			// パラメータをセットする
-			CarryObjectBase::Param setParam{ data.pos, data.area };
-			object->SetParam(setParam);
-			// ターゲットをセットする
-			if (!m_wpPlayer.expired())
-			{
-				object->SetPlayer(m_wpPlayer.lock());
-			}
+			Math::Vector3 pos = data.pos;
+			object->SetPos(pos);
 			object->Init();
-			if (!m_wpTerrainController.expired())
-			{
-				object->SetTerrainController(m_wpTerrainController.lock());
-			}
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
-			m_objectCount.Box++;
+			m_objectCount.Goal++;
 			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.Box);
+			std::string name = data.type + std::to_string(m_objectCount.Goal);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// プレイヤーとカメラにゴールの座標を渡す
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetGoalPos(pos);
+			}
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetGoalPos(pos);
+			}
 			// リストに追加
 			m_wpObjectList.push_back(object);
 		}
 	}
 }
 
-void CarryObjectController::CSVLoader()
+void EventObjectController::CSVLoader()
 {
 	std::ifstream ifs(m_fileName);
 	if (!ifs.is_open())
@@ -318,10 +322,6 @@ void CarryObjectController::CSVLoader()
 			case 4:
 				data.pos.z = stof(commaString);
 				break;
-
-			case 5:
-				data.area = stof(commaString);
-				break;
 			}
 			cnt++;
 		}
@@ -334,7 +334,7 @@ void CarryObjectController::CSVLoader()
 	ifs.close();
 }
 
-void CarryObjectController::CSVWriter()
+void EventObjectController::CSVWriter()
 {
 	std::ofstream ofs(m_fileName);
 
@@ -348,8 +348,5 @@ void CarryObjectController::CSVWriter()
 
 		// 座標
 		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
-
-		// 触れれる範囲
-		ofs << data.area << ",";
 	}
 }

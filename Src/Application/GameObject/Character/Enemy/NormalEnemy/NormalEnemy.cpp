@@ -219,8 +219,6 @@ void NormalEnemy::PostUpdate()
 		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
 	}
 
-	m_pDebugWire->AddDebugSphere(m_pos, 1.0f, kBlueColor);
-
 	// 動く床に当たっていた時の処理
 	if (m_moveGround.hitFlg)
 	{
@@ -340,137 +338,121 @@ void NormalEnemy::Reset()
 
 void NormalEnemy::HitJudge()
 {
-	// 地面とのスフィア判定
-	// 方向
-	Math::Vector3 hitDir = Math::Vector3::Zero;
-	// スフィアの中心座標
-	Math::Vector3 centerPos = m_pos;
-	//centerPos.y -= 2.0f;
-	// スフィアの半径
-	float radius = 0.25f;
-	centerPos.y += radius;
+	//// 地面とのスフィア判定
+	//// 方向
+	//Math::Vector3 hitDir = Math::Vector3::Zero;
+	//// スフィアの中心座標
+	//Math::Vector3 centerPos = m_pos;
+	////centerPos.y -= 2.0f;
+	//// スフィアの半径
+	//float radius = 0.25f;
+	//centerPos.y += radius;
 
-	// 当たったかどうかのフラグ
-	bool hitFlg = false;
-	// めり込んだ距離
-	float maxOverLap = 0.0f;
+	//// 当たったかどうかのフラグ
+	//bool hitFlg = false;
+	//// めり込んだ距離
+	//float maxOverLap = 0.0f;
 
-	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDir, maxOverLap);
+	//hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDir, maxOverLap);
 
-	// 当たった場合
-	if (hitFlg)
-	{
-		// 当たったオブジェクト
-		std::shared_ptr<KdGameObject> spHitObject;
+	//// 当たった場合
+	//if (hitFlg)
+	//{
+	//	// 当たったオブジェクト
+	//	std::shared_ptr<KdGameObject> spHitObject;
 
-		// 地面を探す
-		for (auto& hitObject : m_wpHitObjectList)
-		{
-			if (!hitObject.expired())
-			{
-				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
-				{
-					spHitObject = hitObject.lock();
-					break;
-				}
-			}
-		}
+	//	// 地面を探す
+	//	for (auto& hitObject : m_wpHitObjectList)
+	//	{
+	//		if (!hitObject.expired())
+	//		{
+	//			if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
+	//			{
+	//				spHitObject = hitObject.lock();
+	//				break;
+	//			}
+	//		}
+	//	}
 
-		// 当たったオブジェクト毎に処理を変える
-		if (spHitObject)
-		{
-			switch (spHitObject->GetObjectType())
-			{
-				// 跳ねる床
-			case ObjectType::BoundGround:
-				// X軸とZ軸の補正はなし
-				hitDir.x = 0;
-				hitDir.z = 0;
-				hitDir.Normalize();
-				m_pos += hitDir * maxOverLap;
-				// 重力
-				m_gravity = -1.0f;
-				// 空中にいない
-				//m_situationType &= (~SituationType::Air);
-				//m_situationType &= (~SituationType::Jump);
-				break;
+	//	// 当たったオブジェクト毎に処理を変える
+	//	if (spHitObject)
+	//	{
+	//		switch (spHitObject->GetObjectType())
+	//		{
+	//			// 跳ねる床
+	//		case ObjectType::BoundGround:
+	//			// X軸とZ軸の補正はなし
+	//			hitDir.x = 0;
+	//			hitDir.z = 0;
+	//			hitDir.Normalize();
+	//			m_pos += hitDir * maxOverLap;
+	//			// 重力
+	//			m_gravity = -1.0f;
+	//			// 空中にいない
+	//			//m_situationType &= (~SituationType::Air);
+	//			//m_situationType &= (~SituationType::Jump);
+	//			break;
 
-				// 動く床
-			case ObjectType::MoveGround:
-				// X軸とZ軸の補正はなし
-				hitDir.x = 0;
-				hitDir.z = 0;
-				hitDir.Normalize();
-				m_pos += hitDir * maxOverLap;
-				// 重力
-				m_gravity = 0.0f;
-				// 空中にいない
-				m_situationType &= (~SituationType::Air);
-				m_situationType &= (~SituationType::Jump);
-				// 動く床の動く前の行列
-				//m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
-				// 動く床に当たったかどうか
-				//m_moveGround.hitFlg = true;
+	//			// 動く床
+	//		case ObjectType::MoveGround:
+	//			// X軸とZ軸の補正はなし
+	//			hitDir.x = 0;
+	//			hitDir.z = 0;
+	//			hitDir.Normalize();
+	//			m_pos += hitDir * maxOverLap;
+	//			// 重力
+	//			m_gravity = 0.0f;
+	//			// 空中にいない
+	//			m_situationType &= (~SituationType::Air);
+	//			m_situationType &= (~SituationType::Jump);
+	//			// 動く床の動く前の行列
+	//			//m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+	//			// 動く床に当たったかどうか
+	//			//m_moveGround.hitFlg = true;
 
-				m_walkMotion.stayFlg = true;
-				break;
+	//			m_walkMotion.stayFlg = true;
+	//			break;
 
-				// 回る床
-			case ObjectType::RotationGround:
-				// X軸とZ軸の補正はなし
-				hitDir.x = 0;
-				hitDir.z = 0;
-				hitDir.Normalize();
-				m_pos += hitDir * maxOverLap;
-				// 重力
-				m_gravity = 0.0f;
-				// 空中にいない
-				m_situationType &= (~SituationType::Air);
-				m_situationType &= (~SituationType::Jump);
-				// 動く前の行列
-				//m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
-				//m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+	//			// 回る床
+	//		case ObjectType::RotationGround:
+	//			// X軸とZ軸の補正はなし
+	//			hitDir.x = 0;
+	//			hitDir.z = 0;
+	//			hitDir.Normalize();
+	//			m_pos += hitDir * maxOverLap;
+	//			// 重力
+	//			m_gravity = 0.0f;
+	//			// 空中にいない
+	//			m_situationType &= (~SituationType::Air);
+	//			m_situationType &= (~SituationType::Jump);
+	//			// 動く前の行列
+	//			//m_rotationGround.rotMat = spHitObject->GetRotationMatrix();
+	//			//m_rotationGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 
-				m_walkMotion.stayFlg = true;
-				break;
+	//			m_walkMotion.stayFlg = true;
+	//			break;
 
-				// 通常
-			default:
-				// X軸とZ軸の補正はなし
-				hitDir.x = 0;
-				hitDir.z = 0;
-				hitDir.Normalize();
-				m_pos += hitDir * maxOverLap;
-				// 重力
-				m_gravity = 0.0f;
+	//			// 通常
+	//		default:
+	//			// X軸とZ軸の補正はなし
+	//			hitDir.x = 0;
+	//			hitDir.z = 0;
+	//			hitDir.Normalize();
+	//			m_pos += hitDir * maxOverLap;
+	//			// 重力
+	//			m_gravity = 0.0f;
 
-				// 見つけたモーション中
-				if ((m_situationType & SituationType::Find))
-				{
-					// ホーミング状態じゃないときは、少しジャンプする
-					if ((m_situationType & SituationType::Homing) == 0)
-					{
-						m_situationType |= SituationType::Homing;
-						m_gravity = -m_findJumpPow;
-					}
-					else
-					{
-						m_situationType &= (~SituationType::Find);
-					}
-				}
-				// 空中にいない
-				m_situationType &= (~SituationType::Air);
-				m_situationType &= (~SituationType::Jump);
 
-				m_walkMotion.stayFlg = true;
-				break;
-			}
-		}
-	}
-	else
-	{
-		m_situationType |= SituationType::Air;
-	}
+	//			break;
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	m_situationType |= SituationType::Air;
+	//}
+
+	HitGround();
 
 	HitEnemy();
 }
@@ -507,7 +489,6 @@ void NormalEnemy::HitGround()
 		{
 			// 当たったオブジェクト
 			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-			Application::Instance().m_log.Clear();
 
 			if (spHitObject)
 			{
@@ -521,8 +502,6 @@ void NormalEnemy::HitGround()
 					m_pos.y = hitPos.y;
 					// 重力
 					m_gravity = -0.25f;
-					//// 空中にいない
-					Application::Instance().m_log.AddLog("Bound\n");
 					break;
 
 					// 動く床に乗った場合
@@ -539,7 +518,6 @@ void NormalEnemy::HitGround()
 					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					// 動く床に当たったかどうかのフラグ
 					m_moveGround.hitFlg = true;
-					Application::Instance().m_log.AddLog("Move\n");
 					break;
 
 					// 回る床に乗った場合
@@ -553,7 +531,6 @@ void NormalEnemy::HitGround()
 					m_situationType &= (~SituationType::Jump);
 					// 動く前の行列
 					m_rotationGround.hitFlg = true;
-					Application::Instance().m_log.AddLog("Rot\n");
 					break;
 
 				default:
@@ -564,7 +541,23 @@ void NormalEnemy::HitGround()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
-					Application::Instance().m_log.AddLog("Normal\n");
+
+					// 見つけたモーション中
+					if ((m_situationType & SituationType::Find))
+					{
+						// ホーミング状態じゃないときは、少しジャンプする
+						if ((m_situationType & SituationType::Homing) == 0)
+						{
+							m_situationType |= SituationType::Homing;
+							m_gravity = -m_findJumpPow;
+						}
+						else
+						{
+							m_situationType &= (~SituationType::Find);
+						}
+					}
+
+					m_walkMotion.stayFlg = true;
 					break;
 				}
 			}
@@ -582,9 +575,8 @@ void NormalEnemy::HitGround()
 		std::list<Math::Vector3> hitDirList;
 		// スフィアの中心座標
 		Math::Vector3 centerPos = m_pos;
-		centerPos.y += 0.01f;
 		// スフィアの半径
-		float radius = 0.25f;
+		float radius = 0.5f;
 		centerPos.y += radius + 0.25f;
 
 		// 当たったかどうかのフラグ
@@ -593,6 +585,8 @@ void NormalEnemy::HitGround()
 		float maxOverLap = 0.0f;
 
 		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
+
+		m_pDebugWire->AddDebugSphere(centerPos, radius);
 
 		// 当たった場合
 		if (hitFlg)

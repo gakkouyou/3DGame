@@ -10,15 +10,10 @@
 
 #include "../../../GameObject/Character/Player/Player.h"
 
+#include "../TerrainController/TerrainController.h"
+
 void EnemyController::Update()
 {
-	// 一度だけ実行する
-	if (m_beginCreateFlg == false)
-	{
-		
-	}
-	m_beginCreateFlg = true;
-
 	// マウスでオブジェクトを選択する
 	MouseSelect();
 
@@ -182,6 +177,8 @@ void EnemyController::CreateObject(KdGameObject::ObjectType _object)
 		{
 			object->SetTarget(m_wpPlayer.lock());
 		}
+		// TerrainControllerをセット
+		object->SetTerrainController(m_wpTerrainController);
 		break;
 	}
 
@@ -192,11 +189,8 @@ void EnemyController::CreateObject(KdGameObject::ObjectType _object)
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
-		// ターゲットをセット
-		if (!m_wpPlayer.expired())
-		{
-			object->SetTarget(m_wpPlayer.lock());
-		}
+		// TerrainControllerをセット
+		object->SetTerrainController(m_wpTerrainController);
 		break;
 	}
 	}
@@ -286,7 +280,7 @@ void EnemyController::BeginCreateObject()
 {
 	for (auto& data : m_dataList)
 	{
-		// 通常の床
+		// 通常の敵
 		if (data.type == "NormalEnemy")
 		{
 			std::shared_ptr<NormalEnemy> object = std::make_shared<NormalEnemy>();
@@ -299,7 +293,7 @@ void EnemyController::BeginCreateObject()
 				object->SetTarget(m_wpPlayer.lock());
 			}
 			object->Init();
-			//SceneManager::Instance().AddObject(object);
+			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.NormalEnemy++;
 			// 名前の数値をリセットする
@@ -308,6 +302,8 @@ void EnemyController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// TerrainControllerをセット
+			object->SetTerrainController(m_wpTerrainController);
 			// リストに追加
 			m_wpEnemyList.push_back(object);
 		}
@@ -318,11 +314,6 @@ void EnemyController::BeginCreateObject()
 			// パラメータをセットする
 			EnemyBase::Param setParam{ data.pos, data.moveArea, 0, data.rotDegAng };
 			object->SetParam(setParam);
-			// ターゲットをセットする
-			//if (!m_wpPlayer.expired())
-			//{
-			//	object->SetTarget(m_wpPlayer.lock());
-			//}
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
@@ -333,6 +324,8 @@ void EnemyController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
+			// TerrainControllerをセット
+			object->SetTerrainController(m_wpTerrainController);
 			// リストに追加
 			m_wpEnemyList.push_back(object);
 		}

@@ -41,9 +41,6 @@ private:
 	// シーンチェンジ
 	std::weak_ptr<SceneChange> m_wpSceneChange;
 
-	// ゴール
-	std::weak_ptr<Goal> m_wpGoal;
-
 	// リザルト
 	std::weak_ptr<Result> m_wpResult;
 
@@ -78,6 +75,4 @@ private:
 
 	void CSVLoader();
 	void CSVWriter();
-
-	void PlayerSetProcess(const std::shared_ptr<Player>& _spPlayer);
 };

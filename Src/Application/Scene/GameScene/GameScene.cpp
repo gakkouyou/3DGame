@@ -20,6 +20,7 @@
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
+#include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 
 #include "../../GameObject/Terrain/Object/Propeller/Propeller.h"
 
@@ -130,9 +131,9 @@ void GameScene::Event()
 	}
 
 	// クリアした時の処理
-	if (!m_wpGoal.expired())
+	if (!m_wpPlayer.expired())
 	{
-		if (m_wpGoal.lock()->GetGoalFlg())
+		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
 			if (!m_wpCamera.expired())
 			{
@@ -166,12 +167,6 @@ void GameScene::Event()
 					}
 				}
 			}
-			// プレイヤーにゴールしたことを伝え、止める
-			if (!m_wpPlayer.expired())
-			{
-				m_wpPlayer.lock()->SetGoalFlg(true);
-				m_wpPlayer.lock()->SetStopFlg(true);
-			}
 			// ポーズも止める
 			if (!m_wpPause.expired())
 			{
@@ -183,7 +178,7 @@ void GameScene::Event()
 }
 void GameScene::Init()
 {
-	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 1, -1, 1 }, { 3, 3, 3 });
 
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
 
@@ -207,15 +202,6 @@ void GameScene::Init()
 	backGround->Init();
 	AddObject(backGround);
 
-	// ゴール
-	std::shared_ptr<Goal> goal = std::make_shared<Goal>();
-	//goal->SetPos({ 220, 30, 50 });
-	goal->SetPos({ 0, 3, 20 });
-	goal->Init();
-	AddObject(goal);
-	// 保持
-	m_wpGoal = goal;
-
 	// プレイヤー
 	std::shared_ptr<Player> player = std::make_shared<Player>();
 	player->Init();
@@ -225,6 +211,8 @@ void GameScene::Init()
 
 	// TPSカメラ
 	std::shared_ptr<TPSCamera> tpsCamera = std::make_shared<TPSCamera>();
+	// TPSカメラにターゲットをセットする
+	tpsCamera->SetTarget(player);
 	tpsCamera->Init();
 	AddObject(tpsCamera);
 	// カメラの情報を保持する
@@ -232,14 +220,6 @@ void GameScene::Init()
 
 	// プレイヤーにTPSカメラをセットする
 	player->SetCamera(tpsCamera);
-
-	// TPSカメラにターゲットをセットする
-	tpsCamera->SetTarget(player);
-
-	// カメラにゴールの座標をセットする
-	tpsCamera->SetGoalPos(goal->GetPos());
-	// プレイヤーにゴールの座標をセットする
-	player->SetGoalPos(goal->GetPos());
 
 	// リザルト
 	std::shared_ptr<Result> result = std::make_shared<Result>();
@@ -282,20 +262,22 @@ void GameScene::Init()
 	// 保持
 	m_wpSceneChange = sceneChange;
 
-	// 敵エディタ的な
-	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
-	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
-	// enemyControllerにプレイヤーを渡す
-	enemyController->SetPlayer(player);
-	enemyController->Init();
-	AddObject(enemyController);
-
-	// マップエディタ的な
+	// 地形作成
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	// CSVファイルを指定する
 	terrainController->SetCSV("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv");
 
-	// マップエディタ的な
+	// 敵作成
+	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
+	enemyController->SetCSV("Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	// enemyControllerにプレイヤーを渡す
+	enemyController->SetPlayer(player);
+	// 敵にTerrainControllerを渡す
+	enemyController->SetTerrainController(terrainController);
+	enemyController->Init();
+	AddObject(enemyController);
+
+	// 運ぶオブジェクト作成
 	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
 	// CSVファイルを指定する
 	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
@@ -305,8 +287,17 @@ void GameScene::Init()
 	carryObjectController->Init();
 	AddObject(carryObjectController);
 
+	// EventObject作成
+	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
+	// CSVファイルを指定する
+	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	// Initより先に書く
+	eventObjectController->SetPlayer(player);
+	eventObjectController->Init();
+	AddObject(eventObjectController);
+
 	// ===========================================================================
-	// 全てのオブジェクトコントローラーの後に更新するように一番後ろに書く
+	// 地形によって挙動が変わるオブジェクトの後に更新するように書く
 	// ===========================================================================
 	terrainController->Init();
 	AddObject(terrainController);
@@ -315,12 +306,14 @@ void GameScene::Init()
 	DebugWindow::Instance().SetTerrainController(terrainController);			// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);				// Enemy
 	DebugWindow::Instance().SetCarryObjectController(carryObjectController);	// CarryObject
+	DebugWindow::Instance().SetEventObjectController(eventObjectController);	// EventObject
 
 
 	// オブジェクトコントローラーにカメラを渡す
 	terrainController->SetCamera(tpsCamera);
 	enemyController->SetCamera(tpsCamera);
 	carryObjectController->SetCamera(tpsCamera);
+	eventObjectController->SetCamera(tpsCamera);
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);

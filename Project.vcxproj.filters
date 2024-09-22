@@ -217,6 +217,9 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\Door">
       <UniqueIdentifier>{3cbbca77-275f-4d2d-9e48-2bf05d6d325c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\Tool\ObjectController\EventObjectController">
+      <UniqueIdentifier>{69450929-a495-479d-ab94-165092077ae2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -504,6 +507,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\Door.h">
       <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.h">
+      <Filter>Src\Application\Tool\ObjectController\EventObjectController</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -760,6 +766,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\Door.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.cpp">
+      <Filter>Src\Application\Tool\ObjectController\EventObjectController</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,7 @@ public:
 private:
 	bool m_activeFlg	 = false;
 
+	std::shared_ptr<KdModelData> m_spLeftDoorModel = nullptr;
 	Math::Vector3 m_leftPos;	// 左のドアの座標
 	Math::Matrix m_leftMat;		// 左のドアの行列
 

@@ -199,6 +199,7 @@
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.h" />
+    <ClInclude Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\TerrainController\TerrainController.h" />
     <ClInclude Include="Src\Application\Utility.h" />
     <ClInclude Include="Src\Framework\Direct3D\KdMaterial.h" />
@@ -289,6 +290,7 @@
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.cpp" />
+    <ClCompile Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\TerrainController\TerrainController.cpp" />
     <ClCompile Include="Src\Framework\Direct3D\KdMaterial.cpp">
       <SubType>

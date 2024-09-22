@@ -43,7 +43,7 @@ public:
 	virtual void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
 	// TerrainControllerをセットする
-	void SetTerrainController(std::shared_ptr<TerrainController> _spTerrainController) { m_wpTerrainController = _spTerrainController; }
+	void SetTerrainController(const std::weak_ptr<TerrainController>& _wpTerrainController) { m_wpTerrainController = _wpTerrainController; }
 
 	// 運べるオブジェクトのコントローラーをセット
 	void SetCarryObjectContoller(const std::shared_ptr<CarryObjectController>& _spCarryObjectController) { m_wpCarryObjectController = _spCarryObjectController; }

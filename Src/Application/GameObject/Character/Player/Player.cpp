@@ -887,7 +887,7 @@ void Player::Init()
 	// 移動速度
 	m_moveSpeed = 0.06f;
 
-	m_pos = { 0, 0.3f, 0 };
+	m_pos = { 0, 0.25f, -5.0f };
 
 	// ジャンプ力
 	m_jumpPow = 0.125f;
@@ -963,7 +963,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos = { 0, 0.3f, 0 };
+	m_pos = { 0, 0.25f, -5.0f };
 	m_oldPos = Math::Vector3::Zero;
 	
 	// 生存フラグ
@@ -988,6 +988,9 @@ void Player::Reset()
 	m_damage.nowDamageFlg = false;
 	m_damage.damageCount = 0;
 	m_damage.drawFlg = true;
+
+	// アニメーションをIdleに
+	SetAnimation("Idle", true);
 }
 
 // 当たり判定
@@ -1344,8 +1347,17 @@ void Player::HitJudgeEvent()
 			}
 			if (spHitObject)
 			{
-				if (spHitObject->GetObjectType() == ObjectType::HealItem)
+				spHitObject->OnHit();
+				switch (spHitObject->GetObjectType())
 				{
+					// ゴール
+				case ObjectType::Goal:
+					m_goalFlg = true;
+					m_stopFlg = true;
+					break;
+
+					// 回復アイテム
+				case ObjectType::HealItem:
 					m_life += 1;
 					// 回復エフェクト
 					if (!m_effectFlg)
@@ -1353,8 +1365,8 @@ void Player::HitJudgeEvent()
 						//m_effectFlg = true;
 						m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
 					}
+					break;
 				}
-				spHitObject->OnHit();
 			}
 		}
 	}

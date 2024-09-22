@@ -65,4 +65,13 @@ private:
 	float m_pauseFocus = 0;
 	// 普通のFocus処理
 	float m_defaultFocus = 2000;
+
+	UINT m_oldPlayerSituationType = 0;
+
+	Math::Vector3 m_oldPos;
+
+	bool m_airFlg = false;
+
+	const int	m_moveTime	= 60;
+	int			m_moveCount	= 0;
 };

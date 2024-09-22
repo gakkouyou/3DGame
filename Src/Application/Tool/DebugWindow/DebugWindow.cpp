@@ -4,6 +4,7 @@
 #include "../ObjectController/TerrainController/TerrainController.h"
 #include "../ObjectController/EnemyController/EnemyController.h"
 #include "../ObjectController/CarryObjectController/CarryObjectController.h"
+#include "../ObjectController/EventObjectController/EventObjectController.h"
 
 void DebugWindow::Draw()
 {
@@ -47,6 +48,9 @@ void DebugWindow::Draw()
 
 		// CarryObject用のウィンドウ
 		CarryObjectWindow();
+
+		// EventObject用のウィンドウ
+		EventObjectWindow();
 	}
 
 
@@ -370,11 +374,57 @@ void DebugWindow::CarryObjectWindow()
 			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_carryObjectParam.pos.x, 0.25f);
-			ImGui::InputFloat("Pos.y", &m_carryObjectParam.pos.y, 0.25f);
-			ImGui::InputFloat("Pos.z", &m_carryObjectParam.pos.z, 0.25f);
+			ImGui::DragFloat("Pos.x", &m_carryObjectParam.pos.x, 0.25f);
+			ImGui::DragFloat("Pos.y", &m_carryObjectParam.pos.y, 0.25f);
+			ImGui::DragFloat("Pos.z", &m_carryObjectParam.pos.z, 0.25f);
 			// 触れれるエリア
-			ImGui::InputFloat("Area", &m_carryObjectParam.area, 0.1f);
+			ImGui::DragFloat("Area", &m_carryObjectParam.area, 0.1f);
+		}
+	}
+	ImGui::End();
+}
+
+void DebugWindow::EventObjectWindow()
+{
+	// デバッグウィンドウ
+	if (ImGui::Begin("EventObjectController"))
+	{
+		// Controllerがあるときに処理
+		std::shared_ptr<EventObjectController> spObjectController = m_wpEventObjectController.lock();
+		if (spObjectController)
+		{
+			// オブジェクト設置
+			ImGui::Text((const char*)u8"イベントオブジェクト設置   EKEY");
+			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
+			// オブジェクトを確定させる
+			if (ImGui::Button((const char*)u8"確定"))
+			{
+				spObjectController->ConfirmedObject();
+			}
+			ImGui::SameLine();
+			// オブジェクトを削除する
+			if (ImGui::Button((const char*)u8"削除"))
+			{
+				spObjectController->DeleteObject();
+			}
+			ImGui::SameLine();
+			// セーブ
+			if (ImGui::Button((const char*)u8"セーブ"))
+			{
+				spObjectController->CSVWriter();
+			}
+
+			// 箱
+			if (ImGui::Button("Goal"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Goal);
+			}
+
+			// 座標
+			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
+			ImGui::DragFloat("Pos.y", &m_eventObjectParam.pos.y, 0.25f);
+			ImGui::DragFloat("Pos.z", &m_eventObjectParam.pos.z, 0.25f);
 		}
 	}
 	ImGui::End();

@@ -3,6 +3,7 @@
 class TerrainController;
 class EnemyController;
 class CarryObjectController;
+class EventObjectController;
 
 class TerrainBase;
 
@@ -15,9 +16,10 @@ public:
 
 	void Release();
 
-	void SetTerrainController(const std::shared_ptr<TerrainController>& _spObjectController)		{ m_wpTerrainController = _spObjectController; }
-	void SetEnemyController(const std::shared_ptr<EnemyController>& _spObjectController)			{ m_wpEnemyController = _spObjectController; }
-	void SetCarryObjectController(const std::shared_ptr<CarryObjectController>& _spObjectController) { m_wpCarryObjectController = _spObjectController; }
+	void SetTerrainController		(const std::shared_ptr<TerrainController>& _spObjectController)		{ m_wpTerrainController = _spObjectController; }
+	void SetEnemyController			(const std::shared_ptr<EnemyController>& _spObjectController)		{ m_wpEnemyController = _spObjectController; }
+	void SetCarryObjectController	(const std::shared_ptr<CarryObjectController>& _spObjectController) { m_wpCarryObjectController = _spObjectController; }
+	void SetEventObjectController	(const std::shared_ptr<EventObjectController>& _spObjectController) { m_wpEventObjectController = _spObjectController; }
 
 	// Terrain用のパラメータ
 	struct TerrainParam
@@ -59,6 +61,16 @@ public:
 	// 運べるオブジェクト用のパラメータセット関数
 	void SetCarryObjectParam(CarryObjectParam _param) { m_carryObjectParam = _param; }
 
+	// EventObject用のパラメータ
+	struct EventObjectParam
+	{
+		Math::Vector3 pos = Math::Vector3::Zero;
+	};
+	// 運べるオブジェクト用のパラメータゲット関数
+	const EventObjectParam GetEventObjectParam() const { return m_eventObjectParam; }
+	// 運べるオブジェクト用のパラメータセット関数
+	void SetEventObjectParam(EventObjectParam _param) { m_eventObjectParam = _param; }
+
 private:
 	// Terrain用
 	std::weak_ptr<TerrainController> m_wpTerrainController;
@@ -77,6 +89,12 @@ private:
 	CarryObjectParam m_carryObjectParam;
 	// 運べるオブジェクト用のウィンドウ
 	void CarryObjectWindow();
+
+	// EventObject用
+	std::weak_ptr<EventObjectController> m_wpEventObjectController;
+	EventObjectParam m_eventObjectParam;
+	// EventObject用のウィンドウ
+	void EventObjectWindow();
 
 private:
 

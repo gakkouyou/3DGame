@@ -39,7 +39,7 @@ public:
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// クリアしたかどうか
-	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
+	const bool GetGoalFlg() const { return m_goalFlg; }
 
 	// 動いていいかのフラグのセット
 	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
@@ -50,7 +50,19 @@ public:
 	// ライフをゲット
 	const int GetLife() const { return m_life; }
 
+	const int GetSituationType() const { return m_situationType; }
 
+	// 今の状況
+	enum SituationType
+	{
+		Idle = 1 << 0,	// 止まっている
+		Walk = 1 << 1,	// 歩いている
+		Jump = 1 << 2,	// ジャンプしている
+		Air = 1 << 3,	// 空中にいる
+		WallHit = 1 << 4,	// 壁に触れている
+		Run = 1 << 5,	// 走っている
+		Carry = 1 << 6,	// 持っている
+	};
 
 private:
 	// 当たり判定
@@ -66,18 +78,6 @@ private:
 
 	// ダメージを受けた時の処理
 	void DamageProcess();
-
-	// 今の状況
-	enum SituationType
-	{
-		Idle	= 1 << 0,	// 止まっている
-		Walk	= 1 << 1,	// 歩いている
-		Jump	= 1 << 2,	// ジャンプしている
-		Air		= 1 << 3,	// 空中にいる
-		WallHit	= 1 << 4,	// 壁に触れている
-		Run		= 1 << 5,	// 走っている
-		Carry	= 1 << 6,	// 持っている
-	};
 
 	// カメラのウィークポインタ
 	std::weak_ptr<CameraBase> m_wpCamera;
@@ -205,7 +205,7 @@ private:
 		Carry,		// 運び立ち状態
 		CarryWalk,	// 運び歩き状態
 	};
-	AnimationType m_animationType;
+	AnimationType m_animationType = AnimationType::Idle;
 
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }

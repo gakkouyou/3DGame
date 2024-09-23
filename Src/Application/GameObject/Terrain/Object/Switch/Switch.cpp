@@ -1,4 +1,7 @@
 ﻿#include "Switch.h"
+#include "SwitchBaseModel/SwitchBaseModel.h"
+#include "../../../../Scene/SceneManager.h"
+#include "../../../../Tool/ObjectController/TerrainController/TerrainController.h"
 
 void Switch::Update()
 {
@@ -18,39 +21,6 @@ void Switch::Update()
 	m_mWorld.Translation(m_param.pos);
 }
 
-void Switch::GenerateDepthMapFromLight()
-{
-	if (m_spModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-	}
-	if (m_spBaseModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_baseMatrix);
-	}
-}
-
-void Switch::DrawLit()
-{
-	if (m_spModel)
-	{
-		if (m_setParamFlg == true)
-		{
-			KdShaderManager::Instance().m_StandardShader.SetColorEnable(true);
-		}
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-	}
-	if (m_spBaseModel)
-	{
-		if (m_setParamFlg == true)
-		{
-			KdShaderManager::Instance().m_StandardShader.SetColorEnable(true);
-			m_setParamFlg = false;
-		}
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_baseMatrix);
-	}
-}
-
 void Switch::Init()
 {
 	// スイッチのボタンのモデル
@@ -60,23 +30,23 @@ void Switch::Init()
 		m_spModel->Load("Asset/Models/Terrain/Object/Switch/Button/button.gltf");
 	}
 
-	// スイッチの土台のようなモデル
-	if (!m_spBaseModel)
-	{
-		m_spBaseModel = std::make_shared<KdModelData>();
-		m_spBaseModel->Load("Asset/Models/Terrain/Object/Switch/Base/base.gltf");
-	}
-
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("SwitchButton", m_spModel, KdCollider::TypeGround);
-
-	m_pBaseCollider = std::make_unique<KdCollider>();
-	m_pBaseCollider->RegisterCollisionShape("SwitchBase", m_spBaseModel, KdCollider::TypeGround);
 
 	// オブジェクトタイプ
 	m_objectType = ObjectType::Switch;
 
+	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
+
 	TerrainBase::Init();
+
+	// スイッチの土台を作成
+	std::shared_ptr<SwitchBaseModel> switchBaseModel = std::make_shared<SwitchBaseModel>();
+	switchBaseModel->Init();
+	// シーンのオブジェクトリストに追加
+	SceneManager::Instance().AddObject(switchBaseModel);
+	// 保持
+	m_wpBase = switchBaseModel;
 }
 
 void Switch::OnHit()
@@ -95,13 +65,20 @@ void Switch::OnHit()
 
 void Switch::SetParam(Param _param)
 {
+	if (m_setParamFlg == true) return;
+
 	m_param.pos			= _param.startPos;
 	m_param.startPos	= _param.startPos;
 	m_param.scale		= _param.scale;
 	m_param.targetName	= _param.targetName;
 
-	m_baseMatrix = Math::Matrix::CreateTranslation(m_param.startPos);
-	m_mWorld = Math::Matrix::CreateTranslation(m_param.startPos);
+	m_mWorld = Math::Matrix::CreateScale(m_param.scale) * Math::Matrix::CreateTranslation(m_param.startPos);
 
 	m_setParamFlg = true;
+
+	// スイッチの土台にも入れる
+	if (m_wpBase.expired() == false)
+	{
+		m_wpBase.lock()->SetParam(_param);
+	}
 }

@@ -2,6 +2,9 @@
 
 #include "../../TerrainBase.h"
 
+class TerrainController;
+class SwitchBaseModel;
+
 class Switch : public TerrainBase
 {
 public:
@@ -9,27 +12,23 @@ public:
 	~Switch()							override {}
 
 	void Update()						override;
-	void GenerateDepthMapFromLight()	override;
-	void DrawLit()						override;
 	void Init()							override;
 
 	void OnHit()						override;
 
 	void SetParam(Param _param)			override;
 
+	const std::weak_ptr<SwitchBaseModel>& GetSwitchBaseModel() const { return m_wpBase; }
+
 private:
 	// 上がり下がりする量
 	const float m_movePow = 0.01f;
 	// 下がる限界値
-	const float m_maxMove = 0.2f;
+	const float m_maxMove = 0.15f;
 
 	// OnHitに入ったかどうかをチェックするフラグ
 	bool m_onHitFlg = false;
 
-	// スイッチの土台のようなモデル
-	std::shared_ptr<KdModelData> m_spBaseModel	= nullptr;
-	// スイッチの土台の行列
-	Math::Matrix m_baseMatrix;
-	// コライダー
-	std::unique_ptr<KdCollider> m_pBaseCollider = nullptr;
+	// スイッチの土台？
+	std::weak_ptr<SwitchBaseModel> m_wpBase;
 };

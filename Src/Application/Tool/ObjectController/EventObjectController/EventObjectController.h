@@ -65,7 +65,8 @@ private:
 	// オブジェクトの個数
 	struct Count
 	{
-		int Goal = 0;
+		int Goal		= 0;
+		int HealItem	= 0;
 	};
 
 	Count m_objectCount;

@@ -39,6 +39,6 @@ private:
 	int m_goalStayCnt	= 0;
 	int m_goalStayTime	= 60;
 
-	std::weak_ptr<KdSoundInstance> m_wpSound;
+	std::weak_ptr<KdSoundInstance3D> m_wpSound;
 	bool m_flg = false;
 };

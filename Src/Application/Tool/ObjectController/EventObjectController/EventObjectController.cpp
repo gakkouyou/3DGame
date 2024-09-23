@@ -6,6 +6,7 @@
 #include "../../../GameObject/Character/Player/Player.h"
 
 #include "../../../GameObject/EventObject/Goal/Goal.h"
+#include "../../../GameObject/EventObject/HealItem/HealItem.h"
 
 void EventObjectController::Update()
 {
@@ -82,7 +83,7 @@ void EventObjectController::ConfirmedObject()
 			// オブジェクトのタイプと名前を入れる
 			switch (spTargetObject->GetObjectType())
 			{
-				// 通常の敵の場合
+				// ゴールの場合
 			case ObjectType::Goal:
 				// タイプのセット
 				data.type = "Goal";
@@ -90,6 +91,16 @@ void EventObjectController::ConfirmedObject()
 				m_objectCount.Goal++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Goal);
+				break;
+
+				// 回復アイテムの場合
+			case ObjectType::HealItem:
+				// タイプのセット
+				data.type = "HealItem";
+				// カウントを進める
+				m_objectCount.HealItem++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.HealItem);
 				break;
 			}
 			// 名前をセットする
@@ -164,6 +175,15 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	case KdGameObject::ObjectType::Goal:
 	{
 		std::shared_ptr<Goal> object = std::make_shared<Goal>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+		// 回復アイテム
+	case KdGameObject::ObjectType::HealItem:
+	{
+		std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -245,7 +265,7 @@ void EventObjectController::BeginCreateObject()
 {
 	for (auto& data : m_dataList)
 	{
-		// 箱
+		// ゴール
 		if (data.type == "Goal")
 		{
 			std::shared_ptr<Goal> object = std::make_shared<Goal>();
@@ -271,6 +291,26 @@ void EventObjectController::BeginCreateObject()
 			{
 				m_wpCamera.lock()->SetGoalPos(pos);
 			}
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
+		// 回復アイテム
+		else if (data.type == "HealItem")
+		{
+			std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
+			// パラメータをセットする
+			Math::Vector3 pos = data.pos;
+			object->SetPos(pos);
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.HealItem++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.HealItem);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
 			// リストに追加
 			m_wpObjectList.push_back(object);
 		}
@@ -347,6 +387,6 @@ void EventObjectController::CSVWriter()
 		ofs << data.name << ",";
 
 		// 座標
-		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
+		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << "," << std::endl;
 	}
 }

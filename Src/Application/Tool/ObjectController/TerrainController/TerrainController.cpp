@@ -14,7 +14,10 @@
 #include "../../../GameObject/Terrain/Ground/DropGround/DropGround.h"
 #include "../../../GameObject/Terrain/Object/Propeller/Propeller.h"
 #include "../../../GameObject/Terrain/Object/Switch/Switch.h"
-#include "../../../GameObject/Terrain/Object/Door/Door.h"
+#include "../../../GameObject/Terrain/Object/Switch/SwitchBaseModel/SwitchBaseModel.h"
+#include "../../../GameObject/Terrain/Object/Door/RightDoor/RightDoor.h"
+#include "../../../GameObject/Terrain/Object/Door/LeftDoor/LeftDoor.h"
+#include "../../../GameObject/Terrain/Object/Door/DoorWall/DoorWall.h"
 
 void TerrainController::Update()
 {
@@ -363,16 +366,38 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
+		// スイッチベースモデル
+		std::weak_ptr<SwitchBaseModel> switchBaseModel = object->GetSwitchBaseModel();
+		// スイッチベースモデルにスイッチを渡す
+		if (switchBaseModel.expired() == false)
+		{
+			switchBaseModel.lock()->SetSwitch(object);
+			// スイッチのベースのモデルもpush_backする
+			m_wpTerrainList.push_back(switchBaseModel);
+		}
 		break;
 	}
 
 	// ドア
 	case KdGameObject::ObjectType::Door:
 	{
-		std::shared_ptr<Door> object = std::make_shared<Door>();
+		std::shared_ptr<RightDoor> object = std::make_shared<RightDoor>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
+		// 左のドア
+		std::weak_ptr<LeftDoor> leftDoor = object->GetLeftDoor();
+		// ドアの壁
+		std::weak_ptr<DoorWall> doorWall = object->GetDoorWall();
+		// それぞれにそれぞれを渡しあう
+		if (leftDoor.expired() == false && doorWall.expired() == false)
+		{
+			leftDoor.lock()->SetRightDoor(object);
+			leftDoor.lock()->SetDoorWall(doorWall);
+
+			doorWall.lock()->SetLeftDoor(leftDoor);
+			doorWall.lock()->SetRightDoor(object);
+		}
 		break;
 	}
 	}
@@ -584,11 +609,22 @@ void TerrainController::BeginCreateObject()
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
+			// スイッチベースモデル
+			std::weak_ptr<SwitchBaseModel> switchBaseModel = object->GetSwitchBaseModel();
+			// スイッチベースモデルにスイッチを渡す
+			if (switchBaseModel.expired() == false)
+			{
+				switchBaseModel.lock()->SetSwitch(object);
+				// 名前
+				switchBaseModel.lock()->SetObjectName(name);
+				// スイッチのベースのモデルもpush_backする
+				m_wpTerrainList.push_back(switchBaseModel);
+			}
 		}
 		// ドア
 		else if (data.type == "Door")
 		{
-			std::shared_ptr<Door> object = std::make_shared<Door>();
+			std::shared_ptr<RightDoor> object = std::make_shared<RightDoor>();
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
@@ -605,6 +641,27 @@ void TerrainController::BeginCreateObject()
 			// 情報をセットする
 			object->SetParam(param);
 			m_wpTerrainList.push_back(object);
+			// 左のドア
+			std::weak_ptr<LeftDoor> leftDoor = object->GetLeftDoor();
+			// ドアの壁
+			std::weak_ptr<DoorWall> doorWall = object->GetDoorWall();
+			// それぞれにそれぞれを渡しあう
+			if (leftDoor.expired() == false && doorWall.expired() == false)
+			{
+				leftDoor.lock()->SetRightDoor(object);
+				leftDoor.lock()->SetDoorWall(doorWall);
+
+				doorWall.lock()->SetLeftDoor(leftDoor);
+				doorWall.lock()->SetRightDoor(object);
+
+				// 名前
+				leftDoor.lock()->SetObjectName("LeftDoor" + std::to_string(m_objectCount.Door));
+				doorWall.lock()->SetObjectName("DoorWall" + std::to_string(m_objectCount.Door));
+
+				// push_back
+				m_wpTerrainList.push_back(leftDoor);
+				m_wpTerrainList.push_back(doorWall);
+			}
 		}
 	}
 
@@ -847,9 +904,9 @@ void TerrainController::MouseSelect()
 					if (m_wpTargetObject.expired() == false)
 					{
 						m_wpTargetObject.lock()->SetTarget(hitObjList[cnt]);
-						TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-						DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
-						DebugWindow::Instance().SetTerrainParam(setParam);
+						//TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+						//DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+						//DebugWindow::Instance().SetTerrainParam(setParam);
 						// ターゲットセレクトモードを終了する
 						m_targetFlg = false;
 					}

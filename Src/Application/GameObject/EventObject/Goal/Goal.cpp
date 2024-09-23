@@ -44,7 +44,8 @@ void Goal::Update()
 
 	if (m_flg == false)
 	{
-		//m_wpSound.lock()->Play(true);
+		m_wpSound.lock()->Play(true);
+		m_wpSound.lock()->SetCurveDistanceScaler(0.1f);
 		m_flg = true;
 	}
 }

@@ -193,12 +193,6 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\FencePillar">
       <UniqueIdentifier>{88533c81-3b36-4e08-81a6-615023f50c71}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\EventObject\Item">
-      <UniqueIdentifier>{5742a779-8f50-499f-a727-1937e9ee9223}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\EventObject\Item\Heart">
-      <UniqueIdentifier>{b5a0a909-6225-49b7-a09a-2bf2c3d70d03}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Terrain\Object\Propeller">
       <UniqueIdentifier>{2cdaa582-f7ab-491b-a7b3-390efcf944df}</UniqueIdentifier>
     </Filter>
@@ -219,6 +213,21 @@
     </Filter>
     <Filter Include="Src\Application\Tool\ObjectController\EventObjectController">
       <UniqueIdentifier>{69450929-a495-479d-ab94-165092077ae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel">
+      <UniqueIdentifier>{1146a088-43c0-4b89-94d1-261a714622ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor">
+      <UniqueIdentifier>{52ea4391-b371-4fcc-b4af-72a60890b14d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor">
+      <UniqueIdentifier>{a7d921b3-b62b-4c96-aa08-2a12419c4964}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall">
+      <UniqueIdentifier>{e078ed3b-3928-40ea-a72b-557dba47820e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\HealItem">
+      <UniqueIdentifier>{9e770f15-e50a-4ef1-a4bd-3fd0e38931ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -486,9 +495,6 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.h">
       <Filter>Src\Application\GameObject\Terrain\Object\FencePillar</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\EventObject\Heart\Heart.h">
-      <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.h">
       <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
     </ClInclude>
@@ -504,11 +510,23 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.h">
       <Filter>Src\Application\GameObject\Terrain\Object\Switch</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\Door.h">
-      <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.h">
       <Filter>Src\Application\Tool\ObjectController\EventObjectController</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel\SwitchBaseModel.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\LeftDoor</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\RightDoor</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\DoorWall</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h">
+      <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -746,9 +764,6 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\FencePillar\FencePillar.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\FencePillar</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\EventObject\Heart\Heart.cpp">
-      <Filter>Src\Application\GameObject\EventObject\Item\Heart</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\Propeller</Filter>
     </ClCompile>
@@ -764,11 +779,23 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\Switch</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\Door.cpp">
-      <Filter>Src\Application\GameObject\Terrain\Object\Door</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.cpp">
       <Filter>Src\Application\Tool\ObjectController\EventObjectController</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel\SwitchBaseModel.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\LeftDoor</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\RightDoor</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Door\DoorWall</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp">
+      <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

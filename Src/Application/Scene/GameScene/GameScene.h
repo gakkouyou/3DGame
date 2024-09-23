@@ -75,4 +75,6 @@ private:
 
 	void CSVLoader();
 	void CSVWriter();
+
+	std::weak_ptr<KdSoundInstance> m_bgm;
 };

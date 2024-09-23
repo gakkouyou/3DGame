@@ -12,8 +12,6 @@
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
 
-#include "../../GameObject/EventObject/Heart/Heart.h"
-
 #include "../../GameObject/Terrain/CarryObject/Box/Box.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
@@ -249,12 +247,6 @@ void GameScene::Init()
 	// プレイヤーを渡す
 	ui->SetPlayer(player);
 
-
-	// 回復アイテム
-	std::shared_ptr<Heart> heart = std::make_shared<Heart>();
-	heart->Init();
-	AddObject(heart);
-
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
@@ -318,6 +310,9 @@ void GameScene::Init()
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
 	player->SetCarryObjectContoller(carryObjectController);
+
+	//m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
+	//m_bgm.lock()->SetVolume(0.1f);
 }
 
 void GameScene::StartGameScene()
@@ -375,7 +370,8 @@ void GameScene::GameEnd(int _stayCnt)
 			{
 				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
 					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground
-					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject)
+					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
+					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
 				{
 					(*it)->SetExpired(true);
 					it = m_objList.erase(it);

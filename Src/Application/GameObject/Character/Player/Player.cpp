@@ -178,6 +178,7 @@ void Player::Update()
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
+				m_nowWalkSoundFlg = false;
 			}
 			// 煙を出すカウント
 			m_smokeCount++;
@@ -195,6 +196,7 @@ void Player::Update()
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
+				m_nowWalkSoundFlg = false;
 			}
 			// 煙を出すカウント
 			m_smokeCount++;
@@ -831,14 +833,7 @@ void Player::PostUpdate()
 
 	// アニメーションの更新
 	// 止まっていたらアニメーションしない
-	if (m_situationType bitand SituationType::Run)
-	{
-		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
-	}
-	else
-	{
-		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
-	}
+	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
 
 	//KdAudioManager::Instance().SetListnerMatrix(m_mWorld);

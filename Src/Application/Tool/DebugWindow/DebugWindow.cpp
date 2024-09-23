@@ -39,18 +39,33 @@ void DebugWindow::Draw()
 	Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
+		if (ImGui::Begin("DebugWindow"))
+		{
+			if(ImGui::CollapsingHeader("Terrain"))
+			{
+				// Terrain用のウィンドウ
+				TerrainWindow();
+			}
 
-		// Terrain用のウィンドウ
-		TerrainWindow();
+			if (ImGui::CollapsingHeader("Enemy"))
+			{
+				// Enemy用のウィンドウ
+				EnemyWindow();
+			}
 
-		// Enemy用のウィンドウ
-		EnemyWindow();
+			if (ImGui::CollapsingHeader("CarryObject"))
+			{
+				// CarryObject用のウィンドウ
+				CarryObjectWindow();
+			}
 
-		// CarryObject用のウィンドウ
-		CarryObjectWindow();
-
-		// EventObject用のウィンドウ
-		EventObjectWindow();
+			if (ImGui::CollapsingHeader("Event"))
+			{
+				// EventObject用のウィンドウ
+				EventObjectWindow();
+			}
+		}
+		ImGui::End();
 	}
 
 
@@ -94,7 +109,7 @@ void DebugWindow::Release()
 void DebugWindow::TerrainWindow()
 {
 	// デバッグウィンドウ
-	if (ImGui::Begin("TerrainController"))
+	//if (ImGui::Begin("TerrainController"))
 	{
 		// Controllerがあるときに処理
 		std::shared_ptr<TerrainController> spObjectController = m_wpTerrainController.lock();
@@ -248,13 +263,13 @@ void DebugWindow::TerrainWindow()
 			ImGui::InputFloat("DegAng.z", &m_terrainParam.degAng.z, 1.0f);
 		}
 	}
-	ImGui::End();
+	//ImGui::End();
 }
 
 void DebugWindow::EnemyWindow()
 {
 	// デバッグウィンドウ
-	if (ImGui::Begin("EnemyController"))
+	//if (ImGui::Begin("EnemyController"))
 	{
 		// Controllerがあるときに処理
 		std::shared_ptr<EnemyController> spObjectController = m_wpEnemyController.lock();
@@ -302,17 +317,17 @@ void DebugWindow::EnemyWindow()
 			}
 
 			// 座標
-			ImGui::InputFloat("Pos.x", &m_enemyParam.pos.x, 0.25f);
-			ImGui::InputFloat("Pos.y", &m_enemyParam.pos.y, 0.25f);
-			ImGui::InputFloat("Pos.z", &m_enemyParam.pos.z, 0.25f);
+			ImGui::DragFloat("Pos.x", &m_enemyParam.pos.x, 0.25f);
+			ImGui::DragFloat("Pos.y", &m_enemyParam.pos.y, 0.25f);
+			ImGui::DragFloat("Pos.z", &m_enemyParam.pos.z, 0.25f);
 			// 動く範囲
-			ImGui::InputFloat("MoveArea", &m_enemyParam.moveArea, 0.1f);
+			ImGui::DragFloat("MoveArea", &m_enemyParam.moveArea, 0.1f);
 
 			// 通常敵用
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::NormalEnemy)
 			{
 				// 索敵範囲
-				ImGui::InputFloat("SerarchArea", &m_enemyParam.searchArea, 0.1f);
+				ImGui::DragFloat("SerarchArea", &m_enemyParam.searchArea, 0.1f);
 			}
 
 			// 飛ぶ敵用
@@ -331,13 +346,13 @@ void DebugWindow::EnemyWindow()
 			}
 		}
 	}
-	ImGui::End();
+	//ImGui::End();
 }
 
 void DebugWindow::CarryObjectWindow()
 {
 	// デバッグウィンドウ
-	if (ImGui::Begin("CarryObjectController"))
+	//if (ImGui::Begin("CarryObjectController"))
 	{
 		// Controllerがあるときに処理
 		std::shared_ptr<CarryObjectController> spObjectController = m_wpCarryObjectController.lock();
@@ -381,13 +396,13 @@ void DebugWindow::CarryObjectWindow()
 			ImGui::DragFloat("Area", &m_carryObjectParam.area, 0.1f);
 		}
 	}
-	ImGui::End();
+	//ImGui::End();
 }
 
 void DebugWindow::EventObjectWindow()
 {
 	// デバッグウィンドウ
-	if (ImGui::Begin("EventObjectController"))
+	//if (ImGui::Begin("EventObjectController"))
 	{
 		// Controllerがあるときに処理
 		std::shared_ptr<EventObjectController> spObjectController = m_wpEventObjectController.lock();
@@ -421,11 +436,18 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::Goal);
 			}
 
+			// ハート
+			if (ImGui::Button("HealItem"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::HealItem);
+			}
+
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
 			ImGui::DragFloat("Pos.y", &m_eventObjectParam.pos.y, 0.25f);
 			ImGui::DragFloat("Pos.z", &m_eventObjectParam.pos.z, 0.25f);
 		}
 	}
-	ImGui::End();
+	//ImGui::End();
 }

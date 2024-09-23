@@ -130,8 +130,8 @@ private:
 
 	// 足元の煙用
 	int m_smokeCount	= 0;
-	int m_walkSmokeTime = 15;
-	int m_runSmokeTime	= 7;
+	int m_walkSmokeTime = 30;
+	int m_runSmokeTime	= 16;
 
 	// 走り状態の時のスピード
 	const float m_runSpeed	= 0.125f;

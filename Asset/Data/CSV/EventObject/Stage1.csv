@@ -1,1 +1,3 @@
-Goal,Goal1,42.5,8.25,43.75,
+Goal,Goal1,42.5,7.5,43.75,
+HealItem,HealItem1,6,3,0.75,
+HealItem,HealItem2,-6.75,3,0.75,

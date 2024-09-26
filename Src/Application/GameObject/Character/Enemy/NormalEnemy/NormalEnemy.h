@@ -15,7 +15,7 @@ public:
 	// リセット処理
 	void Reset()		override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
 
 	void OnHit()	override;
 
@@ -129,4 +129,7 @@ private:
 	HitMoveTerrain m_moveGround;
 	// 回る床
 	HitMoveTerrain m_rotationGround;
+
+	// 更新前の座標
+	Math::Vector3 m_oldPos;
 };

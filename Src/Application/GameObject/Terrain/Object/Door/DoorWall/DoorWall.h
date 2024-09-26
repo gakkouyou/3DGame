@@ -10,10 +10,12 @@ public:
 
 	void Init()					override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
 
 	void SetRightDoor(const std::weak_ptr<TerrainBase>& _wpRightDoor) { m_wpRightDoor = _wpRightDoor; }
 	void SetLeftDoor(const std::weak_ptr<TerrainBase>& _wpLeftDoor) { m_wpLeftDoor = _wpLeftDoor; }
+
+	void Active()	override;
 
 private:
 	std::weak_ptr<TerrainBase> m_wpRightDoor;

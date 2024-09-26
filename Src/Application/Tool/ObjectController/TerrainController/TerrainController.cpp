@@ -215,6 +215,7 @@ void TerrainController::ConfirmedObject()
 				m_objectCount.Door++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Door);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -655,8 +656,8 @@ void TerrainController::BeginCreateObject()
 				doorWall.lock()->SetRightDoor(object);
 
 				// 名前
-				leftDoor.lock()->SetObjectName("LeftDoor" + std::to_string(m_objectCount.Door));
-				doorWall.lock()->SetObjectName("DoorWall" + std::to_string(m_objectCount.Door));
+				leftDoor.lock()->SetObjectName("Door" + std::to_string(m_objectCount.Door));
+				doorWall.lock()->SetObjectName("Door" + std::to_string(m_objectCount.Door));
 
 				// push_back
 				m_wpTerrainList.push_back(leftDoor);
@@ -904,9 +905,9 @@ void TerrainController::MouseSelect()
 					if (m_wpTargetObject.expired() == false)
 					{
 						m_wpTargetObject.lock()->SetTarget(hitObjList[cnt]);
-						//TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-						//DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
-						//DebugWindow::Instance().SetTerrainParam(setParam);
+						TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+						DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+						DebugWindow::Instance().SetTerrainParam(setParam);
 						// ターゲットセレクトモードを終了する
 						m_targetFlg = false;
 					}

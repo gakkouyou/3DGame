@@ -33,7 +33,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"Cube.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,8 +56,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"drop.png",
-			"uri":"drop_png.png"
+			"name":"drop",
+			"uri":"drop.png"
 		}
 	],
 	"accessors":[

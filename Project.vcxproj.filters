@@ -229,6 +229,9 @@
     <Filter Include="Src\Application\GameObject\EventObject\HealItem">
       <UniqueIdentifier>{9e770f15-e50a-4ef1-a4bd-3fd0e38931ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\Candy">
+      <UniqueIdentifier>{2421a39d-da78-4bc3-b2f3-faa49db9257b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -528,6 +531,9 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h">
       <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\Candy\Candy.h">
+      <Filter>Src\Application\GameObject\EventObject\Candy</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -796,6 +802,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp">
       <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\Candy\Candy.cpp">
+      <Filter>Src\Application\GameObject\EventObject\Candy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

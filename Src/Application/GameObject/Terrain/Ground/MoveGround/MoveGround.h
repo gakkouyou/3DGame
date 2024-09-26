@@ -17,15 +17,12 @@ public:
 	Math::Vector3 GetPos()	const override { return m_param.pos; }
 
 	// 情報をセットする
-	void SetParam(Param _param) override;
+	void SetParam(const Param _param) override;
 
 	// 動くオブジェクト
 	bool IsRideable() const		override { return true; }
 	
 	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
-
-	// ゲームをやり直す際に呼ぶ関数
-	void Reset();
 
 private:
 	// 動くか動かないか

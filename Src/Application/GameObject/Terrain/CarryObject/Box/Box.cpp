@@ -5,6 +5,8 @@
 
 void Box::Update()
 {
+	m_oldPos = m_pos;
+
 	if (m_pauseFlg) return;
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
@@ -25,6 +27,14 @@ void Box::Update()
 	m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 
 	HitJudge();
+
+	// Y座標が一定以下になるとリスポーン
+	if (m_pos.y < m_underLine)
+	{
+		m_pos = m_param.startPos;
+		m_pos.y += 1.0f;
+		m_gravity = 0;
+	}
 }
 
 void Box::PostUpdate()
@@ -233,7 +243,7 @@ void Box::SetParam(Param _param)
 void Box::HitJudge()
 {
 	// 運ばれている状態なら当たり判定をしない
-	if (m_carryFlg == true)return;
+	//if (m_carryFlg == true)return;
 	
 	// レイ判定
 	// 動く床関連をリセット
@@ -247,165 +257,184 @@ void Box::HitJudge()
 	// 当たった地面をリセット
 	m_wpHitTerrain.reset();
 
-	// 地面とのレイ当たり判定
+	if (m_carryFlg == false)
 	{
-		// 当たった座標
-		Math::Vector3 hitPos = Math::Vector3::Zero;
-		// レイのスタート座標
-		Math::Vector3 startPos = Math::Vector3::Zero;
-		// 当たったかどうか
-		bool hitFlg = false;
-		// ちょっと上から
-		const float enableStepHeight = 0.1f;
+
+		// 地面とのレイ当たり判定
+		{
+			// 当たったかどうか
+			bool hitFlg = false;
+			// ちょっと上から
+			const float enableStepHeight = 0.1f;
+
+			// 当たった座標
+			Math::Vector3 hitPos = Math::Vector3::Zero;
+			// ノードの座標
+			Math::Vector3 nodePos = Math::Vector3::Zero;
+
+			// レイの情報
+			KdCollider::RayInfo rayInfo;
+			// レイの長さ
+			rayInfo.m_range = m_gravity + enableStepHeight;
+			// レイの座標(キャラの中心)
+			rayInfo.m_pos.y = enableStepHeight;
+			rayInfo.m_pos += m_pos;
+			// レイの方向
+			rayInfo.m_dir = Math::Vector3::Down;
+			// レイのタイプ
+			rayInfo.m_type = KdCollider::TypeGround;
 
 
-		// 真ん中からレイ判定
-		startPos = m_pos;
-		if (!m_rayDownFlg)
-		{
-			startPos.y += enableStepHeight;
-		}
-		else
-		{
-			return;
-		}
-		hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight, true);
-
-
-		float right = m_edgePos[RightBack].x;
-		float back	= m_edgePos[RightBack].z;
-		float left	= m_edgePos[LeftFront].x;
-		float front = m_edgePos[LeftFront].z;
-
-		// 右前から
-		if (!hitFlg)
-		{
-			Math::Vector3 pos = startPos;
-			pos.x = right;
-			pos.z = front;
-			hitFlg = RayHitGround(pos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight, true);
-		}
-		// 左前から
-		if (!hitFlg)
-		{
-			Math::Vector3 pos = startPos;
-			pos.x = left;
-			pos.z = front;
-			hitFlg = RayHitGround(pos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight, true);
-		}
-		// 左後ろから
-		if (!hitFlg)
-		{
-			Math::Vector3 pos = startPos;
-			pos.x = left;
-			pos.z = back;
-			hitFlg = RayHitGround(pos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight, true);
-		}
-		// 右後ろから
-		if (!hitFlg)
-		{
-			Math::Vector3 pos = startPos;
-			pos.x = right;
-			pos.z = back;
-			hitFlg = RayHitGround(pos, hitPos, Math::Vector3::Down, m_gravity + enableStepHeight);
-		}
-
-		// 当たっていた時の処理
-		if (hitFlg)
-		{
-			// 当たったオブジェクト
-			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-
-			if (spHitObject)
+			// 真ん中からレイ判定
+			if (!m_rayDownFlg)
 			{
-				spHitObject->OnHit();
+				//rayInfo.m_pos.y += enableStepHeight;
+			}
+			else
+			{
+				return;
+			}
+			// レイ判定
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 
-				switch (spHitObject->GetObjectType())
+
+			float right = m_edgePos[RightBack].x;
+			float back = m_edgePos[RightBack].z;
+			float left = m_edgePos[LeftFront].x;
+			float front = m_edgePos[LeftFront].z;
+
+			// 右前から
+			if (!hitFlg)
+			{
+				Math::Vector3 pos = rayInfo.m_pos;
+				pos.x = right;
+				pos.z = front;
+				// レイ判定
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			}
+			// 左前から
+			if (!hitFlg)
+			{
+				Math::Vector3 pos = rayInfo.m_pos;
+				pos.x = left;
+				pos.z = front;
+				// レイ判定
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			}
+			// 左後ろから
+			if (!hitFlg)
+			{
+				Math::Vector3 pos = rayInfo.m_pos;
+				pos.x = left;
+				pos.z = back;
+				// レイ判定
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			}
+			// 右後ろから
+			if (!hitFlg)
+			{
+				Math::Vector3 pos = rayInfo.m_pos;
+				pos.x = right;
+				pos.z = back;
+				// レイ判定
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			}
+
+			// 当たっていた時の処理
+			if (hitFlg)
+			{
+				// 当たったオブジェクト
+				std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
+
+				if (spHitObject)
 				{
-					// バウンドする床に乗った場合
-				case ObjectType::BoundGround:
-					// 座標
-					m_pos.y = hitPos.y;
-					// 重力
-					m_gravity = -0.25f;
+					spHitObject->OnHit();
 
-					// 跳ねた時の音を鳴らす
-					//if (m_boundSound.flg == false)
-					//{
-					//	if (!m_boundSound.wpSound.expired())
-					//	{
-					//		m_boundSound.wpSound.lock()->Play();
-					//		m_boundSound.flg = true;
-					//	}
-					//}
-					break;
+					switch (spHitObject->GetObjectType())
+					{
+						// バウンドする床に乗った場合
+					case ObjectType::BoundGround:
+						// 座標
+						m_pos.y = hitPos.y;
+						// 重力
+						m_gravity = -0.25f;
 
-					// 動く床に乗った場合
-				case ObjectType::MoveGround:
-				case ObjectType::DropGround:
-				case ObjectType::Switch:
-					// 座標
-					m_pos.y = hitPos.y;
-					// 重力
-					m_gravity = 0;
-					// 動く床の動く前の行列
-					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
-					// 動く床に当たったかどうかのフラグ
-					m_moveGround.hitFlg = true;
-					break;
+						// 跳ねた時の音を鳴らす
+						//if (m_boundSound.flg == false)
+						//{
+						//	if (!m_boundSound.wpSound.expired())
+						//	{
+						//		m_boundSound.wpSound.lock()->Play();
+						//		m_boundSound.flg = true;
+						//	}
+						//}
+						break;
 
-					// 回る床に乗った場合
-				case ObjectType::RotationGround:
-				case ObjectType::Propeller:
-					// 座標
-					m_pos.y = hitPos.y;
-					// 重力
-					m_gravity = 0;
-					// 当たったかどうか
-					m_rotationGround.hitFlg = true;
-					break;
+						// 動く床に乗った場合
+					case ObjectType::MoveGround:
+					case ObjectType::DropGround:
+					case ObjectType::Switch:
+						// 座標
+						m_pos.y = hitPos.y;
+						// 重力
+						m_gravity = 0;
+						// 動く床の動く前の行列
+						m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+						// 動く床に当たったかどうかのフラグ
+						m_moveGround.hitFlg = true;
+						break;
 
-				default:
-					// 座標
-					m_pos.y = hitPos.y;
-					// 重力
-					m_gravity = 0;
-					break;
+						// 回る床に乗った場合
+					case ObjectType::RotationGround:
+					case ObjectType::Propeller:
+						// 座標
+						m_pos.y = hitPos.y;
+						// 重力
+						m_gravity = 0;
+						// 当たったかどうか
+						m_rotationGround.hitFlg = true;
+						break;
+
+					default:
+						// 座標
+						m_pos.y = hitPos.y;
+						// 重力
+						m_gravity = 0;
+						break;
+					}
 				}
 			}
 		}
+		m_rayDownFlg = false;
 	}
-	m_rayDownFlg = false;
 
 	// 地面(壁)とのスフィア判定
 	{
-		// 方向
-		std::list<Math::Vector3> hitDirList;
+		// スフィアの情報
+		KdCollider::SphereInfo sphereInfo;
 		// スフィアの中心座標
-		Math::Vector3 centerPos = m_pos;
+		sphereInfo.m_sphere.Center = m_pos;
 		// スフィアの半径
-		float radius = m_edgeBasePos[RightBack].x - m_edgeBasePos[LeftBack].x;
-		centerPos.y += radius + 0.01f;
+		sphereInfo.m_sphere.Radius = m_edgeBasePos[Up].y - m_edgeBasePos[Down].y;
+		sphereInfo.m_sphere.Radius *= 0.5f;
+		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.03f;
+		// スフィアのタイプ
+		sphereInfo.m_type = KdCollider::TypeGround;
 
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
-		// めり込んだ距離
-		float maxOverLap = 0.0f;
 
-		// 当たった場合
-		if (hitFlg)
+		hitFlg = SphereHitGround(sphereInfo, true);
+
+		if (m_carryFlg)
 		{
-			Math::Vector3 dir;
-
-			for (auto& hitDir : hitDirList)
+			if (hitFlg == true)
 			{
-				dir += hitDir;
+				if (m_wpPlayer.expired() == false)
+				{
+					m_wpPlayer.lock()->BackPos();
+				}
 			}
-
-			// Y軸の補正はなし
-			dir.y = 0;
-			dir.Normalize();
-			m_pos += dir * maxOverLap;
 		}
 	}
 }

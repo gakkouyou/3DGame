@@ -350,6 +350,6 @@ void CarryObjectController::CSVWriter()
 		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
 
 		// 触れれる範囲
-		ofs << data.area << ",";
+		ofs << data.area << "," << std::endl;
 	}
 }

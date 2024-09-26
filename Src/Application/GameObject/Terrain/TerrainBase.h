@@ -33,13 +33,16 @@ public:
 	};
 
 	// 地形のパラメータセット関数
-	virtual void SetParam([[maybe_unused]] Param _param) {}
+	virtual void SetParam(const [[maybe_unused]] Param _param) {}
 	// 地形のパラメータゲット関数
 	const Param GetParam() const { return m_param; }
 
-	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+	void SetPauseFlg(const bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
 	void SetTarget(const std::weak_ptr<TerrainBase>& _wpTarget);
+
+	// 乗った際にカメラが追尾すべきかすべきでないか
+	virtual bool IsCameraTracking() { return true; }
 
 protected:
 	// モデルデータ

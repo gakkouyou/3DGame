@@ -460,12 +460,11 @@ void NormalEnemy::HitJudge()
 void NormalEnemy::HitGround()
 {
 	// 動く床関連をリセット
-	// 動く床
+// 動く床
 	m_moveGround.transMat = Math::Matrix::Identity;
 	m_moveGround.hitFlg = false;
 	// 回る床
 	m_rotationGround.transMat = Math::Matrix::Identity;
-	m_rotationGround.rotMat = Math::Matrix::Identity;
 	m_rotationGround.hitFlg = false;
 
 	// 当たった地面をリセット
@@ -475,16 +474,27 @@ void NormalEnemy::HitGround()
 	{
 		// 当たった座標
 		Math::Vector3 hitPos = Math::Vector3::Zero;
-		// レイのスタート座標
-		Math::Vector3 startPos = Math::Vector3::Zero;
 		// ノードの座標
 		Math::Vector3 nodePos = Math::Vector3::Zero;
+		// 当たったかどうか
 		bool hitFlg = false;
 
-		// 真ん中からレイ判定
-		startPos.y = m_enableStepHeight;
-		startPos += m_pos;
-		hitFlg = RayHitGround(startPos, hitPos, Math::Vector3::Down, m_gravity + m_enableStepHeight);
+		// レイの情報
+		KdCollider::RayInfo rayInfo;
+		// レイの長さ
+		rayInfo.m_range = m_gravity + 1.0f + m_enableStepHeight;
+		// レイの座標(キャラの中心)
+		rayInfo.m_pos.y = m_enableStepHeight + 1.0f;
+		rayInfo.m_pos += m_pos;
+		// レイの方向
+		rayInfo.m_dir = Math::Vector3::Down;
+		// レイのタイプ
+		rayInfo.m_type = KdCollider::TypeGround;
+
+		// レイ判定
+		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+
+		// 当たっていた時の処理
 		if (hitFlg)
 		{
 			// 当たったオブジェクト
@@ -502,11 +512,15 @@ void NormalEnemy::HitGround()
 					m_pos.y = hitPos.y;
 					// 重力
 					m_gravity = -0.25f;
+
+					// ジャンプ状態にする
+					m_situationType |= SituationType::Jump;
 					break;
 
 					// 動く床に乗った場合
 				case ObjectType::MoveGround:
 				case ObjectType::DropGround:
+				case ObjectType::Switch:
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
@@ -522,6 +536,7 @@ void NormalEnemy::HitGround()
 
 					// 回る床に乗った場合
 				case ObjectType::RotationGround:
+				case ObjectType::Propeller:
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
@@ -529,7 +544,7 @@ void NormalEnemy::HitGround()
 					// 空中にいない
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
-					// 動く前の行列
+					// 当たったかどうか
 					m_rotationGround.hitFlg = true;
 					break;
 
@@ -569,68 +584,87 @@ void NormalEnemy::HitGround()
 		}
 	}
 
-	// 地面とのスフィア判定
+	// 地面(壁)とのスフィア判定
 	{
-		// 方向
-		std::list<Math::Vector3> hitDirList;
+		// スフィアの情報
+		KdCollider::SphereInfo sphereInfo;
 		// スフィアの中心座標
-		Math::Vector3 centerPos = m_pos;
+		sphereInfo.m_sphere.Center = m_pos;
 		// スフィアの半径
-		float radius = 0.5f;
-		centerPos.y += radius + 0.25f;
+		sphereInfo.m_sphere.Radius = 0.25f;
+		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
+		// スフィアのタイプ
+		sphereInfo.m_type = KdCollider::TypeGround;
 
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
-		// めり込んだ距離
-		float maxOverLap = 0.0f;
+		// 当たった結果
+		KdCollider::CollisionResult collisionResult;
+		// 複数に当たったかどうかのフラグ
+		bool multiHitFlg = false;
 
-		hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeGround, hitDirList, maxOverLap, true);
-
-		m_pDebugWire->AddDebugSphere(centerPos, radius);
-
-		// 当たった場合
-		if (hitFlg)
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		if (hitFlg == false)
 		{
-			Math::Vector3 dir;
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		}
+		if (hitFlg == false)
+		{
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		}
+		if (hitFlg == false)
+		{
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		}
 
-			for (auto& hitDir : hitDirList)
-			{
-				dir += hitDir;
-			}
-
+		// 複数のオブジェクトに当たっていた場合
+		if (multiHitFlg == true)
+		{
+			// Y座標以外、更新前の座標に戻す
+			m_pos.x = m_oldPos.x;
+			m_pos.z = m_oldPos.z;
+		}
+		// 一つのオブジェクトに当たった場合
+		else if (hitFlg)
+		{
 			// Y軸の補正はなし
-			dir.y = 0;
-			dir.Normalize();
-			m_pos += dir * maxOverLap;
+			collisionResult.m_hitDir.y = 0;
+			collisionResult.m_hitDir.Normalize();
+			m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
 		}
 	}
 }
 
 void NormalEnemy::HitEnemy()
 {
-	// 地面とのスフィア判定
-	// 方向
-	Math::Vector3 hitDir = Math::Vector3::Zero;
+	// スフィアの情報
+	KdCollider::SphereInfo sphereInfo;
 	// スフィアの中心座標
-	Math::Vector3 centerPos = m_pos;
-	//centerPos.y -= 2.0f;
+	sphereInfo.m_sphere.Center = m_pos;
 	// スフィアの半径
-	float radius = 0.25f;
-	centerPos.y += radius;
+	sphereInfo.m_sphere.Radius = 0.25f;
+	sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.2f;
+	// スフィアのタイプ
+	sphereInfo.m_type = KdCollider::TypeDamage;
 
 	// 当たったかどうかのフラグ
 	bool hitFlg = false;
-	// めり込んだ距離
-	float maxOverLap = 0.0f;
 
-	hitFlg = SphereHitJudge(centerPos, radius, KdCollider::TypeDamage, hitDir, maxOverLap);
+	// 当たった結果
+	KdCollider::CollisionResult collisionResult;
+
+	bool flg = false;
+	hitFlg = SphereHitJudge(sphereInfo, collisionResult, flg);
 
 	// 当たった場合
 	if (hitFlg)
 	{
-		hitDir.y = 0;
-		hitDir.Normalize();
-		m_pos += hitDir * maxOverLap;
+		collisionResult.m_hitDir.y = 0;
+		collisionResult.m_hitDir.Normalize();
+		m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
 	}
 }
 

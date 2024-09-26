@@ -18,7 +18,7 @@ public:
 	void Reset()		override;
 
 	// CSVファイルを指定する
-	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
+	void SetCSV(std::string& _fileName) { m_fileName = _fileName; }
 
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
@@ -33,12 +33,12 @@ public:
 	// オブジェクトを削除する
 	void DeleteObject();
 	// オブジェクトを作る
-	void CreateObject(KdGameObject::ObjectType _object);
+	void CreateObject(const KdGameObject::ObjectType _object);
 	// CSVに書き込む
 	void CSVWriter();
 
 	// プレイヤーをセットする
-	void SetPlayer(const std::shared_ptr<Player> _spPlayer) { m_wpPlayer = _spPlayer; }
+	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
 
 	// TerrainController
 	void SetTerrainController(const std::weak_ptr<TerrainController>& _wpTerrainController) { m_wpTerrainController = _wpTerrainController; }

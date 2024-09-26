@@ -135,16 +135,3 @@ void MoveGround::SetParam(Param _param)
 
 	m_setParamFlg = true;
 }
-
-void MoveGround::Reset()
-{
-	m_param.pos = m_param.startPos;
-
-	m_stayCnt = 0;
-
-	m_moveFlg = false;
-	m_stayCnt = 0;
-	m_moveDirFlg = false;
-	m_param.pos = m_param.startPos;
-	m_stopFlg = false;
-}

@@ -52,8 +52,7 @@ void FlyEnemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		//m_spModel->SetModelData("Asset/Models/Character/Enemy/FlyEnemy/flyEnemy.gltf");
-		m_spModel->SetModelData("Asset/Models/Character/Enemy/test/normalEnemy.gltf");
+		m_spModel->SetModelData("Asset/Models/Character/Enemy/FlyEnemy/flyEnemy.gltf");
 
 		// 初期のアニメーション
 		m_spAnimator = std::make_shared<KdAnimator>();

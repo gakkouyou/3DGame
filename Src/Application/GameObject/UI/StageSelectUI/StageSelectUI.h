@@ -12,7 +12,7 @@ public:
 	void DrawSprite();
 	void Init();
 
-	void SetStageSelectTexture(std::shared_ptr<StageSelectTexture> _spStage) { m_wpStage = _spStage; }
+	void SetStageSelectTexture(const std::shared_ptr<StageSelectTexture>& _spStage) { m_wpStage = _spStage; }
 
 private:
 	// サインカーブ構造体

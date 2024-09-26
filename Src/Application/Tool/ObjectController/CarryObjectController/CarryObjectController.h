@@ -18,7 +18,7 @@ public:
 	void Reset()		override;
 
 	// CSVファイルを指定する
-	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
+	void SetCSV(const std::string& _fileName) { m_fileName = _fileName; }
 
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }

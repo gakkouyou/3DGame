@@ -16,9 +16,11 @@ public:
 
 	void OnHit()						override;
 
-	void SetParam(Param _param)			override;
+	void SetParam(const Param _param)			override;
 
 	const std::weak_ptr<SwitchBaseModel>& GetSwitchBaseModel() const { return m_wpBase; }
+
+	bool IsCameraTracking() override { return false; }
 
 private:
 	// 上がり下がりする量

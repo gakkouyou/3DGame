@@ -16,7 +16,7 @@ public:
 
 	void Active()				override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
 
 	const std::weak_ptr<LeftDoor>& GetLeftDoor() const { return m_wpLeftDoor; }
 	const std::weak_ptr<DoorWall>& GetDoorWall() const { return m_wpDoorWall; }

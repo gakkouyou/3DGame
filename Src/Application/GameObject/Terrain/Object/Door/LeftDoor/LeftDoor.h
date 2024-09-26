@@ -13,7 +13,7 @@ public:
 
 	void Active()				override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
 
 	void SetRightDoor(const std::weak_ptr<TerrainBase>& _wpRightDoor) { m_wpRightDoor = _wpRightDoor; }
 	void SetDoorWall(const std::weak_ptr<TerrainBase>& _wpDoorWall) { m_wpDoorWall = _wpDoorWall; }

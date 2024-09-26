@@ -42,3 +42,15 @@ void DoorWall::SetParam(Param _param)
 		m_wpLeftDoor.lock()->SetParam(_param);
 	}
 }
+
+void DoorWall::Active()
+{
+	if (m_wpRightDoor.expired() == false)
+	{
+		m_wpRightDoor.lock()->Active();
+	}
+	if (m_wpLeftDoor.expired() == false)
+	{
+		m_wpLeftDoor.lock()->Active();
+	}
+}

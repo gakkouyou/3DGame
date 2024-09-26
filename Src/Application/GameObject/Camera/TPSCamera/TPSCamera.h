@@ -12,10 +12,10 @@ public:
 
 	void Reset()			override;
 
+	// ゴールしたかどうかをセット
 	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
-
-	void SetGoalPos(Math::Vector3 _goalPos) { m_goalProcess.targetPos = _goalPos; }
-
+	// ゴールの座標をセット
+	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalProcess.targetPos = _goalPos; }
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
 	void SetPauseFlg(bool _pauseFlg)override;
@@ -62,15 +62,12 @@ private:
 	bool m_pauseFlg = false;
 	bool m_oldPauseFlg = false;
 	// ポーズ画面の時のFocus距離？
-	float m_pauseFocus = 0;
+	const float m_pauseFocus = 0;
 	// 普通のFocus処理
-	float m_defaultFocus = 2000;
+	const float m_defaultFocus = 2000;
 
-	UINT m_oldPlayerSituationType = 0;
-
-	Math::Vector3 m_oldPos;
-
-	bool m_airFlg = false;
+	// プレイヤーの最後に地面にいた時の座標
+	Math::Vector3 m_oldPlayerPos;
 
 	const int	m_moveTime	= 60;
 	int			m_moveCount	= 0;

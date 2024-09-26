@@ -10,7 +10,7 @@ public:
 	void DrawLit()	override;
 	void Init()		override;
 
-	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+	void SetPauseFlg(const bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
 private:
 	std::shared_ptr<KdModelWork> m_spModel = nullptr;

@@ -15,10 +15,10 @@ public:
 	// リセット処理
 	void Reset()		override;
 
-	// シーンを開始する
-	void StartScene(int _stayTime = 0);
-	// シーンを終了する
-	void EndScene(int _stayTime = 0);
+	// シーンを開始する _stayTime:処理を始められる状態から待機するフレーム数
+	void StartScene(const int _stayTime = 0);
+	// シーンを終了する _stayTime:処理を始められる状態から待機するフレーム数
+	void EndScene(const int _stayTime = 0);
 
 	// シーン遷移が終了したことを伝えるフラグ
 	const bool GetFinishFlg() const { return m_finishFlg; }

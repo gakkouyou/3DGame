@@ -12,7 +12,7 @@ public:
 
 	void Reset()		override;
 
-	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
+	void SetStopFlg(const bool _stopFlg) { m_stopFlg = _stopFlg; }
 
 	const bool GetPauseFlg() const { return m_pauseFlg; }
 

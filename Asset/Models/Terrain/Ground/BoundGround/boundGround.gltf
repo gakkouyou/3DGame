@@ -26,7 +26,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"kinokoUp",
+			"name":"kinoko",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -37,7 +37,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"Material",
+			"name":"white",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
 					0.800000011920929,
@@ -84,8 +84,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"kinoko.png",
-			"uri":"kinoko_png.png"
+			"name":"kinoko",
+			"uri":"kinoko.png"
 		}
 	],
 	"accessors":[

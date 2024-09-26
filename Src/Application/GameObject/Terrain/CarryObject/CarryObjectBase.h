@@ -25,7 +25,7 @@ public:
 	// 少し白くするどうかをセットする
 	virtual void SetSelectWhite(const bool _whiteFlg) { m_whiteFlg = _whiteFlg; }
 
-	Math::Vector3 GetPos()	const				override { return m_pos; }
+	Math::Vector3 GetPos() const	override { return m_pos; }
 
 	struct Param
 	{
@@ -46,17 +46,27 @@ public:
 	// 当たっている地形を渡す
 	const std::weak_ptr<TerrainBase> GetHitTerrain() const { return m_wpHitTerrain; }
 
+	// 乗った際にカメラが追尾すべきかすべきでないか
+	virtual bool IsCameraTracking() { return false; }
+
 protected:
-	// スフィア判定　当たったらtrueを返す
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
-	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
-	// 複数のオブジェクトと当たり判定をしたい場合
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap, const bool _debugFlg = false);
+	//====================================
+	// レイ判定
+	//====================================
+	// 当たったオブジェクトをリストに追加
+	bool RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, const bool _debugFlg = false);
+	// 地面のみ　当たったオブジェクトを引数に指定した変数に保持
+	bool RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, std::weak_ptr<TerrainBase>& _hitObject, const bool _debugFlg = false);
 
-
-	// レイ判定　地面と
-	bool RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
+	//====================================
+	// スフィア判定
+	//====================================
+	// どう当たったか欲しい時に使う 複数のオブジェクトに当たった場合、リザルトは入れられない
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg = false);
+	// 当たったか当たってないかだけが欲しいときに使う
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
+	// 地面とのスフィア判定
+	bool SphereHitGround(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 
 
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体

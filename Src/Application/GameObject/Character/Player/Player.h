@@ -9,47 +9,55 @@ class CarryObjectBase;
 class Player : public CharacterBase
 {
 public:
-	Player()					{}
-	~Player()			override{}
+	Player()									{}
+	~Player()							override{}
 
 	// 更新
-	void Update()		override;
-	void PostUpdate()	override;
+	void Update()						override;
+	void PostUpdate()					override;
 	// 描画
 	void GenerateDepthMapFromLight()	override;
-	void DrawLit()		override;
+	void DrawLit()						override;
 	// 初期化
-	void Init()			override;
+	void Init()							override;
 
 	// リセット処理
-	void Reset()		override;
+	void Reset()						override;
 
-	// 角度ゲット
-	const float GetAngle()const { return m_angle; }
+	// 更新前の座標に戻す
+	void BackPos();
 
-	// モデルをゲット
-	const std::shared_ptr<KdModelWork>& GetModel() const { return m_spModel; }
-
-
-
+	//--------------------
+	// セッター
+	//--------------------
 	// ポーズフラグセット
-	void SetPauseFlg(bool _pauseFlg)	override { if (m_aliveFlg == true) m_pauseFlg = _pauseFlg; }
+	void SetPauseFlg(const bool _pauseFlg)	override { if (m_aliveFlg == true) m_pauseFlg = _pauseFlg; }
 
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
+	// 動いていいかのフラグのセット(操作を受け付けなくなるが、更新自体はする)
+	void SetStopFlg(const bool _stopFlg) { m_stopFlg = _stopFlg; }
+
+	// ゴールの座標をセット
+	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalPos = _goalPos; }
+
+	//--------------------
+	// ゲッター
+	//--------------------
+	// 回転角度ゲット
+	const float GetAngle()const { return m_angle; }
+
 	// クリアしたかどうか
 	const bool GetGoalFlg() const { return m_goalFlg; }
 
-	// 動いていいかのフラグのセット
-	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
-
-	// ゴールの座標
-	void SetGoalPos(Math::Vector3 _goalPos) { m_goalPos = _goalPos; }
+	// モデルをゲット
+	const std::shared_ptr<KdModelWork>& GetModel() const { return m_spModel; }
 
 	// ライフをゲット
 	const int GetLife() const { return m_life; }
 
+	// SituationTypeのゲット
 	const int GetSituationType() const { return m_situationType; }
 
 	// 今の状況
@@ -63,6 +71,9 @@ public:
 		Run = 1 << 5,	// 走っている
 		Carry = 1 << 6,	// 持っている
 	};
+
+	// カメラがY軸を追尾すべきかどうか(乗っているオブジェクトによって判断)
+	const bool IsCameraTracking() const;
 
 private:
 	// 当たり判定
@@ -209,6 +220,7 @@ private:
 
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
+
 
 	bool flg[4] = { false, false, false, false };
 };

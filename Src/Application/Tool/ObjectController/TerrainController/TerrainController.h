@@ -20,7 +20,7 @@ public:
 	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
 
 	// 地形のリストを渡す
-	const std::vector<std::weak_ptr<TerrainBase>> GetObjList() const { return m_wpTerrainList; }
+	const std::vector<std::weak_ptr<TerrainBase>>& GetObjList() const { return m_wpTerrainList; }
 
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
@@ -35,7 +35,7 @@ public:
 	// オブジェクトを削除する
 	void DeleteObject();
 	// オブジェクトを作る
-	void CreateObject(KdGameObject::ObjectType _object);
+	void CreateObject(const KdGameObject::ObjectType _object);
 	// CSVに書き込む
 	void CSVWriter();
 

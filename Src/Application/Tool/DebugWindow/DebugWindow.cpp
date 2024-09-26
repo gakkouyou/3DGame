@@ -41,6 +41,34 @@ void DebugWindow::Draw()
 	{
 		if (ImGui::Begin("DebugWindow"))
 		{
+			// 一括セーブボタン
+			if (ImGui::Button("AllSave"))
+			{
+				if (m_wpTerrainController.expired() == false)
+				{
+					m_wpTerrainController.lock()->ConfirmedObject();
+					m_wpTerrainController.lock()->CSVWriter();
+				}
+
+				if (m_wpEnemyController.expired() == false)
+				{
+					m_wpEnemyController.lock()->ConfirmedObject();
+					m_wpEnemyController.lock()->CSVWriter();
+				}
+
+				if (m_wpCarryObjectController.expired() == false)
+				{
+					m_wpCarryObjectController.lock()->ConfirmedObject();
+					m_wpCarryObjectController.lock()->CSVWriter();
+				}
+
+				if (m_wpEventObjectController.expired() == false)
+				{
+					m_wpEventObjectController.lock()->ConfirmedObject();
+					m_wpEventObjectController.lock()->CSVWriter();
+				}
+			}
+
 			if(ImGui::CollapsingHeader("Terrain"))
 			{
 				// Terrain用のウィンドウ
@@ -132,6 +160,7 @@ void DebugWindow::TerrainWindow()
 			// セーブ
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
+				spObjectController->ConfirmedObject();
 				spObjectController->CSVWriter();
 			}
 
@@ -238,9 +267,9 @@ void DebugWindow::TerrainWindow()
 			// 動く床ならゴール座標も変えれる用にする
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::MoveGround)
 			{
-				ImGui::InputFloat("GoalPos.x", &m_terrainParam.goalPos.x, 0.25f);
-				ImGui::InputFloat("GoalPos.y", &m_terrainParam.goalPos.y, 0.25f);
-				ImGui::InputFloat("GoalPos.z", &m_terrainParam.goalPos.z, 0.25f);
+				ImGui::InputFloat("GoalPos.x", &m_terrainParam.goalPos.x, 5.0f);
+				ImGui::InputFloat("GoalPos.y", &m_terrainParam.goalPos.y, 5.0f);
+				ImGui::InputFloat("GoalPos.z", &m_terrainParam.goalPos.z, 5.0f);
 				ImGui::InputFloat("Speed", &m_terrainParam.speed, 0.025f);
 				ImGui::InputInt("StayTime", &m_terrainParam.stayTime, 1);
 			}
@@ -293,6 +322,7 @@ void DebugWindow::EnemyWindow()
 			// セーブ
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
+				spObjectController->ConfirmedObject();
 				spObjectController->CSVWriter();
 			}
 
@@ -376,6 +406,7 @@ void DebugWindow::CarryObjectWindow()
 			// セーブ
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
+				spObjectController->ConfirmedObject();
 				spObjectController->CSVWriter();
 			}
 
@@ -426,6 +457,7 @@ void DebugWindow::EventObjectWindow()
 			// セーブ
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
+				spObjectController->ConfirmedObject();
 				spObjectController->CSVWriter();
 			}
 
@@ -435,12 +467,19 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::Goal);
 			}
-
+			ImGui::SameLine();
 			// ハート
 			if (ImGui::Button("HealItem"))
 			{
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::HealItem);
+			}
+
+			// キャンディー(コイン的な)
+			if (ImGui::Button("Candy"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Candy);
 			}
 
 			// 座標

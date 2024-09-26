@@ -90,35 +90,28 @@ void TPSCamera::PostUpdate()
 			m_debugPos = Math::Vector3::Zero;
 			m_DegAng = Math::Vector3::Zero;
 
-			if (((m_oldPlayerSituationType & Player::SituationType::Air) == 0) && (spTarget->GetSituationType() & Player::SituationType::Air))
-			{
-				m_airFlg = true;
-			}
+			// 追尾すべきかすべきでないか
+			bool trackingFlg = spTarget->IsCameraTracking();
 
-			if ((spTarget->GetSituationType() & Player::SituationType::Air) == 0)
-			{
-				m_airFlg = false;
-			}
-
-			// 空中では追尾しないようにする
-			if (m_airFlg == true)
+			// 追尾すべきでない場合
+			if (trackingFlg == false)
 			{
 				const float up = 2.0f;
 				const float down = 0.0f;
 				// 一定以上上に上がった時追尾する
-				if (targetPos.y - m_oldPos.y >= up)
+				if (targetPos.y - m_oldPlayerPos.y >= up)
 				{
-					targetPos.y = m_oldPos.y + (targetPos.y - m_oldPos.y) - up;
+					targetPos.y = m_oldPlayerPos.y + (targetPos.y - m_oldPlayerPos.y) - up;
 				}
 				// 一定以上下に下がった時追尾する
-				else if (targetPos.y - m_oldPos.y <= -down)
+				else if (targetPos.y - m_oldPlayerPos.y <= -down)
 				{
-					targetPos.y = m_oldPos.y + (targetPos.y - m_oldPos.y) + down;
+					targetPos.y = m_oldPlayerPos.y + (targetPos.y - m_oldPlayerPos.y) + down;
 				}
 				// 追尾しない
 				else
 				{
-					targetPos.y = m_oldPos.y;
+					targetPos.y = m_oldPlayerPos.y;
 				}
 			}
 
@@ -128,12 +121,10 @@ void TPSCamera::PostUpdate()
 			// 行列確定
 			m_mWorld = m_mLocalPos * targetMat;
 
-			// 更新前のプレイヤーのタイプを保持しておく
-			m_oldPlayerSituationType = spTarget->GetSituationType();
-			// 空中にいないなら、更新前のプレイヤーの座標を保持
-			if (m_airFlg == false)
+			// 追尾している時のみプレイヤーの座標を保持しておく
+			if (trackingFlg == true)
 			{
-				m_oldPos = targetPos;
+				m_oldPlayerPos = targetPos;
 			}
 		}
 	}

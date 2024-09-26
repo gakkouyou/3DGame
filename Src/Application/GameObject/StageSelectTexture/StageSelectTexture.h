@@ -22,7 +22,7 @@ public:
 	};
 	const int GetStageInfo() const { return m_stageInfoList[m_nowStage]; }
 
-	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
+	void SetStopFlg(const bool _stopFlg) { m_stopFlg = _stopFlg; }
 
 private:
 	enum StageNum

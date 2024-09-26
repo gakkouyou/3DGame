@@ -49,23 +49,24 @@ public:
 	void SetCarryObjectContoller(const std::shared_ptr<CarryObjectController>& _spCarryObjectController) { m_wpCarryObjectController = _spCarryObjectController; }
 
 protected:
-	// レイ判定　当たったらtrueを返す
-	bool RayHitJudge(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const KdCollider::Type _type, const bool _debugFlg = false);
-	// レイ判定　地面
-	bool RayHitGround(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
-	// レイ判定　運べるオブジェクト
-	bool RayHitCarryObject(const Math::Vector3 _startPos, Math::Vector3& _hitPos, const Math::Vector3 _dir, const float _range, const bool _debugFlg = false);
 
-	// スフィア判定　当たったらtrueを返す
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
-	// スフィア判定　当たったか当たってないかだけが欲しいときに使う
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, const KdCollider::Type _type, const bool _debugFlg = false);
-	// 複数のオブジェクトと当たり判定をしたい場合
-	bool SphereHitJudge(const Math::Vector3 _centerPos, const float _radius, KdCollider::Type _type, std::list<Math::Vector3>& _hitDirList, float& _maxOverLap, const bool _debugFlg = false);
-	
-	// スフィア判定 地面
-	bool SphereHitGround(const Math::Vector3 _centerPos, const float _radius, Math::Vector3& _hitDir, float& _maxOverLap, const bool _debugFlg = false);
+	//====================================
+	// レイ判定
+	//====================================
+	// 当たったオブジェクトをリストに追加
+	bool RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, const bool _debugFlg = false);
+	// 地面のみ　当たったオブジェクトを引数に指定した変数に保持
+	bool RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, std::weak_ptr<TerrainBase>& _hitObject, const bool _debugFlg = false);
+	// 運べるオブジェクトのみ　当たったオブジェクトを引数に指定した変数に保持
+	bool RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, std::weak_ptr<CarryObjectBase>& _hitObject, const bool _debugFlg = false);
 
+	//====================================
+	// スフィア判定
+	//====================================
+	// どう当たったか欲しい時に使う 複数のオブジェクトに当たった場合、リザルトは入れられない
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg = false);
+	// 当たったか当たってないかだけが欲しいときに使う
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 
 	// キャラを向かせたい方向に向かせる 回転したらtrue (回転角度, 向きたいベクトル, 回転制御(必要なら))
 	bool RotationCharacter(float& _degAng, Math::Vector3 _toVec, const float _minDegAng = 360);

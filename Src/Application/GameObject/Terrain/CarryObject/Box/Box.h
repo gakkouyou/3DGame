@@ -40,4 +40,9 @@ private:
 
 	// レイを少し上から出す処理をやめるフラグ
 	bool m_rayDownFlg	= false;
+
+	// 下に落ちたら、リスポーンさせる
+	float m_underLine		= -10.0f;
+
+	Math::Vector3 m_oldPos;
 };

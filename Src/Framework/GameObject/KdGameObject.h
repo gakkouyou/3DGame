@@ -70,7 +70,7 @@ public:
 	// 当たった時の処理
 	virtual void OnHit() {}
 
-	// リセット処理
+	// リセット処理(シーンを変えずにリセットする際に使用)
 	virtual void Reset() {}
 
 	// オブジェクトのタイプ
@@ -87,13 +87,14 @@ public:
 		DropGround,		// 落ちる床
 		Propeller,		// プロペラ
 		Switch,			// スイッチ
-		Door,
+		Door,			// ドア
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
 
-		Goal,
+		Goal,			// ゴール
 		HealItem,		// 回復アイテム
+		Candy,			// コイン的な
 
 		Box,			// 箱
 
@@ -119,7 +120,7 @@ public:
 	const BaseObjectType GetBaseObjectType() const { return m_baseObjectType; }
 
 	// オブジェクトの名前をセットする
-	void SetObjectName(const std::string _objectName) { m_objectName = _objectName; }
+	void SetObjectName(const std::string& _objectName) { m_objectName = _objectName; }
 	// オブジェクトの名前をゲットする
 	const std::string GetObjectName() const { return m_objectName; }
 

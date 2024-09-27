@@ -1,10 +1,10 @@
-﻿#include "Box.h"
+﻿#include "BoxEnemy.h"
 #include "../../../Character/Player/Player.h"
 #include "../../TerrainBase.h"
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 
-void Box::Update()
+void BoxEnemy::Update()
 {
 	m_oldPos = m_pos;
 
@@ -41,7 +41,7 @@ void Box::Update()
 	}
 }
 
-void Box::PostUpdate()
+void BoxEnemy::PostUpdate()
 {
 	if (m_pauseFlg) return;
 	// 運ばれていない時の処理
@@ -92,11 +92,6 @@ void Box::PostUpdate()
 
 				Application::Instance().m_log.Clear();
 				Application::Instance().m_log.AddLog("%.2f", degAng);
-
-				if (degAng < -90)
-				{
-					m_rayDownFlg = true;
-				}
 
 				if (degAng <= 90 && degAng >= -90)
 				{
@@ -185,7 +180,7 @@ void Box::PostUpdate()
 	m_mWorld = rotMat * transMat;
 }
 
-void Box::Init()
+void BoxEnemy::Init()
 {
 	if (!m_spModel)
 	{
@@ -194,14 +189,14 @@ void Box::Init()
 	}
 
 	// 角っこの座標
-	Math::Vector3 rightBackUp	= m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
+	Math::Vector3 rightBackUp = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
 	Math::Vector3 leftFrontDown = m_spModel->FindNode("LeftFrontDown")->m_worldTransform.Translation();
-	m_edgeBasePos[RightBack]	= { rightBackUp.x, 0, rightBackUp.z };		// 右後ろ
-	m_edgeBasePos[RightFront]	= { rightBackUp.x, 0, leftFrontDown.z };	// 右前
-	m_edgeBasePos[LeftBack]		= { leftFrontDown.x, 0, rightBackUp.z };	// 左後ろ
-	m_edgeBasePos[LeftFront]	= { leftFrontDown.x, 0, leftFrontDown.z };	// 左前
-	m_edgeBasePos[Up]			= { 0, rightBackUp.y, 0 };					// 上
-	m_edgeBasePos[Down]			= { 0, leftFrontDown.y, 0 };				// 下
+	m_edgeBasePos[RightBack] = { rightBackUp.x, 0, rightBackUp.z };		// 右後ろ
+	m_edgeBasePos[RightFront] = { rightBackUp.x, 0, leftFrontDown.z };	// 右前
+	m_edgeBasePos[LeftBack] = { leftFrontDown.x, 0, rightBackUp.z };	// 左後ろ
+	m_edgeBasePos[LeftFront] = { leftFrontDown.x, 0, leftFrontDown.z };	// 左前
+	m_edgeBasePos[Up] = { 0, rightBackUp.y, 0 };					// 上
+	m_edgeBasePos[Down] = { 0, leftFrontDown.y, 0 };				// 下
 
 	for (int i = 0; i < Max; i++)
 	{
@@ -224,7 +219,7 @@ void Box::Init()
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 }
 
-void Box::CarryFlg(bool _carryFlg)
+void BoxEnemy::CarryFlg(bool _carryFlg)
 {
 	m_carryFlg = _carryFlg;
 	if (m_carryFlg == true)
@@ -238,17 +233,17 @@ void Box::CarryFlg(bool _carryFlg)
 	}
 }
 
-void Box::SetParam(Param _param)
+void BoxEnemy::SetParam(Param _param)
 {
 	m_param = _param;
 	m_pos = m_param.startPos;
 }
 
-void Box::HitJudge()
+void BoxEnemy::HitJudge()
 {
 	// 運ばれている状態なら当たり判定をしない
 	//if (m_carryFlg == true)return;
-	
+
 	// レイ判定
 	// 動く床関連をリセット
 	// 動く床
@@ -288,16 +283,6 @@ void Box::HitJudge()
 			// レイのタイプ
 			rayInfo.m_type = KdCollider::TypeGround;
 
-
-			// 真ん中からレイ判定
-			if (!m_rayDownFlg)
-			{
-				//rayInfo.m_pos.y += enableStepHeight;
-			}
-			else
-			{
-				return;
-			}
 			// レイ判定
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
 
@@ -409,7 +394,6 @@ void Box::HitJudge()
 				}
 			}
 		}
-		m_rayDownFlg = false;
 	}
 
 	// 地面(壁)とのスフィア判定

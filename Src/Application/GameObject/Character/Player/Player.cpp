@@ -8,6 +8,8 @@
 
 #include "../../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Terrain/CarryObject/CarryObjectBase.h"
+#include "../../../Tool/ObjectController/EnemyController/EnemyController.h"
+#include "../Enemy/EnemyBase.h"
 
 #include "../../../main.h"
 

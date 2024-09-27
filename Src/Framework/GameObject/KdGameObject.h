@@ -91,6 +91,7 @@ public:
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
+		BoxEnemy,		// 箱の敵
 
 		Goal,			// ゴール
 		HealItem,		// 回復アイテム

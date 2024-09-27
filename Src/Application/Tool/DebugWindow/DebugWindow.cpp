@@ -346,6 +346,13 @@ void DebugWindow::EnemyWindow()
 				m_enemyParam.moveArea = 1.0f;
 			}
 
+			// 箱の敵
+			if (ImGui::Button("BoxEnemy"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::BoxEnemy);
+			}
+
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_enemyParam.pos.x, 0.25f);
 			ImGui::DragFloat("Pos.y", &m_enemyParam.pos.y, 0.25f);

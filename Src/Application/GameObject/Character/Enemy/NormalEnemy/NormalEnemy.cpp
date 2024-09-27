@@ -2,6 +2,7 @@
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 #include "../../../Terrain/TerrainBase.h"
+#include "../../Player/Player.h"
 
 void NormalEnemy::Update()
 {
@@ -670,7 +671,7 @@ void NormalEnemy::HitEnemy()
 
 void NormalEnemy::TargetHoming()
 {
-	std::shared_ptr<KdGameObject> spTarget = m_wpTarget.lock();
+	std::shared_ptr<Player> spTarget = m_wpTarget.lock();
 	if (spTarget)
 	{
 		Math::Vector3 vec = spTarget->GetPos() - m_pos;

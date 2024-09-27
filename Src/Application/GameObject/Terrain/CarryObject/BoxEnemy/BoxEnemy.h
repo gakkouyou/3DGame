@@ -2,11 +2,11 @@
 
 #include "../CarryObjectBase.h"
 
-class Box : public CarryObjectBase
+class BoxEnemy : public CarryObjectBase
 {
 public:
-	Box() {}
-	~Box()						override {}
+	BoxEnemy() {}
+	~BoxEnemy()	override {}
 
 	void Update()				override;
 	void PostUpdate()			override;
@@ -21,7 +21,7 @@ private:
 	void HitJudge();
 
 	// 角度
-	float m_degAng	= 0;
+	float m_degAng = 0;
 
 	enum Dir
 	{
@@ -38,11 +38,8 @@ private:
 
 	Math::Vector3 m_centerPos;
 
-	// レイを少し上から出す処理をやめるフラグ
-	bool m_rayDownFlg	= false;
-
 	// 下に落ちたら、リスポーンさせる
-	float m_underLine		= -30.0f;
+	float m_underLine = -30.0f;
 
 	Math::Vector3 m_oldPos;
 };

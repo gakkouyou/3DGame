@@ -5,6 +5,7 @@ class CameraBase;
 class TerrainController;
 class CarryObjectController;
 class CarryObjectBase;
+class EnemyController;
 
 class Player : public CharacterBase
 {
@@ -74,6 +75,9 @@ public:
 
 	// カメラがY軸を追尾すべきかどうか(乗っているオブジェクトによって判断)
 	const bool IsCameraTracking() const;
+
+	// EnemyControllerをセットする
+	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
 
 private:
 	// 当たり判定
@@ -221,6 +225,8 @@ private:
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
 
+	// EnemyController
+	std::weak_ptr<EnemyController> m_wpEnemyController;
 
 	bool flg[4] = { false, false, false, false };
 };

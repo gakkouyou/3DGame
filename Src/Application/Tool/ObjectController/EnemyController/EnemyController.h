@@ -28,6 +28,9 @@ public:
 	// 今持っているオブジェクトの名前をゲットする
 	const std::string GetObjectName() const;
 
+	// オブジェクトのリストを渡す
+	const std::vector<std::weak_ptr<EnemyBase>>& GetObjList() const { return m_wpEnemyList; }
+
 	// オブジェクトを確定する(wp_ptrをリセットする)
 	void ConfirmedObject();
 	// オブジェクトを削除する
@@ -72,6 +75,7 @@ private:
 	{
 		int NormalEnemy = 0;
 		int FlyEnemy	= 0;
+		int BoxEnemy	= 0;
 	};
 
 	Count m_objectCount;

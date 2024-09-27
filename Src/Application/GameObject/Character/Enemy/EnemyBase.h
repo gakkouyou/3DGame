@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
 
+class Player;
+
 class EnemyBase : public CharacterBase
 {
 public:
@@ -16,7 +18,7 @@ public:
 	virtual void Reset()		override {}
 
 	// ターゲットをセットする
-	void SetTarget(const std::shared_ptr<KdGameObject>& _spTarget) { m_wpTarget = _spTarget; }
+	void SetTarget(const std::shared_ptr<Player>& _spTarget) { m_wpTarget = _spTarget; }
 
 	// 情報
 	struct Param
@@ -32,9 +34,18 @@ public:
 	// パラメータをゲットする
 	virtual const Param GetParam()const { return m_param; }
 
+	// 運ぶ運ばれていないを切り替える
+	virtual void CarryFlg(const bool _carryFlg) {}
+
+	// 運べる状態かどうかをゲットする
+	virtual const bool GetCarryCheck() const { return false; }
+
+	// 少し白くするどうかをセットする
+	virtual void SetSelectWhite(const bool _whiteFlg) {}
+
 protected:
 	// ターゲット
-	std::weak_ptr<KdGameObject> m_wpTarget;
+	std::weak_ptr<Player> m_wpTarget;
 
 	// 情報
 	Param m_param;

@@ -7,7 +7,6 @@
 #include "../../../GameObject/Character/Enemy/EnemyBase.h"
 #include "../../../GameObject/Character/Enemy/NormalEnemy/NormalEnemy.h"
 #include "../../../GameObject/Character/Enemy/FlyEnemy/FlyEnemy.h"
-#include "../../../GameObject/Character/Enemy/BoxEnemy/BoxEnemy.h"
 
 #include "../../../GameObject/Character/Player/Player.h"
 
@@ -110,16 +109,6 @@ void EnemyController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.FlyEnemy);
 				break;
-
-				// 箱の敵の場合
-			case ObjectType::BoxEnemy:
-				// タイプのセット
-				data.type = "BoxEnemy";
-				// カウントを進める
-				m_objectCount.BoxEnemy++;
-				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.BoxEnemy);
-				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -201,23 +190,6 @@ void EnemyController::CreateObject(KdGameObject::ObjectType _object)
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
-		// TerrainControllerをセット
-		object->SetTerrainController(m_wpTerrainController);
-		break;
-	}
-
-		// 箱の敵
-	case KdGameObject::ObjectType::BoxEnemy:
-	{
-		std::shared_ptr<BoxEnemy> object = std::make_shared<BoxEnemy>();
-		object->Init();
-		SceneManager::Instance().AddObject(object);
-		m_wpTargetObject = object;
-		// ターゲットをセット
-		if (!m_wpPlayer.expired())
-		{
-			object->SetTarget(m_wpPlayer.lock());
-		}
 		// TerrainControllerをセット
 		object->SetTerrainController(m_wpTerrainController);
 		break;
@@ -349,33 +321,6 @@ void EnemyController::BeginCreateObject()
 			m_objectCount.FlyEnemy++;
 			// 名前の数値をリセットする
 			std::string name = data.type + std::to_string(m_objectCount.FlyEnemy);
-			// 名前をセットする
-			object->SetObjectName(name);
-			// 配列の名前を変更する
-			data.name = name;
-			// TerrainControllerをセット
-			object->SetTerrainController(m_wpTerrainController);
-			// リストに追加
-			m_wpEnemyList.push_back(object);
-		}
-		// 通常の敵
-		else if (data.type == "BoxEnemy")
-		{
-			std::shared_ptr<BoxEnemy> object = std::make_shared<BoxEnemy>();
-			// パラメータをセットする
-			EnemyBase::Param setParam{ data.pos, data.moveArea, data.searchArea };
-			object->SetParam(setParam);
-			// ターゲットをセットする
-			if (!m_wpPlayer.expired())
-			{
-				object->SetTarget(m_wpPlayer.lock());
-			}
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			// カウントを進める
-			m_objectCount.BoxEnemy++;
-			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.BoxEnemy);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する

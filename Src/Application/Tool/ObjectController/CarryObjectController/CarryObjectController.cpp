@@ -7,6 +7,7 @@
 #include "../TerrainController/TerrainController.h"
 
 #include "../../../GameObject/Terrain/CarryObject/Box/Box.h"
+#include "../../../GameObject/Terrain/CarryObject/BoxEnemy/BoxEnemy.h"
 
 #include "../../../GameObject/Character/Player/Player.h"
 
@@ -85,7 +86,7 @@ void CarryObjectController::ConfirmedObject()
 			// オブジェクトのタイプと名前を入れる
 			switch (spTargetObject->GetObjectType())
 			{
-				// 通常の敵の場合
+				// 箱の場合
 			case ObjectType::Box:
 				// タイプのセット
 				data.type = "Box";
@@ -93,6 +94,16 @@ void CarryObjectController::ConfirmedObject()
 				m_objectCount.Box++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Box);
+				break;
+
+				// 箱の敵の場合
+			case ObjectType::BoxEnemy:
+				// タイプのセット
+				data.type = "BoxEnemy";
+				// カウントを進める
+				m_objectCount.BoxEnemy++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.BoxEnemy);
 				break;
 			}
 			// 名前をセットする
@@ -147,10 +158,28 @@ void CarryObjectController::CreateObject(KdGameObject::ObjectType _object)
 {
 	switch (_object)
 	{
-		// 通常の敵
+		// 箱
 	case KdGameObject::ObjectType::Box:
 	{
 		std::shared_ptr<Box> object = std::make_shared<Box>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		// ターゲットをセット
+		if (!m_wpPlayer.expired())
+		{
+			object->SetPlayer(m_wpPlayer.lock());
+		}
+		if (!m_wpTerrainController.expired())
+		{
+			object->SetTerrainController(m_wpTerrainController.lock());
+		}
+		break;
+	}
+		// 箱の敵
+	case KdGameObject::ObjectType::BoxEnemy:
+	{
+		std::shared_ptr<BoxEnemy> object = std::make_shared<BoxEnemy>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -263,6 +292,35 @@ void CarryObjectController::BeginCreateObject()
 			m_objectCount.Box++;
 			// 名前の数値をリセットする
 			std::string name = data.type + std::to_string(m_objectCount.Box);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
+		// 箱
+		else if (data.type == "BoxEnemy")
+		{
+			std::shared_ptr<BoxEnemy> object = std::make_shared<BoxEnemy>();
+			// パラメータをセットする
+			CarryObjectBase::Param setParam{ data.pos, data.area };
+			object->SetParam(setParam);
+			// ターゲットをセットする
+			if (!m_wpPlayer.expired())
+			{
+				object->SetPlayer(m_wpPlayer.lock());
+			}
+			object->Init();
+			if (!m_wpTerrainController.expired())
+			{
+				object->SetTerrainController(m_wpTerrainController.lock());
+			}
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.BoxEnemy++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.BoxEnemy);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する

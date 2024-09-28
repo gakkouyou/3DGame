@@ -70,7 +70,8 @@ private:
 	// オブジェクトの個数
 	struct Count
 	{
-		int Box = 0;
+		int Box			= 0;
+		int BoxEnemy	= 0;
 	};
 
 	Count m_objectCount;

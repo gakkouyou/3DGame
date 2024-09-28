@@ -259,7 +259,7 @@ void Player::Update()
 			if ((m_situationType & SituationType::Carry) == 0)
 			{
 				// 空中じゃなければジャンプする
-				//if (!(m_situationType & SituationType::Air))
+				if (!(m_situationType & SituationType::Air))
 				{
 					m_situationType |= SituationType::Jump;
 					m_gravity = -m_jumpPow;
@@ -1244,7 +1244,14 @@ void Player::HitJudgeGround()
 
 		hitFlg = false;
 		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		if (hitFlg == true)
+		// 複数のオブジェクトに当たっていた場合
+		if (multiHitFlg == true)
+		{
+			// Y座標のみ、更新前の座標に戻す
+			m_pos.y = m_oldPos.y;
+		}
+		// 一つのオブジェクトに当たった場合
+		else if (hitFlg == true)
 		{
 			m_pos.y -= collisionResult.m_overlapDistance;
 		}
@@ -1343,10 +1350,6 @@ void Player::HitJudgeEvent()
 		// 当たり判定をするタイプ
 		boxInfo.m_type |= KdCollider::TypeEvent;
 
-		//m_pDebugWire->AddDebugSphere(rightBackUpPos + m_pos, 0.1f);
-		//m_pDebugWire->AddDebugSphere(leftFrontUpPos + m_pos, 0.1f);
-		//m_pDebugWire->AddDebugBox(Math::Matrix::CreateTranslation(boxInfo.m_Abox.Center), boxInfo.m_Abox.Extents);
-
 
 		// 当たり判定の結果格納リスト
 		std::list<KdCollider::CollisionResult> resultList;
@@ -1409,93 +1412,132 @@ void Player::HitJudgeEvent()
 void Player::HitJudgeEnemy()
 {
 	// スフィアの情報
-	KdCollider::SphereInfo sphereInfo;
-	// スフィアの中心座標
-	sphereInfo.m_sphere.Center = m_pos;
-	// スフィアの半径
-	sphereInfo.m_sphere.Radius = 0.25f;
-	sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
-	// スフィアのタイプ
-	sphereInfo.m_type = KdCollider::TypeDamage;
+	//KdCollider::SphereInfo sphereInfo;
+	//// スフィアの中心座標
+	//sphereInfo.m_sphere.Center = m_pos;
+	//// スフィアの半径
+	//sphereInfo.m_sphere.Radius = 0.25f;
+	//sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
+	//// スフィアのタイプ
+	//sphereInfo.m_type = KdCollider::TypeDamage;
 
-	// 当たったかどうかのフラグ
-	bool hitFlg = false;
+	//// 当たったかどうかのフラグ
+	//bool hitFlg = false;
 
-	hitFlg = SphereHitJudge(sphereInfo, true);
+	//hitFlg = SphereHitJudge(sphereInfo, true);
 
-	// 当たっていた時の処理
-	if (hitFlg)
+		// ボックス判定
 	{
-		// 当たったオブジェクト
-		std::shared_ptr<KdGameObject> spHitObject;
+		// ボックス判定
+		KdCollider::BoxInfo boxInfo;
+		// 右前上のノード
+		Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
+		// 左後上のノード
+		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
+		// キャラクターの高さ
+		float charaHighLength = rightBackUpPos.y;
+		// 中心座標(キャラクターの真ん中)
+		boxInfo.m_Abox.Center = m_pos;
+		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
+		// キャラクターの横幅(半径)
+		float charaSideRadius = abs(rightBackUpPos.x);
+		// キャラクターの奥行幅(直径)
+		float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
+		// ボックスのサイズ
+		//boxInfo.m_Abox.Extents = { 5, 5, 5 };
+		boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2, charaZLength / 2 };
+		// 当たり判定をするタイプ
+		boxInfo.m_type |= KdCollider::TypeDamage;
 
-		// 音のフラグをリセット
-		m_stampSound.flg = false;	// 敵を踏んだ時の音
 
-		// 敵を探す
-		for (auto& hitObject : m_wpHitObjectList)
+		// 当たり判定の結果格納リスト
+		std::list<KdCollider::CollisionResult> resultList;
+
+		bool hitFlg = false;
+
+		for (auto& obj : SceneManager::Instance().GetObjList())
 		{
-			if (!hitObject.expired())
+			if (obj->Intersects(boxInfo, &resultList))
 			{
-				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
-				{
-					spHitObject = hitObject.lock();
-					break;
-				}
+				m_wpHitObjectList.push_back(obj);
+				hitFlg = true;
 			}
 		}
 
-		if (spHitObject)
+		// 当たっていた時の処理
+		if (hitFlg)
 		{
-			// 敵の座標
-			Math::Vector3 enemyPos = spHitObject->GetPos();
-			enemyPos.y += 0.5f;
-			// 敵からプレイヤーのベクトル
-			Math::Vector3 vec = m_pos - enemyPos;
-			vec.z = 0;
-			// 敵から見たプレイヤーの角度
-			float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-			// 上半分なら倒す
-			if (degAng < 90 && degAng > -90)
+			// 当たったオブジェクト
+			std::shared_ptr<KdGameObject> spHitObject;
+
+			// 音のフラグをリセット
+			m_stampSound.flg = false;	// 敵を踏んだ時の音
+
+			// 敵を探す
+			for (auto& hitObject : m_wpHitObjectList)
 			{
-				// 敵を踏んだ時の処理
-				spHitObject->OnHit();
-				m_gravity = -0.15f;
-
-				// もしジャンプ状態ならジャンプのアニメーションをする
-				if (m_situationType & SituationType::Jump)
+				if (!hitObject.expired())
 				{
-					//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Jump"), false);
-				}
-				// 違うならジャンプ状態にする
-				else
-				{
-					m_situationType |= SituationType::Jump;
-				}
-
-				// 敵を踏んだ時の音
-				if (m_stampSound.flg == false)
-				{
-					if (!m_stampSound.wpSound.expired())
+					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
 					{
-						m_stampSound.wpSound.lock()->Play();
-						m_stampSound.flg = true;
+						spHitObject = hitObject.lock();
+						break;
 					}
 				}
 			}
-			// 下半分ならダメージを受ける
-			else
+
+			if (spHitObject)
 			{
-				if (m_damage.nowDamageFlg == false)
+				// 敵の座標
+				Math::Vector3 enemyPos = spHitObject->GetPos();
+				enemyPos.y += 0.5f;
+				// 敵からプレイヤーのベクトル
+				Math::Vector3 vec = m_pos - enemyPos;
+				vec.z = 0;
+				// 敵から見たプレイヤーの角度
+				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+				// 上半分なら倒す
+				if (degAng < 90 && degAng > -90)
 				{
-					// ダメージ処理をする
-					m_damage.nowDamageFlg = true;
-					// ライフを減らす
-					m_life -= 1;
-					// ライフが０以下になったら死亡
-					if (m_life <= 0)
+					// 敵を踏んだ時の処理
+					spHitObject->OnHit();
+					m_gravity = -0.15f;
+
+					// もしジャンプ状態ならジャンプのアニメーションをする
+					if (m_situationType & SituationType::Jump)
 					{
-						m_aliveFlg = false;
+						//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Jump"), false);
+					}
+					// 違うならジャンプ状態にする
+					else
+					{
+						m_situationType |= SituationType::Jump;
+					}
+
+					// 敵を踏んだ時の音
+					if (m_stampSound.flg == false)
+					{
+						if (!m_stampSound.wpSound.expired())
+						{
+							m_stampSound.wpSound.lock()->Play();
+							m_stampSound.flg = true;
+						}
+					}
+				}
+				// 下半分ならダメージを受ける
+				else
+				{
+					if (m_damage.nowDamageFlg == false)
+					{
+						// ダメージ処理をする
+						m_damage.nowDamageFlg = true;
+						// ライフを減らす
+						m_life -= 1;
+						// ライフが０以下になったら死亡
+						if (m_life <= 0)
+						{
+							m_aliveFlg = false;
+						}
 					}
 				}
 			}
@@ -1573,21 +1615,26 @@ void Player::HitJudgeCarryObject()
 		{
 			spHitObject->OnHit();
 
-			switch (spHitObject->GetObjectType())
+			// 箱状態の時の処理
+			if (spHitObject->IsCarryCheck() == true)
 			{
-			case ObjectType::Box:
-				// 座標
-				m_pos.y = hitPos.y;
-				// 重力
-				m_gravity = 0;
-				// 空中にいない
-				m_situationType &= (~SituationType::Air);
-				m_situationType &= (~SituationType::Jump);
-				// 動く床の動く前の行列
-				m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
-				// 動く床に当たったかどうかのフラグ
-				m_moveGround.hitFlg = true;
-				break;
+				switch (spHitObject->GetObjectType())
+				{
+				case ObjectType::Box:
+				case ObjectType::BoxEnemy:
+					// 座標
+					m_pos.y = hitPos.y;
+					// 重力
+					m_gravity = 0;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					// 動く床の動く前の行列
+					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					// 動く床に当たったかどうかのフラグ
+					m_moveGround.hitFlg = true;
+					break;
+				}
 			}
 		}
 	}
@@ -1595,6 +1642,8 @@ void Player::HitJudgeCarryObject()
 	for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
 	{
 		if (obj.expired() == true) continue;
+		// 敵状態なら飛ばす
+		if (obj.lock()->IsCarryCheck() == false) continue;
 		// 持てるか持てないかの判定
 		// プレイヤーとオブジェクトの距離
 		Math::Vector3 vec = obj.lock()->GetPos() - m_pos;

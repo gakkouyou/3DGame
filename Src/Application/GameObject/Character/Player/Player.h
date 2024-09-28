@@ -61,6 +61,9 @@ public:
 	// SituationTypeのゲット
 	const int GetSituationType() const { return m_situationType; }
 
+	// 運び状態のキャンセル
+	void CancelCarryMode() { m_situationType &= (~SituationType::Carry); }
+
 	// 今の状況
 	enum SituationType
 	{

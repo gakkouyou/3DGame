@@ -4,17 +4,24 @@
 
 class BoxEnemy : public CarryObjectBase
 {
-public:
-	BoxEnemy() {}
-	~BoxEnemy()	override {}
+public:	
+	BoxEnemy()									{}
+	~BoxEnemy()							override{}
 
-	void Update()				override;
-	void PostUpdate()			override;
-	void Init()					override;
+	void Update()						override;
+	void PostUpdate()					override;
+	void GenerateDepthMapFromLight()	override;
+	void DrawLit()						override;
+	void Init()							override;
 
-	void CarryFlg(bool _carryFlg) override;
+	void CarryFlg(bool _carryFlg)		override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
+
+	void OnHit()						override;
+	
+	// 運べるか運べないかを返す
+	const bool IsCarryCheck() const		override { return !m_enemyFlg; }
 
 private:
 	// 当たり判定
@@ -42,4 +49,39 @@ private:
 	float m_underLine = -30.0f;
 
 	Math::Vector3 m_oldPos;
+
+	// 箱から敵に戻るまでの時間
+	const int m_enemyTime = 600;
+	// ガタガタし始めるまでの時間
+	const int m_shakeTime = 480;
+	// カウント
+	int m_enemyCount = 0;
+	// ガタガタの角度制限
+	const int m_maxDegAng = 10;
+
+	// 箱の時の更新関数
+	void BoxUpdate();
+
+	// 生存フラグ
+	bool m_aliveFlg = false;
+
+	// ↓敵の状態の時用
+	// モデル
+	std::shared_ptr<KdModelData> m_spEnemyModel = nullptr;
+
+	// 敵状態か箱状態かのフラグ
+	bool m_enemyFlg = true;
+
+	// 移動系
+	const float m_jumpPow	= 0.1f;	// ジャンプ力
+	const float m_moveSpeed = 0.05f;// 移動速度
+	const int	m_stayTime	= 30;	// ジャンプの待機時間
+	int			m_stayCount = 0;	// ジャンプの待機のカウント
+	bool		m_airFlg	= false;// 空中にいるかどうか
+
+	// 敵の時の更新関数
+	void EnemyUpdate();
+
+	// 追尾していいかのフラグ
+	bool m_homingFlg = false;
 };

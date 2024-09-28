@@ -1,8 +1,11 @@
 ﻿#include "Goal.h"
 #include "Application/main.h"
+#include "../../../Scene/SceneManager.h"
 
 void Goal::Update()
 {
+	if (SceneManager::Instance().GetDebug() == true) return;
+
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
 	if (!m_goalFlg)

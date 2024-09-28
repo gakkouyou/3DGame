@@ -75,7 +75,6 @@ private:
 	{
 		int NormalEnemy = 0;
 		int FlyEnemy	= 0;
-		int BoxEnemy	= 0;
 	};
 
 	Count m_objectCount;

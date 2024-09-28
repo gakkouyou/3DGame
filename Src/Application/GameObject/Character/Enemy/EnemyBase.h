@@ -34,15 +34,6 @@ public:
 	// パラメータをゲットする
 	virtual const Param GetParam()const { return m_param; }
 
-	// 運ぶ運ばれていないを切り替える
-	virtual void CarryFlg(const bool _carryFlg) {}
-
-	// 運べる状態かどうかをゲットする
-	virtual const bool GetCarryCheck() const { return false; }
-
-	// 少し白くするどうかをセットする
-	virtual void SetSelectWhite(const bool _whiteFlg) {}
-
 protected:
 	// ターゲット
 	std::weak_ptr<Player> m_wpTarget;

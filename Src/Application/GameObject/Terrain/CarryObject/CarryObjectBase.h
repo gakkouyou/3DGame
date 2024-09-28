@@ -49,6 +49,9 @@ public:
 	// 乗った際にカメラが追尾すべきかすべきでないか
 	virtual bool IsCameraTracking() { return false; }
 
+	// 運べるか運べないかを返す
+	virtual const bool IsCarryCheck() const { return true; }
+
 protected:
 	//====================================
 	// レイ判定

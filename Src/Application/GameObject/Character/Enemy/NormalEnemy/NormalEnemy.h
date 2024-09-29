@@ -132,4 +132,6 @@ private:
 
 	// 更新前の座標
 	Math::Vector3 m_oldPos;
+
+	int cnt = 0;
 };

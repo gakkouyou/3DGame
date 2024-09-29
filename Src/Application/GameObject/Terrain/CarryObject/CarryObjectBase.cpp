@@ -132,7 +132,7 @@ bool CarryObjectBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vec
 	{
 		if (m_pDebugWire)
 		{
-			m_pDebugWire->AddDebugLine(_rayInfo.m_pos, _rayInfo.m_dir, _rayInfo.m_range);
+			m_pDebugWire->AddDebugLine(_rayInfo.m_pos, _rayInfo.m_dir, _rayInfo.m_range, {1, 0, 0, 1});
 		}
 	}
 

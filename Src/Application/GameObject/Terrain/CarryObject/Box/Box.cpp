@@ -90,9 +90,6 @@ void Box::PostUpdate()
 				// 移動する前の回転床から見た箱の角度
 				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
 
-				Application::Instance().m_log.Clear();
-				Application::Instance().m_log.AddLog("%.2f", degAng);
-
 				if (degAng < -90)
 				{
 					m_rayDownFlg = true;
@@ -111,11 +108,40 @@ void Box::PostUpdate()
 					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
 					m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
 				}
+
+				//// 箱の原点から見た箱の中心座標
+				//Math::Vector3 centerLocalPos = m_spModel->FindNode("Center")->m_worldTransform.Translation();
+				//// 箱の中心座標
+				//Math::Vector3 centerPos = (Math::Matrix::CreateTranslation(centerLocalPos) * m_mWorld).Translation();
+				//// 回転床の中心から箱の中心座標
+				//vec = centerPos - spHitTerrain->GetPos();
+				//// Z軸を無視
+				//vec.z = 0;
+				//// 半径
+				//float length = vec.Length();
+				//// 回転床から見た移動する前の箱の角度
+				//float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+
+				//if (degAng <= 90 && degAng >= -90)
+				//{
+				//	degAng -= 90;
+				//	if (degAng < 0)
+				//	{
+				//		degAng += 360;
+				//	}
+				//	degAng = 360 - degAng;
+
+				//	degAng += lotDegAng.z;
+				//	centerPos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
+				//	centerPos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+
+				//	m_pos.x = centerPos.x - centerLocalPos.x;
+				//	m_pos.y = centerPos.y - centerLocalPos.y;
+				//}
 			}
 			// Y軸回転の場合
 			else if (lotDegAng.y != 0)
 			{
-				vec = m_pos - spHitTerrain->GetPos();
 				vec.y = 0;
 				float length = vec.Length();
 				// 移動する前の回転床から見たプレイヤーの角度
@@ -205,7 +231,7 @@ void Box::Init()
 
 	for (int i = 0; i < Max; i++)
 	{
-		m_edgePos[i] = m_edgeBasePos[i] + m_pos;
+		m_edgePos[i] = m_edgeBasePos[i];
 	}
 
 	// 中心座標
@@ -269,7 +295,7 @@ void Box::HitJudge()
 			// 当たったかどうか
 			bool hitFlg = false;
 			// ちょっと上から
-			const float enableStepHeight = 0.1f;
+			const float enableStepHeight = 0.03f;
 
 			// 当たった座標
 			Math::Vector3 hitPos = Math::Vector3::Zero;
@@ -278,11 +304,11 @@ void Box::HitJudge()
 
 			// レイの情報
 			KdCollider::RayInfo rayInfo;
-			// レイの長さ
-			rayInfo.m_range = m_gravity + enableStepHeight;
-			// レイの座標(キャラの中心)
-			rayInfo.m_pos.y = enableStepHeight;
-			rayInfo.m_pos += m_pos;
+			//// レイの長さ
+			//rayInfo.m_range = m_gravity + enableStepHeight;
+			//// レイの座標(キャラの中心)
+			//rayInfo.m_pos.y = enableStepHeight;
+			//rayInfo.m_pos += m_pos;
 			// レイの方向
 			rayInfo.m_dir = Math::Vector3::Down;
 			// レイのタイプ
@@ -292,56 +318,80 @@ void Box::HitJudge()
 			// 真ん中からレイ判定
 			if (!m_rayDownFlg)
 			{
-				//rayInfo.m_pos.y += enableStepHeight;
+				// レイの長さ
+				rayInfo.m_range = m_gravity + enableStepHeight;
+				// レイの座標(キャラの中心)
+				rayInfo.m_pos.y = enableStepHeight;
+				rayInfo.m_pos += m_pos;
 			}
 			else
 			{
-				return;
+				// レイの長さ
+				rayInfo.m_range = m_gravity;
+				// レイの座標(キャラの中心)
+				rayInfo.m_pos += m_pos;
 			}
-			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
 
+
+			// 頂点の座標を回転
+			for (int i = 0; i < Max; i++)
+			{
+				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * m_mWorld).Translation();
+			}
 
 			float right = m_edgePos[RightBack].x;
 			float back = m_edgePos[RightBack].z;
 			float left = m_edgePos[LeftFront].x;
 			float front = m_edgePos[LeftFront].z;
 
+			// 真ん中からレイ判定
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+
+			// 回転床の場合、当たっていないことにする
+			if (hitFlg)
+			{
+				if (m_wpHitTerrain.expired() == false)
+				{
+					if (m_wpHitTerrain.lock()->GetObjectType() == ObjectType::RotationGround)
+					{
+						hitFlg = false;
+						hitPos = Math::Vector3::Zero;
+						m_wpHitTerrain.reset();
+					}
+				}
+			}
+
 			// 右前から
 			if (!hitFlg)
 			{
-				Math::Vector3 pos = rayInfo.m_pos;
-				pos.x = right;
-				pos.z = front;
+				rayInfo.m_pos.x = right;
+				rayInfo.m_pos.z = front;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 			}
 			// 左前から
 			if (!hitFlg)
 			{
-				Math::Vector3 pos = rayInfo.m_pos;
-				pos.x = left;
-				pos.z = front;
+				rayInfo.m_pos.x = left;
+				rayInfo.m_pos.z = front;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 			}
 			// 左後ろから
 			if (!hitFlg)
 			{
-				Math::Vector3 pos = rayInfo.m_pos;
-				pos.x = left;
-				pos.z = back;
+				rayInfo.m_pos.x = left;
+				rayInfo.m_pos.z = back;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 			}
 			// 右後ろから
 			if (!hitFlg)
 			{
-				Math::Vector3 pos = rayInfo.m_pos;
-				pos.x = right;
-				pos.z = back;
+				rayInfo.m_pos.x = right;
+				rayInfo.m_pos.z = back;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, false);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 			}
 
 			// 当たっていた時の処理

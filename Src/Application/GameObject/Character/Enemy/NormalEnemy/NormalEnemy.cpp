@@ -3,9 +3,12 @@
 #include "../../../../Scene/SceneManager.h"
 #include "../../../Terrain/TerrainBase.h"
 #include "../../Player/Player.h"
+#include "../../../Effect/PlayerSmoke/PlayerSmoke.h"
 
 void NormalEnemy::Update()
 {
+	if (m_aliveFlg == false) return;
+
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) return;
 
@@ -279,6 +282,24 @@ void NormalEnemy::PostUpdate()
 	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
+
+	if (m_aliveFlg == false)
+	{
+		scaleMat = Math::Matrix::CreateScale({ 1.0f, 0.2f, 1.0f });
+		cnt++;
+	}
+
+	if (cnt >= 45)
+	{
+		m_isExpired = true;
+
+		// 煙を生み出す
+		std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+		smoke->Init();
+		smoke->SetPos(m_pos);
+		smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
+		SceneManager::Instance().AddObject(smoke);
+	}
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
 }
@@ -732,7 +753,9 @@ void NormalEnemy::SetParam(Param _param)
 
 void NormalEnemy::OnHit()
 {
-	m_isExpired = true;
+	//m_isExpired = true;
+
+	m_aliveFlg = false;
 }
 
 void NormalEnemy::FindTarget()

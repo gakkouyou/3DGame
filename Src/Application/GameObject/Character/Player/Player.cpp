@@ -160,8 +160,7 @@ void Player::Update()
 		m_situationType &= (~SituationType::Walk);
 		m_situationType &= (~SituationType::Run);
 
-		// 歩いている音を止める
-		m_walkSoundFlg = false;
+		// 音をなっていない状態にする
 		m_nowWalkSoundFlg = false;
 	}
 
@@ -177,6 +176,7 @@ void Player::Update()
 				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
+				smoke->SetSmokeType(PlayerSmoke::SmokeType::WalkSmoke);
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
@@ -195,59 +195,26 @@ void Player::Update()
 				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
+				smoke->SetSmokeType(PlayerSmoke::SmokeType::WalkSmoke);
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
+				// 歩く音をもう一度鳴らせるようにする
 				m_nowWalkSoundFlg = false;
 			}
 			// 煙を出すカウント
 			m_smokeCount++;
 		}
+		// 移動していなかったらカウントをリセット
+		else
+		{
+			m_smokeCount = 0;
+		}
 	}
+	// 空中にいるならカウントをリセット
 	else
 	{
 		m_smokeCount = 0;
-		// 歩いている音を止める
-		m_walkSoundFlg = false;
-	}
-
-	if (m_situationType != oldSituationType)
-	{
-		// 止まっている状態→歩き
-		if (m_situationType & SituationType::Walk)
-		{
-			// 空中ではアニメーションしない
-			if (!(m_situationType & SituationType::Air))
-			{
-				// 運んでいる状態の時はアニメーションを変える
-				if (m_situationType & SituationType::Carry)
-				{
-					//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("CarryWalk"), true);
-					m_animationType = AnimationType::CarryWalk;
-				}
-				else
-				{
-					//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Walk"), true);
-					m_animationType = AnimationType::Walk;
-				}
-
-				// 歩く音を鳴らす状態にする
-				m_walkSoundFlg = true;
-			}
-		}
-		// 止まっている状態→歩き
-		if (m_situationType & SituationType::Run)
-		{
-			// 空中ではアニメーションしない
-			if (!(m_situationType & SituationType::Air))
-			{
-				//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Run"), true);
-				m_animationType = AnimationType::Run;
-
-				// 歩く音を鳴らす状態にする
-				m_walkSoundFlg = true;
-			}
-		}
 	}
 
 	if (m_stopFlg == false)
@@ -259,12 +226,10 @@ void Player::Update()
 			if ((m_situationType & SituationType::Carry) == 0)
 			{
 				// 空中じゃなければジャンプする
-				if (!(m_situationType & SituationType::Air))
+				//if (!(m_situationType & SituationType::Air))
 				{
 					m_situationType |= SituationType::Jump;
 					m_gravity = -m_jumpPow;
-					//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Jump"), false);
-					m_animationType = AnimationType::Jump;
 
 					// ジャンプ音を鳴らす
 					if (m_jumpSound.flg == false)
@@ -278,17 +243,6 @@ void Player::Update()
 				}
 			}
 		}
-	}
-
-	// 完全に停止している場合、アニメーションをIdleに切り替える
-	if ((m_situationType ^ SituationType::Idle) == 0)
-	{
-		m_animationType = AnimationType::Idle;
-	}
-	// 運び状態で停止している場合、アニメーションを切り替える
-	if ((m_situationType ^ SituationType::Carry) == 0)
-	{
-		//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Carry"), true);
 	}
 
 	// 移動
@@ -362,40 +316,6 @@ void Player::Update()
 		{
 			// ジャンプ音のフラグをfalseに
 			m_jumpSound.flg = false;
-
-			// 地面に触れた瞬間に歩きor走りをしていたらアニメーションを開始する
-			if (m_situationType & SituationType::Walk)
-			{
-				// 運び状態の時
-				if (m_situationType & SituationType::Carry)
-				{
-					//m_spAnimator->SetAnimation(m_spModel->GetAnimation("CarryWalk"), true);
-				}
-				// 運び状態じゃない時
-				else
-				{
-					//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Walk"), true);
-				}
-			}
-			else if (m_situationType & SituationType::Run)
-			{
-				//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Run"), true);
-			}
-		}
-	}
-
-	// ジャンプをせず空中にいる場合
-	if ((m_situationType & SituationType::Air) && ((m_situationType & Jump) == 0))
-	{
-		// 運び状態の時
-		if (m_situationType & SituationType::Carry)
-		{
-			//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Carry"), true);
-		}
-		// 運び状態じゃない時
-		else
-		{
-			//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), false);
 		}
 	}
 
@@ -429,56 +349,7 @@ void Player::Update()
 	// アニメーションを切り替える
 	if (oldSituationType != m_situationType)
 	{
-		//// 運び状態の場合
-		//if (m_situationType & SituationType::Carry)
-		//{
-		//	// 運び状態のみの場合
-		//	if ((m_situationType ^ SituationType::Carry) == 0)
-		//	{
-		//		m_animationType = AnimationType::Carry;
-		//	}
-		//	// 歩きの場合
-		//	if (m_situationType & SituationType::Walk)
-		//	{
-		//		m_animationType = AnimationType::CarryWalk;
-		//	}
-		//	// 空中の場合
-		//	if (m_situationType & SituationType::Air)
-		//	{
-		//		m_animationType = AnimationType::Carry;
-		//	}
-		//}
-		//// 運び状態じゃない場合
-		//else
-		//{
-		//	// Idleのみの場合
-		//	if ((m_situationType ^ SituationType::Idle) == 0)
-		//	{
-		//		m_animationType = AnimationType::Idle;
-		//	}
-		//	// 歩きの場合
-		//	if (m_situationType & SituationType::Walk)
-		//	{
-		//		m_animationType = AnimationType::Walk;
-		//	}
-		//	// 走りの場合
-		//	if (m_situationType & SituationType::Run)
-		//	{
-		//		m_animationType = AnimationType::Run;
-		//	}
-		//	// ジャンプの場合
-		//	if (m_situationType & SituationType::Jump)
-		//	{
-		//		m_animationType = AnimationType::Jump;
-		//	}
-		//	// ジャンプではないが空中の場合
-		//	if (m_situationType & SituationType::Air)
-		//	{
-		//		m_animationType = AnimationType::Air;
-		//	}
-		//}
-
-				// 運び状態の場合
+		// 運び状態の場合
 		if (m_situationType & SituationType::Carry)
 		{
 			// 運び状態のみの場合
@@ -535,46 +406,6 @@ void Player::Update()
 		}
 	}
 
-
-
-
-	// 状態が変わっていたらアニメーションを変更する
-	//if (oldSituationType != m_situationType)
-	//{
-	//	switch (m_animationType)
-	//	{
-	//	case AnimationType::Idle:
-	//		SetAnimation("Idle", true);
-	//		break;
-
-	//	case AnimationType::Walk:
-	//		SetAnimation("Walk", true);
-	//		break;
-
-	//	case AnimationType::Run:
-	//		SetAnimation("Run", true);
-	//		break;
-
-	//	case AnimationType::Jump:
-	//		SetAnimation("Jump", true);
-	//		break;
-
-	//	case AnimationType::Air:
-	//		SetAnimation("Idle", true);
-	//		break;
-
-	//	case AnimationType::Carry:
-	//		SetAnimation("Carry", true);
-	//		break;
-
-	//	case AnimationType::CarryWalk:
-	//		SetAnimation("CarryWalk", true);
-	//		break;
-	//	}
-	//}
-
-
-
 	// 何の地面に乗っているかによって、音を変える
 	if (!m_wpHitTerrain.expired())
 	{
@@ -591,13 +422,14 @@ void Player::Update()
 		case ObjectType::FencePillar:
 		case ObjectType::MoveGround:
 		case ObjectType::DropGround:
+		default:
 			m_walkSoundType = WalkSoundType::Tile;
 			break;
 		}
 	}
 
-	// 歩いた時の音を鳴らす
-	if (m_walkSoundFlg)
+	// Walk or Run 状態の時に空中にいなかったら歩く音を鳴らすようにする
+	if(((m_situationType & Walk) || (m_situationType & Run)) && ((m_situationType & Air) == 0))
 	{
 		if (m_nowWalkSoundFlg == false)
 		{
@@ -843,8 +675,6 @@ void Player::PostUpdate()
 	// 止まっていたらアニメーションしない
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
-
-	//KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
 }
 
 void Player::GenerateDepthMapFromLight()
@@ -975,9 +805,6 @@ void Player::Reset()
 	// 状態
 	m_situationType = SituationType::Idle;
 
-	// アニメーション
-	m_animationType = AnimationType::Idle;
-
 	// 角度
 	m_angle = 0;
 	m_rotMat = Math::Matrix::CreateRotationY(m_angle);
@@ -994,6 +821,9 @@ void Player::Reset()
 
 	// アニメーションをIdleに
 	SetAnimation("Idle", true);
+
+	// 煙カウント
+	m_smokeCount = 0;
 }
 
 void Player::BackPos()
@@ -1243,7 +1073,8 @@ void Player::HitJudgeGround()
 		}
 
 		hitFlg = false;
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		sphereInfo.m_sphere.Center.y = m_pos.y + 2.0f;
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
 		{
@@ -1426,7 +1257,7 @@ void Player::HitJudgeEnemy()
 
 	//hitFlg = SphereHitJudge(sphereInfo, true);
 
-		// ボックス判定
+	// ボックス判定
 	{
 		// ボックス判定
 		KdCollider::BoxInfo boxInfo;
@@ -1499,6 +1330,13 @@ void Player::HitJudgeEnemy()
 				// 上半分なら倒す
 				if (degAng < 90 && degAng > -90)
 				{
+					// 煙を生み出す
+					std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+					smoke->Init();
+					smoke->SetPos(m_pos);
+					smoke->SetSmokeType(PlayerSmoke::SmokeType::StampSmoke);
+					SceneManager::Instance().AddObject(smoke);
+
 					// 敵を踏んだ時の処理
 					spHitObject->OnHit();
 					m_gravity = -0.15f;
@@ -1711,8 +1549,8 @@ void Player::DamageProcess()
 
 void Player::GoalProcess()
 {
-	m_goalStayCnt++;
-	if (m_goalStayCnt > m_goalStayTime)
+	m_goalStayCount++;
+	if (m_goalStayCount > m_goalStayTime)
 	{
 		m_pos.x = m_goalPos.x;
 		m_pos.z = m_goalPos.z;

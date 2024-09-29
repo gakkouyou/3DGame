@@ -36,7 +36,7 @@ private:
 	// ゴールフラグ
 	bool m_goalFlg	= false;
 
-	int m_goalStayCnt	= 0;
+	int m_goalStayCount	= 0;
 	int m_goalStayTime	= 60;
 
 	std::weak_ptr<KdSoundInstance3D> m_wpSound;

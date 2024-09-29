@@ -226,6 +226,8 @@ bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, Kd
 		}
 	}
 
+	_multiHit = false;
+
 	// 球に当たったオブジェクト情報を格納
 	std::list<KdCollider::CollisionResult> retSphereList;
 

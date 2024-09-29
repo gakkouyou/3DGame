@@ -45,4 +45,13 @@ private:
 	float m_underLine		= -30.0f;
 
 	Math::Vector3 m_oldPos;
+
+	// 回転床との角度によってレイの順番を変える
+	enum class Ray
+	{
+		Left,
+		Right,
+		Center,
+	};
+	Ray m_ray;
 };

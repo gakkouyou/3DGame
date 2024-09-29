@@ -36,8 +36,8 @@ void Goal::Update()
 	}
 	else
 	{
-		m_goalStayCnt++;
-		if (m_goalStayCnt > m_goalStayTime)
+		m_goalStayCount++;
+		if (m_goalStayCount > m_goalStayTime)
 		{
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
@@ -47,6 +47,7 @@ void Goal::Update()
 
 	if (m_flg == false)
 	{
+		m_wpSound.lock()->SetPos(m_pos);
 		//m_wpSound.lock()->Play(true);
 		m_flg = true;
 	}

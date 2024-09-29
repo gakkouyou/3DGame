@@ -126,6 +126,10 @@ private:
 	HitMoveTerrain m_moveGround;
 	// 回る床
 	HitMoveTerrain m_rotationGround;
+	// 運べるオブジェクトが当たっている地面
+	HitMoveTerrain m_carryObjectHitTerrain;
+	// 運べるオブジェクト
+	HitMoveTerrain m_carryObject;
 
 	// エフェクシア用フラグ
 	bool m_effectFlg = false;
@@ -142,8 +146,8 @@ private:
 	bool m_stopFlg = false;
 
 	// ゴールの処理
-	int m_goalStayCnt	= 0;
-	int m_goalStayTime	= 60;
+	int m_goalStayCount	= 0;
+	const int m_goalStayTime	= 60;
 	Math::Vector3 m_goalPos = Math::Vector3::Zero;
 
 	// 足元の煙用
@@ -174,8 +178,6 @@ private:
 	bool m_nowWalkSoundFlg	= false;
 	// 歩く音のタイプ
 	UINT m_walkSoundType	= 0;
-	// 歩く音を鳴らすかどうかのフラグ
-	bool m_walkSoundFlg		= false;
 
 	// ジャンプ
 	Sound m_jumpSound;
@@ -204,27 +206,11 @@ private:
 
 	// 運ぶキー制御
 	bool m_carryKeyFlg = false;
-	
-	HitMoveTerrain m_carryObjectHitTerrain;
 
-	HitMoveTerrain m_carryObject;
 
 	// 運んでいるオブジェクト
 	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
-
-	// アニメーション用
-	enum class AnimationType
-	{
-		Idle,		// 立ち状態
-		Walk,		// 歩き
-		Run,		// 走り
-		Jump,		// ジャンプ
-		Air,		// 空中
-		Carry,		// 運び立ち状態
-		CarryWalk,	// 運び歩き状態
-	};
-	AnimationType m_animationType = AnimationType::Idle;
-
+\
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
 

@@ -68,6 +68,7 @@ private:
 		int Goal		= 0;
 		int HealItem	= 0;
 		int Candy		= 0;
+		int SavePoint	= 0;
 	};
 
 	Count m_objectCount;

@@ -235,6 +235,9 @@
     <Filter Include="Src\Application\GameObject\Terrain\CarryObject\BoxEnemy">
       <UniqueIdentifier>{9286871c-82da-4cde-8fa4-8bbab401aee2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\SavePoint">
+      <UniqueIdentifier>{e5a0d577-9d40-4143-806f-dae8b550c7f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -540,6 +543,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\BoxEnemy\BoxEnemy.h">
       <Filter>Src\Application\GameObject\Terrain\CarryObject\BoxEnemy</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h">
+      <Filter>Src\Application\GameObject\EventObject\SavePoint</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -814,6 +820,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\BoxEnemy\BoxEnemy.cpp">
       <Filter>Src\Application\GameObject\Terrain\CarryObject\BoxEnemy</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp">
+      <Filter>Src\Application\GameObject\EventObject\SavePoint</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

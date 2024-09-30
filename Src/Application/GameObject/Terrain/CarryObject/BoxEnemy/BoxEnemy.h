@@ -48,12 +48,15 @@ private:
 	// 下に落ちたら、リスポーンさせる
 	float m_underLine = -30.0f;
 
+	// レイを少し上から出す処理をやめるフラグ
+	bool m_rayDownFlg = false;
+
 	Math::Vector3 m_oldPos;
 
 	// 箱から敵に戻るまでの時間
-	const int m_enemyTime = 600;
+	const int m_enemyTime = 840;
 	// ガタガタし始めるまでの時間
-	const int m_shakeTime = 480;
+	const int m_shakeTime = 720;
 	// カウント
 	int m_enemyCount = 0;
 	// ガタガタの角度制限

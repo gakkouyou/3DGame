@@ -12,15 +12,13 @@
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
 
-#include "../../GameObject/Terrain/CarryObject/Box/Box.h"
-
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 
-#include "../../GameObject/Terrain/Object/Propeller/Propeller.h"
+#include "../../GameObject/EventObject/SavePoint/SavePoint.h"
 
 #include "../../main.h"
 
@@ -316,6 +314,12 @@ void GameScene::Init()
 
 	//m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
 	//m_bgm.lock()->SetVolume(0.1f);
+
+	// セーブポイント
+	//std::shared_ptr<SavePoint> savePoint = std::make_shared<SavePoint>();
+	//savePoint->Init();
+	//savePoint->SetPos({ 0, 1, 10 });
+	//AddObject(savePoint);
 }
 
 void GameScene::StartGameScene()

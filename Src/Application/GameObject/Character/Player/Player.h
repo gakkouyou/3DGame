@@ -217,5 +217,11 @@ private:
 	// EnemyController
 	std::weak_ptr<EnemyController> m_wpEnemyController;
 
+	// 最後に地面にいた時の状態
+	UINT m_lastGroundSituationType = 0;
+
+	// リスポーン座標
+	Math::Vector3 m_respawnPos;
+
 	bool flg[4] = { false, false, false, false };
 };

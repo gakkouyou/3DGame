@@ -118,35 +118,32 @@ void Player::Update()
 			m_situationType |= SituationType::Walk;
 		}
 
-		// 歩き状態の時にSHIFTキーを押すと、ダッシュになる
-		if (m_situationType & SituationType::Walk)
+		// SHIFTキーを押すと、ダッシュになる
+		// 運んでいる状態ならダッシュをできないようにする
+		if ((m_situationType & SituationType::Carry) == 0)
 		{
-			// 運んでいる状態ならダッシュをできないようにする
-			if ((m_situationType & SituationType::Carry) == 0)
+			if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 			{
-				if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+				// 空中でないなら走り状態に移行できる
+				if ((m_situationType & SituationType::Air) == 0)
 				{
-					// 空中でないなら走り状態に移行できる
-					if ((m_situationType & SituationType::Air) == 0)
-					{
-						m_situationType |= SituationType::Run;
-					}
-					// 走り状態なら歩き状態を解除する
-					if (m_situationType & SituationType::Run)
-					{
-						m_situationType &= (~SituationType::Walk);
-					}
+					m_situationType |= SituationType::Run;
 				}
-				else
+				// 走り状態なら歩き状態を解除する
+				if (m_situationType & SituationType::Run)
 				{
-					m_situationType &= (~SituationType::Run);
+					m_situationType &= (~SituationType::Walk);
 				}
 			}
-			// 運んでいる状態なら走り状態を解除する
 			else
 			{
 				m_situationType &= (~SituationType::Run);
 			}
+		}
+		// 運んでいる状態なら走り状態を解除する
+		else
+		{
+			m_situationType &= (~SituationType::Run);
 		}
 	}
 
@@ -162,6 +159,16 @@ void Player::Update()
 
 		// 音をなっていない状態にする
 		m_nowWalkSoundFlg = false;
+	}
+	// 動いていてかつ空中なら、空中に出る前の移動状態にする
+	else if (m_situationType & SituationType::Air)
+	{
+		// 走り状態の時
+		if (m_lastGroundSituationType & SituationType::Run)
+		{
+			m_situationType |= SituationType::Run;
+			m_situationType &= (~SituationType::Walk);
+		}
 	}
 
 	// 空中にいなくて動いている時、足元に煙を出す
@@ -300,8 +307,14 @@ void Player::Update()
 	// 当たり判定
 	HitJudge();
 
-	Application::Instance().m_log.AddLog("%d\n", m_situationType);
-
+	// 空中になった瞬間の状態を保持
+	if (m_situationType & SituationType::Air)
+	{
+		if ((oldSituationType & SituationType::Air) == 0)
+		{
+			m_lastGroundSituationType = m_situationType;
+		}
+	}
 
 	// ダメージを受けた時の処理
 	if (m_damage.nowDamageFlg == true)
@@ -721,6 +734,7 @@ void Player::Init()
 	m_moveSpeed = 0.06f;
 
 	m_pos = { 0, 0.25f, -5.0f };
+	m_respawnPos = m_pos;
 
 	// ジャンプ力
 	m_jumpPow = 0.125f;
@@ -796,7 +810,7 @@ void Player::Reset()
 	CharacterBase::Reset();
 
 	// 座標
-	m_pos = { 0, 0.25f, -5.0f };
+	m_pos = m_respawnPos;
 	m_oldPos = Math::Vector3::Zero;
 	
 	// 生存フラグ
@@ -1233,6 +1247,11 @@ void Player::HitJudgeEvent()
 						//m_effectFlg = true;
 						m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
 					}
+					break;
+
+					// セーブポイント
+				case ObjectType::SavePoint:
+					m_respawnPos = spHitObject->GetPos();
 					break;
 				}
 			}

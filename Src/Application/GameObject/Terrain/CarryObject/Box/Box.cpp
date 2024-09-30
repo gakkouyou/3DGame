@@ -108,36 +108,6 @@ void Box::PostUpdate()
 					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
 					m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
 				}
-
-				//// 箱の原点から見た箱の中心座標
-				//Math::Vector3 centerLocalPos = m_spModel->FindNode("Center")->m_worldTransform.Translation();
-				//// 箱の中心座標
-				//Math::Vector3 centerPos = (Math::Matrix::CreateTranslation(centerLocalPos) * m_mWorld).Translation();
-				//// 回転床の中心から箱の中心座標
-				//vec = centerPos - spHitTerrain->GetPos();
-				//// Z軸を無視
-				//vec.z = 0;
-				//// 半径
-				//float length = vec.Length();
-				//// 回転床から見た移動する前の箱の角度
-				//float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-
-				//if (degAng <= 90 && degAng >= -90)
-				//{
-				//	degAng -= 90;
-				//	if (degAng < 0)
-				//	{
-				//		degAng += 360;
-				//	}
-				//	degAng = 360 - degAng;
-
-				//	degAng += lotDegAng.z;
-				//	centerPos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-				//	centerPos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
-
-				//	m_pos.x = centerPos.x - centerLocalPos.x;
-				//	m_pos.y = centerPos.y - centerLocalPos.y;
-				//}
 			}
 			// Y軸回転の場合
 			else if (lotDegAng.y != 0)

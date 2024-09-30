@@ -8,6 +8,7 @@
 #include "../../../GameObject/EventObject/Goal/Goal.h"
 #include "../../../GameObject/EventObject/HealItem/HealItem.h"
 #include "../../../GameObject/EventObject/Candy/Candy.h"
+#include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
 
 void EventObjectController::Update()
 {
@@ -113,6 +114,16 @@ void EventObjectController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Candy);
 				break;
+
+				// セーブポイントの場合
+			case ObjectType::SavePoint:
+				// タイプのセット
+				data.type = "SavePoint";
+				// カウントを進める
+				m_objectCount.SavePoint++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.SavePoint);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -206,6 +217,16 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	case KdGameObject::ObjectType::Candy:
 	{
 		std::shared_ptr<Candy> object = std::make_shared<Candy>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// セーブポイント
+	case KdGameObject::ObjectType::SavePoint:
+	{
+		std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -346,9 +367,29 @@ void EventObjectController::BeginCreateObject()
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
-			m_objectCount.HealItem++;
+			m_objectCount.Candy++;
 			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.HealItem);
+			std::string name = data.type + std::to_string(m_objectCount.Candy);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
+		// セーブポイント
+		else if (data.type == "SavePoint")
+		{
+			std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
+			// パラメータをセットする
+			Math::Vector3 pos = data.pos;
+			object->SetPos(pos);
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.SavePoint++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.SavePoint);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する

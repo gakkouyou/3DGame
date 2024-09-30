@@ -490,6 +490,13 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::Candy);
 			}
+			ImGui::SameLine();
+			// セーブポイント
+			if (ImGui::Button("SavePoint"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::SavePoint);
+			}
 
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);

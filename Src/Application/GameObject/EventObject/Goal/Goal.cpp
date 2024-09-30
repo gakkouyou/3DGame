@@ -4,7 +4,7 @@
 
 void Goal::Update()
 {
-	if (SceneManager::Instance().GetDebug() == true) return;
+	//if (SceneManager::Instance().GetDebug() == true) return;
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 

@@ -91,13 +91,14 @@ public:
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
-		BoxEnemy,		// 箱の敵
 
 		Goal,			// ゴール
 		HealItem,		// 回復アイテム
 		Candy,			// コイン的な
+		SavePoint,		// セーブポイント
 
 		Box,			// 箱
+		BoxEnemy,		// 箱の敵
 
 		None,			// ない
 	};

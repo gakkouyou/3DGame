@@ -5,10 +5,12 @@
 #include "../../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../../../GameObject/Character/Player/Player.h"
 
+#include "../../../GameObject/EventObject/EventObjectBase.h"
 #include "../../../GameObject/EventObject/Goal/Goal.h"
 #include "../../../GameObject/EventObject/HealItem/HealItem.h"
 #include "../../../GameObject/EventObject/Candy/Candy.h"
 #include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
+#include "../../../GameObject/EventObject/WarpPoint/WarpPoint.h"
 
 void EventObjectController::Update()
 {
@@ -16,12 +18,12 @@ void EventObjectController::Update()
 	MouseSelect();
 
 	// 対象のオブジェクト
-	std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
+	std::shared_ptr<EventObjectBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
 	{
 		DebugWindow::EventObjectParam debugParam = DebugWindow::Instance().GetEventObjectParam();
-		Math::Vector3 pos = debugParam.pos;
-		spTargetObject->SetPos(pos);
+		EventObjectBase::Param param{ debugParam.pos, debugParam.secondPos };
+		spTargetObject->SetParam(param);
 	}
 
 	// DELETEキーで削除する
@@ -75,7 +77,7 @@ const std::string EventObjectController::GetObjectName() const
 
 void EventObjectController::ConfirmedObject()
 {
-	std::shared_ptr<KdGameObject> spTargetObject = m_wpTargetObject.lock();
+	std::shared_ptr<EventObjectBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
 	{
 		// もし名前が決められてなかったら新たにdataListに追加する
@@ -124,11 +126,22 @@ void EventObjectController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.SavePoint);
 				break;
+
+				// ワープポイントの場合
+			case ObjectType::WarpPoint:
+				// タイプのセット
+				data.type = "WarpPoint";
+				// カウントを進める
+				m_objectCount.WarpPoint++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.WarpPoint);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
-			data.pos = spTargetObject->GetPos();	// 座標
+			data.pos		= spTargetObject->GetParam().basePos;	// 座標
+			data.secondPos	= spTargetObject->GetParam().secondPos;	// 二つ目の座標
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
@@ -156,7 +169,8 @@ void EventObjectController::ConfirmedObject()
 					break;
 				}
 			}
-			m_dataList[num].pos = spTargetObject->GetPos();	// 座標
+			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
+			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
@@ -232,6 +246,16 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 		m_wpTargetObject = object;
 		break;
 	}
+
+	// ワープポイント
+	case KdGameObject::ObjectType::WarpPoint:
+	{
+		std::shared_ptr<WarpPoint> object = std::make_shared<WarpPoint>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
 	}
 }
 
@@ -268,7 +292,7 @@ void EventObjectController::MouseSelect()
 		std::list<KdCollider::CollisionResult> resultList;
 
 		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<KdGameObject>> hitObjList;
+		std::vector<std::weak_ptr<EventObjectBase>> hitObjList;
 
 		// 当たり判定
 		for (auto& obj : m_wpObjectList)
@@ -295,8 +319,8 @@ void EventObjectController::MouseSelect()
 				maxOverLap = ret.m_overlapDistance;
 				m_wpTargetObject = hitObjList[cnt];
 
-				Math::Vector3 pos = m_wpTargetObject.lock()->GetPos();
-				DebugWindow::EventObjectParam setParam{ pos };
+				EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
+				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos };
 				DebugWindow::Instance().SetEventObjectParam(setParam);
 			}
 			cnt++;
@@ -313,8 +337,8 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<Goal> object = std::make_shared<Goal>();
 			// パラメータをセットする
-			Math::Vector3 pos = data.pos;
-			object->SetPos(pos);
+			EventObjectBase::Param setParam{ data.pos };
+			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
@@ -328,11 +352,11 @@ void EventObjectController::BeginCreateObject()
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
-				m_wpPlayer.lock()->SetGoalPos(pos);
+				m_wpPlayer.lock()->SetGoalPos(data.pos);
 			}
 			if (!m_wpCamera.expired())
 			{
-				m_wpCamera.lock()->SetGoalPos(pos);
+				m_wpCamera.lock()->SetGoalPos(data.pos);
 			}
 			// リストに追加
 			m_wpObjectList.push_back(object);
@@ -342,8 +366,8 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
 			// パラメータをセットする
-			Math::Vector3 pos = data.pos;
-			object->SetPos(pos);
+			EventObjectBase::Param setParam{ data.pos };
+			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
@@ -362,8 +386,8 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<Candy> object = std::make_shared<Candy>();
 			// パラメータをセットする
-			Math::Vector3 pos = data.pos;
-			object->SetPos(pos);
+			EventObjectBase::Param setParam{ data.pos };
+			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
@@ -382,14 +406,34 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
 			// パラメータをセットする
-			Math::Vector3 pos = data.pos;
-			object->SetPos(pos);
+			EventObjectBase::Param setParam{ data.pos };
+			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.SavePoint++;
 			// 名前の数値をリセットする
 			std::string name = data.type + std::to_string(m_objectCount.SavePoint);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
+		// ワープポイント
+		else if (data.type == "WarpPoint")
+		{
+			std::shared_ptr<WarpPoint> object = std::make_shared<WarpPoint>();
+			// パラメータをセットする
+			EventObjectBase::Param setParam{ data.pos, data.secondPos };
+			object->SetParam(setParam);
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.WarpPoint++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.WarpPoint);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する
@@ -445,6 +489,18 @@ void EventObjectController::CSVLoader()
 			case 4:
 				data.pos.z = stof(commaString);
 				break;
+
+			case 5:
+				data.secondPos.x = stof(commaString);
+				break;
+
+			case 6:
+				data.secondPos.y = stof(commaString);
+				break;
+
+			case 7:
+				data.secondPos.z = stof(commaString);
+				break;
 			}
 			cnt++;
 		}
@@ -470,6 +526,9 @@ void EventObjectController::CSVWriter()
 		ofs << data.name << ",";
 
 		// 座標
-		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << "," << std::endl;
+		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
+
+		// 二つ目の座標
+		ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << std::endl;
 	}
 }

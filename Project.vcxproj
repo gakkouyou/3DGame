@@ -168,9 +168,11 @@
     <ClInclude Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.h" />
     <ClInclude Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Candy\Candy.h" />
+    <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h" />
+    <ClInclude Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.h" />
     <ClInclude Include="Src\Application\GameObject\Pause\Pause.h" />
     <ClInclude Include="Src\Application\GameObject\Result\Result.h" />
     <ClInclude Include="Src\Application\GameObject\SceneChange\SceneChange.h" />
@@ -265,9 +267,11 @@
     <ClCompile Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Candy\Candy.cpp" />
+    <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp" />
+    <ClCompile Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.cpp" />
     <ClCompile Include="Src\Application\GameObject\Pause\Pause.cpp" />
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp" />
     <ClCompile Include="Src\Application\GameObject\SceneChange\SceneChange.cpp" />

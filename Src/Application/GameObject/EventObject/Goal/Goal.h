@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-class Goal : public KdGameObject
+#include "../EventObjectBase.h"
+
+class Goal : public EventObjectBase
 {
 public:
 	Goal()									{}
@@ -18,9 +20,9 @@ public:
 	void SetPos(const Math::Vector3& _pos)	override { m_pos = _pos; }
 	Math::Vector3 GetPos() const			override { return m_pos; }
 
-private:
-	std::shared_ptr<KdModelData> m_spModel;
+	void SetParam(const Param& _param)	override;
 
+private:
 	Math::Vector3 m_pos	= Math::Vector3::Zero;
 
 	// スケール
@@ -38,6 +40,9 @@ private:
 
 	int m_goalStayCount	= 0;
 	int m_goalStayTime	= 60;
+
+	// SetParamに入ったかどうかのフラグ
+	bool m_setParamFlg = false;
 
 	std::weak_ptr<KdSoundInstance3D> m_wpSound;
 	bool m_flg = false;

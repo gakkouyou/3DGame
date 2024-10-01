@@ -136,8 +136,11 @@ void GameScene::Event()
 				m_wpCamera.lock()->SetGoalFlg(true);
 				// ステージをクリアにする
 				m_stageInfoList[m_nowStage] = 2;
-				// 次のステージを挑戦可能状態にする
-				m_stageInfoList[m_nowStage + 1] = 1;
+				if (m_nowStage != 2)
+				{
+					// 次のステージを挑戦可能状態にする
+					m_stageInfoList[m_nowStage + 1] = 1;
+				}
 
 				// 動き終わった後の処理
 				if (m_wpCamera.lock()->GetGoalProcessFinish())

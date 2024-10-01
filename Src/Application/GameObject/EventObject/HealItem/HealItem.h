@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-class HealItem : public KdGameObject
+#include "../EventObjectBase.h"
+
+class HealItem : public EventObjectBase
 {
 public:
 	HealItem()						{}
@@ -16,8 +18,8 @@ public:
 
 	void Reset()		override;
 
-private:
-	std::shared_ptr<KdModelData> m_spModel	= nullptr;
+	void SetParam(const Param& _param)	override;
 
+private:
 	bool m_aliveFlg = true;
 };

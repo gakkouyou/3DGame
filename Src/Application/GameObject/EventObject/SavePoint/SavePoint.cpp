@@ -31,6 +31,8 @@ void SavePoint::DrawUnLit()
 
 void SavePoint::Init()
 {
+	EventObjectBase::Init();
+
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
@@ -39,20 +41,20 @@ void SavePoint::Init()
 
 	m_objectType = ObjectType::SavePoint;
 
-	m_baseObjectType = BaseObjectType::Event;
-
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
 }
 
-void SavePoint::SetPos(const Math::Vector3& _pos)
-{
-	m_pos = _pos;
-	m_respawnPos = _pos;
-
-	m_mWorld.Translation(m_pos);
-}
-
 void SavePoint::OnHit()
 {
+}
+
+void SavePoint::SetParam(const Param& _param)
+{
+	m_param = _param;
+
+	m_pos = m_param.basePos;
+	m_respawnPos = m_param.basePos;
+
+	m_mWorld.Translation(m_pos);
 }

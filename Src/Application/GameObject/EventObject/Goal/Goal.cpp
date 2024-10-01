@@ -4,7 +4,11 @@
 
 void Goal::Update()
 {
-	//if (SceneManager::Instance().GetDebug() == true) return;
+	if (m_setParamFlg == true)
+	{
+		m_setParamFlg = false;
+		return;
+	}
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
@@ -63,6 +67,8 @@ void Goal::DrawUnLit()
 
 void Goal::Init()
 {
+	EventObjectBase::Init();
+
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
@@ -72,8 +78,6 @@ void Goal::Init()
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
-
-	m_baseObjectType = BaseObjectType::Event;
 
 	m_objectType = ObjectType::Goal;
 
@@ -99,4 +103,14 @@ void Goal::Reset()
 
 	// 上下にふよふよさせる
 	m_sinAngle = 0;
+}
+
+void Goal::SetParam(const Param& _param)
+{
+	m_param = _param;
+	m_pos = _param.basePos;
+
+	m_setParamFlg = false;
+
+	m_mWorld.Translation(m_pos);
 }

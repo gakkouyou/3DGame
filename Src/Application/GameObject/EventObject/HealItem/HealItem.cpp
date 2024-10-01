@@ -35,6 +35,8 @@ void HealItem::DrawBright()
 
 void HealItem::Init()
 {
+	EventObjectBase::Init();
+
 	// モデルロード
 	if (!m_spModel)
 	{
@@ -51,9 +53,6 @@ void HealItem::Init()
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::HealItem;
-
-	// 大まかなオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Event;
 }
 
 void HealItem::OnHit()
@@ -66,4 +65,10 @@ void HealItem::Reset()
 {
 	m_aliveFlg = true;
 	m_pCollider->SetEnable("HealItem", true);
+}
+
+void HealItem::SetParam(const Param& _param)
+{
+	m_param = _param;
+	m_mWorld.Translation(m_param.basePos);
 }

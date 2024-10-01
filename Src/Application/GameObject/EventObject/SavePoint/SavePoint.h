@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-class SavePoint : public KdGameObject
+#include "../EventObjectBase.h"
+
+class SavePoint : public EventObjectBase
 {
 public:
 	SavePoint()									{}
@@ -12,10 +14,11 @@ public:
 	void DrawUnLit()					override;
 	void Init()							override;
 
-	void SetPos(const Math::Vector3& _pos) override;
 	Math::Vector3 GetPos() const		override { return m_respawnPos; }
 
 	void OnHit()	override;
+
+	void SetParam(const Param& _param)	override;
 
 private:
 	// モデル

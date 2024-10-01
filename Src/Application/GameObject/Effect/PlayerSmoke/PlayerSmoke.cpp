@@ -49,6 +49,11 @@ void PlayerSmoke::Init()
 	m_scale = 1.0f;
 }
 
+void PlayerSmoke::Reset()
+{
+	m_isExpired = true;
+}
+
 void PlayerSmoke::SetSmokeType(SmokeType _smokeType)
 {
 	m_smokeType = _smokeType;

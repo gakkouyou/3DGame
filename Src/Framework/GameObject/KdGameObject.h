@@ -96,11 +96,12 @@ public:
 		HealItem,		// 回復アイテム
 		Candy,			// コイン的な
 		SavePoint,		// セーブポイント
+		WarpPoint,		// ワープポイント
 
 		Box,			// 箱
 		BoxEnemy,		// 箱の敵
 
-		None,			// ない
+		None,			// 分ける必要がないオブジェクト
 	};
 
 	// オブジェクトのおおまかな種類

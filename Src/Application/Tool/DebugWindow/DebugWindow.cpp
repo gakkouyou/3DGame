@@ -498,10 +498,26 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::SavePoint);
 			}
 
+			// ワープポイント
+			if (ImGui::Button("WarpPoint"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::WarpPoint);
+			}
+
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
 			ImGui::DragFloat("Pos.y", &m_eventObjectParam.pos.y, 0.25f);
 			ImGui::DragFloat("Pos.z", &m_eventObjectParam.pos.z, 0.25f);
+
+			// ワープポイント用
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::WarpPoint)
+			{
+				// 座標
+				ImGui::DragFloat("OutPos.x", &m_eventObjectParam.secondPos.x, 0.25f);
+				ImGui::DragFloat("OutPos.y", &m_eventObjectParam.secondPos.y, 0.25f);
+				ImGui::DragFloat("OutPos.z", &m_eventObjectParam.secondPos.z, 0.25f);
+			}
 		}
 	}
 	//ImGui::End();

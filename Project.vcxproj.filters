@@ -238,6 +238,9 @@
     <Filter Include="Src\Application\GameObject\EventObject\SavePoint">
       <UniqueIdentifier>{e5a0d577-9d40-4143-806f-dae8b550c7f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\WarpPoint">
+      <UniqueIdentifier>{5c8011eb-bc79-4afa-91e6-022c96ff19d9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -546,6 +549,12 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h">
       <Filter>Src\Application\GameObject\EventObject\SavePoint</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.h">
+      <Filter>Src\Application\GameObject\EventObject\WarpPoint</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h">
+      <Filter>Src\Application\GameObject\EventObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -823,6 +832,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp">
       <Filter>Src\Application\GameObject\EventObject\SavePoint</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.cpp">
+      <Filter>Src\Application\GameObject\EventObject\WarpPoint</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp">
+      <Filter>Src\Application\GameObject\EventObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

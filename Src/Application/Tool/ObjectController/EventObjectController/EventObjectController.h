@@ -2,6 +2,7 @@
 
 class TPSCamera;
 class Player;
+class EventObjectBase;
 
 class EventObjectController : public KdGameObject
 {
@@ -25,7 +26,7 @@ public:
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
 
 	// オブジェクトリストを渡す
-	const std::vector<std::weak_ptr<KdGameObject>>& GetObjList() const { return m_wpObjectList; }
+	const std::vector<std::weak_ptr<EventObjectBase>>& GetObjList() const { return m_wpObjectList; }
 
 	// 今持っているオブジェクトのタイプをゲットする
 	const KdGameObject::ObjectType GetObjectType() const;
@@ -49,15 +50,15 @@ private:
 	void MouseSelect();
 
 	// 動かすオブジェクト
-	std::weak_ptr<KdGameObject>		m_wpTargetObject;
+	std::weak_ptr<EventObjectBase>				m_wpTargetObject;
 
 	// リスト
-	std::vector<std::weak_ptr<KdGameObject>> m_wpObjectList;
+	std::vector<std::weak_ptr<EventObjectBase>>	m_wpObjectList;
 
 	// カメラ
 	std::weak_ptr<TPSCamera>	m_wpCamera;
 	// プレイヤー
-	std::weak_ptr<Player> m_wpPlayer;
+	std::weak_ptr<Player>		m_wpPlayer;
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();
@@ -69,6 +70,7 @@ private:
 		int HealItem	= 0;
 		int Candy		= 0;
 		int SavePoint	= 0;
+		int WarpPoint	= 0;
 	};
 
 	Count m_objectCount;
@@ -79,7 +81,8 @@ private:
 	{
 		std::string type;
 		std::string name;
-		Math::Vector3 pos = Math::Vector3::Zero;
+		Math::Vector3 pos;
+		Math::Vector3 secondPos;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;

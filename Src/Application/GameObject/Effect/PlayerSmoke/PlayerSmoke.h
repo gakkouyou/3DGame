@@ -14,6 +14,8 @@ public:
 
 	void SetPos(const Math::Vector3& _basePos) override { m_basePos = _basePos; }
 
+	void Reset()	override;
+
 	// タイプ
 	enum class SmokeType
 	{

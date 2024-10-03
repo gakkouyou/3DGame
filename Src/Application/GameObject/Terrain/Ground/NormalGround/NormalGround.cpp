@@ -12,6 +12,7 @@ void NormalGround::Init()
 	{
 		m_spModel = std::make_shared<KdModelData>();
 		m_spModel->Load("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
+		//m_spModel->Load("Asset/Models/Terrain/Ground/test/normalGround.gltf");
 	}
 
 	m_drawType = eDrawTypeLit;

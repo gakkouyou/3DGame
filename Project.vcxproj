@@ -157,8 +157,10 @@
     <ClInclude Include="..\Library\tinygltf\stb_image_write.h" />
     <ClInclude Include="..\Library\tinygltf\tiny_gltf.h" />
     <ClInclude Include="Src\Application\GameObject\BackGround\BackGround.h" />
+    <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\CameraBase.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.h" />
+    <ClInclude Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Character\CharacterBase.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\EnemyBase.h" />
@@ -196,6 +198,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.h" />
+    <ClInclude Include="Src\Application\GameObject\Title\House\House.h" />
     <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h" />
     <ClInclude Include="Src\Application\main.h" />
@@ -256,8 +259,10 @@
     <ClCompile Include="..\Library\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\Library\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Src\Application\GameObject\BackGround\BackGround.cpp" />
+    <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\CameraBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\CharacterBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\EnemyBase.cpp" />
@@ -295,6 +300,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Title\House\House.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp" />
     <ClCompile Include="Src\Application\main.cpp" />

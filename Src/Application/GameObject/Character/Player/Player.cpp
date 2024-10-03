@@ -39,8 +39,9 @@ void Player::Update()
 	// 移動初期化
 	m_moveVec = Math::Vector3::Zero;
 
+	if(m_stopFlg == false)
 	{
-		if (GetAsyncKeyState(VK_UP) & 0x8000)
+		if (GetAsyncKeyState('W') & 0x8000)
 		{
 			if (flg[0] == false)
 			{
@@ -53,7 +54,7 @@ void Player::Update()
 		{
 			flg[0] = false;
 		}
-		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
+		if (GetAsyncKeyState('A') & 0x8000)
 		{
 			if (flg[1] == false)
 			{
@@ -66,7 +67,7 @@ void Player::Update()
 		{
 			flg[1] = false;
 		}
-		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
+		if (GetAsyncKeyState('S') & 0x8000)
 		{
 			if (flg[2] == false)
 			{
@@ -79,7 +80,7 @@ void Player::Update()
 		{
 			flg[2] = false;
 		}
-		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
+		if (GetAsyncKeyState('D') & 0x8000)
 		{
 			if (flg[3] == false)
 			{
@@ -97,22 +98,22 @@ void Player::Update()
 	if (m_stopFlg == false)
 	{
 		// WASDで移動
-		if (GetAsyncKeyState('W') & 0x8000)
+		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			m_moveVec.z += 1.0f;
 			m_situationType |= SituationType::Walk;
 		}
-		if (GetAsyncKeyState('A') & 0x8000)
+		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			m_moveVec.x -= 1.0f;
 			m_situationType |= SituationType::Walk;
 		}
-		if (GetAsyncKeyState('S') & 0x8000)
+		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			m_moveVec.z -= 1.0f;
 			m_situationType |= SituationType::Walk;
 		}
-		if (GetAsyncKeyState('D') & 0x8000)
+		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			m_moveVec.x += 1.0f;
 			m_situationType |= SituationType::Walk;
@@ -304,6 +305,31 @@ void Player::Update()
 	//Application::Instance().m_log.Clear();
 	//Application::Instance().m_log.AddLog("x:%.4f y:%.4f z:%.4f", m_pos.x, m_pos.y, m_pos.z);
 
+	// 運び状態を解除する
+	if (GetAsyncKeyState('F') & 0x8000)
+	{
+		if (m_situationType & SituationType::Carry)
+		{
+			if (m_carryKeyFlg == false)
+			{
+				if (m_wpCarryObject.expired() == false)
+				{
+					// 運ばれていない状態にする
+					m_wpCarryObject.lock()->CarryFlg(false);
+					m_wpCarryObject.reset();
+				}
+				// 状態の切り替え
+				m_situationType &= (~SituationType::Carry);
+				// キーフラグ
+				m_carryKeyFlg = true;
+			}
+		}
+	}
+	else
+	{
+		m_carryKeyFlg = false;
+	}
+
 	// 当たり判定
 	HitJudge();
 
@@ -330,31 +356,6 @@ void Player::Update()
 			// ジャンプ音のフラグをfalseに
 			m_jumpSound.flg = false;
 		}
-	}
-
-	// 運び状態を解除する
-	if (GetAsyncKeyState('F') & 0x8000)
-	{
-		if (m_situationType & SituationType::Carry)
-		{
-			if (m_carryKeyFlg == false)
-			{
-				if (m_wpCarryObject.expired() == false)
-				{
-					// 運ばれている状態にする
-					m_wpCarryObject.lock()->CarryFlg(false);
-					m_wpCarryObject.reset();
-				}
-				// 状態の切り替え
-				m_situationType &= (~SituationType::Carry);
-				// キーフラグ
-				m_carryKeyFlg = true;
-			}
-		}
-	}
-	else
-	{
-		m_carryKeyFlg = false;
 	}
 
 
@@ -559,6 +560,11 @@ void Player::PostUpdate()
 				degAng -= lotDegAng.y;
 				m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
 				m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
+
+				// プレイヤーの角度を変える
+				m_angle += lotDegAng.y;
+				// 回転行列
+				m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 			}
 		}
 	}
@@ -652,6 +658,11 @@ void Player::PostUpdate()
 							degAng -= lotDegAng.y;
 							m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
 							m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
+
+							// プレイヤーの角度を変える
+							m_angle += lotDegAng.y;
+							// 回転行列
+							m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 						}
 					}
 				}
@@ -1036,166 +1047,166 @@ void Player::HitJudgeGround()
 
 	// 地面(壁)とのスフィア判定
 	{
-		//// スフィアの情報
-		//KdCollider::SphereInfo sphereInfo;
-		//// スフィアの中心座標
-		//sphereInfo.m_sphere.Center = m_pos;
-		//// スフィアの半径
-		//sphereInfo.m_sphere.Radius = 0.25f;
-		//sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
-		//// スフィアのタイプ
-		//sphereInfo.m_type = KdCollider::TypeGround;
+		// スフィアの情報
+		KdCollider::SphereInfo sphereInfo;
+		// スフィアの中心座標
+		sphereInfo.m_sphere.Center = m_pos;
+		// スフィアの半径
+		sphereInfo.m_sphere.Radius = 0.25f;
+		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
+		// スフィアのタイプ
+		sphereInfo.m_type = KdCollider::TypeGround;
 
-		//// 当たったかどうかのフラグ
-		//bool hitFlg = false;
-		//// 当たった結果
-		//KdCollider::CollisionResult collisionResult;
-		//// 複数に当たったかどうかのフラグ
-		//bool multiHitFlg = false;
+		// 当たったかどうかのフラグ
+		bool hitFlg = false;
+		// 当たった結果
+		KdCollider::CollisionResult collisionResult;
+		// 複数に当たったかどうかのフラグ
+		bool multiHitFlg = false;
 
-		//hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		//if (hitFlg == false)
-		//{
-		//	sphereInfo.m_sphere.Center.y += 0.5f;
-		//	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		//}
-		//if (hitFlg == false)
-		//{
-		//	sphereInfo.m_sphere.Center.y += 0.5f;
-		//	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		//}
-		//if (hitFlg == false)
-		//{
-		//	sphereInfo.m_sphere.Center.y += 0.5f;
-		//	//hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
-		//}
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		if (hitFlg == false)
+		{
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		}
+		if (hitFlg == false)
+		{
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		}
+		if (hitFlg == false)
+		{
+			sphereInfo.m_sphere.Center.y += 0.5f;
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+		}
 
-		//// 複数のオブジェクトに当たっていた場合
-		//if (multiHitFlg == true)
-		//{
-		//	// Y座標以外、更新前の座標に戻す
-		//	m_pos.x = m_oldPos.x;
-		//	m_pos.z = m_oldPos.z;
-		//}
-		//// 一つのオブジェクトに当たった場合
-		//else if (hitFlg)
-		//{
-		//	// Y軸の補正はなし
-		//	collisionResult.m_hitDir.y = 0;
-		//	collisionResult.m_hitDir.Normalize();
-		//	m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
-		//}
+		// 複数のオブジェクトに当たっていた場合
+		if (multiHitFlg == true)
+		{
+			// Y座標以外、更新前の座標に戻す
+			m_pos.x = m_oldPos.x;
+			m_pos.z = m_oldPos.z;
+		}
+		// 一つのオブジェクトに当たった場合
+		else if (hitFlg)
+		{
+			// Y軸の補正はなし
+			collisionResult.m_hitDir.y = 0;
+			collisionResult.m_hitDir.Normalize();
+			m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+		}
 
-		//hitFlg = false;
-		//sphereInfo.m_sphere.Center.y = m_pos.y + 2.0f;
-		//hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
-		//// 複数のオブジェクトに当たっていた場合
-		//if (multiHitFlg == true)
-		//{
-		//	// Y座標のみ、更新前の座標に戻す
-		//	m_pos.y = m_oldPos.y;
-		//}
-		//// 一つのオブジェクトに当たった場合
-		//else if (hitFlg == true)
-		//{
-		//	m_pos.y -= collisionResult.m_overlapDistance;
-		//}
+		hitFlg = false;
+		sphereInfo.m_sphere.Center.y = m_pos.y + 2.0f;
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+		// 複数のオブジェクトに当たっていた場合
+		if (multiHitFlg == true)
+		{
+			// Y座標のみ、更新前の座標に戻す
+			m_pos.y = m_oldPos.y;
+		}
+		// 一つのオブジェクトに当たった場合
+		else if (hitFlg == true)
+		{
+			m_pos.y -= collisionResult.m_overlapDistance;
+		}
 	}
 
 	// ボックス判定
-	{
-		// ボックス判定
-		KdCollider::BoxInfo boxInfo;
-		// 右前上のノード
-		Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
-		// 左後上のノード
-		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
-		// キャラクターの高さ
-		float charaHighLength = rightBackUpPos.y;
-		// 中心座標(キャラクターの真ん中)
-		boxInfo.m_Abox.Center = m_pos;
-		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
-		// キャラクターの横幅(半径)
-		float charaSideRadius = abs(rightBackUpPos.x);
-		// キャラクターの奥行幅(直径)
-		float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
-		// ボックスのサイズ
-		//boxInfo.m_Abox.Extents = { 5, 5, 5 };
-		boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2, charaZLength / 2 };
-		// 当たり判定をするタイプ
-		boxInfo.m_type |= KdCollider::TypeEvent;
+	//{
+	//	// ボックス判定
+	//	KdCollider::BoxInfo boxInfo;
+	//	// 右前上のノード
+	//	Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
+	//	// 左後上のノード
+	//	Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
+	//	// キャラクターの高さ
+	//	float charaHighLength = rightBackUpPos.y;
+	//	// 中心座標(キャラクターの真ん中)
+	//	boxInfo.m_Abox.Center = m_pos;
+	//	boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
+	//	// キャラクターの横幅(半径)
+	//	float charaSideRadius = abs(rightBackUpPos.x);
+	//	// キャラクターの奥行幅(直径)
+	//	float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
+	//	// ボックスのサイズ
+	//	//boxInfo.m_Abox.Extents = { 5, 5, 5 };
+	//	boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2, charaZLength / 2 };
+	//	// 当たり判定をするタイプ
+	//	boxInfo.m_type |= KdCollider::TypeGround;
 
 
-		// 当たり判定の結果格納リスト
-		std::list<KdCollider::CollisionResult> resultList;
+	//	// 当たり判定の結果格納リスト
+	//	std::list<KdCollider::CollisionResult> resultList;
 
-		bool hitFlg = false;
+	//	bool hitFlg = false;
 
-		for (auto& obj : SceneManager::Instance().GetObjList())
-		{
-			if (obj->Intersects(boxInfo, &resultList))
-			{
-				m_wpHitObjectList.push_back(obj);
-				hitFlg = true;
-			}
-		}
+	//	for (auto& obj : SceneManager::Instance().GetObjList())
+	//	{
+	//		if (obj->Intersects(boxInfo, &resultList))
+	//		{
+	//			m_wpHitObjectList.push_back(obj);
+	//			hitFlg = true;
+	//		}
+	//	}
 
-		if (hitFlg)
-		{
-			// 当たったオブジェクト
-			std::shared_ptr<KdGameObject> spHitObject;
+	//	if (hitFlg)
+	//	{
+	//		// 当たったオブジェクト
+	//		std::shared_ptr<KdGameObject> spHitObject;
 
-			// 探す
-			for (auto& hitObject : m_wpHitObjectList)
-			{
-				if (!hitObject.expired())
-				{
-					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
-					{
-						spHitObject = hitObject.lock();
-						break;
-					}
-				}
-			}
-			if (spHitObject)
-			{
-				spHitObject->OnHit();
-				switch (spHitObject->GetObjectType())
-				{
-					// ゴール
-				case ObjectType::Goal:
-					m_goalFlg = true;
-					m_stopFlg = true;
-					break;
+	//		// 探す
+	//		for (auto& hitObject : m_wpHitObjectList)
+	//		{
+	//			if (!hitObject.expired())
+	//			{
+	//				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
+	//				{
+	//					spHitObject = hitObject.lock();
+	//					break;
+	//				}
+	//			}
+	//		}
+	//		if (spHitObject)
+	//		{
+	//			spHitObject->OnHit();
+	//			switch (spHitObject->GetObjectType())
+	//			{
+	//				// ゴール
+	//			case ObjectType::Goal:
+	//				m_goalFlg = true;
+	//				m_stopFlg = true;
+	//				break;
 
-					// 回復アイテム
-				case ObjectType::HealItem:
-					// ライフが上限じゃなければ回復
-					if (m_life != m_maxLife)
-					{
-						m_life += 1;
-					}
-					// 回復エフェクト
-					if (!m_effectFlg)
-					{
-						//m_effectFlg = true;
-						m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
-					}
-					break;
+	//				// 回復アイテム
+	//			case ObjectType::HealItem:
+	//				// ライフが上限じゃなければ回復
+	//				if (m_life != m_maxLife)
+	//				{
+	//					m_life += 1;
+	//				}
+	//				// 回復エフェクト
+	//				if (!m_effectFlg)
+	//				{
+	//					//m_effectFlg = true;
+	//					m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
+	//				}
+	//				break;
 
-					// セーブポイント
-				case ObjectType::SavePoint:
-					m_respawnPos = spHitObject->GetPos();
-					break;
+	//				// セーブポイント
+	//			case ObjectType::SavePoint:
+	//				m_respawnPos = spHitObject->GetPos();
+	//				break;
 
-					// ワープポイント
-				case ObjectType::WarpPoint:
-					m_pos = spHitObject->GetPos();
-					break;
-				}
-			}
-		}
-	}
+	//				// ワープポイント
+	//			case ObjectType::WarpPoint:
+	//				m_pos = spHitObject->GetPos();
+	//				break;
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void Player::HitJudgeEvent()
@@ -1520,9 +1531,15 @@ void Player::HitJudgeCarryObject()
 					m_situationType &= (~SituationType::Air);
 					m_situationType &= (~SituationType::Jump);
 					// 動く床の動く前の行列
-					m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
+					m_carryObject.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 					// 動く床に当たったかどうかのフラグ
-					m_moveGround.hitFlg = true;
+					m_carryObject.hitFlg = true;
+					if (spHitObject->GetHitTerrain().expired() == false)
+					{
+						m_wpHitTerrain = spHitObject->GetHitTerrain();
+						m_carryObjectHitTerrain.transMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+						m_carryObjectHitTerrain.hitFlg = true;
+					}
 					break;
 				}
 			}

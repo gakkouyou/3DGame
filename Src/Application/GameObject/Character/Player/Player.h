@@ -57,6 +57,8 @@ public:
 
 	// ライフをゲット
 	const int GetLife() const { return m_life; }
+	// ライフの上限をゲット
+	const int GetLifeMax()	const { return m_maxLife; }
 
 	// SituationTypeのゲット
 	const int GetSituationType() const { return m_situationType; }

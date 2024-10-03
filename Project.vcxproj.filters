@@ -241,6 +241,18 @@
     <Filter Include="Src\Application\GameObject\EventObject\WarpPoint">
       <UniqueIdentifier>{5c8011eb-bc79-4afa-91e6-022c96ff19d9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Title">
+      <UniqueIdentifier>{2cca6dc8-6f30-4c24-8851-3ca8c35d9d24}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Title\House">
+      <UniqueIdentifier>{68a10507-2ef4-450a-8854-b21e91942b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Camera\TitleCamera">
+      <UniqueIdentifier>{1beb8541-04a7-415d-8bae-a88643306d4c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\BackGround\TitleBackGround">
+      <UniqueIdentifier>{1f728cb5-dc08-4ee8-87dd-d32cee8d8272}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -374,9 +386,6 @@
     </ClInclude>
     <ClInclude Include="Src\Application\Scene\GameScene\GameScene.h">
       <Filter>Src\Application\Scene\GameScene</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\Scene\TitleScene\TitleScene.h">
-      <Filter>Src\Application\Scene\TitleScene</Filter>
     </ClInclude>
     <ClInclude Include="..\Library\imgui\imconfig.h">
       <Filter>Library\imgui</Filter>
@@ -554,6 +563,18 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h">
       <Filter>Src\Application\GameObject\EventObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Scene\TitleScene\TitleScene.h">
+      <Filter>Src\Application\Scene\TitleScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Title\House\House.h">
+      <Filter>Src\Application\GameObject\Title\House</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.h">
+      <Filter>Src\Application\GameObject\Camera\TitleCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h">
+      <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -838,6 +859,15 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp">
       <Filter>Src\Application\GameObject\EventObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Title\House\House.cpp">
+      <Filter>Src\Application\GameObject\Title\House</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.cpp">
+      <Filter>Src\Application\GameObject\Camera\TitleCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp">
+      <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

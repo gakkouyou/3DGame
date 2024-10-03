@@ -23,6 +23,7 @@ private:
 	};
 	Texture m_life;
 	const int m_lifeTexInterval = 70;
+	Texture m_emptyLife;
 
 	std::weak_ptr<Player> m_wpPlayer;
 };

@@ -26,7 +26,7 @@ void Player::Update()
 	// 更新前のプレイヤーの状態を保持
 	UINT oldSituationType = m_situationType;
 
-	// Idle以外のフラグが立っていたらStopをおろす
+	// Idle以外のフラグが立っていたらIdleをおろす
 	if (m_situationType ^ SituationType::Idle)
 	{
 		m_situationType &= (~SituationType::Idle);
@@ -101,50 +101,73 @@ void Player::Update()
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
 			m_moveVec.z += 1.0f;
-			m_situationType |= SituationType::Walk;
+			// 運んでいる状態なら歩く
+			if (m_situationType & SituationType::Carry)
+			{
+				m_situationType |= SituationType::Walk;
+			}
+			// 違うなら走る
+			else
+			{
+				m_situationType |= SituationType::Run;
+			}
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
 			m_moveVec.x -= 1.0f;
-			m_situationType |= SituationType::Walk;
+			// 運んでいる状態なら歩く
+			if (m_situationType & SituationType::Carry)
+			{
+				m_situationType |= SituationType::Walk;
+			}
+			// 違うなら走る
+			else
+			{
+				m_situationType |= SituationType::Run;
+			}
 		}
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
 			m_moveVec.z -= 1.0f;
-			m_situationType |= SituationType::Walk;
+			// 運んでいる状態なら歩く
+			if (m_situationType & SituationType::Carry)
+			{
+				m_situationType |= SituationType::Walk;
+			}
+			// 違うなら走る
+			else
+			{
+				m_situationType |= SituationType::Run;
+			}
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
 			m_moveVec.x += 1.0f;
-			m_situationType |= SituationType::Walk;
+			// 運んでいる状態なら歩く
+			if (m_situationType & SituationType::Carry)
+			{
+				m_situationType |= SituationType::Walk;
+			}
+			// 違うなら走る
+			else
+			{
+				m_situationType |= SituationType::Run;
+			}
 		}
 
-		// SHIFTキーを押すと、ダッシュになる
-		// 運んでいる状態ならダッシュをできないようにする
-		if ((m_situationType & SituationType::Carry) == 0)
+		// SHIFTキーを押すと、歩きになる
+		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 		{
-			if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
+			// 空中でないなら走り状態に移行できる
+			if ((m_situationType & SituationType::Air) == 0)
 			{
-				// 空中でないなら走り状態に移行できる
-				if ((m_situationType & SituationType::Air) == 0)
-				{
-					m_situationType |= SituationType::Run;
-				}
-				// 走り状態なら歩き状態を解除する
-				if (m_situationType & SituationType::Run)
-				{
-					m_situationType &= (~SituationType::Walk);
-				}
+				m_situationType |= SituationType::Walk;
 			}
-			else
+			// 歩き状態なら走り状態を解除する
+			if (m_situationType & SituationType::Walk)
 			{
 				m_situationType &= (~SituationType::Run);
 			}
-		}
-		// 運んでいる状態なら走り状態を解除する
-		else
-		{
-			m_situationType &= (~SituationType::Run);
 		}
 	}
 
@@ -164,11 +187,11 @@ void Player::Update()
 	// 動いていてかつ空中なら、空中に出る前の移動状態にする
 	else if (m_situationType & SituationType::Air)
 	{
-		// 走り状態の時
-		if (m_lastGroundSituationType & SituationType::Run)
+		// 歩き状態の時
+		if (m_lastGroundSituationType & SituationType::Walk)
 		{
-			m_situationType |= SituationType::Run;
-			m_situationType &= (~SituationType::Walk);
+			m_situationType |= SituationType::Walk;
+			m_situationType &= (~SituationType::Run);
 		}
 	}
 
@@ -302,9 +325,6 @@ void Player::Update()
 	}
 	// ===============================================================================
 
-	//Application::Instance().m_log.Clear();
-	//Application::Instance().m_log.AddLog("x:%.4f y:%.4f z:%.4f", m_pos.x, m_pos.y, m_pos.z);
-
 	// 運び状態を解除する
 	if (GetAsyncKeyState('F') & 0x8000)
 	{
@@ -320,6 +340,8 @@ void Player::Update()
 				}
 				// 状態の切り替え
 				m_situationType &= (~SituationType::Carry);
+				// 歩き状態の解除
+				m_situationType &= (~SituationType::Walk);
 				// キーフラグ
 				m_carryKeyFlg = true;
 			}
@@ -1026,6 +1048,15 @@ void Player::HitJudgeGround()
 					m_rotationGround.hitFlg = true;
 					break;
 
+				case ObjectType::SlopeGround:
+					m_pos.y = hitPos.y;
+					// 重力
+					m_gravity = 0.03f;
+					// 空中にいない
+					m_situationType &= (~SituationType::Air);
+					m_situationType &= (~SituationType::Jump);
+					break;
+
 				default:
 					// 座標
 					m_pos.y = hitPos.y;
@@ -1582,6 +1613,8 @@ void Player::HitJudgeCarryObject()
 							m_wpCarryObject = obj;
 							// 状態の切り替え
 							m_situationType |= SituationType::Carry;
+							// 走り状態を解除
+							m_situationType &= (~SituationType::Run);
 							// キーフラグ
 							m_carryKeyFlg = true;
 						}

@@ -253,6 +253,15 @@
     <Filter Include="Src\Application\GameObject\BackGround\TitleBackGround">
       <UniqueIdentifier>{1f728cb5-dc08-4ee8-87dd-d32cee8d8272}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Title\TitlePlayer">
+      <UniqueIdentifier>{ab917bdd-c6c7-4ebb-aacb-f91c31b16f46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Ground\SlopeGround">
+      <UniqueIdentifier>{73484797-9ed1-40a5-bd86-239764b5d8d3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\StageSelectObject">
+      <UniqueIdentifier>{b2ab399f-2573-4087-a0d4-949a9a40b98d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -576,6 +585,15 @@
     <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h">
       <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h">
+      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.h">
+      <Filter>Src\Application\GameObject\Terrain\Ground\SlopeGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.h">
+      <Filter>Src\Application\GameObject\EventObject\StageSelectObject</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -868,6 +886,15 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp">
       <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp">
+      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Ground\SlopeGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.cpp">
+      <Filter>Src\Application\GameObject\EventObject\StageSelectObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

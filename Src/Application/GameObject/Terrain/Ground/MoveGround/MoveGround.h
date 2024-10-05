@@ -17,7 +17,7 @@ public:
 	Math::Vector3 GetPos()	const override { return m_param.pos; }
 
 	// 情報をセットする
-	void SetParam(const Param _param) override;
+	void SetParam(const Param& _param) override;
 
 	// 動くオブジェクト
 	bool IsRideable() const		override { return true; }

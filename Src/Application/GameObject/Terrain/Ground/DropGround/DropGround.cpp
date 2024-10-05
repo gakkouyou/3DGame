@@ -112,7 +112,7 @@ void DropGround::OnHit()
 	}
 }
 
-void DropGround::SetParam(Param _param)
+void DropGround::SetParam(const Param& _param)
 {
 	m_param.startPos	= _param.startPos;
 	m_param.pos			= _param.startPos;

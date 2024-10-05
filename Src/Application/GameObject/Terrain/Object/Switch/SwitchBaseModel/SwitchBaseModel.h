@@ -10,7 +10,7 @@ public:
 
 	void Init()	override;
 
-	void SetParam(const Param _param)	override;
+	void SetParam(const Param& _param)	override;
 
 	void SetSwitch(const std::weak_ptr<TerrainBase> _wpSwitch) { m_wpSwitch = _wpSwitch; }
 

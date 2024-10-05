@@ -232,9 +232,12 @@ void CarryObjectController::MouseSelect()
 		// 当たったオブジェクトのリスト
 		std::vector<std::weak_ptr<CarryObjectBase>> hitObjList;
 
+		int listSize = m_wpObjectList.size();
+
 		// 当たり判定
-		for (auto& obj : m_wpObjectList)
+		for (int i = 0; i < listSize; i++)
 		{
+			std::weak_ptr<CarryObjectBase> obj = m_wpObjectList[i];
 			if (!obj.expired())
 			{
 				if (obj.lock()->Intersects(rayInfo, &resultList))

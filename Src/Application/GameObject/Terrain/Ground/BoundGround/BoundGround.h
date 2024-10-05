@@ -12,7 +12,7 @@ public:
 
 	void OnHit()	override;
 
-	void SetParam(Param _param) override;
+	void SetParam(const Param& _param) override;
 
 private:
 };

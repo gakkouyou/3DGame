@@ -20,7 +20,7 @@ void SwitchBaseModel::Init()
 	TerrainBase::Init();
 }
 
-void SwitchBaseModel::SetParam(Param _param)
+void SwitchBaseModel::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;
 	

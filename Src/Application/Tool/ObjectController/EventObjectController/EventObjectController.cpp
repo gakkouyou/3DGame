@@ -11,6 +11,7 @@
 #include "../../../GameObject/EventObject/Candy/Candy.h"
 #include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
 #include "../../../GameObject/EventObject/WarpPoint/WarpPoint.h"
+#include "../../../GameObject/EventObject/StageSelectObject/StageSelectObject.h"
 
 void EventObjectController::Update()
 {
@@ -22,7 +23,7 @@ void EventObjectController::Update()
 	if (spTargetObject)
 	{
 		DebugWindow::EventObjectParam debugParam = DebugWindow::Instance().GetEventObjectParam();
-		EventObjectBase::Param param{ debugParam.pos, debugParam.secondPos };
+		EventObjectBase::Param param{ debugParam.pos, debugParam.secondPos, debugParam.stageNum };
 		spTargetObject->SetParam(param);
 	}
 
@@ -136,12 +137,23 @@ void EventObjectController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.WarpPoint);
 				break;
+
+				// ステージセレクト用の場合
+			case ObjectType::StageSelectObject:
+				// タイプのセット
+				data.type = "StageSelectObject";
+				// カウントを進める
+				m_objectCount.StageSelectObject++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.StageSelectObject);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
 			data.pos		= spTargetObject->GetParam().basePos;	// 座標
 			data.secondPos	= spTargetObject->GetParam().secondPos;	// 二つ目の座標
+			data.stageNum	= spTargetObject->GetParam().stageNum;	// ステージ数
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
@@ -171,6 +183,7 @@ void EventObjectController::ConfirmedObject()
 			}
 			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
 			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
+			m_dataList[num].stageNum	= spTargetObject->GetParam().stageNum;	// ステージ数
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
@@ -203,12 +216,12 @@ void EventObjectController::DeleteObject()
 	}
 }
 
-void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
+void EventObjectController::CreateObject(ObjectType _object)
 {
 	switch (_object)
 	{
 	// ゴール
-	case KdGameObject::ObjectType::Goal:
+	case ObjectType::Goal:
 	{
 		std::shared_ptr<Goal> object = std::make_shared<Goal>();
 		object->Init();
@@ -218,7 +231,7 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 回復アイテム
-	case KdGameObject::ObjectType::HealItem:
+	case ObjectType::HealItem:
 	{
 		std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
 		object->Init();
@@ -228,7 +241,7 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// キャンディー
-	case KdGameObject::ObjectType::Candy:
+	case ObjectType::Candy:
 	{
 		std::shared_ptr<Candy> object = std::make_shared<Candy>();
 		object->Init();
@@ -238,7 +251,7 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// セーブポイント
-	case KdGameObject::ObjectType::SavePoint:
+	case ObjectType::SavePoint:
 	{
 		std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
 		object->Init();
@@ -248,9 +261,19 @@ void EventObjectController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// ワープポイント
-	case KdGameObject::ObjectType::WarpPoint:
+	case ObjectType::WarpPoint:
 	{
 		std::shared_ptr<WarpPoint> object = std::make_shared<WarpPoint>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// ステージセレクト用
+	case ObjectType::StageSelectObject:
+	{
+		std::shared_ptr<StageSelectObject> object = std::make_shared<StageSelectObject>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -294,9 +317,12 @@ void EventObjectController::MouseSelect()
 		// 当たったオブジェクトのリスト
 		std::vector<std::weak_ptr<EventObjectBase>> hitObjList;
 
+		int listSize = m_wpObjectList.size();
+
 		// 当たり判定
-		for (auto& obj : m_wpObjectList)
+		for (int i = 0; i < listSize; i++)
 		{
+			std::weak_ptr<EventObjectBase> obj = m_wpObjectList[i];
 			if (!obj.expired())
 			{
 				if (obj.lock()->Intersects(rayInfo, &resultList))
@@ -441,6 +467,26 @@ void EventObjectController::BeginCreateObject()
 			// リストに追加
 			m_wpObjectList.push_back(object);
 		}
+		// ステージセレクト用
+		else if (data.type == "StageSelectObject")
+		{
+			std::shared_ptr<StageSelectObject> object = std::make_shared<StageSelectObject>();
+			// パラメータをセットする
+			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.stageNum };
+			object->SetParam(setParam);
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.StageSelectObject++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.StageSelectObject);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
 	}
 }
 
@@ -501,6 +547,9 @@ void EventObjectController::CSVLoader()
 			case 7:
 				data.secondPos.z = stof(commaString);
 				break;
+
+			case 8:
+				data.stageNum = stoi(commaString);
 			}
 			cnt++;
 		}
@@ -529,6 +578,9 @@ void EventObjectController::CSVWriter()
 		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
 
 		// 二つ目の座標
-		ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << std::endl;
+		ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << ",";
+
+		// ステージ数
+		ofs << data.stageNum << std::endl;
 	}
 }

@@ -63,7 +63,7 @@ void Switch::OnHit()
 	}
 }
 
-void Switch::SetParam(Param _param)
+void Switch::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;
 

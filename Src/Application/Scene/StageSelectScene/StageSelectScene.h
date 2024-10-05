@@ -28,7 +28,7 @@ private:
 	std::weak_ptr<StageSelectCamera> m_wpCamera;
 
 	// プレイヤー
-	std::weak_ptr<StageSelectPlayer> m_wpPlayer;
+	std::weak_ptr<Player> m_wpPlayer;
 
 	// シーンチェンジ
 	std::weak_ptr<SceneChange> m_wpSceneChange;

@@ -76,6 +76,7 @@ private:
 		int Propeller		= 0;
 		int Switch			= 0;
 		int Door			= 0;
+		int SlopeGround		= 0;
 	};
 
 	Count m_objectCount;

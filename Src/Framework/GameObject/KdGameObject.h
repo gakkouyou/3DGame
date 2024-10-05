@@ -88,6 +88,7 @@ public:
 		Propeller,		// プロペラ
 		Switch,			// スイッチ
 		Door,			// ドア
+		SlopeGround,	// 坂
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
@@ -97,6 +98,7 @@ public:
 		Candy,			// コイン的な
 		SavePoint,		// セーブポイント
 		WarpPoint,		// ワープポイント
+		StageSelectObject,	// ステージセレクトのオブジェクト
 
 		Box,			// 箱
 		BoxEnemy,		// 箱の敵

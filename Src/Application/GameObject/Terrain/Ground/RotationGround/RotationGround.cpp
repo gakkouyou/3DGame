@@ -81,7 +81,7 @@ void RotationGround::Init()
 	m_drawType = eDrawTypeLit;
 }
 
-void RotationGround::SetParam(Param _param)
+void RotationGround::SetParam(const Param& _param)
 {
 	// 座標
 	m_param.pos			= _param.startPos;

@@ -9,5 +9,5 @@ public:
 	
 	void Init()		override;
 
-	void SetParam(const Param _param) override;
+	void SetParam(const Param& _param) override;
 };

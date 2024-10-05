@@ -22,7 +22,7 @@ void FencePillar::Init()
 	TerrainBase::Init();
 }
 
-void FencePillar::SetParam(Param _param)
+void FencePillar::SetParam(const Param& _param)
 {
 	m_param.pos		= _param.startPos;
 	m_param.startPos= _param.startPos;

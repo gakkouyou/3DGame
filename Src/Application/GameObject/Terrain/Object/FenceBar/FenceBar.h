@@ -10,7 +10,7 @@ public:
 	void Init()	override;
 
 	// 地形のパラメータセット関数
-	void SetParam(const Param _param)	override;
+	void SetParam(const Param& _param)	override;
 
 	// 乗った際にカメラが追尾すべきかすべきでないか
 	virtual bool IsCameraTracking() { return false; }

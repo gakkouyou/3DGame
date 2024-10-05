@@ -18,6 +18,7 @@
 #include "../../../GameObject/Terrain/Object/Door/RightDoor/RightDoor.h"
 #include "../../../GameObject/Terrain/Object/Door/LeftDoor/LeftDoor.h"
 #include "../../../GameObject/Terrain/Object/Door/DoorWall/DoorWall.h"
+#include "../../../GameObject/Terrain/Ground/SlopeGround/SlopeGround.h"
 
 void TerrainController::Update()
 {
@@ -216,6 +217,16 @@ void TerrainController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Door);
 				break;
+
+				// 坂の床の場合
+			case ObjectType::SlopeGround:
+				// タイプのセット
+				data.type = "SlopeGround";
+				// カウントを進める
+				m_objectCount.SlopeGround++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.SlopeGround);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -281,7 +292,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	switch (_object)
 	{
 		// 通常の床
-	case KdGameObject::ObjectType::NormalGround:
+	case ObjectType::NormalGround:
 	{
 		std::shared_ptr<NormalGround> object = std::make_shared<NormalGround>();
 		object->Init();
@@ -291,7 +302,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 跳ねる床
-	case KdGameObject::ObjectType::BoundGround:
+	case ObjectType::BoundGround:
 	{
 		std::shared_ptr<BoundGround> object = std::make_shared<BoundGround>();
 		object->Init();
@@ -301,7 +312,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 動く床
-	case KdGameObject::ObjectType::MoveGround:
+	case ObjectType::MoveGround:
 	{
 		std::shared_ptr<MoveGround> object = std::make_shared<MoveGround>();
 		object->Init();
@@ -311,7 +322,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 回る床
-	case KdGameObject::ObjectType::RotationGround:
+	case ObjectType::RotationGround:
 	{
 		std::shared_ptr<RotationGround> object = std::make_shared<RotationGround>();
 		object->Init();
@@ -321,7 +332,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 柵の柱
-	case KdGameObject::ObjectType::FencePillar:
+	case ObjectType::FencePillar:
 	{
 		std::shared_ptr<FencePillar> object = std::make_shared<FencePillar>();
 		object->Init();
@@ -331,7 +342,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 柵の棒
-	case KdGameObject::ObjectType::FenceBar:
+	case ObjectType::FenceBar:
 	{
 		std::shared_ptr<FenceBar> object = std::make_shared<FenceBar>();
 		object->Init();
@@ -341,7 +352,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// 落ちる床
-	case KdGameObject::ObjectType::DropGround:
+	case ObjectType::DropGround:
 	{
 		std::shared_ptr<DropGround> object = std::make_shared<DropGround>();
 		object->Init();
@@ -351,7 +362,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// プロペラ
-	case KdGameObject::ObjectType::Propeller:
+	case ObjectType::Propeller:
 	{
 		std::shared_ptr<Propeller> object = std::make_shared<Propeller>();
 		object->Init();
@@ -361,7 +372,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// スイッチ
-	case KdGameObject::ObjectType::Switch:
+	case ObjectType::Switch:
 	{
 		std::shared_ptr<Switch> object = std::make_shared<Switch>();
 		object->Init();
@@ -380,7 +391,7 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	}
 
 	// ドア
-	case KdGameObject::ObjectType::Door:
+	case ObjectType::Door:
 	{
 		std::shared_ptr<RightDoor> object = std::make_shared<RightDoor>();
 		object->Init();
@@ -401,6 +412,17 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 		}
 		break;
 	}
+
+	// 坂
+	case ObjectType::SlopeGround:
+	{
+		std::shared_ptr<SlopeGround> object = std::make_shared<SlopeGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
 	}
 }
 
@@ -664,6 +686,29 @@ void TerrainController::BeginCreateObject()
 				m_wpTerrainList.push_back(doorWall);
 			}
 		}
+		// 坂
+		else if (data.type == "SlopeGround")
+			{
+				std::shared_ptr<SlopeGround> object = std::make_shared<SlopeGround>();
+				object->Init();
+				SceneManager::Instance().AddObject(object);
+				// カウントを進める
+				m_objectCount.SlopeGround++;
+				// 名前の数値をリセットする
+				std::string name = data.type + std::to_string(m_objectCount.SlopeGround);
+				// 名前をセットする
+				object->SetObjectName(name);
+				// 配列の名前を変更する
+				data.name = name;
+				// パラメータセット
+				param.startPos = data.pos;	// 座標
+				param.scale = data.scale;	// 拡縮
+				param.degAng = data.degAng;	// 回転
+				// 座標をセットする
+				object->SetParam(param);
+				// リストに追加
+				m_wpTerrainList.push_back(object);
+			}
 	}
 
 	// スイッチにターゲットをセットする処理
@@ -862,10 +907,13 @@ void TerrainController::MouseSelect()
 		// 当たったオブジェクトのリスト
 		std::vector<std::weak_ptr<TerrainBase>> hitObjList;
 
+		int listSize = m_wpTerrainList.size();
+
 		// 当たり判定
-		for (auto& obj : m_wpTerrainList)
+		for (int i = 0; i < listSize; i++)
 		{
-			if(!obj.expired())
+			std::weak_ptr<TerrainBase> obj = m_wpTerrainList[i];
+			if (obj.expired() == false)
 			{
 				if (obj.lock()->Intersects(rayInfo, &resultList))
 				{

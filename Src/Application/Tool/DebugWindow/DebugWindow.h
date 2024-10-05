@@ -66,6 +66,7 @@ public:
 	{
 		Math::Vector3 pos = Math::Vector3::Zero;
 		Math::Vector3 secondPos = Math::Vector3::Zero;
+		int stageNum = 0;
 	};
 	// 運べるオブジェクト用のパラメータゲット関数
 	const EventObjectParam GetEventObjectParam() const { return m_eventObjectParam; }

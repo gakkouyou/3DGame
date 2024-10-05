@@ -68,7 +68,7 @@ void RightDoor::Active()
 	}
 }
 
-void RightDoor::SetParam(Param _param)
+void RightDoor::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;
 	m_param.pos = _param.startPos;

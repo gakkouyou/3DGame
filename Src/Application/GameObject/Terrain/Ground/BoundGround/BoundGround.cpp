@@ -34,7 +34,7 @@ void BoundGround::OnHit()
 	
 }
 
-void BoundGround::SetParam(Param _param)
+void BoundGround::SetParam(const Param& _param)
 {
 	m_param.pos			= _param.startPos;
 	m_param.startPos	= _param.startPos;

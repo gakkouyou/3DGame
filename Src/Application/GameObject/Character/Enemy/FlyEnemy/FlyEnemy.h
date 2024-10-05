@@ -12,7 +12,7 @@ public:
 	void PostUpdate()					override;
 	void Init()							override;
 
-	void SetParam(Param _param)	override;
+	void SetParam(const Param _param)	override;
 
 	void OnHit()				override;
 

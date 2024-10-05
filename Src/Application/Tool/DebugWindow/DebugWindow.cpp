@@ -242,6 +242,14 @@ void DebugWindow::TerrainWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::Door);
 			}
+			ImGui::SameLine();
+
+			// 坂
+			if (ImGui::Button("SlopeGround"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::SlopeGround);
+			}
 
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 
@@ -504,6 +512,14 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::WarpPoint);
 			}
+			ImGui::SameLine();
+			
+			// ステージセレクトのオブジェクト
+			if (ImGui::Button("StageSelectObject"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::StageSelectObject);
+			}
 
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
@@ -517,6 +533,13 @@ void DebugWindow::EventObjectWindow()
 				ImGui::DragFloat("OutPos.x", &m_eventObjectParam.secondPos.x, 0.25f);
 				ImGui::DragFloat("OutPos.y", &m_eventObjectParam.secondPos.y, 0.25f);
 				ImGui::DragFloat("OutPos.z", &m_eventObjectParam.secondPos.z, 0.25f);
+			}
+
+			// ステージセレクトのオブジェクト用
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::StageSelectObject)
+			{
+				// ステージの数
+				ImGui::InputInt("StageNum", &m_eventObjectParam.stageNum, 1);
 			}
 		}
 	}

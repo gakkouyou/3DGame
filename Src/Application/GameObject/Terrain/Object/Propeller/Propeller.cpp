@@ -72,7 +72,7 @@ void Propeller::Init()
 	TerrainBase::Init();
 }
 
-void Propeller::SetParam(Param _param)
+void Propeller::SetParam(const Param& _param)
 {
 	m_param.pos			= _param.startPos;
 	m_param.startPos	= _param.startPos;

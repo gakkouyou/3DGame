@@ -19,7 +19,7 @@ void DoorWall::Init()
 	TerrainBase::Init();
 }
 
-void DoorWall::SetParam(Param _param)
+void DoorWall::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;
 	m_param.pos = _param.startPos;

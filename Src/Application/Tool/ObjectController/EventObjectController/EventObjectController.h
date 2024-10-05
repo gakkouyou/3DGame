@@ -17,7 +17,7 @@ public:
 	void Reset()		override;
 
 	// CSVファイルを指定する
-	void SetCSV(std::string& _fileName) { m_fileName = _fileName; }
+	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
 
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
@@ -71,6 +71,7 @@ private:
 		int Candy		= 0;
 		int SavePoint	= 0;
 		int WarpPoint	= 0;
+		int StageSelectObject = 0;
 	};
 
 	Count m_objectCount;
@@ -83,6 +84,7 @@ private:
 		std::string name;
 		Math::Vector3 pos;
 		Math::Vector3 secondPos;
+		int stageNum;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;

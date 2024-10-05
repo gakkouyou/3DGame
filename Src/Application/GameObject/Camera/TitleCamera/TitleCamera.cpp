@@ -1,4 +1,5 @@
 ﻿#include "TitleCamera.h"
+#include "Application/main.h"
 
 void TitleCamera::Update()
 {
@@ -65,14 +66,25 @@ void TitleCamera::Update()
 	// カメラの回転
 	m_mRotation = GetRotationMatrix();
 
+	static float angle = 0;
+	angle += 0.5f;
+	if (angle >= 360)
+	{
+		angle -= 360;
+	}
+
 	// ローカル行列変更
-	Math::Matrix transMat = Math::Matrix::CreateTranslation(0, 3.0f, -5.0f);
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(0 + (sin(DirectX::XMConvertToRadians(angle))) * 0.5f, 10.0f, -20.0f);
 
 	m_mWorld = m_mRotation * transMat * debugMat;
+
+	Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", GetPos().x, GetPos().y, GetPos().z);
 }
 
 void TitleCamera::Init()
 {
 	// 親クラスの初期化呼び出し
 	CameraBase::Init();
+
+	m_DegAng = { 20.0f, 0, 0 };
 }

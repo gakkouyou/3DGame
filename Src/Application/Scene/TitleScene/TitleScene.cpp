@@ -5,6 +5,7 @@
 #include "../../GameObject/Title/House/House.h"
 #include "../../GameObject/BackGround/TitleBackGround/TitleBackGround.h"
 #include "../../GameObject/Camera/TitleCamera/TitleCamera.h"
+#include "../../GameObject/Title/TitlePlayer/TitlePlayer.h"
 
 void TitleScene::Event()
 {
@@ -34,6 +35,9 @@ void TitleScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
+
 	// シーンチェンジ
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
@@ -59,4 +63,10 @@ void TitleScene::Init()
 	AddObject(titleCamera);
 	// カメラの情報を保持する
 	//m_wpCamera = tpsCamera;
+
+	// プレイヤー
+	std::shared_ptr<TitlePlayer> player = std::make_shared<TitlePlayer>();
+	player->SetBedPos(house->GetBedPos());
+	player->Init();
+	AddObject(player);
 }

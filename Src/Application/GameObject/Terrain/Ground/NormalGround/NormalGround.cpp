@@ -1,10 +1,5 @@
 ﻿#include "NormalGround.h"
 
-//void NormalGround::Update()
-//{
-//	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
-//}
-
 void NormalGround::Init()
 {
 	// モデル読み込み
@@ -12,7 +7,6 @@ void NormalGround::Init()
 	{
 		m_spModel = std::make_shared<KdModelData>();
 		m_spModel->Load("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
-		//m_spModel->Load("Asset/Models/Terrain/Ground/test/normalGround.gltf");
 	}
 
 	m_drawType = eDrawTypeLit;
@@ -27,7 +21,7 @@ void NormalGround::Init()
 	TerrainBase::Init();
 }
 
-void NormalGround::SetParam(Param _param)
+void NormalGround::SetParam(const Param& _param)
 {
 	m_param.pos			= _param.startPos;
 	m_param.startPos	= _param.startPos;

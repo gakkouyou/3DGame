@@ -243,9 +243,12 @@ void EnemyController::MouseSelect()
 		// 当たったオブジェクトのリスト
 		std::vector<std::weak_ptr<EnemyBase>> hitObjList;
 
+		int listSize = m_wpEnemyList.size();
+
 		// 当たり判定
-		for (auto& obj : m_wpEnemyList)
+		for (int i = 0; i < listSize; i++)
 		{
+			std::weak_ptr<EnemyBase> obj = m_wpEnemyList[i];
 			if (!obj.expired())
 			{
 				if (obj.lock()->Intersects(rayInfo, &resultList))

@@ -212,7 +212,7 @@ private:
 
 	// 運んでいるオブジェクト
 	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
-\
+
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
 

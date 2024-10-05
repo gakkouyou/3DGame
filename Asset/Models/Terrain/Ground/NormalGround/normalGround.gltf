@@ -26,24 +26,32 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Material",
+			"name":"ground",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.800000011920929,
-					0.800000011920929,
-					0.800000011920929,
-					1
-				],
+				"baseColorTexture":{
+					"index":0
+				},
 				"metallicFactor":0,
 				"roughnessFactor":0.5
 			}
 		},
 		{
 			"doubleSided":true,
-			"name":"\u30de\u30c6\u30ea\u30a2\u30eb",
+			"name":"wall",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
-					"index":0
+					"index":1
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
+			}
+		},
+		{
+			"doubleSided":true,
+			"name":"under",
+			"pbrMetallicRoughness":{
+				"baseColorTexture":{
+					"index":2
 				},
 				"metallicFactor":0,
 				"roughnessFactor":0.5
@@ -71,6 +79,15 @@
 					},
 					"indices":7,
 					"material":1
+				},
+				{
+					"attributes":{
+						"POSITION":8,
+						"NORMAL":9,
+						"TEXCOORD_0":10
+					},
+					"indices":11,
+					"material":2
 				}
 			]
 		}
@@ -79,13 +96,31 @@
 		{
 			"sampler":0,
 			"source":0
+		},
+		{
+			"sampler":0,
+			"source":1
+		},
+		{
+			"sampler":0,
+			"source":2
 		}
 	],
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"maptile_sogen_01",
-			"uri":"maptile_sogen_01.png"
+			"name":"grass_tiles",
+			"uri":"grass_tiles.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"grassWall",
+			"uri":"grassWall.png"
+		},
+		{
+			"mimeType":"image/png",
+			"name":"grassUnder",
+			"uri":"grassUnder.png"
 		}
 	],
 	"accessors":[
@@ -95,12 +130,12 @@
 			"count":4,
 			"max":[
 				1,
-				-1,
+				1,
 				1
 			],
 			"min":[
 				-1,
-				-1,
+				1,
 				-1
 			],
 			"type":"VEC3"
@@ -126,7 +161,7 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":20,
+			"count":16,
 			"max":[
 				1,
 				1,
@@ -142,19 +177,53 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":20,
+			"count":16,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":20,
+			"count":16,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":30,
+			"count":24,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
+			"count":4,
+			"max":[
+				1,
+				-1,
+				1
+			],
+			"min":[
+				-1,
+				-1,
+				-1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":9,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":10,
+			"componentType":5126,
+			"count":4,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":11,
+			"componentType":5123,
+			"count":6,
 			"type":"SCALAR"
 		}
 	],
@@ -185,26 +254,50 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":240,
+			"byteLength":192,
 			"byteOffset":140,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":240,
-			"byteOffset":380,
+			"byteLength":192,
+			"byteOffset":332,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":160,
-			"byteOffset":620,
+			"byteLength":128,
+			"byteOffset":524,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":60,
-			"byteOffset":780,
+			"byteLength":48,
+			"byteOffset":652,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":700,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":748,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":32,
+			"byteOffset":796,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":828,
 			"target":34963
 		}
 	],

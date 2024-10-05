@@ -53,7 +53,7 @@ void LeftDoor::Active()
 	}
 }
 
-void LeftDoor::SetParam(Param _param)
+void LeftDoor::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;
 	m_param.pos = _param.startPos;

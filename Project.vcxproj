@@ -174,6 +174,7 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h" />
+    <ClInclude Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.h" />
     <ClInclude Include="Src\Application\GameObject\Pause\Pause.h" />
     <ClInclude Include="Src\Application\GameObject\Result\Result.h" />
@@ -184,6 +185,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.h" />
@@ -199,6 +201,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.h" />
     <ClInclude Include="Src\Application\GameObject\Title\House\House.h" />
+    <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h" />
     <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h" />
     <ClInclude Include="Src\Application\main.h" />
@@ -276,6 +279,7 @@
     <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp" />
+    <ClCompile Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.cpp" />
     <ClCompile Include="Src\Application\GameObject\Pause\Pause.cpp" />
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp" />
@@ -286,6 +290,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.cpp" />
@@ -301,6 +306,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Title\House\House.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp" />
     <ClCompile Include="Src\Application\main.cpp" />

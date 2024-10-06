@@ -4,6 +4,8 @@
 
 void Goal::Update()
 {
+	if (m_pauseFlg) return;
+
 	if (m_setParamFlg == true)
 	{
 		m_setParamFlg = false;
@@ -12,56 +14,68 @@ void Goal::Update()
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
-	if (!m_goalFlg)
-	{
-		// 上下にふよふよさせる
-		// sinカーブ
-		m_sinAngle += 1.0f;
-		if (m_sinAngle >= 360)
-		{
-			m_sinAngle -= 360;
-		}
+	//if (!m_goalFlg)
+	//{
+	//	// 上下にふよふよさせる
+	//	// sinカーブ
+	//	m_sinAngle += 1.0f;
+	//	if (m_sinAngle >= 360)
+	//	{
+	//		m_sinAngle -= 360;
+	//	}
 
-		Math::Vector3 pos = m_pos;
-		pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
+	//	Math::Vector3 pos = m_pos;
+	//	pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
 
-		// 回転させる
-		m_degAng += m_moveDegAng;
-		if (m_degAng >= 360.0f)
-		{
-			m_degAng -= 360.0f;
-		}
+	//	// 回転させる
+	//	m_degAng += m_moveDegAng;
+	//	if (m_degAng >= 360.0f)
+	//	{
+	//		m_degAng -= 360.0f;
+	//	}
 
-		Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
+	//	Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
 
-		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+	//	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-		m_mWorld = scaleMat * rotMat * transMat;
-	}
-	else
-	{
-		m_goalStayCount++;
-		if (m_goalStayCount > m_goalStayTime)
-		{
-			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+	//	m_mWorld = scaleMat * rotMat * transMat;
+	//}
+	//else
+	//{
+	//	m_goalStayCount++;
+	//	if (m_goalStayCount > m_goalStayTime)
+	//	{
+	//		Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-			m_mWorld = scaleMat * transMat;
-		}
-	}
+	//		m_mWorld = scaleMat * transMat;
+	//	}
+	//}
 
-	if (m_flg == false)
-	{
-		m_wpSound.lock()->SetPos(m_pos);
-		//m_wpSound.lock()->Play(true);
-		m_flg = true;
-	}
+	//if (m_flg == false)
+	//{
+	//	m_wpSound.lock()->SetPos(m_pos);
+	//	//m_wpSound.lock()->Play(true);
+	//	m_flg = true;
+	//}
 }
 
-void Goal::DrawUnLit()
+void Goal::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().UndoRasterizerState();
+	}
+}
+
+void Goal::DrawLit()
+{
+	if (m_spModel)
+	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 
@@ -72,7 +86,8 @@ void Goal::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+		//m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+		m_spModel->Load("Asset/Models/EventObject/Clock/Bell/bell.gltf");
 	}
 
 	// コライダー

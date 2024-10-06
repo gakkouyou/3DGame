@@ -2,12 +2,13 @@
 
 #include"../BaseScene/BaseScene.h"
 
-class StageSelectCamera;
+class TPSCamera;
 class TerrainController;
 class StageSelectPlayer;
 class SceneChange;
 class StageSelectTexture;
 class StageSelectUI;
+class Player;
 
 class StageSelectScene : public BaseScene
 {
@@ -24,8 +25,11 @@ private:
 
 	void Event() override;
 
+	// ステージセレクトシーンがスタートしたときの処理
+	void StartScene();
+
 	// TPSカメラ
-	std::weak_ptr<StageSelectCamera> m_wpCamera;
+	std::weak_ptr<TPSCamera> m_wpCamera;
 
 	// プレイヤー
 	std::weak_ptr<Player> m_wpPlayer;

@@ -194,6 +194,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel\SwitchBaseModel.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\TerrainBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.h" />
@@ -299,6 +300,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Propeller\Propeller.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\Switch.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Switch\SwitchBaseModel\SwitchBaseModel.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\TerrainBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.cpp" />

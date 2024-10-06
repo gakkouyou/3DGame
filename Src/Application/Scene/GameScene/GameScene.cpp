@@ -257,13 +257,13 @@ void GameScene::Init()
 
 	// 地形作成
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
-	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage + 1) + ".csv";
+	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage) + ".csv";
 	// CSVファイルを指定する
 	terrainController->SetCSV(csvName);
 
 	// 敵作成
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
-	csvName = "Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage + 1) + ".csv";
+	csvName = "Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage) + ".csv";
 	enemyController->SetCSV(csvName);
 	// enemyControllerにプレイヤーを渡す
 	enemyController->SetPlayer(player);
@@ -275,7 +275,7 @@ void GameScene::Init()
 	// 運ぶオブジェクト作成
 	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
 	// CSVファイルを指定する
-	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage + 1) + ".csv");
+	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage) + ".csv");
 	// Initより先に書く
 	carryObjectController->SetTerrainController(terrainController);
 	carryObjectController->SetPlayer(player);
@@ -285,7 +285,7 @@ void GameScene::Init()
 	// EventObject作成
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
 	// CSVファイルを指定する
-	csvName = "Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage + 1) + ".csv";
+	csvName = "Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage) + ".csv";
 	eventObjectController->SetCSV(csvName);
 	// Initより先に書く
 	eventObjectController->SetPlayer(player);

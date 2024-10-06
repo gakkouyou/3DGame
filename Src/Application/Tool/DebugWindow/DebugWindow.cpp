@@ -251,6 +251,13 @@ void DebugWindow::TerrainWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::SlopeGround);
 			}
 
+			// 透明な壁
+			if (ImGui::Button("TransparentWall"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::TransparentWall);
+			}
+
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 
 			// スイッチならターゲットを設定できるようにする

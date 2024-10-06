@@ -1,3 +1,3 @@
-StageSelectObject,StageSelectObject1,0,1.25,0,0,0,0,1
-StageSelectObject,StageSelectObject2,3.75,1.25,0,0,0,0,2
-StageSelectObject,StageSelectObject3,7.25,1.25,0,0,0,0,3
+StageSelectObject,StageSelectObject1,0,0.25,0,0,0,0,1
+StageSelectObject,StageSelectObject2,0,2.25,17.5,0,0,0,2
+StageSelectObject,StageSelectObject3,20,4.25,17.25,0,0,0,3

@@ -5,14 +5,16 @@
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 
+#include "../../GameObject/EventObject/EventObjectBase.h"
+
 #include "../../GameObject/SceneChange/SceneChange.h"
-#include "../../GameObject/Camera/StageSelectCamera/StageSelectCamera.h"
-#include "../../GameObject/Character/StageSelectPlayer/StageSelectPlayer.h"
+#include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
+//#include "../../GameObject/Character/StageSelectPlayer/StageSelectPlayer.h"
 #include "../../GameObject/BackGround/BackGround.h"
 #include "../../GameObject/Character/Player/Player.h"
 
-#include "../../GameObject/StageSelectTexture/StageSelectTexture.h"
-#include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
+//#include "../../GameObject/StageSelectTexture/StageSelectTexture.h"
+//#include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
 
 void StageSelectScene::Event()
 {
@@ -33,20 +35,11 @@ void StageSelectScene::Event()
 	// シーンが開始した時の処理
 	if (!m_sceneStartFlg)
 	{
-		if (!m_wpSceneChange.expired())
-		{
-			m_wpSceneChange.lock()->StartScene();
-
-			if (m_wpSceneChange.lock()->GetFinishFlg())
-			{
-				m_sceneStartFlg = true;
-				m_wpSceneChange.lock()->Reset();
-			}
-		}
+		StartScene();
 	}
 
 	// シーンを変える
-	if (GetAsyncKeyState('L') & 0x8000)
+	if (m_wpPlayer.lock()->GetBeginGameScene())
 	{
 		if (!m_wpSceneChange.expired())
 		{
@@ -59,28 +52,55 @@ void StageSelectScene::Event()
 		// もしフェードアウト、イン中ならステージを変えれないようにする
 		if (m_wpSceneChange.lock()->GetNowSceneChange())
 		{
-			if (!m_wpStageSelectTexture.expired())
+	/*		if (!m_wpStageSelectTexture.expired())
 			{
 				m_wpStageSelectTexture.lock()->SetStopFlg(true);
-			}
+			}*/
 		}
 		else
 		{
-			if (!m_wpStageSelectTexture.expired())
+	/*		if (!m_wpStageSelectTexture.expired())
 			{
 				m_wpStageSelectTexture.lock()->SetStopFlg(false);
-			}
+			}*/
 		}
 
 		// フェードアウト終了後シーンをゲームシーンに
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			// ステージをセット
-			if (!m_wpStageSelectTexture.expired())
-			{
-				SceneManager::Instance().SetNowStage(m_wpStageSelectTexture.lock()->GetNowStage());
-			}
+			//// ステージをセット
+			//if (!m_wpStageSelectTexture.expired())
+			//{
+			//	SceneManager::Instance().SetNowStage(m_wpStageSelectTexture.lock()->GetNowStage());
+			//}
 			SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
+		}
+	}
+}
+
+void StageSelectScene::StartScene()
+{
+	if (!m_wpSceneChange.expired())
+	{
+		m_wpSceneChange.lock()->StartScene(5);
+
+		if (m_wpSceneChange.lock()->GetFinishFlg())
+		{
+			m_sceneStartFlg = true;
+			m_wpSceneChange.lock()->Reset();
+			// フェードインが終了したらプレイヤーを動けるようにする
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(false);
+			}
+		}
+		else
+		{
+			// 終わるまでプレイヤーを止める
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(true);
+			}
 		}
 	}
 }
@@ -100,11 +120,14 @@ void StageSelectScene::Init()
 	m_wpPlayer = player;
 
 	// TPSカメラ
-	std::shared_ptr<StageSelectCamera> camera = std::make_shared<StageSelectCamera>();
-	camera->Init();
+	std::shared_ptr<TPSCamera> camera = std::make_shared<TPSCamera>();
+	// カメラにターゲットをセット
+	camera->SetTarget(player);
 	AddObject(camera);
 	// カメラの情報を保持する
 	m_wpCamera = camera;
+
+	player->SetCamera(camera);
 
 	// オブジェクトコントローラーにカメラを渡す
 	//objectController->SetCamera(camera);
@@ -145,8 +168,29 @@ void StageSelectScene::Init()
 	AddObject(objectController);
 
 	objectController->SetCamera(camera);
+	eventObjectController->SetCamera(camera);
+
+	// プレイヤーにTerrainControllerを渡す
+	player->SetTerrainController(objectController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
 	DebugWindow::Instance().SetEventObjectController(eventObjectController);	// EventObject
+
+	// プレイヤーのスポーン位置を設定する
+	for (auto& obj : eventObjectController->GetObjList())
+	{
+		if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::StageSelectObject)
+		{
+			if (obj.lock()->GetParam().stageNum == SceneManager::Instance().GetNowStage())
+			{
+				Math::Vector3 pos = obj.lock()->GetPos();
+				pos.z -= 2.0f;
+				player->SetPos(pos);
+			}
+		}
+	}
+
+	// プレイヤーの座標が確定してから初期化する
+	camera->Init();
 }

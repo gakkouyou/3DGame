@@ -19,6 +19,7 @@
 #include "../../../GameObject/Terrain/Object/Door/LeftDoor/LeftDoor.h"
 #include "../../../GameObject/Terrain/Object/Door/DoorWall/DoorWall.h"
 #include "../../../GameObject/Terrain/Ground/SlopeGround/SlopeGround.h"
+#include "../../../GameObject/Terrain/Object/TransparentWall/TransparentWall.h"
 
 void TerrainController::Update()
 {
@@ -227,6 +228,16 @@ void TerrainController::ConfirmedObject()
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.SlopeGround);
 				break;
+
+				// 透明な壁の場合
+			case ObjectType::TransparentWall:
+				// タイプのセット
+				data.type = "TransparentWall";
+				// カウントを進める
+				m_objectCount.TransparentWall++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.TransparentWall);
+				break;
 			}
 			// 名前をセットする
 			spTargetObject->SetObjectName(data.name);
@@ -417,6 +428,16 @@ void TerrainController::CreateObject(KdGameObject::ObjectType _object)
 	case ObjectType::SlopeGround:
 	{
 		std::shared_ptr<SlopeGround> object = std::make_shared<SlopeGround>();
+		object->Init();
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 透明な壁
+	case ObjectType::TransparentWall:
+	{
+		std::shared_ptr<TransparentWall> object = std::make_shared<TransparentWall>();
 		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
@@ -688,27 +709,50 @@ void TerrainController::BeginCreateObject()
 		}
 		// 坂
 		else if (data.type == "SlopeGround")
-			{
-				std::shared_ptr<SlopeGround> object = std::make_shared<SlopeGround>();
-				object->Init();
-				SceneManager::Instance().AddObject(object);
-				// カウントを進める
-				m_objectCount.SlopeGround++;
-				// 名前の数値をリセットする
-				std::string name = data.type + std::to_string(m_objectCount.SlopeGround);
-				// 名前をセットする
-				object->SetObjectName(name);
-				// 配列の名前を変更する
-				data.name = name;
-				// パラメータセット
-				param.startPos = data.pos;	// 座標
-				param.scale = data.scale;	// 拡縮
-				param.degAng = data.degAng;	// 回転
-				// 座標をセットする
-				object->SetParam(param);
-				// リストに追加
-				m_wpTerrainList.push_back(object);
-			}
+		{
+			std::shared_ptr<SlopeGround> object = std::make_shared<SlopeGround>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.SlopeGround++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.SlopeGround);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// パラメータセット
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
+			param.degAng = data.degAng;	// 回転
+			// 座標をセットする
+			object->SetParam(param);
+			// リストに追加
+			m_wpTerrainList.push_back(object);
+		}
+		// 透明な壁
+		else if (data.type == "TransparentWall")
+		{
+			std::shared_ptr<TransparentWall> object = std::make_shared<TransparentWall>();
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.TransparentWall++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.TransparentWall);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// パラメータセット
+			param.startPos = data.pos;	// 座標
+			param.scale = data.scale;	// 拡縮
+			param.degAng = data.degAng;	// 回転
+			// 座標をセットする
+			object->SetParam(param);
+			// リストに追加
+			m_wpTerrainList.push_back(object);
+		}
 	}
 
 	// スイッチにターゲットをセットする処理

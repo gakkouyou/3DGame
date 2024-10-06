@@ -69,7 +69,7 @@ private :
 	SceneType m_nextSceneType = SceneType::StageSelect;
 
 	// プレイするステージ
-	int m_nowStage	= 3;
+	int m_nowStage	= 0;
 
 private:
 

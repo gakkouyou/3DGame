@@ -77,6 +77,7 @@ private:
 		int Switch			= 0;
 		int Door			= 0;
 		int SlopeGround		= 0;
+		int TransparentWall = 0;
 	};
 
 	Count m_objectCount;

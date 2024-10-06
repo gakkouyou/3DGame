@@ -66,6 +66,9 @@ public:
 	// 運び状態のキャンセル
 	void CancelCarryMode() { m_situationType &= (~SituationType::Carry); }
 
+	// ステージセレクトシーンからゲームシーンへ移る時のフラグ
+	const bool GetBeginGameScene() const { return m_beginGameSceneFlg; }
+
 	// 今の状況
 	enum SituationType
 	{
@@ -206,8 +209,8 @@ private:
 	// 移動前の座標
 	Math::Vector3 m_oldPos;
 
-	// 運ぶキー制御
-	bool m_carryKeyFlg = false;
+	// 何かアクションを起こすキー制御
+	bool m_actionKeyFlg = false;
 
 
 	// 運んでいるオブジェクト
@@ -224,6 +227,9 @@ private:
 
 	// リスポーン座標
 	Math::Vector3 m_respawnPos;
+
+	// ステージセレクトシーンからゲームシーンに移る時のフラグ
+	bool m_beginGameSceneFlg = false;
 
 	bool flg[4] = { false, false, false, false };
 };

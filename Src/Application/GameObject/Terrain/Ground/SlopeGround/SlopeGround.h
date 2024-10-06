@@ -10,5 +10,7 @@ public:
 
 	void Init()	override;
 
-	void SetParam(const Param& _param);
+	void SetParam(const Param& _param)	override;
+
+	void Active()	override;
 };

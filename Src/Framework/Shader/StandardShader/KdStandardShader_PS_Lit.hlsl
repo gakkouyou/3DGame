@@ -92,7 +92,8 @@ float4 main(VSOutput In) : SV_Target0
 	float3 outColor = 0;
 	
 		// 材質の拡散色　非金属ほど材質の色になり、金属ほど拡散色は無くなる
-	const float3 baseDiffuse = lerp( baseColor.rgb, float3( 0, 0, 0 ), metallic );
+	//const float3 baseDiffuse = lerp(baseColor.rgb, float3(0, 0, 0), metallic);
+	const float3 baseDiffuse = lerp(baseColor.rgb, float3(0, 0, 0), metallic);
 		// 材質の反射色　非金属ほど光の色をそのまま反射し、金属ほど材質の色が乗る
 	const float3 baseSpecular = lerp( 0.04, baseColor.rgb, metallic );
 

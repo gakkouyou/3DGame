@@ -110,6 +110,7 @@ void Player::Update()
 			else
 			{
 				m_situationType |= SituationType::Run;
+				m_situationType &= (~SituationType::Walk);
 			}
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
@@ -124,6 +125,7 @@ void Player::Update()
 			else
 			{
 				m_situationType |= SituationType::Run;
+				m_situationType &= (~SituationType::Walk);
 			}
 		}
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
@@ -138,6 +140,7 @@ void Player::Update()
 			else
 			{
 				m_situationType |= SituationType::Run;
+				m_situationType &= (~SituationType::Walk);
 			}
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
@@ -152,6 +155,7 @@ void Player::Update()
 			else
 			{
 				m_situationType |= SituationType::Run;
+				m_situationType &= (~SituationType::Walk);
 			}
 		}
 
@@ -330,7 +334,7 @@ void Player::Update()
 	{
 		if (m_situationType & SituationType::Carry)
 		{
-			if (m_carryKeyFlg == false)
+			if (m_actionKeyFlg == false)
 			{
 				if (m_wpCarryObject.expired() == false)
 				{
@@ -343,13 +347,13 @@ void Player::Update()
 				// 歩き状態の解除
 				m_situationType &= (~SituationType::Walk);
 				// キーフラグ
-				m_carryKeyFlg = true;
+				m_actionKeyFlg = true;
 			}
 		}
 	}
 	else
 	{
-		m_carryKeyFlg = false;
+		m_actionKeyFlg = false;
 	}
 
 	// 当たり判定
@@ -450,14 +454,11 @@ void Player::Update()
 		{
 		// 草の音
 		case ObjectType::NormalGround:
+		case ObjectType::SlopeGround:
 			m_walkSoundType = WalkSoundType::Grass;
 			break;
 
 		// コツコツ見たいな音
-		case ObjectType::FenceBar:
-		case ObjectType::FencePillar:
-		case ObjectType::MoveGround:
-		case ObjectType::DropGround:
 		default:
 			m_walkSoundType = WalkSoundType::Tile;
 			break;
@@ -1130,6 +1131,7 @@ void Player::HitJudgeGround()
 
 		hitFlg = false;
 		sphereInfo.m_sphere.Center.y = m_pos.y + 2.0f;
+		sphereInfo.m_sphere.Radius -= 0.05f;
 		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
@@ -1241,7 +1243,7 @@ void Player::HitJudgeGround()
 }
 
 void Player::HitJudgeEvent()
-{	
+{
 	// ボックス判定
 	{
 		// ボックス判定
@@ -1328,6 +1330,50 @@ void Player::HitJudgeEvent()
 				case ObjectType::WarpPoint:
 					m_pos = spHitObject->GetPos();
 					break;
+				}
+			}
+		}
+	}
+
+	// ステージセレクトのオブジェクトとの視野角判定
+	for (auto& obj : SceneManager::Instance().GetObjList())
+	{
+		if (obj->GetObjectType() == ObjectType::StageSelectObject)
+		{
+			m_pDebugWire->AddDebugSphere(obj->GetPos(), 2.0f);
+
+			// プレイヤーとオブジェクトの距離
+			Math::Vector3 vec = obj->GetPos() - m_pos;
+			// プレイヤーの正面
+			Math::Vector3 forwardVec = m_mWorld.Backward();
+
+			// 設定されている距離より短かったら視野角判定
+			if (vec.Length() < 3.0f)
+			{
+				// 視野角判定
+				vec.Normalize();
+				float dot = forwardVec.Dot(vec);
+				dot = std::clamp(dot, -1.0f, 1.0f);
+				float deg = DirectX::XMConvertToDegrees(acos(dot));
+				// 視野角内ならステージに入れるようにする
+				if (deg < 90)
+				{
+					if (GetAsyncKeyState('F') & 0x8000)
+					{
+						if (m_actionKeyFlg == false)
+						{
+							obj->OnHit();
+							m_stopFlg = true;
+							m_beginGameSceneFlg = true;
+
+							// キーフラグ
+							m_actionKeyFlg = true;
+						}
+					}
+				}
+				else
+				{
+					m_actionKeyFlg == false;
 				}
 			}
 		}
@@ -1605,7 +1651,7 @@ void Player::HitJudgeCarryObject()
 					// 運んでいる状態なら処理しない
 					if ((m_situationType & SituationType::Carry) == 0)
 					{
-						if (m_carryKeyFlg == false)
+						if (m_actionKeyFlg == false)
 						{
 							// 運ばれている状態にする
 							obj.lock()->CarryFlg(true);
@@ -1616,13 +1662,13 @@ void Player::HitJudgeCarryObject()
 							// 走り状態を解除
 							m_situationType &= (~SituationType::Run);
 							// キーフラグ
-							m_carryKeyFlg = true;
+							m_actionKeyFlg = true;
 						}
 					}
 				}
 				else
 				{
-					m_carryKeyFlg == false;
+					m_actionKeyFlg == false;
 				}
 			}
 		}

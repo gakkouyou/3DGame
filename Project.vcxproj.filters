@@ -262,6 +262,9 @@
     <Filter Include="Src\Application\GameObject\EventObject\StageSelectObject">
       <UniqueIdentifier>{b2ab399f-2573-4087-a0d4-949a9a40b98d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\TransparentWall">
+      <UniqueIdentifier>{b4f0a134-f6d6-4cf1-bdd0-e38aeceeda08}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -594,6 +597,9 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.h">
       <Filter>Src\Application\GameObject\EventObject\StageSelectObject</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\TransparentWall</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -895,6 +901,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.cpp">
       <Filter>Src\Application\GameObject\EventObject\StageSelectObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\TransparentWall</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

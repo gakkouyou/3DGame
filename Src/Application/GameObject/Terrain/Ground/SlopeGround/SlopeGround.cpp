@@ -36,3 +36,8 @@ void SlopeGround::SetParam(const Param& _param)
 
 	m_setParamFlg = true;
 }
+
+void SlopeGround::Active()
+{
+
+}

@@ -153,15 +153,14 @@ void EventObjectController::ConfirmedObject()
 			// 情報をセットする
 			data.pos		= spTargetObject->GetParam().basePos;	// 座標
 			data.secondPos	= spTargetObject->GetParam().secondPos;	// 二つ目の座標
-			data.stageNum	= spTargetObject->GetParam().stageNum;	// ステージ数
-			// プレイヤーとカメラにゴールの座標を渡す
-			if (!m_wpPlayer.expired())
+			data.modelNum	= spTargetObject->GetParam().stageNum;	// ステージ数
+			if (spTargetObject->GetObjectType() == ObjectType::Goal)
 			{
-				m_wpPlayer.lock()->SetGoalPos(data.pos);
-			}
-			if (!m_wpCamera.expired())
-			{
-				m_wpCamera.lock()->SetGoalPos(data.pos);
+				// プレイヤーにゴールの座標を渡す
+				if (!m_wpPlayer.expired())
+				{
+					m_wpPlayer.lock()->SetGoalPos(data.pos);
+				}
 			}
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
@@ -183,15 +182,11 @@ void EventObjectController::ConfirmedObject()
 			}
 			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
 			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
-			m_dataList[num].stageNum	= spTargetObject->GetParam().stageNum;	// ステージ数
+			m_dataList[num].modelNum	= spTargetObject->GetParam().stageNum;	// ステージ数
 			// プレイヤーとカメラにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
 				m_wpPlayer.lock()->SetGoalPos(m_dataList[num].pos);
-			}
-			if (!m_wpCamera.expired())
-			{
-				m_wpCamera.lock()->SetGoalPos(m_dataList[num].pos);
 			}
 		}
 	}
@@ -287,7 +282,7 @@ void EventObjectController::MouseSelect()
 	if (SceneManager::Instance().GetDebug() == false) return;
 
 	// マウスでオブジェクトを選択する
-	std::shared_ptr<const TPSCamera> spCamera = m_wpCamera.lock();
+	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
 
 	// カメラが無かったら終了
 	if (!spCamera) return;
@@ -346,7 +341,7 @@ void EventObjectController::MouseSelect()
 				m_wpTargetObject = hitObjList[cnt];
 
 				EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos };
+				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.stageNum };
 				DebugWindow::Instance().SetEventObjectParam(setParam);
 			}
 			cnt++;
@@ -375,14 +370,10 @@ void EventObjectController::BeginCreateObject()
 			object->SetObjectName(name);
 			// 配列の名前を変更する
 			data.name = name;
-			// プレイヤーとカメラにゴールの座標を渡す
+			// プレイヤーにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
 				m_wpPlayer.lock()->SetGoalPos(data.pos);
-			}
-			if (!m_wpCamera.expired())
-			{
-				m_wpCamera.lock()->SetGoalPos(data.pos);
 			}
 			// リストに追加
 			m_wpObjectList.push_back(object);
@@ -472,9 +463,9 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<StageSelectObject> object = std::make_shared<StageSelectObject>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.stageNum };
-			object->SetParam(setParam);
+			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
 			object->Init();
+			object->SetParam(setParam);
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.StageSelectObject++;
@@ -549,7 +540,7 @@ void EventObjectController::CSVLoader()
 				break;
 
 			case 8:
-				data.stageNum = stoi(commaString);
+				data.modelNum = stoi(commaString);
 			}
 			cnt++;
 		}
@@ -581,6 +572,6 @@ void EventObjectController::CSVWriter()
 		ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << ",";
 
 		// ステージ数
-		ofs << data.stageNum << std::endl;
+		ofs << data.modelNum << std::endl;
 	}
 }

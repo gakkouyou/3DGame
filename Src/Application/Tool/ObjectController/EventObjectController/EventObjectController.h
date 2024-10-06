@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-class TPSCamera;
+class CameraBase;
 class Player;
 class EventObjectBase;
 
@@ -20,7 +20,7 @@ public:
 	void SetCSV(std::string _fileName) { m_fileName = _fileName; }
 
 	// カメラをセットする
-	void SetCamera(const std::shared_ptr<TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
+	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// プレイヤーをセットする
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
@@ -56,7 +56,7 @@ private:
 	std::vector<std::weak_ptr<EventObjectBase>>	m_wpObjectList;
 
 	// カメラ
-	std::weak_ptr<TPSCamera>	m_wpCamera;
+	std::weak_ptr<CameraBase>	m_wpCamera;
 	// プレイヤー
 	std::weak_ptr<Player>		m_wpPlayer;
 
@@ -84,7 +84,7 @@ private:
 		std::string name;
 		Math::Vector3 pos;
 		Math::Vector3 secondPos;
-		int stageNum;
+		int modelNum;
 	};
 	// CSV配列
 	std::vector<Data> m_dataList;

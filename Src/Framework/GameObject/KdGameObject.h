@@ -89,6 +89,7 @@ public:
 		Switch,			// スイッチ
 		Door,			// ドア
 		SlopeGround,	// 坂
+		TransparentWall,// 透明な壁
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵

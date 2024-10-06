@@ -9,7 +9,8 @@ public:
 	~Goal()							override{}
 
 	void Update()					override;
-	void DrawUnLit()				override;
+	void GenerateDepthMapFromLight()override;
+	void DrawLit()					override;
 	void Init()						override;
 
 	void OnHit()	override;
@@ -21,6 +22,8 @@ public:
 	Math::Vector3 GetPos() const			override { return m_pos; }
 
 	void SetParam(const Param& _param)	override;
+
+	void SetPauseFlg(const bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
 private:
 	Math::Vector3 m_pos	= Math::Vector3::Zero;
@@ -43,6 +46,9 @@ private:
 
 	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
+
+	// ポーズ画面かどうか
+	bool m_pauseFlg = false;
 
 	std::weak_ptr<KdSoundInstance3D> m_wpSound;
 	bool m_flg = false;

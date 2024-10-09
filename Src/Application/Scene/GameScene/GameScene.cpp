@@ -135,8 +135,8 @@ void GameScene::Event()
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
 				// ステージをクリアにする
-				m_stageInfoList[m_nowStage] = 2;
-				if (m_nowStage != 2)
+				m_stageInfoList[m_nowStage - 1] = 2;
+				if (m_nowStage != 3)
 				{
 					// 次のステージを挑戦可能状態にする
 					m_stageInfoList[m_nowStage + 1] = 1;
@@ -211,7 +211,7 @@ void GameScene::Init()
 	// TPSカメラ
 	std::shared_ptr<TPSCamera> tpsCamera = std::make_shared<TPSCamera>();
 	// TPSカメラにターゲットをセットする
-	tpsCamera->SetTarget(player);
+	tpsCamera->SetPlayer(player);
 	tpsCamera->Init();
 	AddObject(tpsCamera);
 	// カメラの情報を保持する
@@ -289,6 +289,7 @@ void GameScene::Init()
 	eventObjectController->SetCSV(csvName);
 	// Initより先に書く
 	eventObjectController->SetPlayer(player);
+	eventObjectController->SetCamera(tpsCamera);
 	eventObjectController->Init();
 	AddObject(eventObjectController);
 
@@ -309,7 +310,6 @@ void GameScene::Init()
 	terrainController->SetCamera(tpsCamera);
 	enemyController->SetCamera(tpsCamera);
 	carryObjectController->SetCamera(tpsCamera);
-	eventObjectController->SetCamera(tpsCamera);
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
@@ -317,12 +317,6 @@ void GameScene::Init()
 
 	//m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
 	//m_bgm.lock()->SetVolume(0.1f);
-
-	// セーブポイント
-	//std::shared_ptr<SavePoint> savePoint = std::make_shared<SavePoint>();
-	//savePoint->Init();
-	//savePoint->SetPos({ 0, 1, 10 });
-	//AddObject(savePoint);
 }
 
 void GameScene::StartGameScene()

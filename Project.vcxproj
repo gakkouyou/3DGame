@@ -205,6 +205,7 @@
     <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h" />
     <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h" />
+    <ClInclude Include="Src\Application\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="Src\Application\main.h" />
     <ClInclude Include="Src\Application\Scene\BaseScene\BaseScene.h" />
     <ClInclude Include="Src\Application\Scene\GameScene\GameScene.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp" />
+    <ClCompile Include="Src\Application\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="Src\Application\main.cpp" />
     <ClCompile Include="Src\Application\Scene\BaseScene\BaseScene.cpp" />
     <ClCompile Include="Src\Application\Scene\GameScene\GameScene.cpp" />

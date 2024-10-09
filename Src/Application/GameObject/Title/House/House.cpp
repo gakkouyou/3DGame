@@ -25,6 +25,8 @@ void House::DrawLit()
 {
 	if (m_spModel)
 	{
+		KdShaderManager::Instance().m_StandardShader.SetDitherEnable(true);
+
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 		KdShaderManager::Instance().UndoRasterizerState();
@@ -36,6 +38,11 @@ void House::DrawLit()
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
 	}
 
+	if (m_spHouseObjectModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spHouseObjectModel, m_mWorld);
+	}
+
 	if (m_spRoadModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spRoadModel, m_roadMat);
@@ -44,15 +51,24 @@ void House::DrawLit()
 
 void House::Init()
 {
+	// 家のモデル
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
 		m_spModel->Load("Asset/Models/Title/House/house.gltf");
 	}
 
-	// ベッドの座標
-	m_bedPos = (m_spModel->FindNode("BedPoint")->m_worldTransform * m_mWorld).Translation();
+	// 家具とかのモデル
+	if (!m_spHouseObjectModel)
+	{
+		m_spHouseObjectModel = std::make_shared<KdModelData>();
+		m_spHouseObjectModel->Load("Asset/Models/Title/HouseObject/houseObject.gltf");
+	}
 
+	// ベッドの座標
+	m_bedPos = (m_spHouseObjectModel->FindNode("BedPoint")->m_worldTransform * m_mWorld).Translation();
+
+	// 道路のモデル
 	if (!m_spRoadModel)
 	{
 		m_spRoadModel = std::make_shared<KdModelData>();

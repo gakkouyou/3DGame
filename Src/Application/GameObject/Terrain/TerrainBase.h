@@ -57,6 +57,9 @@ protected:
 	// ターゲット
 	std::weak_ptr<TerrainBase> m_wpTarget;
 
-	// 
+	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
+
+	// ディザ抜きするかどうか
+	bool m_ditherFlg = false;
 };

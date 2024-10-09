@@ -16,6 +16,15 @@ Texture2D g_environmentTex : register(t12); // 反射景マップ
 SamplerState g_ss : register(s0);				// 通常のテクスチャ描画用
 SamplerComparisonState g_ssCmp : register(s1);	// 補間用比較機能付き
 
+// ベイヤーマトリックス
+static const int bayerMatrix[4][4] =
+{
+	{ 0, 8, 2, 10 },
+	{ 12, 4, 14, 6 },
+	{ 3, 11, 1, 9 },
+	{ 15, 7, 13, 5 }
+};
+
 float BlinnPhong(float3 lightDir, float3 vCam, float3 normal, float specPower)
 {
 	float3 H = normalize(-lightDir + vCam);
@@ -53,6 +62,25 @@ float4 main(VSOutput In) : SV_Target0
 	float3 vCam = g_CamPos - In.wPos;
 	float camDist = length(vCam); // カメラ - ピクセル距離
 	vCam = normalize(vCam);
+
+	// アルファディザ
+	if(g_ditherEnable)
+	{
+		int x = (int) fmod(In.Pos.x, 4.0);
+		int y = (int) fmod(In.Pos.y, 4.0);
+
+		float dither = bayerMatrix[y][x] / 16.0f;
+
+		// ディザ抜きするカメラからの距離
+		float ditherDist = 5.0;
+
+		// 半径
+		float range = max(0, camDist - ditherDist);
+
+		float rate = 1 - min(1, range);
+
+		clip(dither - 1 * rate);
+	}
 
 	// 法線マップから法線ベクトル取得
 	float3 wN = g_normalTex.Sample(g_ss, In.UV).rgb;

@@ -265,6 +265,9 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\TransparentWall">
       <UniqueIdentifier>{b4f0a134-f6d6-4cf1-bdd0-e38aeceeda08}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\UI\TitleUI">
+      <UniqueIdentifier>{1adf2fe0-4217-4157-9de4-c09c8582a040}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -600,6 +603,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.h">
       <Filter>Src\Application\GameObject\Terrain\Object\TransparentWall</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\UI\TitleUI\TitleUI.h">
+      <Filter>Src\Application\GameObject\UI\TitleUI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -904,6 +910,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\TransparentWall\TransparentWall.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\TransparentWall</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\UI\TitleUI\TitleUI.cpp">
+      <Filter>Src\Application\GameObject\UI\TitleUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

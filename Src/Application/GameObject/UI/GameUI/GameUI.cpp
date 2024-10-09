@@ -33,6 +33,15 @@ void GameUI::DrawSprite()
 			}
 		}
 	}
+
+	// 残機の表示
+	{
+		// 残機のアイコン
+		if (m_stockIcon.spTex)
+		{
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_stockIcon.spTex, (int)m_stockIcon.pos.x, (int)m_stockIcon.pos.y);
+		}
+	}
 }
 
 void GameUI::Init()
@@ -49,4 +58,11 @@ void GameUI::Init()
 		m_emptyLife.spTex = std::make_shared<KdTexture>();
 		m_emptyLife.spTex->Load("Asset/Textures/Game/UI/emptyLife.png");
 	}
+
+	if (!m_stockIcon.spTex)
+	{
+		m_stockIcon.spTex = std::make_shared<KdTexture>();
+		m_stockIcon.spTex->Load("Asset/Textures/Game/UI/stockIcon.png");
+	}
+	m_stockIcon.pos = { -600, 200 };
 }

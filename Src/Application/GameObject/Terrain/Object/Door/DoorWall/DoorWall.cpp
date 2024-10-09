@@ -17,6 +17,9 @@ void DoorWall::Init()
 	m_objectType = ObjectType::Door;
 
 	TerrainBase::Init();
+
+	// アルファディザ有効
+	m_ditherFlg = true;
 }
 
 void DoorWall::SetParam(const Param& _param)

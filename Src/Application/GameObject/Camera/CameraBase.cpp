@@ -21,11 +21,18 @@ void CameraBase::Init()
 	KdEffekseerManager::GetInstance().SetCamera(m_spCamera);
 }
 
-void CameraBase::SetTarget(const std::shared_ptr<Player>& target)
+void CameraBase::SetPlayer(const std::shared_ptr<Player>& _target)
 {
-	if (!target) { return; }
+	if (!_target) { return; }
 
-	m_wpTarget = target;
+	m_wpPlayer = _target;
+}
+
+void CameraBase::SetTarget(const std::shared_ptr<KdGameObject>& _target)
+{
+	if (!_target) { return; }
+
+	m_wpTarget = _target;
 }
 
 void CameraBase::UpdateRotateByMouse()

@@ -153,13 +153,18 @@ void EventObjectController::ConfirmedObject()
 			// 情報をセットする
 			data.pos		= spTargetObject->GetParam().basePos;	// 座標
 			data.secondPos	= spTargetObject->GetParam().secondPos;	// 二つ目の座標
-			data.modelNum	= spTargetObject->GetParam().stageNum;	// ステージ数
+			data.modelNum	= spTargetObject->GetParam().modelNum;	// ステージ数
 			if (spTargetObject->GetObjectType() == ObjectType::Goal)
 			{
 				// プレイヤーにゴールの座標を渡す
 				if (!m_wpPlayer.expired())
 				{
 					m_wpPlayer.lock()->SetGoalPos(data.pos);
+				}
+				// カメラにゴールを渡す
+				if (!m_wpCamera.expired())
+				{
+					m_wpCamera.lock()->SetTarget(spTargetObject);
 				}
 			}
 			// データが入っているリストにプッシュバックする
@@ -182,11 +187,16 @@ void EventObjectController::ConfirmedObject()
 			}
 			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
 			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
-			m_dataList[num].modelNum	= spTargetObject->GetParam().stageNum;	// ステージ数
-			// プレイヤーとカメラにゴールの座標を渡す
+			m_dataList[num].modelNum	= spTargetObject->GetParam().modelNum;	// ステージ数
+			// プレイヤーにゴールの座標を渡す
 			if (!m_wpPlayer.expired())
 			{
 				m_wpPlayer.lock()->SetGoalPos(m_dataList[num].pos);
+			}
+			// カメラにゴールを渡す
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetTarget(spTargetObject);
 			}
 		}
 	}
@@ -341,7 +351,7 @@ void EventObjectController::MouseSelect()
 				m_wpTargetObject = hitObjList[cnt];
 
 				EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.stageNum };
+				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.modelNum };
 				DebugWindow::Instance().SetEventObjectParam(setParam);
 			}
 			cnt++;
@@ -358,9 +368,9 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<Goal> object = std::make_shared<Goal>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos };
-			object->SetParam(setParam);
+			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
 			object->Init();
+			object->SetParam(setParam);
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.Goal++;
@@ -374,6 +384,11 @@ void EventObjectController::BeginCreateObject()
 			if (!m_wpPlayer.expired())
 			{
 				m_wpPlayer.lock()->SetGoalPos(data.pos);
+			}
+			// カメラにゴールを渡す
+			if (!m_wpCamera.expired())
+			{
+				m_wpCamera.lock()->SetTarget(object);
 			}
 			// リストに追加
 			m_wpObjectList.push_back(object);

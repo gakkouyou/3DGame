@@ -17,10 +17,17 @@ void TerrainBase::DrawLit()
 	{
 		if (m_spModel)
 		{
+			// 少し白くする
 			if (m_setParamFlg == true)
 			{
 				KdShaderManager::Instance().m_StandardShader.SetColorEnable(true);
 				m_setParamFlg = false;
+			}
+
+			// アルファディザ
+			if (m_ditherFlg == true)
+			{
+				KdShaderManager::Instance().m_StandardShader.SetDitherEnable(true);
 			}
 			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 		}

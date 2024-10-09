@@ -32,9 +32,13 @@ public:
 
 		Math::Vector3	DissolveEmissive = { 0.0f, 1.0f, 1.0f };
 
+		// 色を少し変える
 		int ColorEnable = 0;
-
 		Math::Vector3 Color = { 0.4f, 0.4f, 0.4f };
+
+		// アルファディザ
+		int DitherEnable = 0;
+		float _blank[3] = { 0.0f, 0.0f, 0.0f };
 	};
 
 	// 定数バッファ(メッシュ単位更新)
@@ -65,10 +69,18 @@ public:
 	// 設定・取得
 	//================================================
 
+	// 色を少し変える
 	void SetColorEnable(bool _enable, Math::Vector3 _color = { 0.4f, 0.4f, 0.4f })
 	{
 		m_cb0_Obj.Work().ColorEnable = _enable;
 		m_cb0_Obj.Work().Color = _color;
+		m_dirtyCBObj = true;
+	}
+
+	// アルファディザ
+	void SetDitherEnable(bool _enable)
+	{
+		m_cb0_Obj.Work().DitherEnable = _enable;
 		m_dirtyCBObj = true;
 	}
 

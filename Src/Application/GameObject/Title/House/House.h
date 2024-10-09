@@ -16,8 +16,12 @@ private:
 	// モデル
 	std::shared_ptr<KdModelData> m_spModel = nullptr;
 
+	// 道路のモデル
 	std::shared_ptr<KdModelData> m_spRoadModel = nullptr;
 	Math::Matrix m_roadMat;
+
+	// 家具のオブジェクトのモデル
+	std::shared_ptr<KdModelData> m_spHouseObjectModel = nullptr;
 
 	// ベッドの座標
 	Math::Vector3 m_bedPos;

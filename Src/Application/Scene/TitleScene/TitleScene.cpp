@@ -9,34 +9,25 @@
 
 void TitleScene::Event()
 {
-	//if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-	//{
-	//	if (!m_wpSceneChange.expired())
-	//	{
-	//		m_wpSceneChange.lock()->EndScene();
-	//	}
-	//}
-
-	//if (!m_wpSceneChange.expired())
-	//{
-	//	if (m_wpSceneChange.lock()->GetFinishFlg())
-	//	{
-	//		SceneManager::Instance().SetNextScene
-	//		(
-	//			SceneManager::SceneType::StageSelect
-	//		);
-	//	}
-	//}
-
-	
+	if (m_wpCamera.expired() == false)
+	{
+		if (m_wpCamera.lock()->GetAnimationFinishFlg())
+		{
+			m_wpSceneChange.lock()->EndScene(0, true);
+			if (m_wpSceneChange.lock()->GetFinishFlg())
+			{
+				SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
+			}
+		}
+	}
 }
 
 void TitleScene::Init()
 {
-	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
+	//KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
-	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
-	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
+	//KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
+	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
 
 	// シーンチェンジ
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
@@ -55,18 +46,18 @@ void TitleScene::Init()
 	backGround->Init();
 	AddObject(backGround);
 
-	// TPSカメラ
-	std::shared_ptr<TitleCamera> titleCamera = std::make_shared<TitleCamera>();
-	// TPSカメラにターゲットをセットする
-	//tpsCamera->SetTarget(house);
-	titleCamera->Init();
-	AddObject(titleCamera);
-	// カメラの情報を保持する
-	//m_wpCamera = tpsCamera;
-
 	// プレイヤー
 	std::shared_ptr<TitlePlayer> player = std::make_shared<TitlePlayer>();
 	player->SetBedPos(house->GetBedPos());
 	player->Init();
 	AddObject(player);
+
+	// TPSカメラ
+	std::shared_ptr<TitleCamera> titleCamera = std::make_shared<TitleCamera>();
+	// カメラにターゲットをセットする
+	titleCamera->SetTarget(player);
+	// TPSカメラにターゲットをセットする
+	titleCamera->Init();
+	AddObject(titleCamera);
+	m_wpCamera = titleCamera;
 }

@@ -10,7 +10,8 @@
 			"nodes":[
 				0,
 				1,
-				2
+				2,
+				3
 			]
 		}
 	],
@@ -30,8 +31,8 @@
 				0.19999997317790985
 			],
 			"translation":[
-				-0.6692285537719727,
-				-4.135615348815918,
+				0,
+				0.9761066436767578,
 				2.16068172454834
 			]
 		},
@@ -50,8 +51,8 @@
 				0.19999997317790985
 			],
 			"translation":[
-				-0.6692285537719727,
-				-4.135615348815918,
+				0,
+				0.9761066436767578,
 				-2.4151811599731445
 			]
 		},
@@ -71,7 +72,21 @@
 			],
 			"translation":[
 				0,
-				-0.32561975717544556,
+				4.786102294921875,
+				0
+			]
+		},
+		{
+			"mesh":3,
+			"name":"COL",
+			"scale":[
+				2,
+				4.300000190734863,
+				3.799999952316284
+			],
+			"translation":[
+				0,
+				4.300000190734863,
 				0
 			]
 		}
@@ -146,6 +161,19 @@
 					},
 					"indices":10,
 					"material":1
+				}
+			]
+		},
+		{
+			"name":"\u7acb\u65b9\u4f53",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":11,
+						"NORMAL":12,
+						"TEXCOORD_0":13
+					},
+					"indices":14
 				}
 			]
 		}
@@ -246,6 +274,40 @@
 			"componentType":5123,
 			"count":756,
 			"type":"SCALAR"
+		},
+		{
+			"bufferView":11,
+			"componentType":5126,
+			"count":24,
+			"max":[
+				1,
+				1,
+				1
+			],
+			"min":[
+				-1,
+				-1,
+				-1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":12,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":13,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":14,
+			"componentType":5123,
+			"count":36,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
@@ -314,11 +376,35 @@
 			"byteLength":1512,
 			"byteOffset":12472,
 			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":13984,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":14272,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":14560,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":14752,
+			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":13984,
+			"byteLength":14824,
 			"uri":"body.bin"
 		}
 	]

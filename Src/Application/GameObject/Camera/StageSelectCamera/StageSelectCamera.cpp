@@ -5,7 +5,7 @@
 void StageSelectCamera::PostUpdate()
 {
 	// ターゲットの行列(有効な場合利用する)
-	const std::shared_ptr<const Player>	spTarget = m_wpTarget.lock();
+	const std::shared_ptr<const Player>	spTarget = m_wpPlayer.lock();
 	if (!spTarget) return;
 	// ターゲットの座標
 	Math::Vector3	targetPos = spTarget->GetPos();
@@ -163,9 +163,9 @@ void StageSelectCamera::Init()
 	Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(20.0f));
 	m_mLocalPos = rotMat * transMat;
 
-	if (m_wpTarget.expired() == false)
+	if (m_wpPlayer.expired() == false)
 	{
-		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpTarget.lock()->GetPos());
+		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpPlayer.lock()->GetPos());
 	}
 }
 
@@ -173,18 +173,18 @@ void StageSelectCamera::Reset()
 {
 	m_pauseFlg = false;
 
-	if (m_wpTarget.expired() == false)
+	if (m_wpPlayer.expired() == false)
 	{
-		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpTarget.lock()->GetPos());
+		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpPlayer.lock()->GetPos());
 	}
 }
 
 void StageSelectCamera::SetPauseFlg(bool _pauseFlg)
 {
-	if (m_wpTarget.expired() == false)
+	if (m_wpPlayer.expired() == false)
 	{
 		// プレイヤーが生きている時だけポーズ処理をする
-		if (m_wpTarget.lock()->GetAliveFlg() == true)
+		if (m_wpPlayer.lock()->GetAliveFlg() == true)
 		{
 			m_pauseFlg = _pauseFlg;
 		}

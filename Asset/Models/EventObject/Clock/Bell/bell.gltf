@@ -13,7 +13,8 @@
 				2,
 				3,
 				4,
-				5
+				5,
+				6
 			]
 		}
 	],
@@ -34,7 +35,7 @@
 			],
 			"translation":[
 				0,
-				3.4863200187683105,
+				1.3306543827056885,
 				-2.7139899730682373
 			]
 		},
@@ -54,7 +55,7 @@
 			],
 			"translation":[
 				0,
-				3.4863200187683105,
+				1.3306543827056885,
 				2.7139899730682373
 			]
 		},
@@ -74,7 +75,7 @@
 			],
 			"translation":[
 				0,
-				4.327676296234131,
+				2.172010660171509,
 				0
 			]
 		},
@@ -88,7 +89,7 @@
 			],
 			"translation":[
 				0,
-				3.854081630706787,
+				1.698415994644165,
 				0
 			]
 		},
@@ -108,7 +109,7 @@
 			],
 			"translation":[
 				0,
-				3.378959894180298,
+				1.2232942581176758,
 				-2.6579699516296387
 			]
 		},
@@ -128,8 +129,22 @@
 			],
 			"translation":[
 				0,
-				3.378959894180298,
+				1.2232942581176758,
 				2.6579699516296387
+			]
+		},
+		{
+			"mesh":6,
+			"name":"COL",
+			"scale":[
+				1.5,
+				1.5,
+				4.199999809265137
+			],
+			"translation":[
+				0,
+				1.5,
+				0
 			]
 		}
 	],
@@ -245,6 +260,19 @@
 					},
 					"indices":17,
 					"material":1
+				}
+			]
+		},
+		{
+			"name":"\u7acb\u65b9\u4f53",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":21,
+						"NORMAL":22,
+						"TEXCOORD_0":23
+					},
+					"indices":24
 				}
 			]
 		}
@@ -435,6 +463,40 @@
 			"componentType":5126,
 			"count":192,
 			"type":"VEC2"
+		},
+		{
+			"bufferView":21,
+			"componentType":5126,
+			"count":24,
+			"max":[
+				1,
+				1,
+				1
+			],
+			"min":[
+				-1,
+				-1,
+				-1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":22,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":23,
+			"componentType":5126,
+			"count":24,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":24,
+			"componentType":5123,
+			"count":36,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
@@ -563,11 +625,35 @@
 			"byteLength":1536,
 			"byteOffset":44880,
 			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":46416,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":46704,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":46992,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":47184,
+			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":46416,
+			"byteLength":47256,
 			"uri":"bell.bin"
 		}
 	]

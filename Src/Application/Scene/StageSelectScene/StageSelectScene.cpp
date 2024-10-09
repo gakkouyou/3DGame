@@ -122,7 +122,7 @@ void StageSelectScene::Init()
 	// TPSカメラ
 	std::shared_ptr<TPSCamera> camera = std::make_shared<TPSCamera>();
 	// カメラにターゲットをセット
-	camera->SetTarget(player);
+	camera->SetPlayer(player);
 	AddObject(camera);
 	// カメラの情報を保持する
 	m_wpCamera = camera;
@@ -182,7 +182,7 @@ void StageSelectScene::Init()
 	{
 		if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::StageSelectObject)
 		{
-			if (obj.lock()->GetParam().stageNum == SceneManager::Instance().GetNowStage())
+			if (obj.lock()->GetParam().modelNum == SceneManager::Instance().GetNowStage())
 			{
 				Math::Vector3 pos = obj.lock()->GetPos();
 				pos.z -= 2.0f;

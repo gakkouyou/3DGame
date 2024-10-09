@@ -12,8 +12,12 @@ cbuffer cbObject : register(b0)
 	float g_dissolveEdgeRange;	// ディゾルブの境界線の太さ
 	float3 g_dissolveEmissive;	// 境界の色
 
+	// 色を少し変える
 	int g_colorElable;
 	float3 g_color;
+
+	// アルファディザ
+	int g_ditherEnable;
 };
 
 // 定数バッファ(メッシュ単位)

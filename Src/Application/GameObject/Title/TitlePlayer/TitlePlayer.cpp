@@ -2,8 +2,6 @@
 
 void TitlePlayer::Update()
 {
-	KdShaderManager::Instance().WorkAmbientController().AddPointLight({ 5, 5, 5 }, 10, { 0, 3, 0 });
-
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
 }

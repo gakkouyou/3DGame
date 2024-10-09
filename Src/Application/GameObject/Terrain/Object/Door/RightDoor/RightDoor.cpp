@@ -51,6 +51,9 @@ void RightDoor::Init()
 	SceneManager::Instance().AddObject(doorWall);
 	// 保持
 	m_wpDoorWall = doorWall;
+
+	// アルファディザ有効
+	m_ditherFlg = true;
 }
 
 void RightDoor::Active()

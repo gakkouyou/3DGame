@@ -882,18 +882,18 @@ void Player::BackPos()
 
 const bool Player::IsCameraTracking() const
 {
-	// 当たった地面がある時
-	if (m_wpHitTerrain.expired() == false)
-	{
-		// チェック
-		return m_wpHitTerrain.lock()->IsCameraTracking();
-	}
-	
 	// 当たった運ぶオブジェクトがある時
 	if (m_wpHitCarryObject.expired() == false)
 	{
 		// チェック
 		return m_wpHitCarryObject.lock()->IsCameraTracking();
+	}
+
+	// 当たった地面がある時
+	if (m_wpHitTerrain.expired() == false)
+	{
+		// チェック
+		return m_wpHitTerrain.lock()->IsCameraTracking();
 	}
 
 	return false;
@@ -1110,7 +1110,7 @@ void Player::HitJudgeGround()
 		if (hitFlg == false)
 		{
 			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 		}
 
 		// 複数のオブジェクトに当たっていた場合
@@ -1130,9 +1130,10 @@ void Player::HitJudgeGround()
 		}
 
 		hitFlg = false;
-		sphereInfo.m_sphere.Center.y = m_pos.y + 2.0f;
+		sphereInfo.m_sphere.Center = m_pos;
+		sphereInfo.m_sphere.Center.y += 2.0f;
 		sphereInfo.m_sphere.Radius -= 0.05f;
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
 		{

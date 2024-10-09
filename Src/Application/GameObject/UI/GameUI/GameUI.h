@@ -21,9 +21,15 @@ private:
 		std::shared_ptr<KdTexture>	spTex	= nullptr;				// 画像
 		Math::Vector2				pos		= Math::Vector2::Zero;	// 座標
 	};
+	// ライフ
 	Texture m_life;
 	const int m_lifeTexInterval = 70;
+	// 中がないライフ
 	Texture m_emptyLife;
 
+	// 残機のアイコン
+	Texture m_stockIcon;
+
+	// プレイヤー
 	std::weak_ptr<Player> m_wpPlayer;
 };

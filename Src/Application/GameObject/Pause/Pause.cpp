@@ -154,7 +154,7 @@ void Pause::Init()
 	if (!m_again.spTex)
 	{
 		m_again.spTex = std::make_shared<KdTexture>();
-		m_again.spTex->Load("Asset/Textures/Pause/agein.png");
+		m_again.spTex->Load("Asset/Textures/Pause/again.png");
 	}
 
 	// ステージから出る

@@ -12,7 +12,9 @@ public:
 	void PreDraw()			override;
 	void Init()				override;
 
-	void SetTarget(const std::shared_ptr<Player>& target);
+	void SetPlayer(const std::shared_ptr<Player>& _target);
+
+	void SetTarget(const std::shared_ptr<KdGameObject>& _target);
 
 	// 「絶対変更しません！見るだけ！」な書き方
 	const std::shared_ptr<KdCamera>& GetCamera() const
@@ -50,7 +52,8 @@ protected:
 	void UpdateRotateByMouse();
 
 	std::shared_ptr<KdCamera>	m_spCamera		= nullptr;
-	std::weak_ptr<Player>		m_wpTarget;
+	std::weak_ptr<Player>		m_wpPlayer;
+	std::weak_ptr<KdGameObject>	m_wpTarget;
 
 	Math::Matrix				m_mLocalPos		= Math::Matrix::Identity;
 	Math::Matrix				m_mRotation		= Math::Matrix::Identity;

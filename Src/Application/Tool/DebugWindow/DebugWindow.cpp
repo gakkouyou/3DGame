@@ -260,15 +260,19 @@ void DebugWindow::TerrainWindow()
 
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 
-			// スイッチならターゲットを設定できるようにする
-			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch)
+			// スイッチと坂ならターゲットを設定できるようにする
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch || spObjectController->GetObjectType() == KdGameObject::ObjectType::SlopeGround)
 			{
 				ImGui::InputText("TargetName", &m_terrainParam.targetName);
 				ImGui::SameLine;
-				// ターゲットセレクトモードの切り替え
-				if (ImGui::Button("TargetSelect"))
+				// スイッチの時だけ
+				if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch)
 				{
-					spObjectController->TargetSelect();
+					// ターゲットセレクトモードの切り替え
+					if (ImGui::Button("TargetSelect"))
+					{
+						spObjectController->TargetSelect();
+					}
 				}
 			}
 
@@ -543,7 +547,7 @@ void DebugWindow::EventObjectWindow()
 			}
 
 			// ステージセレクトのオブジェクト用
-			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::StageSelectObject)
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::StageSelectObject || spObjectController->GetObjectType() == KdGameObject::ObjectType::Goal)
 			{
 				// ステージの数
 				ImGui::InputInt("StageNum", &m_eventObjectParam.stageNum, 1);

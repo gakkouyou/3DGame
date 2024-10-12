@@ -6,15 +6,12 @@
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 
 #include "../../GameObject/EventObject/EventObjectBase.h"
+#include "../../GameObject/Terrain/TerrainBase.h"
 
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
-//#include "../../GameObject/Character/StageSelectPlayer/StageSelectPlayer.h"
 #include "../../GameObject/BackGround/BackGround.h"
 #include "../../GameObject/Character/Player/Player.h"
-
-//#include "../../GameObject/StageSelectTexture/StageSelectTexture.h"
-//#include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
 
 void StageSelectScene::Event()
 {
@@ -37,6 +34,11 @@ void StageSelectScene::Event()
 	{
 		StartScene();
 	}
+	// 開始し終わって、ステージ初クリアの時の演出
+	else
+	{
+		
+	}
 
 	// シーンを変える
 	if (m_wpPlayer.lock()->GetBeginGameScene())
@@ -49,30 +51,9 @@ void StageSelectScene::Event()
 
 	if (!m_wpSceneChange.expired())
 	{
-		// もしフェードアウト、イン中ならステージを変えれないようにする
-		if (m_wpSceneChange.lock()->GetNowSceneChange())
-		{
-	/*		if (!m_wpStageSelectTexture.expired())
-			{
-				m_wpStageSelectTexture.lock()->SetStopFlg(true);
-			}*/
-		}
-		else
-		{
-	/*		if (!m_wpStageSelectTexture.expired())
-			{
-				m_wpStageSelectTexture.lock()->SetStopFlg(false);
-			}*/
-		}
-
 		// フェードアウト終了後シーンをゲームシーンに
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			//// ステージをセット
-			//if (!m_wpStageSelectTexture.expired())
-			//{
-			//	SceneManager::Instance().SetNowStage(m_wpStageSelectTexture.lock()->GetNowStage());
-			//}
 			SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
 		}
 	}
@@ -86,6 +67,12 @@ void StageSelectScene::StartScene()
 
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
+			// ステージ初クリアの際の処理
+			if (SceneManager::Instance().GetFirstClearFlg() == true)
+			{
+				FirstClearProcess();
+			}
+
 			m_sceneStartFlg = true;
 			m_wpSceneChange.lock()->Reset();
 			// フェードインが終了したらプレイヤーを動けるようにする
@@ -105,8 +92,32 @@ void StageSelectScene::StartScene()
 	}
 }
 
+void StageSelectScene::FirstClearProcess()
+{
+	if (m_wpTerrainController.expired() == false)
+	{
+		// 坂を出す演出をする
+		// ターゲットの坂を探すための文字列を作成
+		std::string string = "Stage" + SceneManager::Instance().GetNowStage();
+		for (auto& obj : m_wpTerrainController.lock()->GetObjList())
+		{
+			if (obj.expired() == false)
+			{
+				if (obj.lock()->GetParam().targetName == string)
+				{
+					obj.lock()->Active();
+				}
+			}
+		}
+	}
+}
+
 void StageSelectScene::Init()
 {
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 1, -1, 1 }, { 3, 3, 3 });
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.3, 0.3, 0.3, 1.0 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50,50 }, 50);
+
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
@@ -158,6 +169,7 @@ void StageSelectScene::Init()
 	// EventObjectController
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
 	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect.csv");
+	eventObjectController->SetCamera(camera);
 	eventObjectController->Init();
 	AddObject(eventObjectController);
 
@@ -166,9 +178,10 @@ void StageSelectScene::Init()
 	objectController->SetCSV("Asset/Data/CSV/Terrain/StageSelect.csv");
 	objectController->Init();
 	AddObject(objectController);
+	m_wpTerrainController = objectController;
 
 	objectController->SetCamera(camera);
-	eventObjectController->SetCamera(camera);
+
 
 	// プレイヤーにTerrainControllerを渡す
 	player->SetTerrainController(objectController);
@@ -185,7 +198,7 @@ void StageSelectScene::Init()
 			if (obj.lock()->GetParam().modelNum == SceneManager::Instance().GetNowStage())
 			{
 				Math::Vector3 pos = obj.lock()->GetPos();
-				pos.z -= 2.0f;
+				pos.z -= 3.0f;
 				player->SetPos(pos);
 			}
 		}

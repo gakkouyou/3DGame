@@ -129,9 +129,16 @@ void TPSCamera::PostUpdate()
 		}
 	}
 
+	// ゴールの処理
 	if (m_goalFlg)
 	{
 		GoalProcess();
+	}
+
+	// 初めてステージをクリアしたときの処理
+	if (m_firstClearFlg)
+	{
+		FirstClearProcess();
 	}
 
 	// ポーズ画面の処理
@@ -243,4 +250,10 @@ void TPSCamera::GoalProcess()
 			m_goalProcess.moveEndFlg = true;
 		}
 	}
+}
+
+void TPSCamera::FirstClearProcess()
+{
+	// ターゲットをセット
+	// スタートとゴールを決めとく
 }

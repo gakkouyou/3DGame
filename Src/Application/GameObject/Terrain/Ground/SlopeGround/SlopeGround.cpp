@@ -27,6 +27,7 @@ void SlopeGround::SetParam(const Param& _param)
 	m_param.startPos = _param.startPos;
 	m_param.scale = _param.scale;
 	m_param.degAng = _param.degAng;
+	m_param.targetName = _param.targetName;
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
 	Math::Matrix rotMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_param.degAng.y), DirectX::XMConvertToRadians(m_param.degAng.x), DirectX::XMConvertToRadians(m_param.degAng.z));

@@ -280,6 +280,8 @@ void EventObjectController::CreateObject(ObjectType _object)
 	{
 		std::shared_ptr<StageSelectObject> object = std::make_shared<StageSelectObject>();
 		object->Init();
+		// カメラをセットする
+		object->SetCamera(m_wpCamera);
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
 		break;
@@ -481,6 +483,8 @@ void EventObjectController::BeginCreateObject()
 			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
 			object->Init();
 			object->SetParam(setParam);
+			// カメラをセットする
+			object->SetCamera(m_wpCamera);
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.StageSelectObject++;

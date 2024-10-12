@@ -956,7 +956,7 @@ void Player::HitJudgeGround()
 		rayInfo.m_type = KdCollider::TypeGround;
 
 		// レイ判定
-		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
 		// 当たっていなかったら右足からのレイ判定をする
 		if (hitFlg == false)
@@ -1049,6 +1049,7 @@ void Player::HitJudgeGround()
 					m_rotationGround.hitFlg = true;
 					break;
 
+					// 坂
 				case ObjectType::SlopeGround:
 					m_pos.y = hitPos.y;
 					// 重力
@@ -1084,7 +1085,7 @@ void Player::HitJudgeGround()
 		// スフィアの中心座標
 		sphereInfo.m_sphere.Center = m_pos;
 		// スフィアの半径
-		sphereInfo.m_sphere.Radius = 0.25f;
+		sphereInfo.m_sphere.Radius = 0.35f;
 		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
 		// スフィアのタイプ
 		sphereInfo.m_type = KdCollider::TypeGround;
@@ -1131,8 +1132,8 @@ void Player::HitJudgeGround()
 
 		hitFlg = false;
 		sphereInfo.m_sphere.Center = m_pos;
-		sphereInfo.m_sphere.Center.y += 2.0f;
 		sphereInfo.m_sphere.Radius -= 0.05f;
+		sphereInfo.m_sphere.Center.y += 2.2f;
 		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
@@ -1341,7 +1342,10 @@ void Player::HitJudgeEvent()
 	{
 		if (obj->GetObjectType() == ObjectType::StageSelectObject)
 		{
-			m_pDebugWire->AddDebugSphere(obj->GetPos(), 2.0f);
+			if (SceneManager::Instance().GetDebug() == true)
+			{
+				m_pDebugWire->AddDebugSphere(obj->GetPos(), 4.0f);
+			}
 
 			// プレイヤーとオブジェクトの距離
 			Math::Vector3 vec = obj->GetPos() - m_pos;
@@ -1349,7 +1353,7 @@ void Player::HitJudgeEvent()
 			Math::Vector3 forwardVec = m_mWorld.Backward();
 
 			// 設定されている距離より短かったら視野角判定
-			if (vec.Length() < 3.0f)
+			if (vec.Length() < 4.0f)
 			{
 				// 視野角判定
 				vec.Normalize();
@@ -1359,11 +1363,11 @@ void Player::HitJudgeEvent()
 				// 視野角内ならステージに入れるようにする
 				if (deg < 90)
 				{
+					obj->OnHit();
 					if (GetAsyncKeyState('F') & 0x8000)
 					{
 						if (m_actionKeyFlg == false)
 						{
-							obj->OnHit();
 							m_stopFlg = true;
 							m_beginGameSceneFlg = true;
 
@@ -1548,9 +1552,9 @@ void Player::HitJudgeCarryObject()
 	// レイの情報
 	KdCollider::RayInfo rayInfo;
 	// レイの長さ
-	rayInfo.m_range = m_gravity + 1.0f + m_enableStepHeight;
+	rayInfo.m_range = m_gravity + 0.5f + m_enableStepHeight;
 	// レイの座標(キャラの中心)
-	rayInfo.m_pos.y = m_enableStepHeight + 1.0f;
+	rayInfo.m_pos.y = m_enableStepHeight + 0.5f;
 	rayInfo.m_pos += m_pos;
 	// レイの方向
 	rayInfo.m_dir = Math::Vector3::Down;

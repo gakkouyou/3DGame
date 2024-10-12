@@ -2,6 +2,11 @@
 
 void TitlePlayer::Update()
 {
+	Math::Vector3 pos = GetPos();
+	pos.x -= 5.0f;
+	pos.y += 2.0f;
+	KdShaderManager::Instance().WorkAmbientController().AddPointLight({ 3, 3, 3 }, 15.0f, pos);
+
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
 }

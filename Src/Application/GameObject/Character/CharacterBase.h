@@ -64,7 +64,7 @@ protected:
 	// スフィア判定
 	//====================================
 	// どう当たったか欲しい時に使う 複数のオブジェクトに当たった場合、リザルトは入れられない
-	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg = false);
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg = false, Math::Color _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	// 当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 

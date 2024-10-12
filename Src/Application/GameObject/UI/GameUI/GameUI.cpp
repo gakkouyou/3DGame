@@ -7,41 +7,41 @@ void GameUI::Update()
 
 void GameUI::DrawSprite()
 {
-	if (!m_wpPlayer.expired())
-	{
-		// ライフの表示
-		{
-			// 今のライフ数
-			int nowLife = m_wpPlayer.lock()->GetLife();
-			for (int i = 0; i < m_wpPlayer.lock()->GetLifeMax(); i++)
-			{
-				// 普通のハートを出す
-				if (i < nowLife)
-				{
-					if (m_life.spTex)
-					{
-						KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, int(m_life.pos.x + i * m_lifeTexInterval), (int)m_life.pos.y);
-					}
-				}
-				else
-				{
-					if (m_emptyLife.spTex)
-					{
-						KdShaderManager::Instance().m_spriteShader.DrawTex(m_emptyLife.spTex, int(m_life.pos.x + i * m_lifeTexInterval), (int)m_life.pos.y);
-					}
-				}
-			}
-		}
-	}
+	//if (!m_wpPlayer.expired())
+	//{
+	//	// ライフの表示
+	//	{
+	//		// 今のライフ数
+	//		int nowLife = m_wpPlayer.lock()->GetLife();
+	//		for (int i = 0; i < m_wpPlayer.lock()->GetLifeMax(); i++)
+	//		{
+	//			// 普通のハートを出す
+	//			if (i < nowLife)
+	//			{
+	//				if (m_life.spTex)
+	//				{
+	//					KdShaderManager::Instance().m_spriteShader.DrawTex(m_life.spTex, int(m_life.pos.x + i * m_lifeTexInterval), (int)m_life.pos.y);
+	//				}
+	//			}
+	//			else
+	//			{
+	//				if (m_emptyLife.spTex)
+	//				{
+	//					KdShaderManager::Instance().m_spriteShader.DrawTex(m_emptyLife.spTex, int(m_life.pos.x + i * m_lifeTexInterval), (int)m_life.pos.y);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
 
-	// 残機の表示
-	{
-		// 残機のアイコン
-		if (m_stockIcon.spTex)
-		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_stockIcon.spTex, (int)m_stockIcon.pos.x, (int)m_stockIcon.pos.y);
-		}
-	}
+	//// 残機の表示
+	//{
+	//	// 残機のアイコン
+	//	if (m_stockIcon.spTex)
+	//	{
+	//		KdShaderManager::Instance().m_spriteShader.DrawTex(m_stockIcon.spTex, (int)m_stockIcon.pos.x, (int)m_stockIcon.pos.y);
+	//	}
+	//}
 }
 
 void GameUI::Init()

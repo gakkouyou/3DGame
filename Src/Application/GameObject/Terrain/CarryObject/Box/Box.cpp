@@ -27,7 +27,7 @@ void Box::Update()
 
 	if (SceneManager::Instance().GetDebug())
 	{
-		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+		//m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
 	HitJudge();
@@ -323,7 +323,7 @@ void Box::HitJudge()
 			float front = m_edgePos[LeftFront].z;
 
 			// 真ん中からレイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
 			// 回転床の場合、当たっていないことにする
 			if (hitFlg)
@@ -345,7 +345,7 @@ void Box::HitJudge()
 				rayInfo.m_pos.x = right;
 				rayInfo.m_pos.z = front;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 左前から
 			if (!hitFlg)
@@ -353,7 +353,7 @@ void Box::HitJudge()
 				rayInfo.m_pos.x = left;
 				rayInfo.m_pos.z = front;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 左後ろから
 			if (!hitFlg)
@@ -361,7 +361,7 @@ void Box::HitJudge()
 				rayInfo.m_pos.x = left;
 				rayInfo.m_pos.z = back;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 右後ろから
 			if (!hitFlg)
@@ -369,7 +369,7 @@ void Box::HitJudge()
 				rayInfo.m_pos.x = right;
 				rayInfo.m_pos.z = back;
 				// レイ判定
-				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 
 			// 当たっていた時の処理

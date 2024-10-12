@@ -6,7 +6,7 @@ void BackGround::DrawUnLit()
 	{
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
 
-		//KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullBack);
 	}

@@ -134,12 +134,17 @@ void GameScene::Event()
 			if (!m_wpCamera.expired())
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
-				// ステージをクリアにする
-				m_stageInfoList[m_nowStage - 1] = 2;
-				if (m_nowStage != 3)
+
+				// 初クリアかどうかをチェック
+				if (m_stageInfoList[m_nowStage - 1] != 2)
 				{
-					// 次のステージを挑戦可能状態にする
-					m_stageInfoList[m_nowStage + 1] = 1;
+					SceneManager::Instance().SetFirstClearFlg(true);
+					// ステージをクリアにする
+					m_stageInfoList[m_nowStage - 1] = 2;
+				}
+				else
+				{
+					SceneManager::Instance().SetFirstClearFlg(false);
 				}
 
 				// 動き終わった後の処理

@@ -216,11 +216,11 @@ void NormalEnemy::PostUpdate()
 	if (SceneManager::Instance().GetDebug())
 	{
 		// searchエリア可視化
-		m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
+		//m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
 		Math::Vector3 pos = m_param.startPos;
 		pos.y = m_pos.y;
 		// moveエリア可視化
-		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
+		//m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
 	}
 
 	// 動く床に当たっていた時の処理
@@ -613,7 +613,7 @@ void NormalEnemy::HitGround()
 		// スフィアの中心座標
 		sphereInfo.m_sphere.Center = m_pos;
 		// スフィアの半径
-		sphereInfo.m_sphere.Radius = 0.25f;
+		sphereInfo.m_sphere.Radius = 0.4f;
 		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
 		// スフィアのタイプ
 		sphereInfo.m_type = KdCollider::TypeGround;
@@ -626,21 +626,6 @@ void NormalEnemy::HitGround()
 		bool multiHitFlg = false;
 
 		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
 
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)

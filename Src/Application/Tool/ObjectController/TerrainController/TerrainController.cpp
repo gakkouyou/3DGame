@@ -725,6 +725,7 @@ void TerrainController::BeginCreateObject()
 			param.startPos = data.pos;	// 座標
 			param.scale = data.scale;	// 拡縮
 			param.degAng = data.degAng;	// 回転
+			param.targetName = data.targetName;	// ターゲットの名前
 			// 座標をセットする
 			object->SetParam(param);
 			// リストに追加

@@ -212,7 +212,7 @@ bool CharacterBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vecto
 	return hit;
 }
 
-bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg)
+bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg, Math::Color _color)
 {
 	//==================
 	// 球判定
@@ -222,7 +222,7 @@ bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, Kd
 	{
 		if (m_pDebugWire)
 		{
-			m_pDebugWire->AddDebugSphere(_sphereInfo.m_sphere.Center, _sphereInfo.m_sphere.Radius);
+			m_pDebugWire->AddDebugSphere(_sphereInfo.m_sphere.Center, _sphereInfo.m_sphere.Radius, _color);
 		}
 	}
 

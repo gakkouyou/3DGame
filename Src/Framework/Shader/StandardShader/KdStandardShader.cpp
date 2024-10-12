@@ -136,7 +136,7 @@ void KdStandardShader::EndGenerateDepthMapFromLight()
 // サブセットごとに描画命令を呼び出す：サブセットの個数分処理が重くなる
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void KdStandardShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld,
-	const std::vector<KdMaterial>& materials, const Math::Vector4& colRate, const Math::Vector3& emissive)
+	const std::vector<KdMaterial>& materials, const Math::Vector4& colRate, const Math::Vector3& emissive, const float _metallicRate, const float _roughnessRate)
 {
 	if (mesh == nullptr) { return; }
 
@@ -155,7 +155,7 @@ void KdStandardShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld,
 
 		// マテリアルデータの転送
 		const KdMaterial& material = materials[mesh->GetSubsets()[subi].MaterialNo];
-		WriteMaterial(material, colRate, emissive);
+		WriteMaterial(material, colRate, emissive, _metallicRate, _roughnessRate);
 
 		//-----------------------
 		// サブセット描画
@@ -170,7 +170,7 @@ void KdStandardShader::DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld,
 // データに所属する全ての描画用メッシュを描画する
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 void KdStandardShader::DrawModel(const KdModelData& rModel, const Math::Matrix& mWorld,
-	const Math::Color& colRate, const Math::Vector3& emissive)
+	const Math::Color& colRate, const Math::Vector3& emissive, const float _metallicRate, const float _roughnessRate)
 {
 	// オブジェクト単位の情報転送
 	if (m_dirtyCBObj)
@@ -185,7 +185,7 @@ void KdStandardShader::DrawModel(const KdModelData& rModel, const Math::Matrix& 
 	{
 		// 描画
 		DrawMesh(dataNodes[nodeIdx].m_spMesh.get(), dataNodes[nodeIdx].m_worldTransform * mWorld,
-			rModel.GetMaterials(), colRate, emissive);
+			rModel.GetMaterials(), colRate, emissive, _metallicRate, _roughnessRate);
 	}
 
 	// 定数に変更があった場合は自動的に初期状態に戻す
@@ -258,7 +258,7 @@ void KdStandardShader::DrawModel(KdModelWork& rModel, const Math::Matrix& mWorld
 	{
 		// 描画
 		DrawMesh(dataNodes[nodeIdx].m_spMesh.get(), workNodes[nodeIdx].m_worldTransform * mWorld,
-			data->GetMaterials(), colRate, emissive);
+			data->GetMaterials(), colRate, emissive, 0, 0);
 	}
 
 	// 定数に変更があった場合は自動的に初期状態に戻す
@@ -561,7 +561,7 @@ void KdStandardShader::Release()
 // BaseColor：基本色 / Emissive：自己発光色 / Metalic：金属性(テカテカ) / Roughness：粗さ(材質の色の反映度)
 // テクスチャは法線マップ以外は未設定なら白1ピクセルのシステムテクスチャを指定
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
-void KdStandardShader::WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate)
+void KdStandardShader::WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate, const float _metallicRate, const float _roughnessRate)
 {
 	//-----------------------
 	// マテリアル情報を定数バッファへ書き込む
@@ -570,6 +570,10 @@ void KdStandardShader::WriteMaterial(const KdMaterial& material, const Math::Vec
 	m_cb2_Material.Work().Emissive = material.m_emissiveRate * emiRate;
 	m_cb2_Material.Work().Metallic = material.m_metallicRate;
 	m_cb2_Material.Work().Roughness = material.m_roughnessRate;
+
+	//m_cb2_Material.Work().Metallic = _metallicRate;
+	//m_cb2_Material.Work().Roughness = _roughnessRate;
+
 	m_cb2_Material.Write();
 
 	//-----------------------

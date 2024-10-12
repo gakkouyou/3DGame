@@ -6,6 +6,7 @@
 #include "../../GameObject/BackGround/TitleBackGround/TitleBackGround.h"
 #include "../../GameObject/Camera/TitleCamera/TitleCamera.h"
 #include "../../GameObject/Title/TitlePlayer/TitlePlayer.h"
+#include "../../GameObject/UI/TitleUI/TitleUI.h"
 
 void TitleScene::Event()
 {
@@ -24,10 +25,12 @@ void TitleScene::Event()
 
 void TitleScene::Init()
 {
-	//KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
+	//KdShaderManager::Instance().WorkAmbientController().Init();
 
-	//KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
-	//KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
+
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
 
 	// シーンチェンジ
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
@@ -35,6 +38,11 @@ void TitleScene::Init()
 	AddObject(sceneChange);
 	// 保持
 	m_wpSceneChange = sceneChange;
+
+	// タイトルUI
+	std::shared_ptr<TitleUI> ui = std::make_shared<TitleUI>();
+	ui->Init();
+	AddObject(ui);
 
 	// 家
 	std::shared_ptr<House> house = std::make_shared<House>();

@@ -20,6 +20,8 @@ public:
 
 	void SetPauseFlg(bool _pauseFlg)override;
 
+	void SetFirstClearFlg(const bool _firstClearFlg) { m_firstClearFlg = _firstClearFlg; }
+
 private:
 	// マップエディタモードの際に使用する座標
 	Math::Vector3 m_debugPos	= Math::Vector3::Zero;
@@ -71,4 +73,8 @@ private:
 
 	const int	m_moveTime	= 60;
 	int			m_moveCount	= 0;
+
+	// 初めてステージをクリアしたときの処理
+	void FirstClearProcess();
+	bool m_firstClearFlg = false;
 };

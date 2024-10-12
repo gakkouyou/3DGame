@@ -37,12 +37,26 @@ public :
 	void AddObject(const std::shared_ptr<KdGameObject>& obj);
 
 	// ステージをゲット
-	const int GetNowStage() const { return m_nowStage; }
+	const UINT GetNowStage() const { return m_nowStage; }
 	// ステージをセット
 	void SetNowStage(int _nowStage) { m_nowStage = _nowStage; }
 
+	// ステージを初クリアした際のフラグセット
+	void SetFirstClearFlg(bool _firstClearFlg) { m_firstClearFlg = _firstClearFlg; }
+	const bool GetFirstClearFlg() const { return m_firstClearFlg; }
+
 	// デバッグモードかどうか
 	bool GetDebug() const;
+
+	// ステージ
+	enum Stage
+	{
+		Stage1 = 1,
+		Stage2,
+		Stage3,
+		AllGimmick,
+		Max
+	};
 
 private :
 
@@ -64,12 +78,15 @@ private :
 	SceneType m_currentSceneType = SceneType::First;
 
 	// 次のシーンの種類を保持している変数
-	SceneType m_nextSceneType = SceneType::Title;
+	//SceneType m_nextSceneType = SceneType::Title;
 	//SceneType m_nextSceneType = SceneType::Game;
-	//SceneType m_nextSceneType = SceneType::StageSelect;
+	SceneType m_nextSceneType = SceneType::StageSelect;
 
 	// プレイするステージ
-	int m_nowStage	= 1;
+	UINT m_nowStage	= 0;
+
+	// 初クリアかどうかのフラグ
+	bool m_firstClearFlg = false;
 
 private:
 

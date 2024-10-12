@@ -23,6 +23,8 @@ public:
 
 	const Param& GetParam() const { return m_param; }
 
+	virtual void OnHit()	override {}
+
 protected:
 	// モデル
 	std::shared_ptr<KdModelData> m_spModel = nullptr;

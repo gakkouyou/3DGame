@@ -141,6 +141,12 @@ void Goal::SetParam(const Param& _param)
 			m_spModel->Load("Asset/Models/EventObject/Clock/Bell/bell.gltf");
 			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
 			break;
+
+		// 発表用のモデル
+		case 4:
+			m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+			break;
 		}
 	}
 

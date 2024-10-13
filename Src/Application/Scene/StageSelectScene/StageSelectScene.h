@@ -6,6 +6,7 @@ class TPSCamera;
 class TerrainController;
 class SceneChange;
 class Player;
+class TerrainBase;
 
 class StageSelectScene : public BaseScene
 {
@@ -49,4 +50,7 @@ private:
 	// デバッグ用
 	bool m_debugFlg = false;
 	bool m_debugKeyFlg = false;
+
+	// ステージ初クリアの際に演出を行うオブジェクトを保持
+	std::weak_ptr<TerrainBase> m_wpFirstClearObject;
 };

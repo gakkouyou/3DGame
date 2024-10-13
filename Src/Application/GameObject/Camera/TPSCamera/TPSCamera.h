@@ -20,7 +20,9 @@ public:
 
 	void SetPauseFlg(bool _pauseFlg)override;
 
-	void SetFirstClearFlg(const bool _firstClearFlg) { m_firstClearFlg = _firstClearFlg; }
+	void SetFirstClearFlg(const bool _firstClearFlg);
+	const bool IsFirstClearProcess() const { return m_firstClear & FirstClear::StartProgressMax; }
+	const bool IsFirstClearEndProcess() const { return m_firstClear & FirstClear::EndProgressMax; }
 
 private:
 	// マップエディタモードの際に使用する座標
@@ -74,7 +76,22 @@ private:
 	const int	m_moveTime	= 60;
 	int			m_moveCount	= 0;
 
+	enum FirstClear
+	{
+		NowStartProcess = 1 << 0,
+		StartProgressMax = 1 << 1,
+		NowEndProcess = 1 << 2,
+		EndProgressMax = 1 << 3,
+	};
+
 	// 初めてステージをクリアしたときの処理
 	void FirstClearProcess();
-	bool m_firstClearFlg = false;
+	UINT m_firstClear = 0;
+	// スタートの行列
+	Math::Matrix m_startMat;
+	// ゴールの座標
+	Math::Matrix m_goalMat;
+	float m_progress = 0;
+	const float m_addProgress = 0.01f;
+	Math::Matrix m_targetMat;
 };

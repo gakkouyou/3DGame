@@ -34,10 +34,33 @@ void StageSelectScene::Event()
 	{
 		StartScene();
 	}
-	// 開始し終わって、ステージ初クリアの時の演出
-	else
+	// 演出しているオブジェクトがある場合
+	if (m_wpFirstClearObject.expired() == false)
 	{
-		
+		// カメラがアニメーションをし終わったら演出
+		if (m_wpCamera.expired() == false)
+		{
+			if (m_wpCamera.lock()->IsFirstClearProcess() == true)
+			{
+				m_wpFirstClearObject.lock()->Active();
+				// 演出が終わった時の処理
+				if (m_wpFirstClearObject.lock()->IsActive() == false)
+				{
+					m_wpCamera.lock()->SetFirstClearFlg(false);
+
+					if (m_wpCamera.lock()->IsFirstClearEndProcess() == true)
+					{
+						// ウィークポインタリセット
+						m_wpFirstClearObject.reset();
+						// プレイヤーを動けるようにする
+						if (m_wpPlayer.expired() == false)
+						{
+							m_wpPlayer.lock()->SetStopFlg(false);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// シーンを変える
@@ -72,14 +95,16 @@ void StageSelectScene::StartScene()
 			{
 				FirstClearProcess();
 			}
-
+			// 違ったらプレイヤーを動けるようにする
+			else
+			{
+				if (m_wpPlayer.expired() == false)
+				{
+					m_wpPlayer.lock()->SetStopFlg(false);
+				}
+			}
 			m_sceneStartFlg = true;
 			m_wpSceneChange.lock()->Reset();
-			// フェードインが終了したらプレイヤーを動けるようにする
-			if (!m_wpPlayer.expired())
-			{
-				m_wpPlayer.lock()->SetStopFlg(false);
-			}
 		}
 		else
 		{
@@ -94,19 +119,47 @@ void StageSelectScene::StartScene()
 
 void StageSelectScene::FirstClearProcess()
 {
-	if (m_wpTerrainController.expired() == false)
+	// オブジェクトをまだ見つけていない時のみ実行
+	if (m_wpFirstClearObject.expired() == true)
 	{
-		// 坂を出す演出をする
-		// ターゲットの坂を探すための文字列を作成
-		std::string string = "Stage" + SceneManager::Instance().GetNowStage();
-		for (auto& obj : m_wpTerrainController.lock()->GetObjList())
+		if (m_wpTerrainController.expired() == false)
 		{
-			if (obj.expired() == false)
+			// 坂を出す演出をする
+			// ターゲットの坂を探すための文字列を作成
+			std::string string = "Stage" + std::to_string(SceneManager::Instance().GetNowStage());
+			int count = 0;
+			for (auto& obj : m_wpTerrainController.lock()->GetObjList())
 			{
-				if (obj.lock()->GetParam().targetName == string)
+				if (obj.expired() == false)
 				{
-					obj.lock()->Active();
+					if (obj.lock()->GetParam().targetName == string)
+					{
+						// 坂なら保持する
+						if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::SlopeGround)
+						{
+							// 保持
+							m_wpFirstClearObject = obj;
+							// カメラにターゲットをセット
+							if (m_wpCamera.expired() == false)
+							{
+								m_wpCamera.lock()->SetTarget(obj.lock());
+								m_wpCamera.lock()->SetFirstClearFlg(true);
+							}
+						}
+						// 坂以外
+						else
+						{
+							// アクティブにする
+							obj.lock()->Active();
+						}
+						
+						// CSVの中身を書き換える
+						std::vector<TerrainController::Data>& dataList = m_wpTerrainController.lock()->WorkCSVData();
+						dataList[count].yetActive = 1;
+						//m_wpTerrainController.lock()->CSVWriter();
+					}
 				}
+				count++;
 			}
 		}
 	}

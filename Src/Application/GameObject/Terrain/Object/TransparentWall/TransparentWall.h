@@ -13,6 +13,8 @@ public:
 
 	void SetParam(const Param& _param)	override;
 
+	void Active()	override;
+
 private:
 
 };

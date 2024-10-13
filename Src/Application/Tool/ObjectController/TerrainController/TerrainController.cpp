@@ -249,6 +249,7 @@ void TerrainController::ConfirmedObject()
 			data.stayTime	= spTargetObject->GetParam().stayTime;		// 待機時間
 			data.degAng		= spTargetObject->GetParam().degAng;		// 回転角度
 			data.targetName = spTargetObject->GetParam().targetName;	// ターゲットのオブジェクトの名前
+			data.yetActive	= spTargetObject->GetParam().yetActive;		// すでにアクティブかどうか
 			// データが入っているリストにプッシュバックする
 			m_dataList.push_back(data);
 			// 地形のウィークポインタのリストにプッシュバックする
@@ -726,6 +727,7 @@ void TerrainController::BeginCreateObject()
 			param.scale = data.scale;	// 拡縮
 			param.degAng = data.degAng;	// 回転
 			param.targetName = data.targetName;	// ターゲットの名前
+			param.yetActive = data.yetActive;
 			// 座標をセットする
 			object->SetParam(param);
 			// リストに追加
@@ -749,6 +751,8 @@ void TerrainController::BeginCreateObject()
 			param.startPos = data.pos;	// 座標
 			param.scale = data.scale;	// 拡縮
 			param.degAng = data.degAng;	// 回転
+			param.targetName = data.targetName;	// ターゲットの名前
+			param.yetActive = data.yetActive;	// すでにアクティブかどうか
 			// 座標をセットする
 			object->SetParam(param);
 			// リストに追加
@@ -869,6 +873,9 @@ void TerrainController::CSVLoader()
 			case 16:
 				data.targetName = commaString;
 				break;
+
+			case 17:
+				data.yetActive = stoi(commaString);
 			}
 			cnt++;
 		}
@@ -911,8 +918,11 @@ void TerrainController::CSVWriter()
 		// 回転角度
 		ofs << data.degAng.x << "," << data.degAng.y << "," << data.degAng.z << ",";
 
-		// 名前
-		ofs << data.targetName << std::endl;
+		// ターゲットの名前
+		ofs << data.targetName << ",";
+
+		// すでにActiveになったかどうか
+		ofs << data.yetActive << std::endl;
 	}
 }
 

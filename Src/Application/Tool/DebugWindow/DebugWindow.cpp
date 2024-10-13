@@ -260,8 +260,8 @@ void DebugWindow::TerrainWindow()
 
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 
-			// スイッチと坂ならターゲットを設定できるようにする
-			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch || spObjectController->GetObjectType() == KdGameObject::ObjectType::SlopeGround)
+			// スイッチと坂と透明な床ならターゲットを設定できるようにする
+			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch || spObjectController->GetObjectType() == KdGameObject::ObjectType::SlopeGround || spObjectController->GetObjectType() == KdGameObject::ObjectType::TransparentWall)
 			{
 				ImGui::InputText("TargetName", &m_terrainParam.targetName);
 				ImGui::SameLine;

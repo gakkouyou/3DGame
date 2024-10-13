@@ -136,7 +136,7 @@ void TPSCamera::PostUpdate()
 	}
 
 	// 初めてステージをクリアしたときの処理
-	if (m_firstClearFlg)
+	if ((m_firstClear & FirstClear::NowStartProcess) || (m_firstClear & FirstClear::NowEndProcess) && ((m_firstClear & FirstClear::EndProgressMax) == 0))
 	{
 		FirstClearProcess();
 	}
@@ -175,6 +175,9 @@ void TPSCamera::Init()
 		m_mWorld = m_mLocalPos * Math::Matrix::CreateTranslation(m_wpPlayer.lock()->GetPos());
 	}
 
+	m_goalMat = rotMat;
+	m_goalMat.Translation({ 0, 3.5f, -8.0f });
+
 	m_goalProcess.moveFrame = 150;
 	m_goalProcess.startPos	= { 0, 1, -2.25 };
 	m_goalProcess.endPos	= { 0, 3.5, -8 };
@@ -208,6 +211,24 @@ void TPSCamera::SetPauseFlg(bool _pauseFlg)
 		{
 			m_pauseFlg = _pauseFlg;
 		}
+	}
+}
+
+void TPSCamera::SetFirstClearFlg(const bool _firstClearFlg)
+{
+	if (_firstClearFlg)
+	{
+		m_firstClear |= FirstClear::NowStartProcess;
+		m_startMat = m_mWorld;
+	}
+	else
+	{
+		m_firstClear |= FirstClear::NowEndProcess;
+		m_firstClear &= (~FirstClear::NowStartProcess);
+	}
+	if (m_wpTarget.expired() == false)
+	{
+		m_targetMat = m_wpTarget.lock()->GetMatrix();
 	}
 }
 
@@ -254,6 +275,93 @@ void TPSCamera::GoalProcess()
 
 void TPSCamera::FirstClearProcess()
 {
-	// ターゲットをセット
-	// スタートとゴールを決めとく
+	//=========================================
+	// 回転の補完
+	//=========================================
+
+	Math::Matrix startMat = m_startMat;
+
+	// ゴールの回転行列
+	Math::Matrix goalRotMat = m_goalMat;
+	goalRotMat.Translation({ 0, 0, 0 });
+	// ゴールの座標行列
+	Math::Matrix goalTransMat = Math::Matrix::CreateTranslation(m_goalMat.Translation());
+	// ターゲットの回転行列
+	Math::Matrix targetRotMat = m_targetMat;
+	targetRotMat.Translation({ 0, 0, 0 });
+	// ターゲットの座標行列
+	Math::Matrix targetTransMat = Math::Matrix::CreateTranslation(m_targetMat.Translation());
+	
+	// ゴールの座標行列をターゲットの回転行列で補正
+	goalTransMat = Math::Matrix::CreateTranslation(Math::Vector3::TransformNormal(goalTransMat.Translation(), targetRotMat));
+
+	// ゴールの行列
+	Math::Matrix goalMat = goalRotMat * targetRotMat * goalTransMat * targetTransMat;
+
+	// クォータニオン用意
+	Math::Quaternion startQue;
+	Math::Quaternion endQue;
+	Math::Quaternion nowQue;
+
+	// 最初の行列からクォータニオン作成
+	startQue = Math::Quaternion::CreateFromRotationMatrix(startMat);
+	endQue = Math::Quaternion::CreateFromRotationMatrix(goalRotMat * targetRotMat);
+
+	// 進行具合を加味した回転を求める
+	// 球面線形補完
+	nowQue = Math::Quaternion::Slerp(startQue, endQue, m_progress);
+
+	// ワールド行列を更新（回転）
+	m_mWorld = Math::Matrix::CreateFromQuaternion(nowQue);
+
+	//=========================================
+	// 回転の補完 ここまで
+	//=========================================
+
+	//=========================================
+	// 座標の補完
+	//=========================================
+
+	Math::Vector3 startVec;
+	Math::Vector3 endVec;
+
+	startVec = startMat.Translation();
+	endVec = goalMat.Translation();
+
+	// 進行具合を加味した座標を求める
+	Math::Vector3 nowVec;
+
+	// 線形補完
+	nowVec = Math::Vector3::Lerp(startVec, endVec, m_progress);
+
+	// ワールド行列を更新(座標)
+	m_mWorld.Translation(nowVec);
+
+	//=========================================
+	// 座標の補完 ここまで
+	//=========================================
+
+	//=========================================
+	// 進行具合の更新
+	//=========================================
+	if (m_firstClear & FirstClear::NowStartProcess)
+	{
+		m_progress += m_addProgress;
+
+		if (m_progress > 1.0f)
+		{
+			m_progress = 1.0f;
+			m_firstClear |= FirstClear::StartProgressMax;
+		}
+	}
+	else if (m_firstClear & FirstClear::NowEndProcess)
+	{
+		m_progress -= m_addProgress;
+
+		if (m_progress < 0.0f)
+		{
+			m_progress = 0.0f;
+			m_firstClear |= FirstClear::EndProgressMax;
+		}
+	}
 }

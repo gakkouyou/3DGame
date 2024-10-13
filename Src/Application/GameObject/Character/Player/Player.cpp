@@ -261,7 +261,7 @@ void Player::Update()
 			if ((m_situationType & SituationType::Carry) == 0)
 			{
 				// 空中じゃなければジャンプする
-				if (!(m_situationType & SituationType::Air))
+				//if (!(m_situationType & SituationType::Air))
 				{
 					m_situationType |= SituationType::Jump;
 					m_gravity = -m_jumpPow;

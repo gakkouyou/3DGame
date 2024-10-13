@@ -22,6 +22,24 @@ public:
 	// 地形のリストを渡す
 	const std::vector<std::weak_ptr<TerrainBase>>& GetObjList() const { return m_wpTerrainList; }
 
+	// CSVのデータ型
+	struct Data
+	{
+		std::string type;
+		std::string name;
+		Math::Vector3 pos = Math::Vector3::Zero;
+		Math::Vector3 goalPos = Math::Vector3::Zero;
+		Math::Vector3 scale = { 1, 1, 1 };
+		float speed = 0;
+		int stayTime = 0;
+		Math::Vector3 degAng = Math::Vector3::Zero;
+		std::string targetName;
+		int			yetActive = 0;
+	};
+
+	// CSVの中身を書き換えたい場合
+	std::vector<Data>& WorkCSVData() { return m_dataList; }
+
 	// カメラをセットする
 	void SetCamera(const std::shared_ptr<const CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
@@ -83,19 +101,6 @@ private:
 	Count m_objectCount;
 	Count m_objectCountReset;
 
-	// CSVのデータ型
-	struct Data
-	{
-		std::string type;
-		std::string name;
-		Math::Vector3 pos		= Math::Vector3::Zero;
-		Math::Vector3 goalPos	= Math::Vector3::Zero;
-		Math::Vector3 scale		= { 1, 1, 1 };
-		float speed				= 0;
-		int stayTime			= 0;
-		Math::Vector3 degAng	= Math::Vector3::Zero;
-		std::string targetName;
-	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む

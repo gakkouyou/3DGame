@@ -45,7 +45,7 @@ public:
 	virtual void SetScale(const Math::Vector3& scale);
 	virtual Math::Vector3 GetScale() const;
 
-	const Math::Matrix& GetMatrix() const { return m_mWorld; }
+	virtual const Math::Matrix& GetMatrix() const { return m_mWorld; }
 
 	virtual bool IsExpired() const { return m_isExpired; }
 	virtual void SetExpired(const bool _isExpired) { m_isExpired = _isExpired; }

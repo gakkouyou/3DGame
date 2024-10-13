@@ -138,9 +138,7 @@ void GameScene::Event()
 				// 初クリアかどうかをチェック
 				if (m_stageInfoList[m_nowStage - 1] != 2)
 				{
-					SceneManager::Instance().SetFirstClearFlg(true);
-					// ステージをクリアにする
-					m_stageInfoList[m_nowStage - 1] = 2;
+ 					SceneManager::Instance().SetFirstClearFlg(true);
 				}
 				else
 				{
@@ -162,8 +160,10 @@ void GameScene::Event()
 
 								if (m_wpSceneChange.lock()->GetFinishFlg())
 								{
+									// ステージをクリアにする
+									m_stageInfoList[m_nowStage - 1] = 2;
 									// CSVに書き込む
-									CSVWriter();
+									//CSVWriter();
 									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 								}
 							}

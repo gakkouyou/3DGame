@@ -20,16 +20,19 @@ public:
 
 	virtual void Active() {}
 
+	virtual const bool IsActive()	const { return false; }
+
 	struct Param
 	{
-		Math::Vector3 pos		= Math::Vector3::Zero;
-		Math::Vector3 startPos	= Math::Vector3::Zero;
-		Math::Vector3 goalPos	= Math::Vector3::Zero;
-		Math::Vector3 scale		= Math::Vector3::Zero;
-		float speed				= 0;
-		int stayTime			= 0;
-		Math::Vector3 degAng	= Math::Vector3::Zero;
-		std::string targetName;
+		Math::Vector3	pos			= Math::Vector3::Zero;
+		Math::Vector3	startPos	= Math::Vector3::Zero;
+		Math::Vector3	goalPos		= Math::Vector3::Zero;
+		Math::Vector3	scale		= Math::Vector3::Zero;
+		float			speed		= 0;
+		int				stayTime	= 0;
+		Math::Vector3	degAng		= Math::Vector3::Zero;
+		std::string		targetName;
+		bool			yetActive	= false;
 	};
 
 	// 地形のパラメータセット関数

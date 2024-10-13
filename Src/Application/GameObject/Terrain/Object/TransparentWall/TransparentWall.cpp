@@ -36,10 +36,25 @@ void TransparentWall::SetParam(const Param& _param)
 	m_param.startPos	= _param.startPos;
 	m_param.scale		= _param.scale;
 	m_param.degAng		= _param.degAng;
+	m_param.targetName	= _param.targetName;
+	m_param.yetActive	= _param.yetActive;
+
+	if (m_param.yetActive == true)
+	{
+		// 当たり判定をなくす
+		m_pCollider->SetEnable("TransParentWall", false);
+	}
 
 	Math::Matrix transMat	= Math::Matrix::CreateTranslation(m_param.pos);
 	Math::Matrix rotMat		= Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_param.degAng.y), DirectX::XMConvertToRadians(m_param.degAng.x), DirectX::XMConvertToRadians(m_param.degAng.z));
 	Math::Matrix scaleMat	= Math::Matrix::CreateScale(m_param.scale);
 
 	m_mWorld = scaleMat * rotMat * transMat;
+}
+
+void TransparentWall::Active()
+{
+	m_param.yetActive = true;
+	// 当たり判定をなくす
+	m_pCollider->SetEnable("TransParentWall", false);
 }

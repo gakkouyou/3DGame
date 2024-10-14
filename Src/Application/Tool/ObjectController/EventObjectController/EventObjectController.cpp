@@ -12,6 +12,7 @@
 #include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
 #include "../../../GameObject/EventObject/WarpPoint/WarpPoint.h"
 #include "../../../GameObject/EventObject/StageSelectObject/StageSelectObject.h"
+#include "../../../GameObject/EventObject/FinalGoal/FinalGoal.h"
 
 void EventObjectController::Update()
 {
@@ -146,6 +147,16 @@ void EventObjectController::ConfirmedObject()
 				m_objectCount.StageSelectObject++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.StageSelectObject);
+				break;
+
+				// 最終ゴールの場合
+			case ObjectType::FinalGoal:
+				// タイプのセット
+				data.type = "FinalGoal";
+				// カウントを進める
+				m_objectCount.FinalGoal++;
+				// 名前を決める
+				data.name = data.type + std::to_string(m_objectCount.FinalGoal);
 				break;
 			}
 			// 名前をセットする
@@ -282,6 +293,16 @@ void EventObjectController::CreateObject(ObjectType _object)
 		object->Init();
 		// カメラをセットする
 		object->SetCamera(m_wpCamera);
+		SceneManager::Instance().AddObject(object);
+		m_wpTargetObject = object;
+		break;
+	}
+
+	// 最終ゴール
+	case ObjectType::FinalGoal:
+	{
+		std::shared_ptr<FinalGoal> object = std::make_shared<FinalGoal>();
+		object->Init();
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
 		break;
@@ -490,6 +511,28 @@ void EventObjectController::BeginCreateObject()
 			m_objectCount.StageSelectObject++;
 			// 名前の数値をリセットする
 			std::string name = data.type + std::to_string(m_objectCount.StageSelectObject);
+			// 名前をセットする
+			object->SetObjectName(name);
+			// 配列の名前を変更する
+			data.name = name;
+			// リストに追加
+			m_wpObjectList.push_back(object);
+		}
+		// 最終ゴール
+		else if (data.type == "FinalGoal")
+		{
+			std::shared_ptr<FinalGoal> object = std::make_shared<FinalGoal>();
+			// パラメータをセットする
+			EventObjectBase::Param setParam;
+			setParam.basePos = data.pos;
+			setParam.modelNum = data.modelNum;
+			object->SetParam(setParam);
+			object->Init();
+			SceneManager::Instance().AddObject(object);
+			// カウントを進める
+			m_objectCount.FinalGoal++;
+			// 名前の数値をリセットする
+			std::string name = data.type + std::to_string(m_objectCount.FinalGoal);
 			// 名前をセットする
 			object->SetObjectName(name);
 			// 配列の名前を変更する

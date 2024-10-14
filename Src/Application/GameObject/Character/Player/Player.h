@@ -50,7 +50,7 @@ public:
 	const float GetAngle()const { return m_angle; }
 
 	// クリアしたかどうか
-	const bool GetGoalFlg() const { return m_goalFlg; }
+	const bool GetGoalFlg() const { return m_goalFlg || m_finalGoalFlg; }
 
 	// モデルをゲット
 	const std::shared_ptr<KdModelWork>& GetModel() const { return m_spModel; }
@@ -230,6 +230,9 @@ private:
 
 	// ステージセレクトシーンからゲームシーンに移る時のフラグ
 	bool m_beginGameSceneFlg = false;
+
+	// 最終ゴールのフラグ
+	bool m_finalGoalFlg = false;
 
 	bool flg[4] = { false, false, false, false };
 };

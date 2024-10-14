@@ -83,10 +83,10 @@ private :
 	SceneType m_nextSceneType = SceneType::StageSelect;
 
 	// プレイするステージ
-	UINT m_nowStage	= 1;
+	UINT m_nowStage	= 0;
 
 	// 初クリアかどうかのフラグ
-	bool m_firstClearFlg = true;
+	bool m_firstClearFlg = false;
 
 private:
 

@@ -63,21 +63,36 @@ void StageSelectScene::Event()
 		}
 	}
 
-	// シーンを変える
-	if (m_wpPlayer.lock()->GetBeginGameScene())
+	if (m_wpPlayer.expired() == false)
 	{
-		if (!m_wpSceneChange.expired())
+		// シーンを変える(ゲームシーンへ)
+		if (m_wpPlayer.lock()->GetBeginGameScene())
 		{
-			m_wpSceneChange.lock()->EndScene();
-		}
-	}
+			if (!m_wpSceneChange.expired())
+			{
+				m_wpSceneChange.lock()->EndScene();
 
-	if (!m_wpSceneChange.expired())
-	{
-		// フェードアウト終了後シーンをゲームシーンに
-		if (m_wpSceneChange.lock()->GetFinishFlg())
+				// フェードアウト終了後シーンをゲームシーンに
+				if (m_wpSceneChange.lock()->GetFinishFlg())
+				{
+					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
+				}
+			}
+		}
+
+		// シーンを変える(最終ゴール後)
+		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
-			SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
+			if (!m_wpSceneChange.expired())
+			{
+				m_wpSceneChange.lock()->EndScene(0, true, { 1, 1, 1 });
+
+				// フェードアウト終了後シーンをタイトルシーンに
+				if (m_wpSceneChange.lock()->GetFinishFlg())
+				{
+					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Title);
+				}
+			}
 		}
 	}
 }
@@ -154,6 +169,7 @@ void StageSelectScene::FirstClearProcess()
 						}
 						
 						// CSVの中身を書き換える
+						// 坂がもう出た状態に書き換える
 						std::vector<TerrainController::Data>& dataList = m_wpTerrainController.lock()->WorkCSVData();
 						dataList[count].yetActive = 1;
 						//m_wpTerrainController.lock()->CSVWriter();
@@ -225,6 +241,8 @@ void StageSelectScene::Init()
 	eventObjectController->SetCamera(camera);
 	eventObjectController->Init();
 	AddObject(eventObjectController);
+	// 保持
+	m_wpEventObjectController = eventObjectController;
 
 	// マップエディタ的な
 	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
@@ -259,4 +277,30 @@ void StageSelectScene::Init()
 
 	// プレイヤーの座標が確定してから初期化する
 	camera->Init();
+
+	// 初クリアなら最終ゴールのモデルを変更
+	if (SceneManager::Instance().GetFirstClearFlg() == true)
+	{
+		int stageNum = SceneManager::Instance().GetNowStage();
+		if (m_wpEventObjectController.expired() == false)
+		{
+			int count = 0;
+			for (auto& obj : m_wpEventObjectController.lock()->GetObjList())
+			{
+				if (obj.expired() == false)
+				{
+					if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::FinalGoal)
+					{
+						m_wpEventObjectController.lock()->WorkCSVData()[count].modelNum = stageNum;
+						EventObjectBase::Param param = obj.lock()->GetParam();
+						param.modelNum = stageNum;
+						obj.lock()->SetParam(param);
+						//m_wpEventObjectController.lock()->CSVWriter();
+						break;
+					}
+				}
+				count++;
+			}
+		}
+	}
 }

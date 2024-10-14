@@ -150,20 +150,24 @@ void GameScene::Event()
 				{
 					if (!m_wpResult.expired())
 					{
+						// ステージクリアのリザルトを出す
 						m_wpResult.lock()->StageClear();
 
 						if (m_wpResult.lock()->GetClearFinish())
 						{
 							if (!m_wpSceneChange.expired())
 							{
+								// シーンを終了
 								m_wpSceneChange.lock()->EndScene();
 
+								// 処理が終了したらシーンを変更
 								if (m_wpSceneChange.lock()->GetFinishFlg())
 								{
 									// ステージをクリアにする
 									m_stageInfoList[m_nowStage - 1] = 2;
 									// CSVに書き込む
 									//CSVWriter();
+									// シーンを変更
 									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 								}
 							}
@@ -178,8 +182,8 @@ void GameScene::Event()
 			}
 		}
 	}
-
 }
+
 void GameScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 1, -1, 1 }, { 3, 3, 3 });

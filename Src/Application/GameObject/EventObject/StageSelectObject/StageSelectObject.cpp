@@ -24,9 +24,7 @@ void StageSelectObject::GenerateDepthMapFromLight()
 	}
 	if (m_spSphereModel)
 	{
-		//KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
-		//KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 
@@ -38,9 +36,7 @@ void StageSelectObject::DrawLit()
 	}
 	if (m_spSphereModel)
 	{
-		//KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
-		//KdShaderManager::Instance().UndoRasterizerState();
 	}
 
 

@@ -112,8 +112,8 @@ void SceneChange::DrawSprite()
 	// 黒フェードインアウトの場合
 	else
 	{
-		Math::Color color = { 1, 1, 1, m_alpha };
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_spBlackTex, 0, 0, nullptr, &color);
+		Math::Color color = { m_color.x, m_color.y, m_color.z, m_alpha };
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_spWhiteTex, 0, 0, nullptr, &color);
 	}
 }
 
@@ -133,10 +133,10 @@ void SceneChange::Init()
 	}
 
 	// 黒画像
-	if (!m_spBlackTex)
+	if (!m_spWhiteTex)
 	{
-		m_spBlackTex = std::make_shared<KdTexture>();
-		m_spBlackTex->Load("Asset/Textures/SceneChange/black.png");
+		m_spWhiteTex = std::make_shared<KdTexture>();
+		m_spWhiteTex->Load("Asset/Textures/SceneChange/white.png");
 	}
 }
 
@@ -148,7 +148,7 @@ void SceneChange::Reset()
 	m_stayCnt = 0;
 }
 
-void SceneChange::StartScene(int _stayTime, bool _black)
+void SceneChange::StartScene(int _stayTime, bool _black, Math::Vector3 _color)
 {
 	if (m_endFlg == true) return;
 
@@ -167,12 +167,14 @@ void SceneChange::StartScene(int _stayTime, bool _black)
 		// 黒フェードインの場合
 		else
 		{
+			m_startFlg = true;
 			m_alpha = 1.0f;
+			m_color = { _color.x, _color.y, _color.z };
 		}
 	}
 }
 
-void SceneChange::EndScene(int _stayTime, bool _black)
+void SceneChange::EndScene(int _stayTime, bool _black, Math::Vector3 _color)
 {
 	if (m_startFlg == true) return;
 
@@ -193,6 +195,7 @@ void SceneChange::EndScene(int _stayTime, bool _black)
 		{
 			m_endFlg = true;
 			m_alpha = 0.0f;
+			m_color = { _color.x, _color.y, _color.z };
 		}
 	}
 }

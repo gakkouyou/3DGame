@@ -109,8 +109,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"grass_tiles",
-			"uri":"grass_tiles.png"
+			"name":"glassTiles",
+			"uri":"glassTiles.png"
 		},
 		{
 			"mimeType":"image/png",

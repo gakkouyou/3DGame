@@ -28,6 +28,19 @@ public:
 	// オブジェクトリストを渡す
 	const std::vector<std::weak_ptr<EventObjectBase>>& GetObjList() const { return m_wpObjectList; }
 
+	// CSVのデータ型
+	struct Data
+	{
+		std::string type;
+		std::string name;
+		Math::Vector3 pos;
+		Math::Vector3 secondPos;
+		int modelNum;
+	};
+
+	// CSVの中身を書き換えたい場合
+	std::vector<Data>& WorkCSVData() { return m_dataList; }
+
 	// 今持っているオブジェクトのタイプをゲットする
 	const KdGameObject::ObjectType GetObjectType() const;
 	// 今持っているオブジェクトの名前をゲットする
@@ -72,20 +85,12 @@ private:
 		int SavePoint	= 0;
 		int WarpPoint	= 0;
 		int StageSelectObject = 0;
+		int FinalGoal	= 0;
 	};
 
 	Count m_objectCount;
 	Count m_objectCountReset;
 
-	// CSVのデータ型
-	struct Data
-	{
-		std::string type;
-		std::string name;
-		Math::Vector3 pos;
-		Math::Vector3 secondPos;
-		int modelNum;
-	};
 	// CSV配列
 	std::vector<Data> m_dataList;
 	// CSVを読み込む

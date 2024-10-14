@@ -1079,6 +1079,7 @@ void Player::HitJudgeGround()
 	}
 
 	// 地面(壁)とのスフィア判定
+	// BOX当たってたらにするかも
 	{
 		// スフィアの情報
 		KdCollider::SphereInfo sphereInfo;
@@ -1332,6 +1333,11 @@ void Player::HitJudgeEvent()
 				case ObjectType::WarpPoint:
 					m_pos = spHitObject->GetPos();
 					break;
+
+					// 最終ゴール
+				case ObjectType::FinalGoal:
+					m_stopFlg = true;
+					m_finalGoalFlg = true;
 				}
 			}
 		}

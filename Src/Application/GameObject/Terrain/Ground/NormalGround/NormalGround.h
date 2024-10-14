@@ -7,7 +7,6 @@ public:
 	NormalGround()				{}
 	~NormalGround()	override	{}
 	
-	void DrawLit()	override;
 	void Init()		override;
 
 	void SetParam(const Param& _param) override;

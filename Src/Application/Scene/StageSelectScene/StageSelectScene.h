@@ -7,6 +7,7 @@ class TerrainController;
 class SceneChange;
 class Player;
 class TerrainBase;
+class EventObjectController;
 
 class StageSelectScene : public BaseScene
 {
@@ -40,6 +41,9 @@ private:
 
 	// シーンチェンジ
 	std::weak_ptr<SceneChange> m_wpSceneChange;
+
+	// EventObjectController
+	std::weak_ptr<EventObjectController> m_wpEventObjectController;
 
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;

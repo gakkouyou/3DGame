@@ -532,6 +532,13 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::StageSelectObject);
 			}
 
+			// 最終ゴール
+			if (ImGui::Button("FinalGoal"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::FinalGoal);
+			}
+
 			// 座標
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
 			ImGui::DragFloat("Pos.y", &m_eventObjectParam.pos.y, 0.25f);

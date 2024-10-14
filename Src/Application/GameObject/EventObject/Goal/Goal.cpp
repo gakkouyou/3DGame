@@ -64,9 +64,7 @@ void Goal::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-		KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 
@@ -74,9 +72,7 @@ void Goal::DrawLit()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-		KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 

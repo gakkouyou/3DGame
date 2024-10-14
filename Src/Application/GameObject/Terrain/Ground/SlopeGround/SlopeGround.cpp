@@ -2,7 +2,6 @@
 
 void SlopeGround::Update()
 {
-
 }
 
 void SlopeGround::GenerateDepthMapFromLight()

@@ -15,10 +15,10 @@ public:
 	// リセット処理
 	void Reset()		override;
 
-	// シーンを開始する _stayTime:処理を始められる状態から待機するフレーム数 _black:丸の遷移ではなく、黒い画像のアルファ値変更でフェードイン
-	void StartScene(const int _stayTime = 0, bool _black = false);
-	// シーンを終了する _stayTime:処理を始められる状態から待機するフレーム数 _black:丸の遷移ではなく、黒い画像のアルファ値変更でフェードイン
-	void EndScene(const int _stayTime = 0, bool _black = false);
+	// シーンを開始する _stayTime:処理を始められる状態から待機するフレーム数 _black:丸の遷移ではなく、黒い画像のアルファ値変更でフェードイン(色指定可能)
+	void StartScene(const int _stayTime = 0, bool _black = false, Math::Vector3 _color = { 0, 0, 0 });
+	// シーンを終了する _stayTime:処理を始められる状態から待機するフレーム数 _black:丸の遷移ではなく、黒い画像のアルファ値変更でフェードアウト(色指定可能)
+	void EndScene(const int _stayTime = 0, bool _black = false, Math::Vector3 _color = { 0, 0, 0 });
 
 	// シーン遷移が終了したことを伝えるフラグ
 	const bool GetFinishFlg() const { return m_finishFlg; }
@@ -60,9 +60,11 @@ private:
 	bool m_blackFlg = false;
 
 	// 黒画像
-	std::shared_ptr<KdTexture> m_spBlackTex = nullptr;
+	std::shared_ptr<KdTexture> m_spWhiteTex = nullptr;
 	// アルファ値
 	float m_alpha = 0.0f;
 	// アルファ値の増減値
 	const float m_distAlpha = 0.01f;
+
+	Math::Vector3 m_color;
 };

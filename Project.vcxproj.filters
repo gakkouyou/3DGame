@@ -268,6 +268,9 @@
     <Filter Include="Src\Application\GameObject\UI\TitleUI">
       <UniqueIdentifier>{1adf2fe0-4217-4157-9de4-c09c8582a040}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\FinalGoal">
+      <UniqueIdentifier>{30098413-4cae-49b8-9b2f-8cf543976498}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -606,6 +609,9 @@
     <ClInclude Include="Src\Application\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>Src\Application\GameObject\UI\TitleUI</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.h">
+      <Filter>Src\Application\GameObject\EventObject\FinalGoal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -913,6 +919,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>Src\Application\GameObject\UI\TitleUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.cpp">
+      <Filter>Src\Application\GameObject\EventObject\FinalGoal</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

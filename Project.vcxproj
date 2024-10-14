@@ -171,6 +171,7 @@
     <ClInclude Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Candy\Candy.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h" />
+    <ClInclude Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h" />
@@ -278,6 +279,7 @@
     <ClCompile Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Candy\Candy.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp" />
+    <ClCompile Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp" />

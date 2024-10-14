@@ -100,6 +100,7 @@ public:
 		SavePoint,		// セーブポイント
 		WarpPoint,		// ワープポイント
 		StageSelectObject,	// ステージセレクトのオブジェクト
+		FinalGoal,		// 最終ゴール
 
 		Box,			// 箱
 		BoxEnemy,		// 箱の敵

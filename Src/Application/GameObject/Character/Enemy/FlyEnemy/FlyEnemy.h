@@ -19,4 +19,8 @@ public:
 private:
 	// sinカーブ用の角度
 	float m_angle	= 0;
+
+	// 死亡モーション用
+	int m_deathCount = 0;
+	const int m_deathTime = 45;
 };

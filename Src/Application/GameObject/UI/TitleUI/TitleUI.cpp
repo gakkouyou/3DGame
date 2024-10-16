@@ -7,14 +7,37 @@ void TitleUI::Update()
 		m_deleteFlg = true;
 	}
 
+	// 徐々に消していく
 	if (m_deleteFlg)
 	{
-		m_alpha -= 0.02f;
+		m_alpha -= m_addAlpha;
 		if (m_alpha < 0)
 		{
 			m_alpha = 0;
 		}
+		return;
 	}
+	
+	// 徐々に出していく
+	if(m_startFlg == false)
+	{
+		m_alpha += m_addAlpha;
+		m_pushSpaceAlpha += m_addAlpha;
+		if (m_alpha > 1.0f)
+		{
+			m_alpha = 1.0f;
+			m_startFlg = true;
+		}
+		return;
+	}
+
+	// "PUSH SPACE"のアルファ値を0.3～1.0に
+	m_degAng += m_addDegAng;
+	if (m_degAng >= 360)
+	{
+		m_degAng -= 360;
+	}
+	m_pushSpaceAlpha = (sin(DirectX::XMConvertToRadians(m_degAng)) + 1.0f) * 0.35f + 0.3f;
 }
 
 void TitleUI::DrawSprite()
@@ -25,6 +48,8 @@ void TitleUI::DrawSprite()
 	{
 		KdShaderManager::Instance().m_spriteShader.DrawTex(m_title.spTex, m_title.pos.x, m_title.pos.y, nullptr, &color);
 	}
+
+	color = { 1, 1, 1, m_pushSpaceAlpha };
 	if (m_pushSpace.spTex)
 	{
 		KdShaderManager::Instance().m_spriteShader.DrawTex(m_pushSpace.spTex, m_pushSpace.pos.x, m_pushSpace.pos.y, nullptr, &color);

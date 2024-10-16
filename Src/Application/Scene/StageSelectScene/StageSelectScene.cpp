@@ -12,6 +12,7 @@
 #include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../../GameObject/BackGround/BackGround.h"
 #include "../../GameObject/Character/Player/Player.h"
+#include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
 
 void StageSelectScene::Event()
 {
@@ -90,7 +91,7 @@ void StageSelectScene::Event()
 				// フェードアウト終了後シーンをタイトルシーンに
 				if (m_wpSceneChange.lock()->GetFinishFlg())
 				{
-					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Title);
+					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Result);
 				}
 			}
 		}
@@ -106,9 +107,19 @@ void StageSelectScene::StartScene()
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
 			// ステージ初クリアの際の処理
-			if (SceneManager::Instance().GetFirstClearFlg() == true)
+			if (m_firstClearFlg == true)
 			{
 				FirstClearProcess();
+
+				// もし初クリアだが演出がない場合はプレイヤーを動けるようにする
+				if (m_wpFirstClearObject.expired() == true)
+				{
+					// プレイヤーを動けるようにする
+					if (m_wpPlayer.expired() == false)
+					{
+						m_wpPlayer.lock()->SetStopFlg(false);
+					}
+				}
 			}
 			// 違ったらプレイヤーを動けるようにする
 			else
@@ -187,6 +198,22 @@ void StageSelectScene::Init()
 	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.3, 0.3, 0.3, 1.0 });
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50,50 }, 50);
 
+	int nowStage = SceneManager::Instance().GetNowStage();
+
+	// タイトル→ステージセレクトシーンの場合はチェックしない
+	if (nowStage != 0)
+	{
+		// 初クリアかどうか
+		if (SceneManager::Instance().GetStageInfo()[SceneManager::Instance().GetNowStage() - 1] == SceneManager::StageInfo::FirstClear)
+		{
+			m_firstClearFlg = true;
+		}
+		else
+		{
+			m_firstClearFlg = false;
+		}
+	}
+
 	// 背景
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
 	backGround->Init();
@@ -209,24 +236,10 @@ void StageSelectScene::Init()
 
 	player->SetCamera(camera);
 
-	// オブジェクトコントローラーにカメラを渡す
-	//objectController->SetCamera(camera);
-
-	//// ステージの画像
-	//std::shared_ptr<StageSelectTexture> stageSelectTexture = std::make_shared<StageSelectTexture>();
-	//stageSelectTexture->Init();
-	//AddObject(stageSelectTexture);
-	//// 保持
-	//m_wpStageSelectTexture = stageSelectTexture;
-
-	//// UI
-	//std::shared_ptr<StageSelectUI> ui = std::make_shared<StageSelectUI>();
-	//ui->Init();
-	//AddObject(ui);
-	//// 保持
-	//m_wpUI = ui;
-	//// ステージ数とかもってるクラスをセット
-	//ui->SetStageSelectTexture(stageSelectTexture);
+	// UI
+	std::shared_ptr<StageSelectUI> ui = std::make_shared<StageSelectUI>();
+	ui->Init();
+	AddObject(ui);
 
 	// シーンを変える
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
@@ -237,8 +250,9 @@ void StageSelectScene::Init()
 
 	// EventObjectController
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
-	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect.csv");
-	eventObjectController->SetCamera(camera);
+	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect.csv");	// CSVセット
+	eventObjectController->SetCamera(camera);										// カメラセット
+	eventObjectController->SetStageSelectUI(ui);									// UIセット
 	eventObjectController->Init();
 	AddObject(eventObjectController);
 	// 保持
@@ -269,7 +283,7 @@ void StageSelectScene::Init()
 			if (obj.lock()->GetParam().modelNum == SceneManager::Instance().GetNowStage())
 			{
 				Math::Vector3 pos = obj.lock()->GetPos();
-				pos.z -= 3.0f;
+				pos.z -= 4.0f;
 				player->SetPos(pos);
 			}
 		}
@@ -279,7 +293,7 @@ void StageSelectScene::Init()
 	camera->Init();
 
 	// 初クリアなら最終ゴールのモデルを変更
-	if (SceneManager::Instance().GetFirstClearFlg() == true)
+	if (m_firstClearFlg == true)
 	{
 		int stageNum = SceneManager::Instance().GetNowStage();
 		if (m_wpEventObjectController.expired() == false)

@@ -183,18 +183,24 @@ void BoxEnemy::PostUpdate()
 			// 回転処理
 			playerCarryPos.x = playerCarryPos.z * sin(DirectX::XMConvertToRadians(m_degAng));
 			playerCarryPos.z = playerCarryPos.z * cos(DirectX::XMConvertToRadians(m_degAng));
+			// 座標足しこみ
+			playerCarryPos += spPlayer->GetPos();
+
+			// 回転込みの行列を作成
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+			Math::Matrix mat = rotMat * transMat;
 
 			// 頂点の座標を回転
 			for (int i = 0; i < Max; i++)
 			{
-				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * m_mWorld).Translation();
+				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * mat).Translation();
 			}
 
-			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * m_mWorld).Translation();
+			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
 
 			//m_pDebugWire->AddDebugSphere(carryPos, 0.1f, kRedColor);
 
-			playerCarryPos += spPlayer->GetPos();
 			//m_pDebugWire->AddDebugSphere(playerCarryPos, 0.1f, kBlackColor);
 
 			m_pos += playerCarryPos - carryPos;

@@ -8,11 +8,11 @@ public:
 	StageSelectUI()				{}
 	~StageSelectUI()	override{}
 
-	void Update();
-	void DrawSprite();
-	void Init();
+	void Update()		override;
+	void DrawSprite()	override;
+	void Init()			override;
 
-	void SetStageSelectTexture(const std::shared_ptr<StageSelectTexture>& _spStage) { m_wpStage = _spStage; }
+	void OnHit()		override;
 
 private:
 	// サインカーブ構造体
@@ -32,8 +32,6 @@ private:
 		SinCurve					sinCurve;						// サインカーブ用
 	};
 
-	// 三角の画像
-	Texture m_triangle;
 	// ステージ
 	Texture m_stage;
 	// 数字
@@ -51,4 +49,7 @@ private:
 
 	// ステージ数とか持ってるクラス
 	std::weak_ptr<StageSelectTexture> m_wpStage;
+
+	// OnHitに入ったかどうか
+	bool m_onHitFlg = false;
 };

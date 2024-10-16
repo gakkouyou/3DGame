@@ -908,7 +908,7 @@ void Player::HitJudge()
 	// 地面との当たり判定
 	HitJudgeGround();
 
-	if (m_stopFlg == false)
+	//if (m_stopFlg == false)
 	{
 		// 触れたらイベントが発生する
 		HitJudgeEvent();
@@ -1343,6 +1343,8 @@ void Player::HitJudgeEvent()
 		}
 	}
 
+
+	std::shared_ptr<KdGameObject> spHitObject = nullptr;
 	// ステージセレクトのオブジェクトとの視野角判定
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
@@ -1355,6 +1357,15 @@ void Player::HitJudgeEvent()
 
 			// プレイヤーとオブジェクトの距離
 			Math::Vector3 vec = obj->GetPos() - m_pos;
+			// 一番近いオブジェクトのみ処理をするために、すでに判定をしたオブジェクトより遠かったらスキップする
+			if (spHitObject)
+			{
+				Math::Vector3 maxVec = spHitObject->GetPos() - m_pos;
+				if (vec.Length() < maxVec.Length())
+				{
+					continue;
+				}
+			}
 			// プレイヤーの正面
 			Math::Vector3 forwardVec = m_mWorld.Backward();
 
@@ -1369,24 +1380,29 @@ void Player::HitJudgeEvent()
 				// 視野角内ならステージに入れるようにする
 				if (deg < 90)
 				{
-					obj->OnHit();
-					if (GetAsyncKeyState('F') & 0x8000)
-					{
-						if (m_actionKeyFlg == false)
-						{
-							m_stopFlg = true;
-							m_beginGameSceneFlg = true;
-
-							// キーフラグ
-							m_actionKeyFlg = true;
-						}
-					}
-				}
-				else
-				{
-					m_actionKeyFlg == false;
+					spHitObject = obj;
 				}
 			}
+		}
+	}
+	// もし当たっていたら一番近いオブジェクトだけ処理をする
+	if (spHitObject)
+	{
+		spHitObject->OnHit();
+		if (GetAsyncKeyState('F') & 0x8000)
+		{
+			if (m_actionKeyFlg == false)
+			{
+				m_stopFlg = true;
+				m_beginGameSceneFlg = true;
+
+				// キーフラグ
+				m_actionKeyFlg = true;
+			}
+		}
+		else
+		{
+			m_actionKeyFlg = false;
 		}
 	}
 }

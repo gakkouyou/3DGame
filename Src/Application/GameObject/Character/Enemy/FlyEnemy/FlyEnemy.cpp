@@ -1,8 +1,11 @@
 ﻿#include "FlyEnemy.h"
 #include "../../../../Scene/SceneManager.h"
+#include "../../../Effect/PlayerSmoke/PlayerSmoke.h"
 
 void FlyEnemy::Update()
 {
+	if (m_aliveFlg == false) return;
+
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
@@ -32,15 +35,38 @@ void FlyEnemy::PostUpdate()
 		m_pDebugWire->AddDebugSphere(m_param.startPos, m_param.moveArea, kBlackColor);
 	}
 
-	// アニメーションの更新
-	// 止まっていたらアニメーションしない
-	m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
-	m_spModel->CalcNodeMatrices();
+	// 死んでいたらアニメーションしない
+	if (m_aliveFlg == true)
+	{
+		// アニメーションの更新
+		// 止まっていたらアニメーションしない
+		m_spAnimator->AdvanceTime(m_spModel->WorkNodes(), 2.0f);
+		m_spModel->CalcNodeMatrices();
+	}
 
 	// 行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(0.25f);
+
+	// 死亡モーション
+	if (m_aliveFlg == false)
+	{
+		scaleMat = Math::Matrix::CreateScale({ 0.25f, 0.05f, 0.25f });
+		m_deathCount++;
+
+		if (m_deathCount >= m_deathTime)
+		{
+			m_isExpired = true;
+
+			// 煙を生み出す
+			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+			smoke->Init();
+			smoke->SetPos(m_pos);
+			smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
+			SceneManager::Instance().AddObject(smoke);
+		}
+	}
 
 	Math::Matrix rotMat		= Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
 
@@ -89,5 +115,5 @@ void FlyEnemy::SetParam(Param _param)
 
 void FlyEnemy::OnHit()
 {
-	m_isExpired = true;
+	m_aliveFlg = false;
 }

@@ -78,15 +78,40 @@ void SlopeGround::SetParam(const Param& _param)
 
 void SlopeGround::Active()
 {
+	//m_activeFlg = true;
+	//m_scale += m_addScale;
+	//if (m_scale.y > m_param.scale.y)
+	//{
+	//	m_scale = m_param.scale;
+	//	m_stayCount++;
+	//	if (m_stayCount > m_stayTime)
+	//	{
+	//		m_activeFlg = false;
+	//	}
+	//}
+
 	m_activeFlg = true;
-	m_scale += m_addScale;
-	if (m_scale.y > m_param.scale.y)
+
+	if (m_sumFlg == false)
 	{
-		m_scale = m_param.scale;
-		m_stayCount++;
-		if (m_stayCount > m_stayTime)
+		m_scale += m_addScale;
+		if (m_scale > m_maxScale)
 		{
-			m_activeFlg = false;
+			m_scale = m_maxScale;
+			m_sumFlg = true;
+		}
+	}
+	else
+	{
+		m_scale -= m_addScale;
+		if (m_scale < 1.0f)
+		{
+			m_scale = 1.0f;
+			m_stayCount++;
+			if (m_stayCount > m_stayTime)
+			{
+				m_activeFlg = false;
+			}
 		}
 	}
 

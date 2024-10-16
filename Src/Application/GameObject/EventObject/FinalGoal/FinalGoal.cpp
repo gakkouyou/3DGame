@@ -2,6 +2,20 @@
 
 void FinalGoal::Update()
 {
+	if (m_param.modelNum == 3 || m_param.modelNum == 4)
+	{
+		// 時計の音を鳴らす
+		if (!m_flg)
+		{
+			if (m_wpSound.expired() == false)
+			{
+				m_wpSound.lock()->Play(true);
+			}
+			m_flg = true;
+		}
+		// 座標を入れる
+		m_wpSound.lock()->SetPos(m_pos);
+	}
 }
 
 void FinalGoal::GenerateDepthMapFromLight()
@@ -65,6 +79,7 @@ void FinalGoal::SetParam(const Param& _param)
 
 			// ステージ３をクリアしたときのモデル
 		case 3:
+		case 4:
 			m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
 			m_pCollider->RegisterCollisionShape("FinalGoal", m_spModel, KdCollider::TypeEvent);
 			break;

@@ -12,6 +12,7 @@ public :
 		Title,
 		StageSelect,
 		Game,
+		Result,
 		First,
 	};
 
@@ -41,9 +42,15 @@ public :
 	// ステージをセット
 	void SetNowStage(int _nowStage) { m_nowStage = _nowStage; }
 
-	// ステージを初クリアした際のフラグセット
-	void SetFirstClearFlg(bool _firstClearFlg) { m_firstClearFlg = _firstClearFlg; }
-	const bool GetFirstClearFlg() const { return m_firstClearFlg; }
+	// ステージのクリア状況のリストを変更する場合
+	std::vector<UINT>& WorkStageInfo() { return m_stageInfoList; }
+	// ステージのクリア状況のリストのゲット
+	const std::vector<UINT>& GetStageInfo() const { return m_stageInfoList; }
+
+	// ステージのクリア状況のCSVをロードする
+	void StageInfoCSVLoader();
+	// ステージのクリア状況をCSVに書き込む
+	void StageInfoCSVWriter();
 
 	// デバッグモードかどうか
 	bool GetDebug() const;
@@ -58,12 +65,23 @@ public :
 		Max
 	};
 
+	// ステージのクリア状況
+	enum StageInfo
+	{
+		NotClear,
+		FirstClear,
+		Clear,
+	};
+
 private :
 
 	// マネージャーの初期化
 	// インスタンス生成(アプリ起動)時にコンストラクタで自動実行
 	void Init()
 	{
+		// CSVを読み込む
+		StageInfoCSVLoader();
+
 		// 開始シーンに切り替え
 		ChangeScene(m_currentSceneType);
 	}
@@ -80,13 +98,17 @@ private :
 	// 次のシーンの種類を保持している変数
 	//SceneType m_nextSceneType = SceneType::Title;
 	//SceneType m_nextSceneType = SceneType::Game;
-	SceneType m_nextSceneType = SceneType::StageSelect;
+	//SceneType m_nextSceneType = SceneType::StageSelect;
+	SceneType m_nextSceneType = SceneType::Result;
 
 	// プレイするステージ
-	UINT m_nowStage	= 0;
+	UINT m_nowStage	= Stage::Stage3;
 
 	// 初クリアかどうかのフラグ
 	bool m_firstClearFlg = false;
+
+	// ステージのクリア状況
+	std::vector<UINT> m_stageInfoList;
 
 private:
 

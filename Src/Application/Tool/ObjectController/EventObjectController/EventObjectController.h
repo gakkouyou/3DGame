@@ -3,6 +3,7 @@
 class CameraBase;
 class Player;
 class EventObjectBase;
+class StageSelectUI;
 
 class EventObjectController : public KdGameObject
 {
@@ -24,6 +25,9 @@ public:
 
 	// プレイヤーをセットする
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
+
+	// ステージセレクトのUIを渡す
+	void SetStageSelectUI(const std::shared_ptr<StageSelectUI>& _spStageSelectUI) { m_wpStageSelectUI = _spStageSelectUI; }
 
 	// オブジェクトリストを渡す
 	const std::vector<std::weak_ptr<EventObjectBase>>& GetObjList() const { return m_wpObjectList; }
@@ -72,6 +76,8 @@ private:
 	std::weak_ptr<CameraBase>	m_wpCamera;
 	// プレイヤー
 	std::weak_ptr<Player>		m_wpPlayer;
+	// ステージセレクトのUI
+	std::weak_ptr<StageSelectUI> m_wpStageSelectUI;
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();

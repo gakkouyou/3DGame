@@ -317,11 +317,6 @@ void Box::HitJudge()
 				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * m_mWorld).Translation();
 			}
 
-			float right = m_edgePos[RightBack].x;
-			float back = m_edgePos[RightBack].z;
-			float left = m_edgePos[LeftFront].x;
-			float front = m_edgePos[LeftFront].z;
-
 			// 真ん中からレイ判定
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
@@ -342,32 +337,32 @@ void Box::HitJudge()
 			// 右前から
 			if (!hitFlg)
 			{
-				rayInfo.m_pos.x = right;
-				rayInfo.m_pos.z = front;
+				rayInfo.m_pos.x = m_edgePos[RightFront].x;
+				rayInfo.m_pos.z = m_edgePos[RightFront].z;
 				// レイ判定
 				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 左前から
 			if (!hitFlg)
 			{
-				rayInfo.m_pos.x = left;
-				rayInfo.m_pos.z = front;
+				rayInfo.m_pos.x = m_edgePos[LeftFront].x;
+				rayInfo.m_pos.z = m_edgePos[LeftFront].z;
 				// レイ判定
 				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 左後ろから
 			if (!hitFlg)
 			{
-				rayInfo.m_pos.x = left;
-				rayInfo.m_pos.z = back;
+				rayInfo.m_pos.x = m_edgePos[LeftBack].x;
+				rayInfo.m_pos.z = m_edgePos[LeftBack].z;
 				// レイ判定
 				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}
 			// 右後ろから
 			if (!hitFlg)
 			{
-				rayInfo.m_pos.x = right;
-				rayInfo.m_pos.z = back;
+				rayInfo.m_pos.x = m_edgePos[RightBack].x;
+				rayInfo.m_pos.z = m_edgePos[RightBack].z;
 				// レイ判定
 				hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 			}

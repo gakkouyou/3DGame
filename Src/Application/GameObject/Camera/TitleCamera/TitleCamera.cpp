@@ -111,15 +111,15 @@ void TitleCamera::Update()
 	}
 	else
 	{
-		static float angle = 0;
-		angle += 0.5f;
-		if (angle >= 360)
-		{
-			angle -= 360;
-		}
+		//static float angle = 0;
+		//angle += 0.5f;
+		//if (angle >= 360)
+		//{
+		//	angle -= 360;
+		//}
 
-		m_pos.x = sin(DirectX::XMConvertToRadians(angle)) * 0.5f;
-		m_startMat.Translation(m_pos);
+		//m_pos.x = sin(DirectX::XMConvertToRadians(angle)) * 0.5f;
+		//m_startMat.Translation(m_pos);
 
 		m_mWorld = m_startMat;
 

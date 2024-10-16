@@ -133,5 +133,7 @@ private:
 	// 更新前の座標
 	Math::Vector3 m_oldPos;
 
-	int cnt = 0;
+	// 死亡モーション用
+	int m_deathCount = 0;
+	const int m_deathTime = 45;
 };

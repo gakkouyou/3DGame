@@ -66,15 +66,9 @@ private:
 	// 今のステージ
 	int m_nowStage	= 0;
 
-	// ステージの状況
-	std::vector<int> m_stageInfoList;
-
 	// ポーズ画面かどうか
 	bool m_pauseFlg		= false;
 	bool m_oldPauseFlg	= false;
-
-	void CSVLoader();
-	void CSVWriter();
 
 	std::weak_ptr<KdSoundInstance> m_bgm;
 };

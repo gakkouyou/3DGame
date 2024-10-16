@@ -23,5 +23,13 @@ private:
 
 	bool m_deleteFlg = false;
 
-	float m_alpha = 1.0f;
+	float m_alpha = 0.0f;
+	const float m_addAlpha = 0.01f;
+
+	bool m_startFlg = false;
+
+	// サインカーブ用
+	float m_degAng = 90;
+	float m_addDegAng = 2;
+	float m_pushSpaceAlpha = 0;
 };

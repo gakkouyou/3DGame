@@ -22,10 +22,16 @@ public:
 	const Math::Matrix& GetMatrix() const override { return m_nonScaleMat; }
 
 private:
-	// スケール
-	Math::Vector3 m_scale;
-	// スケールの大きくしていく値
-	const Math::Vector3 m_addScale = { 0.01f, 0.01f, 0.01f };
+	//// スケール
+	//Math::Vector3 m_scale;
+	//// スケールの大きくしていく値
+	//const Math::Vector3 m_addScale = { 0.01f, 0.01f, 0.01f };
+
+	float m_scale = 0;
+	const float m_addScale = 0.05f;
+	const float m_maxScale = 1.3f;
+
+	bool m_sumFlg = false;
 
 	int m_stayCount = 0;
 	const int m_stayTime = 60;

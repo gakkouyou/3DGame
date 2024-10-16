@@ -4,6 +4,7 @@
 #include "TitleScene/TitleScene.h"
 #include "GameScene/GameScene.h"
 #include "StageSelectScene/StageSelectScene.h"
+#include "ResultScene/ResultScene.h"
 
 void SceneManager::PreUpdate()
 {
@@ -75,6 +76,9 @@ void SceneManager::ChangeScene(SceneType sceneType)
 	case SceneType::Game:
 		m_currentScene = std::make_shared<GameScene>();
 		break;
+	case SceneType::Result:
+		m_currentScene = std::make_shared<ResultScene>();
+		break;
 	case SceneType::First:
 		return;
 	}
@@ -82,4 +86,46 @@ void SceneManager::ChangeScene(SceneType sceneType)
 
 	// 現在のシーン情報を更新
 	m_currentSceneType = sceneType;
+}
+
+void SceneManager::StageInfoCSVLoader()
+{
+	std::ifstream ifs("Asset/Data/CSV/StageInfo.csv");
+
+	if (!ifs.is_open())
+	{
+		return;
+	}
+
+	std::string lineString;
+
+	while (std::getline(ifs, lineString))
+	{
+		std::istringstream iss(lineString);
+		std::string commaString;
+
+		while (std::getline(iss, commaString, ','))
+		{
+			m_stageInfoList.push_back(stoi(commaString));
+		}
+	}
+	ifs.close();
+
+	m_stageInfoList[Stage::Stage3 - 1] = 1;
+}
+
+void SceneManager::StageInfoCSVWriter()
+{
+	std::ofstream ofs("Asset/Data/CSV/StageInfo.csv");
+
+	for (int i = 0; i < (int)m_stageInfoList.size(); i++)
+	{
+		ofs << m_stageInfoList[i];
+
+		if (i != (int)m_stageInfoList.size() - 1)
+		{
+			ofs << ",";
+		}
+	}
+	ofs << std::endl;
 }

@@ -283,22 +283,23 @@ void NormalEnemy::PostUpdate()
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
 
+	// 死亡モーション
 	if (m_aliveFlg == false)
 	{
 		scaleMat = Math::Matrix::CreateScale({ 1.0f, 0.2f, 1.0f });
-		cnt++;
-	}
+		m_deathCount++;
 
-	if (cnt >= 45)
-	{
-		m_isExpired = true;
+		if (m_deathCount >= m_deathTime)
+		{
+			m_isExpired = true;
 
-		// 煙を生み出す
-		std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
-		smoke->Init();
-		smoke->SetPos(m_pos);
-		smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
-		SceneManager::Instance().AddObject(smoke);
+			// 煙を生み出す
+			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+			smoke->Init();
+			smoke->SetPos(m_pos);
+			smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
+			SceneManager::Instance().AddObject(smoke);
+		}
 	}
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
@@ -738,8 +739,6 @@ void NormalEnemy::SetParam(Param _param)
 
 void NormalEnemy::OnHit()
 {
-	//m_isExpired = true;
-
 	m_aliveFlg = false;
 }
 

@@ -271,6 +271,18 @@
     <Filter Include="Src\Application\GameObject\EventObject\FinalGoal">
       <UniqueIdentifier>{30098413-4cae-49b8-9b2f-8cf543976498}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\Scene\ResultScene">
+      <UniqueIdentifier>{0c3073cc-5f0e-4fe7-8093-ce3c8e2381b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Character\ResultPlayer">
+      <UniqueIdentifier>{52be9cd7-25e6-482d-94bb-d327d990285c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Camera\ResultCamera">
+      <UniqueIdentifier>{5ee39fd3-f15a-49b3-b90b-74b4a06824a6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\BackGround\ResultBackGround">
+      <UniqueIdentifier>{0e44aae9-1d9e-45e0-bf2e-6632c40c506f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -612,6 +624,18 @@
     <ClInclude Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.h">
       <Filter>Src\Application\GameObject\EventObject\FinalGoal</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\Scene\ResultScene\ResultScene.h">
+      <Filter>Src\Application\Scene\ResultScene</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.h">
+      <Filter>Src\Application\GameObject\Character\ResultPlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.h">
+      <Filter>Src\Application\GameObject\Camera\ResultCamera</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.h">
+      <Filter>Src\Application\GameObject\BackGround\ResultBackGround</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -922,6 +946,18 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.cpp">
       <Filter>Src\Application\GameObject\EventObject\FinalGoal</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Scene\ResultScene\ResultScene.cpp">
+      <Filter>Src\Application\Scene\ResultScene</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.cpp">
+      <Filter>Src\Application\GameObject\Character\ResultPlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.cpp">
+      <Filter>Src\Application\GameObject\Camera\ResultCamera</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.cpp">
+      <Filter>Src\Application\GameObject\BackGround\ResultBackGround</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

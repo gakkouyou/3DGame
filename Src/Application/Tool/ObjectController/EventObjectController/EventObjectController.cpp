@@ -293,6 +293,8 @@ void EventObjectController::CreateObject(ObjectType _object)
 		object->Init();
 		// カメラをセットする
 		object->SetCamera(m_wpCamera);
+		// ステージセレクトのUIをセットする
+		object->SetStageSelectUI(m_wpStageSelectUI);
 		SceneManager::Instance().AddObject(object);
 		m_wpTargetObject = object;
 		break;
@@ -504,6 +506,8 @@ void EventObjectController::BeginCreateObject()
 			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
 			object->Init();
 			object->SetParam(setParam);
+			// ステージセレクトのUIをセットする
+			object->SetStageSelectUI(m_wpStageSelectUI);
 			// カメラをセットする
 			object->SetCamera(m_wpCamera);
 			SceneManager::Instance().AddObject(object);

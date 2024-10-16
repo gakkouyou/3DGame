@@ -136,13 +136,13 @@ void GameScene::Event()
 				m_wpCamera.lock()->SetGoalFlg(true);
 
 				// 初クリアかどうかをチェック
-				if (m_stageInfoList[m_nowStage - 1] != 2)
+				if (SceneManager::Instance().GetStageInfo()[m_nowStage - 1] != SceneManager::StageInfo::NotClear)
 				{
- 					SceneManager::Instance().SetFirstClearFlg(true);
+					SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::FirstClear;
 				}
 				else
 				{
-					SceneManager::Instance().SetFirstClearFlg(false);
+					SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::Clear;
 				}
 
 				// 動き終わった後の処理
@@ -163,10 +163,8 @@ void GameScene::Event()
 								// 処理が終了したらシーンを変更
 								if (m_wpSceneChange.lock()->GetFinishFlg())
 								{
-									// ステージをクリアにする
-									m_stageInfoList[m_nowStage - 1] = 2;
 									// CSVに書き込む
-									//CSVWriter();
+									//SceneManager::Instance().StageInfoCSVWriter();
 									// シーンを変更
 									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 								}
@@ -201,9 +199,6 @@ void GameScene::Init()
 
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
-
-	// CSVを読み込む
-	CSVLoader();
 
 	// 背景(最初に描画する！！！！！！)
 	std::shared_ptr<BackGround> backGround = std::make_shared<BackGround>();
@@ -449,45 +444,4 @@ void GameScene::GameSceneReStart()
 			m_wpSceneChange.lock()->StartScene(5);
 		}
 	}
-}
-
-
-void GameScene::CSVLoader()
-{
-	std::ifstream ifs("Asset/Data/CSV/StageInfo.csv");
-
-	if (!ifs.is_open())
-	{
-		return;
-	}
-
-	std::string lineString;
-
-	while (std::getline(ifs, lineString))
-	{
-		std::istringstream iss(lineString);
-		std::string commaString;
-
-		while (std::getline(iss, commaString, ','))
-		{
-			m_stageInfoList.push_back(stoi(commaString));
-		}
-	}
-	ifs.close();
-}
-
-void GameScene::CSVWriter()
-{
-	std::ofstream ofs("Asset/Data/CSV/StageInfo.csv");
-
-	for (int i = 0; i < (int)m_stageInfoList.size(); i++)
-	{
-		ofs << m_stageInfoList[i];
-
-		if (i != (int)m_stageInfoList.size() - 1)
-		{
-			ofs << ",";
-		}
-	}
-	ofs << std::endl;
 }

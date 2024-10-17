@@ -6,10 +6,14 @@ public:
 	ResultBackGround() {}
 	~ResultBackGround()	override {}
 
-	void DrawLit();
-	void Init();
+	void Update()	override;
+	void DrawLit()	override;
+	void Init()		override;
 
-	void StartAnimation() { m_startAnimationFlg = true; }
+	void OrangeAnimation() { m_orangeAnimationFlg = true; }
+	void BlackAnimation() { m_blackAnimationFlg = true; }
+
+	const bool GetOrangeAnimationEnd() const { return m_orangeAnimationEndFlg; }
 
 private:
 	std::shared_ptr<KdModelData> m_spModel = nullptr;
@@ -31,6 +35,12 @@ private:
 	float m_progress = 0;
 	float m_speed = 0;
 
-	bool m_startAnimationFlg = false;
+	bool m_orangeAnimationFlg = false;
 	bool m_blackAnimationFlg = false;
+	bool m_orangeAnimationEndFlg = false;
+
+
+	float m_ambientLight = 0.6f;
+	float m_halfAmbientLight;
+	float m_addAmbientLight;
 };

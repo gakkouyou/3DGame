@@ -486,7 +486,6 @@ void Player::Update()
 		}
 	}
 
-
 	// ゴールの処理
 	if (m_goalFlg)
 	{

@@ -18,6 +18,8 @@ void TitleScene::Event()
 			if (m_wpSceneChange.lock()->GetFinishFlg())
 			{
 				SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
+				// 音を止める
+				KdAudioManager::Instance().StopAllSound();
 			}
 		}
 	}
@@ -26,6 +28,14 @@ void TitleScene::Event()
 void TitleScene::Init()
 {
 	//KdShaderManager::Instance().WorkAmbientController().Init();
+
+	// とりあえずリセット
+	SceneManager::Instance().SetNowStage(0);
+	std::vector<UINT> stageInfoList = SceneManager::Instance().WorkStageInfo();
+	for (int i = 0; i < stageInfoList.size(); i++)
+	{
+		stageInfoList[i] = 0;
+	}
 
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
@@ -68,4 +78,8 @@ void TitleScene::Init()
 	titleCamera->Init();
 	AddObject(titleCamera);
 	m_wpCamera = titleCamera;
+
+	
+	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/nightBGM.wav", true);
+	bgm->SetVolume(0.05f);
 }

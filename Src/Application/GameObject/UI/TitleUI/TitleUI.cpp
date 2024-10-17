@@ -11,33 +11,40 @@ void TitleUI::Update()
 	if (m_deleteFlg)
 	{
 		m_alpha -= m_addAlpha;
+		m_pushSpaceAlpha -= m_addAlpha;
 		if (m_alpha < 0)
 		{
 			m_alpha = 0;
 		}
-		return;
-	}
-	
-	// 徐々に出していく
-	if(m_startFlg == false)
-	{
-		m_alpha += m_addAlpha;
-		m_pushSpaceAlpha += m_addAlpha;
-		if (m_alpha > 1.0f)
+		if (m_pushSpaceAlpha < 0)
 		{
-			m_alpha = 1.0f;
-			m_startFlg = true;
+			m_pushSpaceAlpha = 0;
 		}
 		return;
 	}
-
-	// "PUSH SPACE"のアルファ値を0.3～1.0に
-	m_degAng += m_addDegAng;
-	if (m_degAng >= 360)
+	else
 	{
-		m_degAng -= 360;
+		// 徐々に出していく
+		if (m_startFlg == false)
+		{
+			m_alpha += m_addAlpha;
+			m_pushSpaceAlpha += m_addAlpha;
+			if (m_alpha > 1.0f)
+			{
+				m_alpha = 1.0f;
+				m_startFlg = true;
+			}
+			return;
+		}
+
+		// "PUSH SPACE"のアルファ値を0.3～1.0に
+		m_degAng += m_addDegAng;
+		if (m_degAng >= 360)
+		{
+			m_degAng -= 360;
+		}
+		m_pushSpaceAlpha = (sin(DirectX::XMConvertToRadians(m_degAng)) + 1.0f) * 0.35f + 0.3f;
 	}
-	m_pushSpaceAlpha = (sin(DirectX::XMConvertToRadians(m_degAng)) + 1.0f) * 0.35f + 0.3f;
 }
 
 void TitleUI::DrawSprite()

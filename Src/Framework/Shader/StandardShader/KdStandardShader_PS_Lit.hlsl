@@ -305,7 +305,7 @@ float4 main(VSOutput In) : SV_Target0
 	//------------------------------------------
 	// 出力
 	//------------------------------------------
-	if(g_colorElable)
+	if(g_colorEnable)
 	{
 		return float4(outColor + g_color, baseColor.a);
 	}

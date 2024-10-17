@@ -6,32 +6,19 @@ void ResultPlayer::Update()
 	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 	m_spModel->CalcNodeMatrices();
 
-	if (m_startAnimationFlg == false) return;
-	if (m_endAnimationFlg == true) return;
-
-	// カウント
-	m_stayCount++;
-	if (m_stayCount == m_stayTime)
+	if ((m_animation & FirstAnimationStart) && (m_animation & FirstAnimationEnd) == 0)
 	{
-		// アニメーション変更
-		if (m_spAnimator && m_spModel)
-		{
-			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Run"), true);
-		}
-	}
-	if (m_stayCount >= m_stayTime)
-	{
-		// 右に走る
-		Math::Matrix scaleMat = Math::Matrix::CreateScale(8.0f);
-		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f));
-		Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos() + m_moveVec * m_speed);
-
-		m_mWorld = scaleMat * rotMat * transMat;
+		FirstAnimation();
 	}
 
-	if (GetPos().x > m_goalPos.x)
+	if ((m_animation & SecondAnimationStart) && (m_animation & SecondAnimationEnd) == 0)
 	{
-		m_endAnimationFlg = true;
+		SecondAnimation();
+	}
+
+	if ((m_animation & ThirdAnimationStart) && (m_animation & ThirdAnimationEnd) == 0)
+	{
+		ThirdAnimation();
 	}
 }
 
@@ -69,4 +56,94 @@ void ResultPlayer::Init()
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_startPos);
 
 	m_mWorld = scaleMat * rotMat * transMat;
+}
+
+void ResultPlayer::FirstAnimation()
+{
+	// カウント
+	m_stayCount++;
+	if (m_stayCount == m_stayTime)
+	{
+		// アニメーション変更
+		if (m_spAnimator && m_spModel)
+		{
+			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Run"), true);
+		}
+	}
+	if (m_stayCount >= m_stayTime)
+	{
+		// 右に走る
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(8.0f);
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90.0f));
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos() + m_moveVec * m_speed);
+
+		m_mWorld = scaleMat * rotMat * transMat;
+	}
+
+	if (GetPos().x > m_goalPos.x)
+	{
+		m_animation |= FirstAnimationEnd;
+	}
+}
+
+void ResultPlayer::SecondAnimation()
+{
+	// 左に走る
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(8.0f);
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-90.0f));
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos() + -m_moveVec * m_speed);
+
+	m_mWorld = scaleMat * rotMat * transMat;
+
+	UINT oldAnimation = m_animation;
+
+	if (GetPos().x < m_startPos.x)
+	{
+		m_animation |= SecondAnimationEnd;
+		// アニメーション変更
+		if (m_spAnimator && m_spModel)
+		{
+			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), true);
+		}
+		// ３つめのアニメーションを開始
+		m_animation |= ThirdAnimationStart;
+		m_animation |= OpenDoor;
+		m_stayCount = 0;
+
+		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(0));
+		m_mWorld = scaleMat * rotMat * transMat;
+	}
+}
+
+void ResultPlayer::ThirdAnimation()
+{
+	m_stayCount++;
+	if (m_stayCount < m_stayTime) return;
+
+	if (m_stayCount == m_stayTime)
+	{
+		// アニメーション変更
+		if (m_spAnimator && m_spModel)
+		{
+			m_spAnimator->SetAnimation(m_spModel->GetAnimation("Run"), true);
+		}
+	}
+
+	// 奥に走る
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(8.0f);
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(0.0f));
+	Math::Vector3 moveVec = { 0, 0, 1 };
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos() + moveVec * m_speed);
+
+	m_mWorld = scaleMat * rotMat * transMat;
+
+	if (GetPos().z > m_closeDoorPosZ)
+	{
+		m_animation |= CloseDoor;
+	}
+
+	if (GetPos().z > m_endPosZ)
+	{
+		m_animation |= ThirdAnimationEnd;
+	}
 }

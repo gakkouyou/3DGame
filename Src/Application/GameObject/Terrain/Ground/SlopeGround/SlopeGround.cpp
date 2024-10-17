@@ -61,7 +61,7 @@ void SlopeGround::SetParam(const Param& _param)
 	Math::Matrix rotMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_param.degAng.y), DirectX::XMConvertToRadians(m_param.degAng.x), DirectX::XMConvertToRadians(m_param.degAng.z));
 	
 	Math::Matrix scaleMat;
-	if (m_param.yetActive == true)
+	if (m_param.yetActive == true || m_param.targetName == "")
 	{
 		scaleMat = Math::Matrix::CreateScale(m_param.scale);
 	}

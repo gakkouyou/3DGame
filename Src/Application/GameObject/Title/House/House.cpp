@@ -1,5 +1,33 @@
 ﻿#include "House.h"
 
+void House::Update()
+{
+	if (m_openDoorFlg == true && m_closeDoorFlg == false)
+	{
+		m_degAng += m_addDegAng;
+		if (m_degAng > m_maxDegAng)
+		{
+			m_degAng = m_maxDegAng;
+		}
+
+		Math::Vector3 pos = m_doorMat.Translation();
+		m_doorMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		m_doorMat.Translation(pos);
+	}
+
+	if (m_closeDoorFlg == true)
+	{
+		m_degAng -= m_addDegAng;
+		if (m_degAng < 0)
+		{
+			m_degAng = 0;
+		}
+		Math::Vector3 pos = m_doorMat.Translation();
+		m_doorMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		m_doorMat.Translation(pos);
+	}
+}
+
 void House::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
@@ -13,6 +41,16 @@ void House::GenerateDepthMapFromLight()
 
 		mat.Translation({ 20, 0, 0 });
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
+	}
+
+	if (m_spDoorModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spDoorModel, m_doorMat);
+	}
+
+	if (m_spHouseObjectModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spHouseObjectModel, m_mWorld);
 	}
 
 	if (m_spRoadModel)
@@ -38,6 +76,11 @@ void House::DrawLit()
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
 	}
 
+	if (m_spDoorModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spDoorModel, m_doorMat);
+	}
+
 	if (m_spHouseObjectModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spHouseObjectModel, m_mWorld);
@@ -57,6 +100,14 @@ void House::Init()
 		m_spModel = std::make_shared<KdModelData>();
 		m_spModel->Load("Asset/Models/Title/House/house.gltf");
 	}
+
+	// ドアのモデル
+	if (!m_spDoorModel)
+	{
+		m_spDoorModel = std::make_shared<KdModelData>();
+		m_spDoorModel->Load("Asset/Models/Title/Door/door.gltf");
+	}
+	m_doorMat.Translation(m_spModel->FindNode("DoorPoint")->m_worldTransform.Translation());
 
 	// 家具とかのモデル
 	if (!m_spHouseObjectModel)

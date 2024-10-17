@@ -21,31 +21,58 @@ void ResultScene::Event()
 			{
 				if (m_wpPlayer.expired() == false)
 				{
-					m_wpPlayer.lock()->SetStartAnimation();
+					m_wpPlayer.lock()->SetFirstAnimationStart();
 				}
 				m_sceneStartFlg = true;
 				m_wpSceneChange.lock()->Reset();
 			}
 		}
 	}
-	else
-	{
-		if (m_wpPlayer.expired() == false)
-		{
-			if (m_wpPlayer.lock()->GetEndAnimation())
-			{
-				if (m_wpBackGround.expired() == false)
-				{
-					m_wpBackGround.lock()->StartAnimation();
-				}
 
-				m_ambientLight -= m_addAmbientLight;
-				if (m_ambientLight < 0)
+	if (m_wpPlayer.expired() == false)
+	{
+		// プレイヤーの一つ目のアニメーションが終わった時の処理
+		if (m_wpPlayer.lock()->GetFirstAnimationEnd())
+		{
+			if (m_wpBackGround.expired() == false)
+			{
+				// 空をオレンジにしていく
+				m_wpBackGround.lock()->OrangeAnimation();
+
+				// オレンジになりきったら、プレイヤーの二つ目のアニメーションを始める
+				if (m_wpBackGround.lock()->GetOrangeAnimationEnd())
 				{
-					m_ambientLight = 0;
-					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Title);
+					m_wpPlayer.lock()->SetSecondAnimationStart();
 				}
-				KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ m_ambientLight, m_ambientLight, m_ambientLight, 1.0f });
+			}
+		}
+
+		// ドアを開ける
+		if (m_wpPlayer.lock()->GetOpenDoor())
+		{
+			if (m_wpHouse.expired() == false)
+			{
+				// ドアを開ける
+				m_wpHouse.lock()->OpenDoor();
+			}
+		}
+
+		// ドアを閉める
+		if (m_wpPlayer.lock()->GetCloseDoor())
+		{
+			if (m_wpHouse.expired() == false)
+			{
+				// ドアを閉める
+				m_wpHouse.lock()->CloseDoor();
+			}
+		}
+
+		// プレイヤーのアニメーションが完全に終了したときの処理
+		if (m_wpPlayer.lock()->GetAnimationEnd())
+		{
+			if (m_wpBackGround.expired() == false)
+			{
+				m_wpBackGround.lock()->BlackAnimation();
 			}
 		}
 	}
@@ -55,7 +82,7 @@ void ResultScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
-	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ m_ambientLight, m_ambientLight, m_ambientLight, 1.0f });
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.6, 0.6, 0.6, 1.0f });
 	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
 
 	// シーンチェンジ
@@ -74,6 +101,8 @@ void ResultScene::Init()
 	std::shared_ptr<House> house = std::make_shared<House>();
 	house->Init();
 	AddObject(house);
+	// 保持
+	m_wpHouse = house;
 
 	// 背景
 	std::shared_ptr<ResultBackGround> backGround = std::make_shared<ResultBackGround>();

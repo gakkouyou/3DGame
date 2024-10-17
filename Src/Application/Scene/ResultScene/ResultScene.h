@@ -5,6 +5,7 @@
 class SceneChange;
 class ResultPlayer;
 class ResultBackGround;
+class House;
 
 class ResultScene : public BaseScene
 {
@@ -29,9 +30,9 @@ private:
 	// 背景
 	std::weak_ptr<ResultBackGround> m_wpBackGround;
 
+	// 家
+	std::weak_ptr<House> m_wpHouse;
+
 	// シーンが開始した瞬間がわかるフラグ
 	bool m_sceneStartFlg = false;
-
-	float m_ambientLight = 0.6f;
-	float m_addAmbientLight = 0.0015f;
 };

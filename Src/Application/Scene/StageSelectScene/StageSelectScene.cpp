@@ -91,6 +91,7 @@ void StageSelectScene::Event()
 				// フェードアウト終了後シーンをタイトルシーンに
 				if (m_wpSceneChange.lock()->GetFinishFlg())
 				{
+					KdAudioManager::Instance().StopAllSound();
 					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Result);
 				}
 			}

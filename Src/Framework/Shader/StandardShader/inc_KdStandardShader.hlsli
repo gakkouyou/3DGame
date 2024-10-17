@@ -13,7 +13,7 @@ cbuffer cbObject : register(b0)
 	float3 g_dissolveEmissive;	// 境界の色
 
 	// 色を少し変える
-	int g_colorElable;
+	int g_colorEnable;
 	float3 g_color;
 
 	// アルファディザ

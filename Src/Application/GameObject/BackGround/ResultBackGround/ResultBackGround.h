@@ -41,6 +41,6 @@ private:
 
 
 	float m_ambientLight = 0.6f;
-	float m_halfAmbientLight;
-	float m_addAmbientLight;
+	float m_halfAmbientLight = 0;
+	float m_addAmbientLight = 0;
 };

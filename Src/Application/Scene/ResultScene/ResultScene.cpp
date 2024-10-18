@@ -31,45 +31,48 @@ void ResultScene::Event()
 
 	if (m_wpPlayer.expired() == false)
 	{
-		// プレイヤーの一つ目のアニメーションが終わった時の処理
-		if (m_wpPlayer.lock()->GetFirstAnimationEnd())
+		if (m_wpPlayer.lock()->GetAnimationEnd() == false)
 		{
-			if (m_wpBackGround.expired() == false)
+			// プレイヤーの二つ目のアニメーションが終わった時の処理
+			if (m_wpPlayer.lock()->GetSecondAnimationEnd())
 			{
-				// 空をオレンジにしていく
-				m_wpBackGround.lock()->OrangeAnimation();
-
-				// オレンジになりきったら、プレイヤーの二つ目のアニメーションを始める
-				if (m_wpBackGround.lock()->GetOrangeAnimationEnd())
+				if (m_wpBackGround.expired() == false)
 				{
-					m_wpPlayer.lock()->SetSecondAnimationStart();
+					// 空をオレンジにしていく
+					m_wpBackGround.lock()->OrangeAnimation();
+
+					// オレンジになりきったら、プレイヤーの三つ目のアニメーションを始める
+					if (m_wpBackGround.lock()->GetOrangeAnimationEnd())
+					{
+						m_wpPlayer.lock()->SetThirdAnimationStart();
+					}
+				}
+			}
+
+			// ドアを開ける
+			if (m_wpPlayer.lock()->GetOpenDoor())
+			{
+				if (m_wpHouse.expired() == false)
+				{
+					// ドアを開ける
+					m_wpHouse.lock()->OpenDoor();
+				}
+			}
+
+			// ドアを閉める
+			if (m_wpPlayer.lock()->GetCloseDoor())
+			{
+				if (m_wpHouse.expired() == false)
+				{
+					// ドアを閉める
+					m_wpHouse.lock()->CloseDoor();
 				}
 			}
 		}
-
-		// ドアを開ける
-		if (m_wpPlayer.lock()->GetOpenDoor())
-		{
-			if (m_wpHouse.expired() == false)
-			{
-				// ドアを開ける
-				m_wpHouse.lock()->OpenDoor();
-			}
-		}
-
-		// ドアを閉める
-		if (m_wpPlayer.lock()->GetCloseDoor())
-		{
-			if (m_wpHouse.expired() == false)
-			{
-				// ドアを閉める
-				m_wpHouse.lock()->CloseDoor();
-			}
-		}
-
 		// プレイヤーのアニメーションが完全に終了したときの処理
-		if (m_wpPlayer.lock()->GetAnimationEnd())
+		else
 		{
+			// 夕方から夜にしていく
 			if (m_wpBackGround.expired() == false)
 			{
 				m_wpBackGround.lock()->BlackAnimation();

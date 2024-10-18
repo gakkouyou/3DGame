@@ -41,4 +41,12 @@ private:
 	float m_degAng = 0;
 	const float m_addDegAng = 2.0f;
 	const float m_maxDegAng = 90;
+
+	// ドアを開ける音
+	bool m_openSoundFlg = false;
+	std::weak_ptr<KdSoundInstance> m_wpOpenSound;
+
+	// ドアを閉める音
+	bool m_closeSoundFlg = false;
+	std::weak_ptr<KdSoundInstance> m_wpCloseSound;
 };

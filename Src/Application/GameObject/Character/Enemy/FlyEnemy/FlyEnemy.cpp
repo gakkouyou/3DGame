@@ -1,6 +1,6 @@
 ﻿#include "FlyEnemy.h"
 #include "../../../../Scene/SceneManager.h"
-#include "../../../Effect/PlayerSmoke/PlayerSmoke.h"
+#include "../../../Effect/Smoke/Smoke.h"
 
 void FlyEnemy::Update()
 {
@@ -60,10 +60,10 @@ void FlyEnemy::PostUpdate()
 			m_isExpired = true;
 
 			// 煙を生み出す
-			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+			std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 			smoke->Init();
 			smoke->SetPos(m_pos);
-			smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
+			smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
 			SceneManager::Instance().AddObject(smoke);
 		}
 	}

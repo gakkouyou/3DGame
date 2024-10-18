@@ -3,7 +3,7 @@
 #include "../../../../Scene/SceneManager.h"
 #include "../../../Terrain/TerrainBase.h"
 #include "../../Player/Player.h"
-#include "../../../Effect/PlayerSmoke/PlayerSmoke.h"
+#include "../../../Effect/Smoke/Smoke.h"
 
 void NormalEnemy::Update()
 {
@@ -216,11 +216,11 @@ void NormalEnemy::PostUpdate()
 	if (SceneManager::Instance().GetDebug())
 	{
 		// searchエリア可視化
-		//m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
+		m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
 		Math::Vector3 pos = m_param.startPos;
 		pos.y = m_pos.y;
 		// moveエリア可視化
-		//m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
+		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
 	}
 
 	// 動く床に当たっていた時の処理
@@ -294,10 +294,10 @@ void NormalEnemy::PostUpdate()
 			m_isExpired = true;
 
 			// 煙を生み出す
-			std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+			std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 			smoke->Init();
 			smoke->SetPos(m_pos);
-			smoke->SetSmokeType(PlayerSmoke::SmokeType::DeathSmoke);
+			smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
 			SceneManager::Instance().AddObject(smoke);
 		}
 	}

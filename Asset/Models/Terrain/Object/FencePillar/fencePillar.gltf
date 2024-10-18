@@ -31,15 +31,13 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"\u30de\u30c6\u30ea\u30a2\u30eb",
+			"name":"\u30de\u30c6\u30ea\u30a2\u30eb.001",
 			"pbrMetallicRoughness":{
-				"baseColorFactor":[
-					0.8999999761581421,
-					0.6000000238418579,
-					0.20000000298023224,
-					1
-				],
-				"roughnessFactor":0
+				"baseColorTexture":{
+					"index":0
+				},
+				"metallicFactor":0,
+				"roughnessFactor":0.5
 			}
 		}
 	],
@@ -59,11 +57,24 @@
 			]
 		}
 	],
+	"textures":[
+		{
+			"sampler":0,
+			"source":0
+		}
+	],
+	"images":[
+		{
+			"mimeType":"image/jpeg",
+			"name":"wood-grain-texture2",
+			"uri":"wood-grain-texture2.jpg"
+		}
+	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":130,
+			"count":136,
 			"max":[
 				1,
 				1,
@@ -79,13 +90,13 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":130,
+			"count":136,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":130,
+			"count":136,
 			"type":"VEC2"
 		},
 		{
@@ -98,32 +109,38 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1560,
+			"byteLength":1632,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1560,
-			"byteOffset":1560,
+			"byteLength":1632,
+			"byteOffset":1632,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1040,
-			"byteOffset":3120,
+			"byteLength":1088,
+			"byteOffset":3264,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":744,
-			"byteOffset":4160,
+			"byteOffset":4352,
 			"target":34963
+		}
+	],
+	"samplers":[
+		{
+			"magFilter":9729,
+			"minFilter":9987
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":4904,
+			"byteLength":5096,
 			"uri":"fencePillar.bin"
 		}
 	]

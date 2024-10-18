@@ -172,9 +172,6 @@
     <Filter Include="Src\Application\GameObject\Effect">
       <UniqueIdentifier>{da86d135-0464-4610-bf32-2bbb267ea4d2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Effect\PlayerSmoke">
-      <UniqueIdentifier>{ab8f895d-aa4f-46ba-861d-4eb58f24ab39}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Pause">
       <UniqueIdentifier>{c5311254-915f-490d-b9a9-15e256f3411d}</UniqueIdentifier>
     </Filter>
@@ -282,6 +279,9 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\BackGround\ResultBackGround">
       <UniqueIdentifier>{0e44aae9-1d9e-45e0-bf2e-6632c40c506f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Effect\Smoke">
+      <UniqueIdentifier>{27067f60-3fce-4e47-920b-5e5809c41e91}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -528,9 +528,6 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.h">
       <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.h">
-      <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Pause\Pause.h">
       <Filter>Src\Application\GameObject\Pause</Filter>
     </ClInclude>
@@ -635,6 +632,9 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.h">
       <Filter>Src\Application\GameObject\BackGround\ResultBackGround</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Effect\Smoke\Smoke.h">
+      <Filter>Src\Application\GameObject\Effect\Smoke</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -854,9 +854,6 @@
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.cpp">
       <Filter>Src\Application\GameObject\Character\Enemy\FlyEnemy</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Effect\PlayerSmoke\PlayerSmoke.cpp">
-      <Filter>Src\Application\GameObject\Effect\PlayerSmoke</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Pause\Pause.cpp">
       <Filter>Src\Application\GameObject\Pause</Filter>
     </ClCompile>
@@ -958,6 +955,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.cpp">
       <Filter>Src\Application\GameObject\BackGround\ResultBackGround</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Effect\Smoke\Smoke.cpp">
+      <Filter>Src\Application\GameObject\Effect\Smoke</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

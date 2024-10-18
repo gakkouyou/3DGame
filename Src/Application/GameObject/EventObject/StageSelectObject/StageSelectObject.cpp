@@ -50,12 +50,17 @@ void StageSelectObject::DrawLit()
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_objMat);
 	}
+
 	if (m_spSphereModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
 	}
 
+}
 
+void StageSelectObject::DrawUnLit()
+{
+	
 }
 
 void StageSelectObject::DrawSprite()

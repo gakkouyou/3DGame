@@ -28,8 +28,9 @@ private:
 	//const Math::Vector3 m_addScale = { 0.01f, 0.01f, 0.01f };
 
 	float m_scale = 0;
-	const float m_addScale = 0.05f;
-	const float m_maxScale = 1.3f;
+	float m_addScale = 0.01f;
+	const float m_addAddScale = 0.01f;
+	const float m_maxScale = 1.4f;
 
 	bool m_sumFlg = false;
 

@@ -14,16 +14,16 @@ public:
 	// 一つめのアニメーションを始める
 	void SetFirstAnimationStart()	{ m_animation |= FirstAnimationStart; }
 	// 二つ目のアニメーションを始める
-	void SetSecondAnimationStart()	{ m_animation |= SecondAnimationStart; }
+	void SetThirdAnimationStart()	{ m_animation |= ThirdAnimationStart; }
 
 	// 一つ目のアニメーションが終了したかどうか
-	const bool GetFirstAnimationEnd()	const { return m_animation & FirstAnimationEnd; }
+	const bool GetSecondAnimationEnd()	const { return m_animation & SecondAnimationEnd; }
 	// ドアを開けていいか
 	const bool GetOpenDoor()	const { return m_animation & OpenDoor; }
 	// ドアを閉めていいか
 	const bool GetCloseDoor()	const { return m_animation & CloseDoor; }
 	// アニメーションが完全に終了したかどうか
-	const bool GetAnimationEnd()	const { return m_animation & ThirdAnimationEnd; }
+	const bool GetAnimationEnd()	const { return m_animation & FourthAnimationEnd; }
 
 private:
 	// モデル
@@ -40,9 +40,9 @@ private:
 	float m_degAng = 0;
 
 	// 初期座標
-	const Math::Vector3 m_startPos = { -1.5, 0, -10 };
+	const Math::Vector3 m_startPos = { -1.5, 0, -2 };
 	// ゴールの座標
-	const Math::Vector3 m_goalPos = { 15, 0, -10 };
+	const Math::Vector3 m_goalPos = { 16, 0, -10 };
 
 	enum Animation
 	{
@@ -54,6 +54,8 @@ private:
 		SecondAnimationEnd		= 1 << 5,
 		ThirdAnimationStart		= 1 << 6,
 		ThirdAnimationEnd		= 1 << 7,
+		FourthAnimationStart	= 1 << 8,
+		FourthAnimationEnd		= 1 << 9,
 	};
 
 	UINT m_animation = 0;
@@ -67,8 +69,8 @@ private:
 
 	// ドアを閉める座標
 	const float m_closeDoorPosZ = -6.5;
-	// アニメーション狩猟の座標
-	const float m_endPosZ = 0;
+	// アニメーション終了の座標
+	const float m_endPosZ = -2;
 
 	// 一つ目のアニメーション
 	void FirstAnimation();
@@ -76,4 +78,12 @@ private:
 	void SecondAnimation();
 	// 三つ目のアニメーション
 	void ThirdAnimation();
+	// 四つ目のアニメーション
+	void FourthAnimation();
+
+	std::weak_ptr<KdSoundInstance> m_wpSound;	// 歩く音
+	bool m_soundFlg = false;						// 既に鳴っているかどうかのフラグ
+
+	int m_runSmokeTime = 16;
+	int m_smokeCount = 0;
 };

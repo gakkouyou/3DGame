@@ -4,10 +4,20 @@ void House::Update()
 {
 	if (m_openDoorFlg == true && m_closeDoorFlg == false)
 	{
+		if (m_openSoundFlg == false)
+		{
+			if (m_wpOpenSound.expired() == false)
+			{
+				m_wpOpenSound.lock()->Play();
+			}
+			m_openSoundFlg = true;
+		}
+
 		m_degAng += m_addDegAng;
 		if (m_degAng > m_maxDegAng)
 		{
 			m_degAng = m_maxDegAng;
+			m_openDoorFlg = false;
 		}
 
 		Math::Vector3 pos = m_doorMat.Translation();
@@ -21,6 +31,15 @@ void House::Update()
 		if (m_degAng < 0)
 		{
 			m_degAng = 0;
+			m_closeDoorFlg = false;
+
+			if (m_wpCloseSound.expired() == false)
+			{
+				m_wpCloseSound.lock()->Play();
+			}
+
+			// ドアの音を鳴らせるようにする
+			m_openSoundFlg = false;
 		}
 		Math::Vector3 pos = m_doorMat.Translation();
 		m_doorMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
@@ -128,5 +147,21 @@ void House::Init()
 		Math::Matrix transMat = Math::Matrix::CreateTranslation({ 0, 0, -10 });
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(2);
 		m_roadMat = scaleMat * transMat;
+	}
+
+	// ドアを開ける音
+	m_wpOpenSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/doorOpen.wav", false);
+	if (m_wpOpenSound.expired() == false)
+	{
+		m_wpOpenSound.lock()->SetVolume(0.05f);
+		m_wpOpenSound.lock()->Stop();
+	}
+
+	// ドアを閉める音
+	m_wpCloseSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/doorClose.wav", false);
+	if (m_wpCloseSound.expired() == false)
+	{
+		m_wpCloseSound.lock()->SetVolume(0.05f);
+		m_wpCloseSound.lock()->Stop();
 	}
 }

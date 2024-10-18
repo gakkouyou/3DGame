@@ -15,7 +15,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Cube",
+			"name":"\u7acb\u65b9\u4f53",
 			"scale":[
 				2.5,
 				0.25,
@@ -26,7 +26,7 @@
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"ground",
+			"name":"wall",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -37,7 +37,7 @@
 		},
 		{
 			"doubleSided":true,
-			"name":"wall",
+			"name":"ground",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":1
@@ -60,7 +60,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube",
+			"name":"\u7acb\u65b9\u4f53",
 			"primitives":[
 				{
 					"attributes":{
@@ -109,13 +109,13 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"glassTiles",
-			"uri":"glassTiles.png"
+			"name":"grassWall",
+			"uri":"grassWall.png"
 		},
 		{
 			"mimeType":"image/png",
-			"name":"grassWall",
-			"uri":"grassWall.png"
+			"name":"glassTiles",
+			"uri":"glassTiles.png"
 		},
 		{
 			"mimeType":"image/png",
@@ -127,7 +127,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":4,
+			"count":16,
 			"max":[
 				1,
 				1,
@@ -135,7 +135,7 @@
 			],
 			"min":[
 				-1,
-				1,
+				-1,
 				-1
 			],
 			"type":"VEC3"
@@ -143,25 +143,25 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":4,
+			"count":16,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":4,
+			"count":16,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":6,
+			"count":24,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":64,
+			"count":4,
 			"max":[
 				1,
 				1,
@@ -169,7 +169,7 @@
 			],
 			"min":[
 				-1,
-				-1,
+				1,
 				-1
 			],
 			"type":"VEC3"
@@ -177,19 +177,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":64,
+			"count":4,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":64,
+			"count":4,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":96,
+			"count":6,
 			"type":"SCALAR"
 		},
 		{
@@ -197,14 +197,14 @@
 			"componentType":5126,
 			"count":4,
 			"max":[
-				0.9200477004051208,
+				1,
 				-1,
-				0.9200477004051208
+				1
 			],
 			"min":[
-				-0.9200477004051208,
 				-1,
-				-0.9200477004051208
+				-1,
+				-1
 			],
 			"type":"VEC3"
 		},
@@ -230,74 +230,74 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":48,
+			"byteLength":192,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":48,
-			"byteOffset":48,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":32,
-			"byteOffset":96,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":12,
-			"byteOffset":128,
-			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":768,
-			"byteOffset":140,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":768,
-			"byteOffset":908,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":512,
-			"byteOffset":1676,
-			"target":34962
-		},
-		{
-			"buffer":0,
 			"byteLength":192,
-			"byteOffset":2188,
+			"byteOffset":192,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":128,
+			"byteOffset":384,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":512,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":48,
-			"byteOffset":2380,
+			"byteOffset":560,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":48,
-			"byteOffset":2428,
+			"byteOffset":608,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":32,
-			"byteOffset":2476,
+			"byteOffset":656,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":12,
-			"byteOffset":2508,
+			"byteOffset":688,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":700,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":48,
+			"byteOffset":748,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":32,
+			"byteOffset":796,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":12,
+			"byteOffset":828,
 			"target":34963
 		}
 	],
@@ -309,7 +309,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":2520,
+			"byteLength":840,
 			"uri":"normalGround.bin"
 		}
 	]

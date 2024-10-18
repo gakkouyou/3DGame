@@ -77,6 +77,8 @@ void StageSelectScene::Event()
 				if (m_wpSceneChange.lock()->GetFinishFlg())
 				{
 					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Game);
+					// 全ての音を止める
+					KdAudioManager::Instance().StopAllSound();
 				}
 			}
 		}
@@ -91,8 +93,9 @@ void StageSelectScene::Event()
 				// フェードアウト終了後シーンをタイトルシーンに
 				if (m_wpSceneChange.lock()->GetFinishFlg())
 				{
-					KdAudioManager::Instance().StopAllSound();
 					SceneManager::Instance().SetNextScene(SceneManager::SceneType::Result);
+					// 全ての音を止める
+					KdAudioManager::Instance().StopAllSound();
 				}
 			}
 		}
@@ -318,4 +321,8 @@ void StageSelectScene::Init()
 			}
 		}
 	}
+
+	// 音
+	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageSelectBGM.wav", true);
+	bgm->SetVolume(0.02f);
 }

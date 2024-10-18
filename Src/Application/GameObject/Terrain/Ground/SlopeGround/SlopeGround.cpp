@@ -1,4 +1,6 @@
 ﻿#include "SlopeGround.h"
+#include "../../../Effect/Smoke/Smoke.h"
+#include "../../../../Scene/SceneManager.h"
 
 void SlopeGround::Update()
 {
@@ -90,11 +92,21 @@ void SlopeGround::Active()
 	//	}
 	//}
 
+	if (m_activeFlg == false && m_scale != 1.0f)
+	{
+		std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
+		smoke->Init();
+		smoke->SetPos(GetPos());
+		smoke->SetSmokeType(Smoke::SmokeType::AppearanceSmoke);
+		SceneManager::Instance().AddObject(smoke);
+	}
+
 	m_activeFlg = true;
 
 	if (m_sumFlg == false)
 	{
 		m_scale += m_addScale;
+		m_addScale += m_addAddScale;
 		if (m_scale > m_maxScale)
 		{
 			m_scale = m_maxScale;
@@ -103,7 +115,7 @@ void SlopeGround::Active()
 	}
 	else
 	{
-		m_scale -= m_addScale;
+		m_scale -= 0.05f;
 		if (m_scale < 1.0f)
 		{
 			m_scale = 1.0f;

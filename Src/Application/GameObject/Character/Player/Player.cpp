@@ -4,7 +4,7 @@
 #include "../../Terrain/TerrainBase.h"
 #include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
 
-#include "../../Effect/PlayerSmoke/PlayerSmoke.h"
+#include "../../Effect/Smoke/Smoke.h"
 
 #include "../../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Terrain/CarryObject/CarryObjectBase.h"
@@ -208,10 +208,10 @@ void Player::Update()
 			// 一定時間置きに煙を出す
 			if (m_smokeCount % m_walkSmokeTime == 0)
 			{
-				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+				std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
-				smoke->SetSmokeType(PlayerSmoke::SmokeType::WalkSmoke);
+				smoke->SetSmokeType(Smoke::SmokeType::WalkSmoke);
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
@@ -227,10 +227,10 @@ void Player::Update()
 			if (m_smokeCount % m_runSmokeTime == 0)
 			{
 				// 煙を生み出す
-				std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+				std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 				smoke->Init();
 				smoke->SetPos(m_pos);
-				smoke->SetSmokeType(PlayerSmoke::SmokeType::WalkSmoke);
+				smoke->SetSmokeType(Smoke::SmokeType::WalkSmoke);
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
@@ -1497,10 +1497,10 @@ void Player::HitJudgeEnemy()
 				if (degAng < 90 && degAng > -90)
 				{
 					// 煙を生み出す
-					std::shared_ptr<PlayerSmoke> smoke = std::make_shared<PlayerSmoke>();
+					std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 					smoke->Init();
 					smoke->SetPos(m_pos);
-					smoke->SetSmokeType(PlayerSmoke::SmokeType::StampSmoke);
+					smoke->SetSmokeType(Smoke::SmokeType::StampSmoke);
 					SceneManager::Instance().AddObject(smoke);
 
 					// 敵を踏んだ時の処理
@@ -1694,7 +1694,7 @@ void Player::HitJudgeCarryObject()
 				}
 				else
 				{
-					m_actionKeyFlg == false;
+					m_actionKeyFlg = false;
 				}
 			}
 		}

@@ -8,7 +8,7 @@
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/StageStart/StageStart.h"
-#include "../../GameObject/Effect/PlayerSmoke/PlayerSmoke.h"
+#include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
 

@@ -131,6 +131,13 @@ void GameScene::Event()
 	{
 		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
+			m_vol -= 0.001f;
+			if (m_vol < 0)
+			{
+				m_vol = 0;
+			}
+			m_bgm.lock()->SetVolume(m_vol);
+
 			if (!m_wpCamera.expired())
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
@@ -319,8 +326,8 @@ void GameScene::Init()
 	player->SetTerrainController(terrainController);
 	player->SetCarryObjectContoller(carryObjectController);
 
-	//m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
-	//m_bgm.lock()->SetVolume(0.1f);
+	m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
+	m_bgm.lock()->SetVolume(m_vol);
 }
 
 void GameScene::StartGameScene()

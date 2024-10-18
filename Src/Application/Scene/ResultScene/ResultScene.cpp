@@ -45,7 +45,27 @@ void ResultScene::Event()
 					if (m_wpBackGround.lock()->GetOrangeAnimationEnd())
 					{
 						m_wpPlayer.lock()->SetThirdAnimationStart();
+						// からすの鳴き声を鳴らす
+						if (m_evening.sound.expired() == false)
+						{
+							if (m_evening.flg == false)
+							{
+								m_evening.sound.lock()->Play();
+								m_evening.flg = true;
+							}
+						}
 					}
+				}
+				
+				// すずめの鳴き声をフェードアウト
+				if (m_morning.sound.expired() == false)
+				{
+					m_morning.vol -= m_morning.sumVol;
+					if (m_morning.vol < 0)
+					{
+						m_morning.vol = 0;
+					}
+					m_morning.sound.lock()->SetVolume(m_morning.vol);
 				}
 			}
 
@@ -76,6 +96,26 @@ void ResultScene::Event()
 			if (m_wpBackGround.expired() == false)
 			{
 				m_wpBackGround.lock()->BlackAnimation();
+			}
+			// bgmをフェードアウトさせる
+			if (m_bgm.sound.expired() == false)
+			{
+				m_bgm.vol -= m_bgm.sumVol;
+				if (m_bgm.vol < 0)
+				{
+					m_bgm.vol = 0;
+				}
+				m_bgm.sound.lock()->SetVolume(m_bgm.vol);
+			}
+			// 烏の鳴き声をフェードアウトさせる
+			if (m_evening.sound.expired() == false)
+			{
+				m_evening.vol -= m_evening.sumVol;
+				if (m_evening.vol < 0)
+				{
+					m_evening.vol = 0;
+				}
+				m_evening.sound.lock()->SetVolume(m_evening.vol);
 			}
 		}
 	}
@@ -124,4 +164,30 @@ void ResultScene::Init()
 	std::shared_ptr<ResultCamera> camera = std::make_shared<ResultCamera>();
 	camera->Init();
 	AddObject(camera);
+
+	// BGM
+	m_bgm.sound = KdAudioManager::Instance().Play("Asset/Sounds/BGM/resultBGM.wav");
+	if (m_bgm.sound.expired() == false)
+	{
+		m_bgm.vol = 0.02f;
+		m_bgm.sumVol = m_bgm.vol / 180.0f;
+		m_bgm.sound.lock()->SetVolume(m_bgm.vol);
+	}
+	// すずめの鳴き声
+	m_morning.sound = KdAudioManager::Instance().Play("Asset/Sounds/SE/morning.wav");
+	if (m_morning.sound.expired() == false)
+	{
+		m_morning.vol = 0.02f;
+		m_morning.sumVol = m_morning.vol / 60.0f;
+		m_morning.sound.lock()->SetVolume(m_morning.vol);
+	}
+	// からすの鳴き声
+	m_evening.sound = KdAudioManager::Instance().Play("Asset/Sounds/SE/evening.wav");
+	if (m_evening.sound.expired() == false)
+	{
+		m_evening.vol = 0.02f;
+		m_evening.sumVol = m_evening.vol / 60.0f;
+		m_evening.sound.lock()->SetVolume(m_evening.vol);
+		m_evening.sound.lock()->Stop();
+	}
 }

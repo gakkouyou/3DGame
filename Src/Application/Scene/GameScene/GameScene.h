@@ -71,4 +71,5 @@ private:
 	bool m_oldPauseFlg	= false;
 
 	std::weak_ptr<KdSoundInstance> m_bgm;
+	float m_vol = 0.02f;
 };

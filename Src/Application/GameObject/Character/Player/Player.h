@@ -235,4 +235,8 @@ private:
 	bool m_finalGoalFlg = false;
 
 	bool flg[4] = { false, false, false, false };
+
+	// ゴール音のフラグ
+	bool m_goalSEFlg = false;
+	bool m_goalBGMFlg = false;
 };

@@ -1308,9 +1308,18 @@ void Player::HitJudgeEvent()
 				{
 					// ゴール
 				case ObjectType::Goal:
+				{
 					m_goalFlg = true;
 					m_stopFlg = true;
+
+					if (m_goalSEFlg == false)
+					{
+						std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/goal.wav", false);
+						se->SetVolume(0.02f);
+						m_goalSEFlg = true;
+					}
 					break;
+				}
 
 					// 回復アイテム
 				case ObjectType::HealItem:
@@ -1731,5 +1740,12 @@ void Player::GoalProcess()
 		m_angle = 180;
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 		//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Goal"), true);
+
+		if (m_goalBGMFlg == false)
+		{
+			std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/BGM/clear.wav", false);
+			se->SetVolume(0.02);
+		}
+		m_goalBGMFlg = true;
 	}
 }

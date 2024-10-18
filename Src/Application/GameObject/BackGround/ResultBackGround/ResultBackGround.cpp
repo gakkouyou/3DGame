@@ -43,6 +43,8 @@ void ResultBackGround::Update()
 		if (m_ambientLight < 0)
 		{
 			m_ambientLight = 0;
+			// 音を全て止める
+			KdAudioManager::Instance().StopAllSound();
 			SceneManager::Instance().SetNextScene(SceneManager::SceneType::Title);
 		}
 		KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ m_ambientLight, m_ambientLight, m_ambientLight, 1.0f });

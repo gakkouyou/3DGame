@@ -85,6 +85,7 @@ void Smoke::SetSmokeType(SmokeType _smokeType)
 		{
 			m_appearanceSmoke.moveVec.push_back({ float(rand() % 200 - 100), 0, float(rand() % 200 - 100) });
 			m_appearanceSmoke.moveVec[i].Normalize();
+			m_appearanceSmoke.movePow.push_back(float(rand() % 100 / 1000.0f));
 		}
 
 		m_scale = 4.0f;
@@ -187,7 +188,7 @@ void Smoke::AppearanceSmokeUpdate()
 	// 少し移動させる
 	for (auto& pos : m_posList)
 	{
-		pos += m_appearanceSmoke.moveVec[cnt] * m_appearanceSmoke.movePow;
+		pos += m_appearanceSmoke.moveVec[cnt] * m_appearanceSmoke.movePow[cnt];
 
 		pos.y += m_appearanceSmoke.upMovePow;
 

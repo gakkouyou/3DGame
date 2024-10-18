@@ -50,6 +50,17 @@ void Goal::Update()
 
 			m_mWorld = scaleMat * rotMat * transMat;
 		}
+		else
+		{
+			m_degAng += m_moveDegAng;
+			m_moveDegAng += 0.5f;
+
+			Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos());
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+
+			m_mWorld = scaleMat * rotMat * transMat;
+		}
 	}
 
 	if (m_flg == false)

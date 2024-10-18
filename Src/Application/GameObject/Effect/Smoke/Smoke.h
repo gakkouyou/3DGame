@@ -86,13 +86,13 @@ private:
 	
 	struct AppearanceSmoke
 	{
-		const float subScale	= 0.04f;	// 縮小の量
+		const float subScale	= 0.08f;	// 縮小の量
 		const int	smokeNum	= 20;		// 煙の数
-		const int	subTime		= 60;		// 縮小するまでの時間
+		const int	subTime		= 0;		// 縮小するまでの時間
 		int			subCount	= 0;		// 縮小するまでのカウント
 		std::vector<Math::Vector3> moveVec;
-		const float movePow		= 0.02f;		// 動く量
-		float upMovePow			= 0.3f;		// 上への移動量
+		std::vector<float> movePow;	// 動く量
+		float upMovePow			= 0.25f;		// 上への移動量
 		float downMovePow		= 0.01f;	// 下への移動量
 	};
 	AppearanceSmoke m_appearanceSmoke;

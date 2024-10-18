@@ -76,6 +76,13 @@ void House::GenerateDepthMapFromLight()
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spRoadModel, m_roadMat);
 	}
+
+	// 木
+	if (m_spTreeModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spTreeModel, m_treeMat[0]);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spTreeModel, m_treeMat[1]);
+	}
 }
 
 void House::DrawLit()
@@ -108,6 +115,13 @@ void House::DrawLit()
 	if (m_spRoadModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spRoadModel, m_roadMat);
+	}
+
+	// 木
+	if (m_spTreeModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spTreeModel, m_treeMat[0]);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spTreeModel, m_treeMat[1]);
 	}
 }
 
@@ -147,6 +161,15 @@ void House::Init()
 		Math::Matrix transMat = Math::Matrix::CreateTranslation({ 0, 0, -10 });
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(2);
 		m_roadMat = scaleMat * transMat;
+	}
+
+	// 木のモデル
+	if (!m_spTreeModel)
+	{
+		m_spTreeModel = std::make_shared<KdModelData>();
+		m_spTreeModel->Load("Asset/Models/Title/Tree/tree.gltf");
+		m_treeMat[0].Translation({-10, 0, -7});
+		m_treeMat[1].Translation({ 8.5, 0, -7 });
 	}
 
 	// ドアを開ける音

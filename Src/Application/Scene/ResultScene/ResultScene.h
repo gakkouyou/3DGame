@@ -35,4 +35,19 @@ private:
 
 	// シーンが開始した瞬間がわかるフラグ
 	bool m_sceneStartFlg = false;
+
+	struct Sound
+	{
+		bool flg = false;
+		std::weak_ptr<KdSoundInstance> sound;
+		float vol = 0;
+		float sumVol = 0;
+	};
+	
+	// BGM
+	Sound m_bgm;
+	// すずめの鳴き声
+	Sound m_morning;
+	// からすの鳴き声
+	Sound m_evening;
 };

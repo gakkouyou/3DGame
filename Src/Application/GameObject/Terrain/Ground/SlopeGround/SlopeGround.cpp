@@ -99,6 +99,9 @@ void SlopeGround::Active()
 		smoke->SetPos(GetPos());
 		smoke->SetSmokeType(Smoke::SmokeType::AppearanceSmoke);
 		SceneManager::Instance().AddObject(smoke);
+
+		std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/appearance.wav");
+		se->SetVolume(0.02f);
 	}
 
 	m_activeFlg = true;

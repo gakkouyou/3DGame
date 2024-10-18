@@ -31,6 +31,10 @@ private:
 	// 家具のオブジェクトのモデル
 	std::shared_ptr<KdModelData> m_spHouseObjectModel = nullptr;
 
+	// 木のモデル
+	std::shared_ptr<KdModelData> m_spTreeModel = nullptr;
+	Math::Matrix m_treeMat[2];
+
 	// ベッドの座標
 	Math::Vector3 m_bedPos;
 

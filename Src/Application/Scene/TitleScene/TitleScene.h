@@ -14,8 +14,6 @@ public :
 
 	void Init()	override;
 
-	const bool GetDebug() const override { return true; }
-
 private :
 	void Event() override;
 

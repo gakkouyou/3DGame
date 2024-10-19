@@ -107,9 +107,22 @@ void DropGround::OnHit()
 
 		Math::Matrix transMat;
 		transMat = Math::Matrix::CreateTranslation(m_param.pos.x, m_param.pos.y, m_param.pos.z);
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(m_param.scale);
 
-		m_mWorld = transMat;
+		m_mWorld = scaleMat * transMat;
 	}
+}
+
+void DropGround::Reset()
+{
+	m_param.pos = m_param.startPos;
+	m_stayCount = 0;
+	m_onHitFlg = false;
+	m_dropFlg = false;
+
+	m_vanishCount = 0;
+	m_respawnCount = 0;
+	m_pauseFlg = false;
 }
 
 void DropGround::SetParam(const Param& _param)

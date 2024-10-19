@@ -88,6 +88,121 @@ void SceneManager::ChangeScene(SceneType sceneType)
 	m_currentSceneType = sceneType;
 }
 
+void SceneManager::CSVReset()
+{
+	{
+		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStageSelect.csv");
+
+		std::ofstream ofs("Asset/Data/CSV/Terrain/StageSelect.csv");
+
+		if (!ifs.is_open())
+		{
+			return;
+		}
+
+		std::string lineString;
+
+		while (std::getline(ifs, lineString))
+		{
+			std::istringstream iss(lineString);
+			std::string commaString;
+
+			int cnt = 0;
+			// 空かどうかを確認するフラグ
+			bool emptyFlg = true;
+			while (std::getline(iss, commaString, ','))
+			{
+				ofs << commaString << ",";
+			}
+			ofs << std::endl;
+		}
+		ifs.close();
+	}
+
+	{
+		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStageSelect.csv");
+
+		std::ofstream ofs("Asset/Data/CSV/EventObject/StageSelect.csv");
+
+		if (!ifs.is_open())
+		{
+			return;
+		}
+
+		std::string lineString;
+
+		while (std::getline(ifs, lineString))
+		{
+			std::istringstream iss(lineString);
+			std::string commaString;
+
+			int cnt = 0;
+			// 空かどうかを確認するフラグ
+			bool emptyFlg = true;
+			while (std::getline(iss, commaString, ','))
+			{
+				ofs << commaString << ",";
+			}
+			ofs << std::endl;
+		}
+		ifs.close();
+	}
+
+	for (int i = 1; i < Stage::Max; i++)
+	{
+		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStage" + std::to_string(i) + ".csv");
+
+		if (!ifs.is_open())
+		{
+			continue;
+		}
+
+		std::ofstream ofs("Asset/Data/CSV/Terrain/Stage" + std::to_string(i) + ".csv");
+
+		std::string lineString;
+
+		while (std::getline(ifs, lineString))
+		{
+			std::istringstream iss(lineString);
+			std::string commaString;
+
+			while (std::getline(iss, commaString, ','))
+			{
+				ofs << commaString << ",";
+			}
+			ofs << std::endl;
+		}
+		ifs.close();
+	}
+
+	for (int i = 1; i < Stage::Max; i++)
+	{
+		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStage" + std::to_string(i) + ".csv");
+
+		if (!ifs.is_open())
+		{
+			continue;
+		}
+
+		std::ofstream ofs("Asset/Data/CSV/EventObject/Stage" + std::to_string(i) + ".csv");
+
+		std::string lineString;
+
+		while (std::getline(ifs, lineString))
+		{
+			std::istringstream iss(lineString);
+			std::string commaString;
+
+			while (std::getline(iss, commaString, ','))
+			{
+				ofs << commaString << ",";
+			}
+			ofs << std::endl;
+		}
+		ifs.close();
+	}
+}
+
 void SceneManager::StageInfoCSVLoader()
 {
 	std::ifstream ifs("Asset/Data/CSV/StageInfo.csv");
@@ -111,7 +226,7 @@ void SceneManager::StageInfoCSVLoader()
 	}
 	ifs.close();
 
-	m_stageInfoList[Stage::Stage1 - 1] = 1;
+	//m_stageInfoList[Stage::Stage1 - 1] = 1;
 }
 
 void SceneManager::StageInfoCSVWriter()

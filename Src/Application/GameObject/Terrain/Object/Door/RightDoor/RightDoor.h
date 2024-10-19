@@ -14,6 +14,8 @@ public:
 	void Update()				override;
 	void Init()					override;
 
+	void Reset()				override;
+
 	void Active()				override;
 
 	void SetParam(const Param& _param)	override;

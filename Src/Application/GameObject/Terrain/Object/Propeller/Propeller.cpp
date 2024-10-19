@@ -85,4 +85,6 @@ void Propeller::SetParam(const Param& _param)
 void Propeller::Reset()
 {
 	m_rotDegAng = Math::Vector3::Zero;
+
+	m_pauseFlg = false;
 }

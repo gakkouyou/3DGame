@@ -63,6 +63,13 @@ void Switch::OnHit()
 	}
 }
 
+void Switch::Reset()
+{
+	m_onHitFlg = false;
+	m_param.pos = m_param.startPos;
+	m_pauseFlg = false;
+}
+
 void Switch::SetParam(const Param& _param)
 {
 	if (m_setParamFlg == true) return;

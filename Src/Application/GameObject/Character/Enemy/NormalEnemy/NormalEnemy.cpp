@@ -352,6 +352,8 @@ void NormalEnemy::Reset()
 	m_move.goalPos.x = m_param.startPos.x + m_param.moveArea * cos(DirectX::XMConvertToRadians(m_degAng));
 	m_move.goalPos.z = m_param.startPos.z + m_param.moveArea * sin(DirectX::XMConvertToRadians(m_degAng));
 
+	m_pos = m_param.startPos;
+
 	// 回転させる
 	m_move.rotFlg = true;
 

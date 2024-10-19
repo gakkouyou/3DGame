@@ -13,6 +13,8 @@ public:
 
 	void OnHit()	override;
 
+	void Reset()	override;
+
 	// 座標をセットする
 	void SetPos(const Math::Vector3& _pos) override { m_param.pos = _pos; }
 	// 座標をゲットする

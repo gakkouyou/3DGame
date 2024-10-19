@@ -15,16 +15,19 @@ void BoxEnemy::Update()
 		EnemyUpdate();
 	}
 
-	// 運ばれていない時の処理
-	if (m_carryFlg == false)
+	if (m_aliveFlg == true)
 	{
-		// 重力
-		m_gravity += m_gravityPow;
-		m_pos.y -= m_gravity;
-		// 重力の制限
-		if (m_gravity >= m_maxGravity)
+		// 運ばれていない時の処理
+		if (m_carryFlg == false)
 		{
-			m_gravity = m_maxGravity;
+			// 重力
+			m_gravity += m_gravityPow;
+			m_pos.y -= m_gravity;
+			// 重力の制限
+			if (m_gravity >= m_maxGravity)
+			{
+				m_gravity = m_maxGravity;
+			}
 		}
 	}
 
@@ -33,7 +36,47 @@ void BoxEnemy::Update()
 		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
+	bool airFlg = m_airFlg;
+
 	HitJudge();
+
+	// 着地した瞬間
+	if (airFlg == false && m_airFlg == true)
+	{
+		// 何の地面に乗っているかによって、音を変える
+		if (!m_wpHitTerrain.expired())
+		{
+			ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
+			switch (type)
+			{
+				// 草の音
+			case ObjectType::NormalGround:
+			case ObjectType::SlopeGround:
+			case ObjectType::RotationGround:
+				m_wpLandSound[LandSoundType::Grass].lock()->Play();
+				break;
+
+			case ObjectType::BoundGround:
+				m_wpLandSound[LandSoundType::Bound].lock()->Play();
+				break;
+				break;
+
+				// コツコツ見たいな音
+			default:
+				m_wpLandSound[LandSoundType::Tile].lock()->Play();
+				break;
+			}
+		}
+	}
+
+	// 音座標更新
+	for (int i = 0; i < LandSoundType::MaxNum; i++)
+	{
+		if (m_wpLandSound[i].lock()->IsPlaying() == true)
+		{
+			m_wpLandSound[i].lock()->SetPos(m_pos);
+		}
+	}
 
 	// Y座標が一定以下になると死亡
 	if (m_pos.y < m_underLine)
@@ -360,6 +403,29 @@ void BoxEnemy::Init()
 	}
 
 	m_pCollider->RegisterCollisionShape("BoxEnemyEnemy", m_spEnemyModel, KdCollider::TypeDamage);
+
+	// 音
+	// 草の上に着地した音
+	m_wpLandSound[LandSoundType::Grass] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/grassWalk.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Grass].expired())
+	{
+		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Grass].lock()->Stop();
+	}
+	// かたい地面を着地した音
+	m_wpLandSound[LandSoundType::Tile] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/tileWalk.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Tile].expired())
+	{
+		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Tile].lock()->Stop();
+	}
+	// キノコではねた時の音
+	m_wpLandSound[LandSoundType::Bound] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/bound.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Bound].expired())
+	{
+		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.02f);
+		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
+	}
 }
 
 void BoxEnemy::CarryFlg(bool _carryFlg)
@@ -416,7 +482,6 @@ void BoxEnemy::HitJudge()
 
 	if (m_carryFlg == false)
 	{
-
 		// 地面とのレイ当たり判定
 		{
 			// 当たったかどうか

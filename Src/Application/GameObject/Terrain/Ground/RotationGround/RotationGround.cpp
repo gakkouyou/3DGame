@@ -98,4 +98,6 @@ void RotationGround::Reset()
 {
 	// 角度
 	m_rotDegAng = Math::Vector3::Zero;
+
+	m_pauseFlg = false;
 }

@@ -463,7 +463,7 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos };
+			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
 			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
@@ -530,8 +530,8 @@ void EventObjectController::BeginCreateObject()
 			EventObjectBase::Param setParam;
 			setParam.basePos = data.pos;
 			setParam.modelNum = data.modelNum;
-			object->SetParam(setParam);
 			object->Init();
+			object->SetParam(setParam);
 			SceneManager::Instance().AddObject(object);
 			// カウントを進める
 			m_objectCount.FinalGoal++;
@@ -619,8 +619,31 @@ void EventObjectController::CSVLoader()
 	ifs.close();
 }
 
-void EventObjectController::CSVWriter()
+void EventObjectController::CSVWriter(bool _baseFlg)
 {
+	if (_baseFlg == true)
+	{
+		std::ofstream ofs("Base" + m_fileName);
+
+		for (auto& data : m_dataList)
+		{
+			// オブジェクトのタイプ
+			ofs << data.type << ",";
+
+			// オブジェクトの名前
+			ofs << data.name << ",";
+
+			// 座標
+			ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
+
+			// 二つ目の座標
+			ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << ",";
+
+			// ステージ数
+			ofs << data.modelNum << std::endl;
+		}
+	}
+
 	std::ofstream ofs(m_fileName);
 
 	for (auto& data : m_dataList)

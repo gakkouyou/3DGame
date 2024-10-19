@@ -114,6 +114,16 @@ void GameScene::Event()
 				else
 				{
 					m_wpSceneChange.lock()->EndScene();
+					// 音をフェードアウト
+					m_vol -= 0.001f;
+					if (m_vol < 0)
+					{
+						m_vol = 0;
+					}
+					if (m_bgm.expired() == false)
+					{
+						m_bgm.lock()->SetVolume(m_vol);
+					}
 				}
 				break;
 			}
@@ -131,26 +141,26 @@ void GameScene::Event()
 	{
 		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
+			// 音をフェードアウト
 			m_vol -= 0.001f;
 			if (m_vol < 0)
 			{
 				m_vol = 0;
 			}
-			m_bgm.lock()->SetVolume(m_vol);
+			if (m_bgm.expired() == false)
+			{
+				m_bgm.lock()->SetVolume(m_vol);
+			}
+
+			// UIにクリアしたことを伝える
+			if (m_wpGameUI.expired() == false)
+			{
+				m_wpGameUI.lock()->SetClearFlg(true);
+			}
 
 			if (!m_wpCamera.expired())
 			{
 				m_wpCamera.lock()->SetGoalFlg(true);
-
-				// 初クリアかどうかをチェック
-				if (SceneManager::Instance().GetStageInfo()[m_nowStage - 1] != SceneManager::StageInfo::NotClear)
-				{
-					SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::FirstClear;
-				}
-				else
-				{
-					SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::Clear;
-				}
 
 				// 動き終わった後の処理
 				if (m_wpCamera.lock()->GetGoalProcessFinish())
@@ -170,6 +180,15 @@ void GameScene::Event()
 								// 処理が終了したらシーンを変更
 								if (m_wpSceneChange.lock()->GetFinishFlg())
 								{
+									// 初クリアかどうかをチェック
+									if (SceneManager::Instance().GetStageInfo()[m_nowStage - 1] == SceneManager::StageInfo::NotClear)
+									{
+										SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::FirstClear;
+									}
+
+									// ステージのCSVをリセット
+									ResetCSV();
+
 									// CSVに書き込む
 									//SceneManager::Instance().StageInfoCSVWriter();
 									// シーンを変更
@@ -258,6 +277,8 @@ void GameScene::Init()
 	AddObject(ui);
 	// プレイヤーを渡す
 	ui->SetPlayer(player);
+	// 保持
+	m_wpGameUI = ui;
 
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
@@ -325,6 +346,7 @@ void GameScene::Init()
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
 	player->SetCarryObjectContoller(carryObjectController);
+	player->SetEventObjectController(eventObjectController);
 
 	m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
 	m_bgm.lock()->SetVolume(m_vol);
@@ -384,7 +406,7 @@ void GameScene::GameEnd(int _stayCnt)
 			while (it != m_objList.end())
 			{
 				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
-					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground
+					//|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground
 					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
 					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
 				{
@@ -402,6 +424,26 @@ void GameScene::GameEnd(int _stayCnt)
 				// リセット(敵、地形、運べるオブジェクトも作り直される)
 				obj->Reset();
 			}
+
+			// 地形をリストの最後にする
+			{
+				std::list<std::shared_ptr<KdGameObject>> objList = m_objList;
+				std::list<std::shared_ptr<KdGameObject>> terrainList;
+				auto it = m_objList.begin();
+				for (auto& obj : objList)
+				{
+					if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+					{
+						m_objList.push_back(obj);
+						it = m_objList.erase(it);
+					}
+					else
+					{
+						it++;
+					}
+				}
+			}
+
 			m_resetFlg = true;
 		}
 		else
@@ -439,16 +481,61 @@ void GameScene::GameSceneReStart()
 			{
 				m_wpPause.lock()->SetStopFlg(false);
 			}
-
-			// フェードインが終了したら"Stage Start"を消していく
-			//if (!m_wpStart.expired())
-			//{
-			//	m_wpStart.lock()->SetEnd();
-			//}
 		}
 		else
 		{
 			m_wpSceneChange.lock()->StartScene(5);
+		}
+	}
+}
+
+void GameScene::ResetCSV()
+{
+	{
+		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStage" + std::to_string(m_nowStage) + ".csv");
+
+		if (ifs.is_open())
+		{
+			std::ofstream ofs("Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage) + ".csv");
+
+			std::string lineString;
+
+			while (std::getline(ifs, lineString))
+			{
+				std::istringstream iss(lineString);
+				std::string commaString;
+
+				while (std::getline(iss, commaString, ','))
+				{
+					ofs << commaString << ",";
+				}
+				ofs << std::endl;
+			}
+			ifs.close();
+		}
+	}
+
+	{
+		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStage" + std::to_string(m_nowStage) + ".csv");
+
+		if (ifs.is_open())
+		{
+			std::ofstream ofs("Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage) + ".csv");
+
+			std::string lineString;
+
+			while (std::getline(ifs, lineString))
+			{
+				std::istringstream iss(lineString);
+				std::string commaString;
+
+				while (std::getline(iss, commaString, ','))
+				{
+					ofs << commaString << ",";
+				}
+				ofs << std::endl;
+			}
+			ifs.close();
 		}
 	}
 }

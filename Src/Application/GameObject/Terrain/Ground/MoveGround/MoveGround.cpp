@@ -116,6 +116,19 @@ void MoveGround::Init()
 	m_param.speed	= 0;
 }
 
+void MoveGround::Reset()
+{
+	m_param.pos = m_param.startPos;
+
+	m_moveFlg = true;
+	m_stayCnt = 0;
+	m_moveDirFlg = false;
+	m_param.pos = m_param.startPos;
+	m_stopFlg = false;
+
+	m_pauseFlg = false;
+}
+
 void MoveGround::SetParam(const Param& _param)
 {
 	m_param.startPos	= _param.startPos;

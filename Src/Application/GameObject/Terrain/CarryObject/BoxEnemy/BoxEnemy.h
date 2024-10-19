@@ -87,4 +87,18 @@ private:
 
 	// 追尾していいかのフラグ
 	bool m_homingFlg = false;
+
+	enum LandSoundType
+	{
+		Grass,
+		Tile,
+		Bound,
+		MaxNum,
+	};
+
+	// 歩く音の配列
+	std::weak_ptr<KdSoundInstance3D> m_wpLandSound[LandSoundType::MaxNum];
+
+	// 地面に付いた瞬間かどうかを判断するフラグ
+	bool m_landFlg = true;
 };

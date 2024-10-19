@@ -27,10 +27,48 @@ void Box::Update()
 
 	if (SceneManager::Instance().GetDebug())
 	{
-		//m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
+	bool landFlg = m_landFlg;
 	HitJudge();
+
+	// 着地した瞬間
+	if (landFlg == false && m_landFlg == true)
+	{
+		// 何の地面に乗っているかによって、音を変える
+		if (!m_wpHitTerrain.expired())
+		{
+			ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
+			switch (type)
+			{
+				// 草の音
+			case ObjectType::NormalGround:
+			case ObjectType::SlopeGround:
+			case ObjectType::RotationGround:
+				m_wpLandSound[LandSoundType::Grass].lock()->Play();
+				break;
+
+			case ObjectType::BoundGround:
+				m_wpLandSound[LandSoundType::Bound].lock()->Play();
+				break;
+
+				// コツコツ見たいな音
+			default:
+				m_wpLandSound[LandSoundType::Tile].lock()->Play();
+				break;
+			}
+		}
+	}
+
+	// 音座標更新
+	for (int i = 0; i < LandSoundType::MaxNum; i++)
+	{
+		if (m_wpLandSound[i].lock()->IsPlaying() == true)
+		{
+			m_wpLandSound[i].lock()->SetPos(m_pos);
+		}
+	}
 
 	// Y座標が一定以下になるとリスポーン
 	if (m_pos.y < m_underLine)
@@ -226,6 +264,29 @@ void Box::Init()
 	m_baseObjectType = BaseObjectType::CarryObject;
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
+
+	// 音
+	// 草の上に着地した音
+	m_wpLandSound[LandSoundType::Grass] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/grassWalk.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Grass].expired())
+	{
+		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Grass].lock()->Stop();
+	}
+	// かたい地面を着地した音
+	m_wpLandSound[LandSoundType::Tile] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/tileWalk.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Tile].expired())
+	{
+		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Tile].lock()->Stop();
+	}
+	// キノコではねた時の音
+	m_wpLandSound[LandSoundType::Bound] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/bound.wav", m_pos, false);
+	if (!m_wpLandSound[LandSoundType::Bound].expired())
+	{
+		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.02f);
+		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
+	}
 }
 
 void Box::CarryFlg(bool _carryFlg)
@@ -373,6 +434,8 @@ void Box::HitJudge()
 				// 当たったオブジェクト
 				std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 
+				m_landFlg = true;
+
 				if (spHitObject)
 				{
 					spHitObject->OnHit();
@@ -430,6 +493,11 @@ void Box::HitJudge()
 						break;
 					}
 				}
+			}
+			// 当たっていなかった時の処理
+			else
+			{
+				m_landFlg = false;
 			}
 		}
 		m_rayDownFlg = false;

@@ -15,6 +15,9 @@ public:
 	// プレイヤーをセット
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
 
+	// クリアしたかどうか
+	void SetClearFlg(bool _clearFlg) { m_clearFlg = _clearFlg; }
+
 private:
 	struct Texture
 	{
@@ -32,4 +35,6 @@ private:
 
 	// プレイヤー
 	std::weak_ptr<Player> m_wpPlayer;
+
+	bool m_clearFlg = false;
 };

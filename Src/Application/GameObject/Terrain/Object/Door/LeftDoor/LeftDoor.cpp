@@ -40,6 +40,14 @@ void LeftDoor::Init()
 	m_ditherFlg = true;
 }
 
+void LeftDoor::Reset()
+{
+	m_activeFlg = false;
+	m_param.pos = m_param.startPos;
+
+	m_pauseFlg = false;
+}
+
 void LeftDoor::Active()
 {
 	if (m_activeFlg == true) return;

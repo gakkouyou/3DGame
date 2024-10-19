@@ -6,6 +6,7 @@ class TerrainController;
 class CarryObjectController;
 class CarryObjectBase;
 class EnemyController;
+class EventObjectController;
 
 class Player : public CharacterBase
 {
@@ -42,6 +43,12 @@ public:
 
 	// ゴールの座標をセット
 	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalPos = _goalPos; }
+
+	// EnemyControllerをセットする
+	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
+
+	// EventObjectControllerをセットする
+	void SetEventObjectController(const std::weak_ptr<EventObjectController>& _wpEventObjectController) { m_wpEventObjectController = _wpEventObjectController; }
 
 	//--------------------
 	// ゲッター
@@ -83,9 +90,6 @@ public:
 
 	// カメラがY軸を追尾すべきかどうか(乗っているオブジェクトによって判断)
 	const bool IsCameraTracking() const;
-
-	// EnemyControllerをセットする
-	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
 
 private:
 	// 当たり判定
@@ -239,4 +243,7 @@ private:
 	// ゴール音のフラグ
 	bool m_goalSEFlg = false;
 	bool m_goalBGMFlg = false;
+
+	// EventObjectController
+	std::weak_ptr<EventObjectController> m_wpEventObjectController;
 };

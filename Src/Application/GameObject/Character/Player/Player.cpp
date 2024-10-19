@@ -10,6 +10,8 @@
 #include "../../Terrain/CarryObject/CarryObjectBase.h"
 #include "../../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../Enemy/EnemyBase.h"
+#include "../../../Tool/ObjectController/EventObjectController/EventObjectController.h"
+#include "../../EventObject/EventObjectBase.h"
 
 #include "../../../main.h"
 
@@ -455,7 +457,11 @@ void Player::Update()
 		// 草の音
 		case ObjectType::NormalGround:
 		case ObjectType::SlopeGround:
+		case ObjectType::RotationGround:
 			m_walkSoundType = WalkSoundType::Grass;
+			break;
+
+		case ObjectType::BoundGround:
 			break;
 
 		// コツコツ見たいな音
@@ -871,6 +877,8 @@ void Player::Reset()
 
 	// 煙カウント
 	m_smokeCount = 0;
+
+	m_jumpSound.flg = false;
 }
 
 void Player::BackPos()
@@ -907,7 +915,7 @@ void Player::HitJudge()
 	// 地面との当たり判定
 	HitJudgeGround();
 
-	//if (m_stopFlg == false)
+	if (m_stopFlg == false || (SceneManager::Instance().GetNowScene() == SceneManager::SceneType::StageSelect))
 	{
 		// 触れたらイベントが発生する
 		HitJudgeEvent();
@@ -1246,6 +1254,8 @@ void Player::HitJudgeGround()
 
 void Player::HitJudgeEvent()
 {
+	if (m_wpEventObjectController.expired() == true) return;
+
 	// ボックス判定
 	{
 		// ボックス判定
@@ -1275,32 +1285,22 @@ void Player::HitJudgeEvent()
 
 		bool hitFlg = false;
 
-		for (auto& obj : SceneManager::Instance().GetObjList())
+		// 当たったオブジェクト
+		std::shared_ptr<EventObjectBase> spHitObject;
+
+		for (auto& obj : m_wpEventObjectController.lock()->GetObjList())
 		{
-			if (obj->Intersects(boxInfo, &resultList))
+			if (obj.expired() == true) continue;
+			if (obj.lock()->Intersects(boxInfo, &resultList))
 			{
-				m_wpHitObjectList.push_back(obj);
+				spHitObject = obj.lock();
 				hitFlg = true;
+				break;
 			}
 		}
 
 		if (hitFlg)
 		{
-			// 当たったオブジェクト
-			std::shared_ptr<KdGameObject> spHitObject;
-
-			// 探す
-			for (auto& hitObject : m_wpHitObjectList)
-			{
-				if (!hitObject.expired())
-				{
-					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Event)
-					{
-						spHitObject = hitObject.lock();
-						break;
-					}
-				}
-			}
 			if (spHitObject)
 			{
 				spHitObject->OnHit();
@@ -1335,6 +1335,14 @@ void Player::HitJudgeEvent()
 					// セーブポイント
 				case ObjectType::SavePoint:
 					m_respawnPos = spHitObject->GetPos();
+					for (auto& data : m_wpEventObjectController.lock()->WorkCSVData())
+					{
+						if (data.name == spHitObject->GetObjectName())
+						{
+							data.modelNum = 1;
+							break;
+						}
+					}
 					break;
 
 					// ワープポイント

@@ -68,11 +68,11 @@ void TerrainController::Init()
 
 void TerrainController::Reset()
 {
-	m_objectCount = m_objectCountReset;
-	m_wpTerrainList.clear();
+	//m_objectCount = m_objectCountReset;
+	//m_wpTerrainList.clear();
 
 	// 読み込んだデータからオブジェクトを作成する
-	BeginCreateObject();
+	//BeginCreateObject();
 }
 
 const KdGameObject::ObjectType TerrainController::GetObjectType() const
@@ -888,8 +888,46 @@ void TerrainController::CSVLoader()
 	ifs.close();
 }
 
-void TerrainController::CSVWriter()
+void TerrainController::CSVWriter(bool _baseFlg)
 {
+	if (_baseFlg == true)
+	{
+		std::ofstream ofs("Base" + m_fileName);
+
+		for (auto& data : m_dataList)
+		{
+			// オブジェクトのタイプ
+			ofs << data.type << ",";
+
+			// オブジェクトの名前
+			ofs << data.name << ",";
+
+			// 座標
+			ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
+
+			// ゴール座標
+			ofs << data.goalPos.x << "," << data.goalPos.y << "," << data.goalPos.z << ",";
+
+			// 拡縮
+			ofs << data.scale.x << "," << data.scale.y << "," << data.scale.z << ",";
+
+			// スピード
+			ofs << data.speed << ",";
+
+			// 待機時間
+			ofs << data.stayTime << ",";
+
+			// 回転角度
+			ofs << data.degAng.x << "," << data.degAng.y << "," << data.degAng.z << ",";
+
+			// ターゲットの名前
+			ofs << data.targetName << ",";
+
+			// すでにActiveになったかどうか
+			ofs << data.yetActive << std::endl;
+		}
+	}
+
 	std::ofstream ofs(m_fileName);
 
 	for (auto& data : m_dataList)

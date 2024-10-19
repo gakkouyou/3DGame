@@ -7,6 +7,8 @@ void GameUI::Update()
 
 void GameUI::DrawSprite()
 {
+	if (m_clearFlg == true) return;
+
 	if (!m_wpPlayer.expired())
 	{
 		// ライフの表示

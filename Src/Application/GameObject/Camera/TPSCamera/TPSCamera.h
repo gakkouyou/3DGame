@@ -68,7 +68,7 @@ private:
 	// ポーズ画面の時のFocus距離？
 	const float m_pauseFocus = 0;
 	// 普通のFocus処理
-	const float m_defaultFocus = 100;
+	const float m_defaultFocus = 2000;
 
 	// プレイヤーの最後に地面にいた時の座標
 	Math::Vector3 m_oldPlayerPos;

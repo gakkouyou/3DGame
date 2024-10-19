@@ -9,6 +9,7 @@ class Goal;
 class Result;
 class StageStart;
 class Pause;
+class GameUI;
 
 class GameScene : public BaseScene
 {
@@ -32,6 +33,9 @@ private:
 	// シーンを移り変わらずに、ゲームシーンを再開する
 	void GameSceneReStart();
 
+	// ステージの色々をリセット
+	void ResetCSV();
+
 	// TPSカメラ
 	std::weak_ptr<TPSCamera> m_wpCamera;
 
@@ -49,6 +53,9 @@ private:
 
 	// ポーズ画面
 	std::weak_ptr<Pause> m_wpPause;
+
+	// UI
+	std::weak_ptr<GameUI> m_wpGameUI;
 
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;

@@ -11,6 +11,8 @@ public:
 	void PostUpdate()	override;
 	void Init()			override;
 
+	void Reset()		override;
+
 	// 座標をセットする
 	void SetPos(const Math::Vector3& _pos) override { m_param.pos = _pos; }
 	// 座標をゲットする

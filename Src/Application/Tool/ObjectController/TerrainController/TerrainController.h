@@ -55,7 +55,7 @@ public:
 	// オブジェクトを作る
 	void CreateObject(const KdGameObject::ObjectType _object);
 	// CSVに書き込む
-	void CSVWriter();
+	void CSVWriter(bool _baseFlg = false);
 
 	// スイッチのターゲット選択モードの切替
 	void TargetSelect() { m_targetFlg = !m_targetFlg; };

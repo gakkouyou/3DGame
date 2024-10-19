@@ -18,6 +18,8 @@ public:
 
 	virtual void OnHit()						override {}
 
+	virtual void Reset()						override {}
+
 	virtual void Active() {}
 
 	virtual const bool IsActive()	const { return false; }

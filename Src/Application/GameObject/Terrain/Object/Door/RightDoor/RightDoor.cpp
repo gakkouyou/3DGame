@@ -56,6 +56,14 @@ void RightDoor::Init()
 	m_ditherFlg = true;
 }
 
+void RightDoor::Reset()
+{
+	m_activeFlg = false;
+	m_param.pos = m_param.startPos;
+
+	m_pauseFlg = false;
+}
+
 void RightDoor::Active()
 {
 	if (m_activeFlg == true) return;

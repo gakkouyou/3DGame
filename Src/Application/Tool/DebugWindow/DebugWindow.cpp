@@ -47,7 +47,7 @@ void DebugWindow::Draw()
 				if (m_wpTerrainController.expired() == false)
 				{
 					m_wpTerrainController.lock()->ConfirmedObject();
-					m_wpTerrainController.lock()->CSVWriter();
+					m_wpTerrainController.lock()->CSVWriter(true);
 				}
 
 				if (m_wpEnemyController.expired() == false)
@@ -65,7 +65,7 @@ void DebugWindow::Draw()
 				if (m_wpEventObjectController.expired() == false)
 				{
 					m_wpEventObjectController.lock()->ConfirmedObject();
-					m_wpEventObjectController.lock()->CSVWriter();
+					m_wpEventObjectController.lock()->CSVWriter(true);
 				}
 			}
 
@@ -161,7 +161,7 @@ void DebugWindow::TerrainWindow()
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CSVWriter();
+				spObjectController->CSVWriter(true);
 			}
 
 			// 通常の地面
@@ -486,7 +486,7 @@ void DebugWindow::EventObjectWindow()
 			if (ImGui::Button((const char*)u8"セーブ"))
 			{
 				spObjectController->ConfirmedObject();
-				spObjectController->CSVWriter();
+				spObjectController->CSVWriter(true);
 			}
 
 			// 箱

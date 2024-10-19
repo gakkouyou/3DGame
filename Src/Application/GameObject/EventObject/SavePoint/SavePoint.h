@@ -12,6 +12,7 @@ public:
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()						override;
 	void DrawUnLit()					override;
+	void DrawBright()					override;
 	void Init()							override;
 
 	Math::Vector3 GetPos() const		override { return m_respawnPos; }
@@ -29,4 +30,6 @@ private:
 
 	// リスポーン座標
 	Math::Vector3 m_respawnPos;
+
+	bool m_aliveFlg = true;
 };

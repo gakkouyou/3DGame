@@ -37,6 +37,9 @@ public :
 	// 現在のシーンにオブジェクトを追加
 	void AddObject(const std::shared_ptr<KdGameObject>& obj);
 
+	// 今のシーンをゲット
+	const SceneType GetNowScene() const { return m_currentSceneType; }
+
 	// ステージをゲット
 	const UINT GetNowStage() const { return m_nowStage; }
 	// ステージをセット
@@ -97,21 +100,24 @@ private :
 
 	// 次のシーンの種類を保持している変数
 	//SceneType m_nextSceneType = SceneType::Title;
-	//SceneType m_nextSceneType = SceneType::Game;
-	SceneType m_nextSceneType = SceneType::StageSelect;
+	SceneType m_nextSceneType = SceneType::Game;
+	//SceneType m_nextSceneType = SceneType::StageSelect;
 	//SceneType m_nextSceneType = SceneType::Result;
 
 	// プレイするステージ
-	UINT m_nowStage	= Stage::Stage1;
-	//UINT m_nowStage	= 0;
+	//UINT m_nowStage	= Stage::AllGimmick;
+	UINT m_nowStage	= 4;
 
 	// ステージのクリア状況
 	std::vector<UINT> m_stageInfoList;
 
+	// ステージセレクトのTerrainのCSVをリセットする
+	void CSVReset();
+
 private:
 
 	SceneManager() { Init(); }
-	~SceneManager() {}
+	~SceneManager() { CSVReset(); }
 
 public:
 

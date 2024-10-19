@@ -57,7 +57,7 @@ public:
 	// オブジェクトを作る
 	void CreateObject(const KdGameObject::ObjectType _object);
 	// CSVに書き込む
-	void CSVWriter();
+	void CSVWriter(bool _baseFlg = false);
 
 private:
 	// CSVファイルの名前

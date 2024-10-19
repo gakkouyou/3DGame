@@ -57,7 +57,5 @@ private:
 
 	// ステージ初クリアの際に演出を行うオブジェクトを保持
 	std::weak_ptr<TerrainBase> m_wpFirstClearObject;
-
-	// 初クリアかどうかのフラグ
 	bool m_firstClearFlg = false;
 };

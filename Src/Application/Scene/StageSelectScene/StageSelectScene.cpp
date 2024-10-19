@@ -58,6 +58,8 @@ void StageSelectScene::Event()
 						{
 							m_wpPlayer.lock()->SetStopFlg(false);
 						}
+						// 初クリア状態をクリア状態に変更
+						SceneManager::Instance().WorkStageInfo()[SceneManager::Instance().GetNowStage() - 1] = SceneManager::StageInfo::Clear;
 					}
 				}
 			}
@@ -111,7 +113,7 @@ void StageSelectScene::StartScene()
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
 			// ステージ初クリアの際の処理
-			if (m_firstClearFlg == true)
+			if (m_firstClearFlg)
 			{
 				FirstClearProcess();
 
@@ -187,7 +189,7 @@ void StageSelectScene::FirstClearProcess()
 						// 坂がもう出た状態に書き換える
 						std::vector<TerrainController::Data>& dataList = m_wpTerrainController.lock()->WorkCSVData();
 						dataList[count].yetActive = 1;
-						//m_wpTerrainController.lock()->CSVWriter();
+						m_wpTerrainController.lock()->CSVWriter();
 					}
 				}
 				count++;
@@ -274,6 +276,7 @@ void StageSelectScene::Init()
 
 	// プレイヤーにTerrainControllerを渡す
 	player->SetTerrainController(objectController);
+	player->SetEventObjectController(eventObjectController);
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(objectController);	// Terrain
@@ -313,7 +316,7 @@ void StageSelectScene::Init()
 						EventObjectBase::Param param = obj.lock()->GetParam();
 						param.modelNum = stageNum;
 						obj.lock()->SetParam(param);
-						//m_wpEventObjectController.lock()->CSVWriter();
+						m_wpEventObjectController.lock()->CSVWriter();
 						break;
 					}
 				}

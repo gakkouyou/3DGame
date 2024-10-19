@@ -315,7 +315,7 @@ void Application::Execute()
 
 		m_fpsController.Update();
 
-		std::string titleBar = "Title fps=" + std::to_string(GetNowFPS());
+		std::string titleBar = "Wake Up! fps=" + std::to_string(GetNowFPS());
 		SetWindowTextA(m_window.GetWndHandle(), titleBar.c_str());
 	}
 

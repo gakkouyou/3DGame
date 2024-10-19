@@ -17,6 +17,17 @@ public:
 	void SetParam(Param _param)	override;
 
 private:
+	enum LandSoundType
+	{
+		Grass,
+		Tile,
+		Bound,
+		MaxNum,
+	};
+
+	// 歩く音の配列
+	std::weak_ptr<KdSoundInstance3D> m_wpLandSound[LandSoundType::MaxNum];
+
 	// 当たり判定
 	void HitJudge();
 
@@ -33,8 +44,8 @@ private:
 		Down,
 		Max
 	};
-	Math::Vector3 m_edgeBasePos[Max] = {};
-	Math::Vector3 m_edgePos[Max] = {};
+	Math::Vector3 m_edgeBasePos[Dir::Max] = {};
+	Math::Vector3 m_edgePos[Dir::Max] = {};
 
 	Math::Vector3 m_centerPos;
 
@@ -54,4 +65,7 @@ private:
 		Center,
 	};
 	Ray m_ray;
+
+	// 地面に付いた瞬間かどうかを判断するフラグ
+	bool m_landFlg = true;
 };

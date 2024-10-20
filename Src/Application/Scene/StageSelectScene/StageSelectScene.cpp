@@ -256,7 +256,7 @@ void StageSelectScene::Init()
 
 	// EventObjectController
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
-	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect.csv");	// CSVセット
+	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect");	// CSVセット
 	eventObjectController->SetCamera(camera);										// カメラセット
 	eventObjectController->SetStageSelectUI(ui);									// UIセット
 	eventObjectController->Init();
@@ -266,7 +266,7 @@ void StageSelectScene::Init()
 
 	// マップエディタ的な
 	std::shared_ptr<TerrainController> objectController = std::make_shared<TerrainController>();
-	objectController->SetCSV("Asset/Data/CSV/Terrain/StageSelect.csv");
+	objectController->SetCSV("Asset/Data/CSV/Terrain/StageSelect");
 	objectController->Init();
 	AddObject(objectController);
 	m_wpTerrainController = objectController;

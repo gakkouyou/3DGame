@@ -74,6 +74,8 @@ private:
 
 	// 点光源
 	std::list<PointLight> m_pointLights;
+	// 点光源の１f前の数
+	int m_pointLightsNum = 0;
 
 	// 平行光の影生成用の射影行列
 	Math::Matrix m_shadowProj;

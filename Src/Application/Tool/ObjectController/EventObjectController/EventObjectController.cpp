@@ -549,7 +549,7 @@ void EventObjectController::BeginCreateObject()
 
 void EventObjectController::CSVLoader()
 {
-	std::ifstream ifs(m_fileName);
+	std::ifstream ifs(m_fileName + ".csv");
 	if (!ifs.is_open())
 	{
 		return;
@@ -623,7 +623,7 @@ void EventObjectController::CSVWriter(bool _baseFlg)
 {
 	if (_baseFlg == true)
 	{
-		std::ofstream ofs("Base" + m_fileName);
+		std::ofstream ofs(m_fileName + "Base.csv");
 
 		for (auto& data : m_dataList)
 		{
@@ -644,7 +644,7 @@ void EventObjectController::CSVWriter(bool _baseFlg)
 		}
 	}
 
-	std::ofstream ofs(m_fileName);
+	std::ofstream ofs(m_fileName + ".csv");
 
 	for (auto& data : m_dataList)
 	{

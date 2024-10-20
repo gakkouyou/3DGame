@@ -54,9 +54,9 @@ private:
 	Math::Vector3 m_oldPos;
 
 	// 箱から敵に戻るまでの時間
-	const int m_enemyTime = 840;
+	const int m_enemyTime = 600;
 	// ガタガタし始めるまでの時間
-	const int m_shakeTime = 720;
+	const int m_shakeTime = 540;
 	// カウント
 	int m_enemyCount = 0;
 	// ガタガタの角度制限

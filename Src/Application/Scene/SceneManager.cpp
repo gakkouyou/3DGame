@@ -91,7 +91,7 @@ void SceneManager::ChangeScene(SceneType sceneType)
 void SceneManager::CSVReset()
 {
 	{
-		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStageSelect.csv");
+		std::ifstream ifs("Asset/Data/CSV/Terrain/StageSelectBase.csv");
 
 		std::ofstream ofs("Asset/Data/CSV/Terrain/StageSelect.csv");
 
@@ -120,7 +120,7 @@ void SceneManager::CSVReset()
 	}
 
 	{
-		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStageSelect.csv");
+		std::ifstream ifs("Asset/Data/CSV/EventObject/StageSelectBase.csv");
 
 		std::ofstream ofs("Asset/Data/CSV/EventObject/StageSelect.csv");
 
@@ -150,7 +150,7 @@ void SceneManager::CSVReset()
 
 	for (int i = 1; i < Stage::Max; i++)
 	{
-		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStage" + std::to_string(i) + ".csv");
+		std::ifstream ifs("Asset/Data/CSV/Terrain/Stage" + std::to_string(i) + "Base.csv");
 
 		if (!ifs.is_open())
 		{
@@ -177,7 +177,7 @@ void SceneManager::CSVReset()
 
 	for (int i = 1; i < Stage::Max; i++)
 	{
-		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStage" + std::to_string(i) + ".csv");
+		std::ifstream ifs("Asset/Data/CSV/EventObject/Stage" + std::to_string(i) + "Base.csv");
 
 		if (!ifs.is_open())
 		{

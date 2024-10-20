@@ -36,4 +36,7 @@ private:
 
 	// アニメーションが終わったかどうかのフラグ
 	bool m_animationFinishFlg = false;
+
+	float m_progress = 0;
+	float m_speed = 0.005f;
 };

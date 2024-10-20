@@ -170,9 +170,10 @@ void KdAmbientController::WriteLightParams()
 	}
 
 	// 点光源
-	if (m_pointLights.size())
+	if (m_pointLights.size() || m_pointLightsNum != 0)
 	{
 		KdShaderManager::Instance().WriteCBPointLight(m_pointLights);
+		m_pointLightsNum = m_pointLights.size();
 	}
 
 	// 影描画エリアの更新

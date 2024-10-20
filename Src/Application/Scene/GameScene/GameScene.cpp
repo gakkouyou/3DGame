@@ -289,7 +289,7 @@ void GameScene::Init()
 
 	// 地形作成
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
-	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage) + ".csv";
+	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage);
 	// CSVファイルを指定する
 	terrainController->SetCSV(csvName);
 
@@ -317,7 +317,7 @@ void GameScene::Init()
 	// EventObject作成
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
 	// CSVファイルを指定する
-	csvName = "Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage) + ".csv";
+	csvName = "Asset/Data/CSV/EventObject/Stage" + std::to_string(m_nowStage);
 	eventObjectController->SetCSV(csvName);
 	// Initより先に書く
 	eventObjectController->SetPlayer(player);

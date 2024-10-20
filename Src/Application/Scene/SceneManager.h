@@ -76,6 +76,9 @@ public :
 		Clear,
 	};
 
+	// ステージセレクトのTerrainのCSVをリセットする
+	void CSVReset();
+
 private :
 
 	// マネージャーの初期化
@@ -110,9 +113,6 @@ private :
 
 	// ステージのクリア状況
 	std::vector<UINT> m_stageInfoList;
-
-	// ステージセレクトのTerrainのCSVをリセットする
-	void CSVReset();
 
 private:
 

@@ -3,104 +3,21 @@
 
 void TitleCamera::Update()
 {
-	//Math::Matrix debugMat = Math::Matrix::Identity;
-	//m_moveVec = Math::Vector3::Zero;
-
-	//if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-	//{
-	//	if (!m_shiftFlg)
-	//	{
-	//		m_shiftFlg = true;
-	//		SetCursorPos(m_FixMousePos.x, m_FixMousePos.y);
-	//	}
-	//	else
-	//	{
-	//		UpdateRotateByMouse();
-	//	}
-	//}
-	//else
-	//{
-	//	m_shiftFlg = false;
-	//}
-
-	//// WASDで移動
-	//if (GetAsyncKeyState('W') & 0x8000)
-	//{
-	//	m_moveVec.z += 1.0f;
-	//}
-	//if (GetAsyncKeyState('A') & 0x8000)
-	//{
-	//	m_moveVec.x -= 1.0f;
-	//}
-	//if (GetAsyncKeyState('S') & 0x8000)
-	//{
-	//	m_moveVec.z -= 1.0f;
-	//}
-	//if (GetAsyncKeyState('D') & 0x8000)
-	//{
-	//	m_moveVec.x += 1.0f;
-	//}
-
-	//// カメラの向きで移動方向を補正
-	//Math::Matrix rotMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_DegAng.y), 0, DirectX::XMConvertToRadians(m_DegAng.z));
-	//m_moveVec = m_moveVec.TransformNormal(m_moveVec, rotMat);
-	//m_moveVec.Normalize();
-	//m_moveVec.y = 0;
-
-	//// スペースで上に行く
-	//if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-	//{
-	//	m_moveVec.y += 1.0f;
-	//}
-	//// controlで下に行く
-	//if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
-	//{
-	//	m_moveVec.y -= 1.0f;
-	//}
-
-
-	//m_debugPos += m_moveVec * m_moveSpeed;
-
-	//debugMat = Math::Matrix::CreateTranslation(m_debugPos);
-
-	//// カメラの回転
-	//m_mRotation = GetRotationMatrix();
-
-	//static float angle = 0;
-	//angle += 0.5f;
-	//if (angle >= 360)
-	//{
-	//	angle -= 360;
-	//}
-
-	//// ローカル行列変更
-	//Math::Matrix transMat = Math::Matrix::CreateTranslation(0 + (sin(DirectX::XMConvertToRadians(angle))) * 0.5f, 10.0f, -20.0f);
-
-	//m_mWorld = m_mRotation * transMat * debugMat;
-
-	//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", GetPos().x, GetPos().y, GetPos().z);
-
-
-
-
-
 	if (m_animationFlg)
 	{
-		static float cnt = 0;
-
 		Math::Quaternion startQua = Math::Quaternion::CreateFromRotationMatrix(m_startMat);
 		Math::Quaternion goalQua = Math::Quaternion::CreateFromRotationMatrix(m_goalMat);
-		Math::Quaternion nowQua = Math::Quaternion::Slerp(startQua, goalQua, cnt);
+		Math::Quaternion nowQua = Math::Quaternion::Slerp(startQua, goalQua, m_progress);
 
 		Math::Vector3 startPos = m_pos;
 		Math::Vector3 goalPos = m_goalMat.Translation();
-		Math::Vector3 nowPos = Math::Vector3::Lerp(startPos, goalPos, cnt);
+		Math::Vector3 nowPos = Math::Vector3::Lerp(startPos, goalPos, m_progress);
 
-		cnt += 0.005f;
+		m_progress += 0.005f;
 
-		if (cnt > 1.0f)
+		if (m_progress > 1.0f)
 		{
-			cnt = 1.0f;
+			m_progress = 1.0f;
 			m_animationFinishFlg = true;
 		}
 
@@ -111,16 +28,6 @@ void TitleCamera::Update()
 	}
 	else
 	{
-		//static float angle = 0;
-		//angle += 0.5f;
-		//if (angle >= 360)
-		//{
-		//	angle -= 360;
-		//}
-
-		//m_pos.x = sin(DirectX::XMConvertToRadians(angle)) * 0.5f;
-		//m_startMat.Translation(m_pos);
-
 		m_mWorld = m_startMat;
 
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000)

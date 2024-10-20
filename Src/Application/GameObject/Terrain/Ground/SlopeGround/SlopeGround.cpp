@@ -69,7 +69,7 @@ void SlopeGround::SetParam(const Param& _param)
 	}
 	else
 	{
-		scaleMat = Math::Matrix::CreateScale(0);
+		scaleMat = Math::Matrix::CreateScale(1);
 	}
 
 	m_mWorld = scaleMat * rotMat * transMat;

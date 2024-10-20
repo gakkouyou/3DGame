@@ -27,15 +27,14 @@ void TitleScene::Event()
 
 void TitleScene::Init()
 {
-	//KdShaderManager::Instance().WorkAmbientController().Init();
-
 	// とりあえずリセット
 	SceneManager::Instance().SetNowStage(0);
-	std::vector<UINT> stageInfoList = SceneManager::Instance().WorkStageInfo();
+	std::vector<UINT>& stageInfoList = SceneManager::Instance().WorkStageInfo();
 	for (int i = 0; i < stageInfoList.size(); i++)
 	{
 		stageInfoList[i] = 0;
 	}
+	SceneManager::Instance().CSVReset();
 
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 

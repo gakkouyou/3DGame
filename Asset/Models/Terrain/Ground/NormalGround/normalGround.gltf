@@ -31,8 +31,7 @@
 				"baseColorTexture":{
 					"index":0
 				},
-				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicFactor":0
 			}
 		},
 		{
@@ -42,8 +41,7 @@
 				"baseColorTexture":{
 					"index":1
 				},
-				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicFactor":0
 			}
 		},
 		{
@@ -53,8 +51,7 @@
 				"baseColorTexture":{
 					"index":2
 				},
-				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicFactor":0
 			}
 		}
 	],

@@ -58,7 +58,7 @@ void Goal::Update()
 			Math::Vector3 pos = m_pos;
 			pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
 
-			Math::Matrix transMat = Math::Matrix::CreateTranslation(GetPos());
+			Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
 
 			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 

@@ -22,6 +22,26 @@ void Player::Update()
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
+	// 死んでいたら操作を受け付けない
+	if (m_aliveFlg == false)
+	{
+		m_stopFlg = true;
+	}
+
+	// 無限ジャンプ
+	if (GetAsyncKeyState('M') & 0x8000)
+	{
+		if (m_mugenJumpKeyFlg == false)
+		{
+			m_mugenJumpFlg = !m_mugenJumpFlg;
+			m_mugenJumpKeyFlg = true;
+		}
+	}
+	else
+	{
+		m_mugenJumpKeyFlg = false;
+	}
+
 	// 移動前の座標を保存
 	m_oldPos = m_pos;
 
@@ -40,62 +60,6 @@ void Player::Update()
 	}
 	// 移動初期化
 	m_moveVec = Math::Vector3::Zero;
-
-	if(m_stopFlg == false)
-	{
-		if (GetAsyncKeyState('W') & 0x8000)
-		{
-			if (flg[0] == false)
-			{
-				m_moveVec.z += 1.0f;
-				m_situationType |= SituationType::Walk;
-				flg[0] = true;
-			}
-		}
-		else
-		{
-			flg[0] = false;
-		}
-		if (GetAsyncKeyState('A') & 0x8000)
-		{
-			if (flg[1] == false)
-			{
-				m_moveVec.x -= 1.0f;
-				m_situationType |= SituationType::Walk;
-				flg[1] = true;
-			}
-		}
-		else
-		{
-			flg[1] = false;
-		}
-		if (GetAsyncKeyState('S') & 0x8000)
-		{
-			if (flg[2] == false)
-			{
-				m_moveVec.z -= 1.0f;
-				m_situationType |= SituationType::Walk;
-				flg[2] = true;
-			}
-		}
-		else
-		{
-			flg[2] = false;
-		}
-		if (GetAsyncKeyState('D') & 0x8000)
-		{
-			if (flg[3] == false)
-			{
-				m_moveVec.x += 1.0f;
-				m_situationType |= SituationType::Walk;
-				flg[3] = true;
-			}
-		}
-		else
-		{
-			flg[3] = false;
-		}
-	}
 
 	if (m_stopFlg == false)
 	{
@@ -263,7 +227,7 @@ void Player::Update()
 			if ((m_situationType & SituationType::Carry) == 0)
 			{
 				// 空中じゃなければジャンプする
-				//if (!(m_situationType & SituationType::Air))
+				if (!(m_situationType & SituationType::Air) || m_mugenJumpFlg == true)
 				{
 					m_situationType |= SituationType::Jump;
 					m_gravity = -m_jumpPow;
@@ -304,9 +268,12 @@ void Player::Update()
 	}
 
 	// 落下死
-	if (m_pos.y < -15.0f)
+	if (m_pos.y < -15.0f && m_aliveFlg == true)
 	{
 		m_aliveFlg = false;
+		
+		std::shared_ptr<KdSoundInstance> dropSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/drop.wav");
+		dropSE->SetVolume(0.02f);
 	}
 
 	// 移動中

@@ -226,7 +226,7 @@ void SceneManager::StageInfoCSVLoader()
 	}
 	ifs.close();
 
-	//m_stageInfoList[Stage::Stage1 - 1] = 1;
+	//m_stageInfoList[Stage::Stage1 - 1] = 2;
 }
 
 void SceneManager::StageInfoCSVWriter()

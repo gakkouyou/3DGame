@@ -25,6 +25,15 @@ void StageSelectUI::DrawSprite()
 			Math::Rectangle rect = { (long)size.x * (nowStage), (long)0, (long)size.x, (long)size.y };
 			KdShaderManager::Instance().m_spriteShader.DrawTex(m_number.spTex, (int)m_number.pos.x, (int)m_number.pos.y, (int)size.x, (int)size.y, &rect);
 		}
+
+		// Clear!
+		if (m_clear.spTex)
+		{
+			if (SceneManager::Instance().GetStageInfo()[nowStage - 1] == SceneManager::Instance().Clear)
+			{
+				KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y);
+			}
+		}
 	}
 	m_onHitFlg = false;
 
@@ -75,7 +84,7 @@ void StageSelectUI::Init()
 		m_clear.spTex = std::make_shared<KdTexture>();
 		m_clear.spTex->Load("Asset/Textures/StageSelect/UI/clear.png");
 	}
-	m_clear.pos = { 500, 300 };
+	m_clear.pos = { -500, 230 };
 
 	// 黒い画像
 	if (!m_black.spTex)

@@ -246,4 +246,8 @@ private:
 
 	// EventObjectController
 	std::weak_ptr<EventObjectController> m_wpEventObjectController;
+
+	// 無限ジャンプ
+	bool m_mugenJumpFlg = false;
+	bool m_mugenJumpKeyFlg = false;
 };

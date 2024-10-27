@@ -69,7 +69,7 @@ void SlopeGround::SetParam(const Param& _param)
 	}
 	else
 	{
-		scaleMat = Math::Matrix::CreateScale(1);
+		scaleMat = Math::Matrix::CreateScale(0);
 	}
 
 	m_mWorld = scaleMat * rotMat * transMat;
@@ -101,7 +101,7 @@ void SlopeGround::Active()
 		SceneManager::Instance().AddObject(smoke);
 
 		std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/appearance.wav");
-		se->SetVolume(0.02f);
+		se->SetVolume(0.06f);
 	}
 
 	m_activeFlg = true;

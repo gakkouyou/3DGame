@@ -2,26 +2,65 @@
 
 void SavePoint::Update()
 {
-	
+	if (m_progress >= 1 || m_aliveFlg == true) return;
+	//if (m_aliveFlg == false && m_degAng > 0)
+	//{
+	//	m_degAng -= m_sumDegAng;
+	//}
+	//else if(m_aliveFlg == false && m_degAng <= 0)
+	//{
+	//	m_degAng = 0;
+	//}
+
+	//m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
+	//m_mWorld.Translation(m_pos);
+
+	Math::Vector3 goalPos = (m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld).Translation();
+
+	Math::Vector3 pos = Math::Vector3::Lerp(m_pos, goalPos, m_progress);
+
+	m_progress += m_speed;
+	if (m_progress >= 1)
+	{
+		m_progress = 1;
+	}
+
+	m_flagMat.Translation(pos);
 }
 
 void SavePoint::GenerateDepthMapFromLight()
 {
-	if (m_isExpired == true) return;
+	//if (m_spModel)
+	//{
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	//}
 
-	if (m_spModel)
+	if (m_spPoleModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
+	}
+
+	if (m_spFlagModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
 	}
 }
 
 void SavePoint::DrawLit()
 {
-	if (m_isExpired == true) return;
+	//if (m_spModel)
+	//{
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	//}
 
-	if (m_spModel)
+	if (m_spPoleModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
+	}
+
+	if (m_spFlagModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
 	}
 }
 
@@ -44,14 +83,24 @@ void SavePoint::DrawBright()
 
 void SavePoint::Init()
 {
-	if (m_isExpired == true) return;
-
 	EventObjectBase::Init();
 
-	if (!m_spModel)
+	//if (!m_spModel)
+	//{
+	//	m_spModel = std::make_shared<KdModelData>();
+	//	m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
+	//}
+
+	if (!m_spPoleModel)
 	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
+		m_spPoleModel = std::make_shared<KdModelData>();
+		m_spPoleModel->Load("Asset/Models/EventObject/SavePoint/Pole/pole.gltf");
+	}
+
+	if (!m_spFlagModel)
+	{
+		m_spFlagModel = std::make_shared<KdModelData>();
+		m_spFlagModel->Load("Asset/Models/EventObject/SavePoint/Flag/flag.gltf");
 	}
 
 	m_objectType = ObjectType::SavePoint;
@@ -59,23 +108,25 @@ void SavePoint::Init()
 	if (m_aliveFlg == true)
 	{
 		m_pCollider = std::make_unique<KdCollider>();
-		m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
+		//m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
+		m_pCollider->RegisterCollisionShape("SavePoint", m_spPoleModel, KdCollider::TypeEvent);
 	}
 }
 
 void SavePoint::OnHit()
 {
+	if (m_aliveFlg == false) return;
 	std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/savePoint.wav");
-	se->SetVolume(0.02f);
-	m_isExpired = true;
+	se->SetVolume(0.06f);
+	m_aliveFlg = false;
 }
 
 void SavePoint::SetParam(const Param& _param)
 {
 	if (_param.modelNum == 1)
 	{
-		m_isExpired = true;
-		return;
+		m_aliveFlg = false;
+		m_degAng = 0;
 	}
 
 	m_param = _param;
@@ -83,5 +134,8 @@ void SavePoint::SetParam(const Param& _param)
 	m_pos = m_param.basePos;
 	m_respawnPos = m_param.basePos;
 
+	//m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
 	m_mWorld.Translation(m_pos);
+
+	m_flagMat.Translation(m_pos);
 }

@@ -327,5 +327,5 @@ void StageSelectScene::Init()
 
 	// 音
 	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageSelectBGM.wav", true);
-	bgm->SetVolume(0.02f);
+	bgm->SetVolume(0.06f);
 }

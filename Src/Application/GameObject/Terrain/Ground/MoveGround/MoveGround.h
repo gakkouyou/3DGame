@@ -36,4 +36,10 @@ private:
 
 	// 止めるフラグ
 	bool m_stopFlg = false;
+
+	const float m_startDegAng = 270;
+	float m_degAng = 270;
+	float m_addDegAng = 0;
+
+	float m_progress = 0;
 };

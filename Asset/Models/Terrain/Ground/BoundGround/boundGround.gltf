@@ -84,15 +84,15 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"kinoko",
-			"uri":"kinoko.png"
+			"name":"kinoko.png",
+			"uri":"kinoko_png.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":32,
+			"count":64,
 			"max":[
 				1,
 				1,
@@ -100,7 +100,7 @@
 			],
 			"min":[
 				-1,
-				1,
+				0.8788875937461853,
 				-1
 			],
 			"type":"VEC3"
@@ -108,28 +108,28 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":32,
+			"count":64,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":32,
+			"count":64,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":90,
+			"count":282,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":160,
+			"count":107,
 			"max":[
 				1,
-				1,
+				0.8788875937461853,
 				1
 			],
 			"min":[
@@ -142,13 +142,13 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":160,
+			"count":107,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":160,
+			"count":107,
 			"type":"VEC2"
 		},
 		{
@@ -161,50 +161,50 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":384,
+			"byteLength":768,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":384,
-			"byteOffset":384,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":256,
+			"byteLength":768,
 			"byteOffset":768,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":180,
-			"byteOffset":1024,
-			"target":34963
-		},
-		{
-			"buffer":0,
-			"byteLength":1920,
-			"byteOffset":1204,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1920,
-			"byteOffset":3124,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1280,
-			"byteOffset":5044,
+			"byteLength":512,
+			"byteOffset":1536,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":564,
-			"byteOffset":6324,
+			"byteOffset":2048,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":1284,
+			"byteOffset":2612,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":1284,
+			"byteOffset":3896,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":856,
+			"byteOffset":5180,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":564,
+			"byteOffset":6036,
 			"target":34963
 		}
 	],
@@ -216,7 +216,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":6888,
+			"byteLength":6600,
 			"uri":"boundGround.bin"
 		}
 	]

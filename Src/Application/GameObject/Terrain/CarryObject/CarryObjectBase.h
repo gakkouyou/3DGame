@@ -30,7 +30,7 @@ public:
 	struct Param
 	{
 		Math::Vector3 startPos;
-		float area = 0;
+		float area = 2;
 	};
 
 	// パラメータセット関数

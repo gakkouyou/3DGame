@@ -80,5 +80,5 @@ void TitleScene::Init()
 
 	
 	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/nightBGM.wav", true);
-	bgm->SetVolume(0.05f);
+	bgm->SetVolume(0.18f);
 }

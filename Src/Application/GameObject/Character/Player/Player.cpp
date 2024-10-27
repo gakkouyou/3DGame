@@ -273,7 +273,7 @@ void Player::Update()
 		m_aliveFlg = false;
 		
 		std::shared_ptr<KdSoundInstance> dropSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/drop.wav");
-		dropSE->SetVolume(0.02f);
+		dropSE->SetVolume(0.06f);
 	}
 
 	// 移動中
@@ -771,7 +771,7 @@ void Player::Init()
 	m_wpWalkSound[WalkSoundType::Grass] = KdAudioManager::Instance().Play("Asset/Sounds/SE/grassWalk.wav", false);
 	if (!m_wpWalkSound[WalkSoundType::Grass].expired())
 	{
-		m_wpWalkSound[WalkSoundType::Grass].lock()->SetVolume(0.1f);
+		m_wpWalkSound[WalkSoundType::Grass].lock()->SetVolume(0.15f);
 		m_wpWalkSound[WalkSoundType::Grass].lock()->Stop();
 	}
 	m_nowWalkSoundFlg = false;
@@ -779,7 +779,7 @@ void Player::Init()
 	m_wpWalkSound[WalkSoundType::Tile] = KdAudioManager::Instance().Play("Asset/Sounds/SE/tileWalk.wav", false);
 	if (!m_wpWalkSound[WalkSoundType::Tile].expired())
 	{
-		m_wpWalkSound[WalkSoundType::Tile].lock()->SetVolume(0.1f);
+		m_wpWalkSound[WalkSoundType::Tile].lock()->SetVolume(0.15f);
 		m_wpWalkSound[WalkSoundType::Tile].lock()->Stop();
 	}
 
@@ -787,7 +787,7 @@ void Player::Init()
 	m_jumpSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/jump.wav", false);
 	if (!m_jumpSound.wpSound.expired())
 	{
-		m_jumpSound.wpSound.lock()->SetVolume(0.02f);
+		m_jumpSound.wpSound.lock()->SetVolume(0.06f);
 		m_jumpSound.wpSound.lock()->Stop();
 	}
 	m_jumpSound.flg = false;
@@ -796,7 +796,7 @@ void Player::Init()
 	m_stampSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/stamp.wav", false);
 	if (!m_stampSound.wpSound.expired())
 	{
-		m_stampSound.wpSound.lock()->SetVolume(0.02f);
+		m_stampSound.wpSound.lock()->SetVolume(0.06f);
 		m_stampSound.wpSound.lock()->Stop();
 	}
 	m_stampSound.flg = false;
@@ -805,7 +805,7 @@ void Player::Init()
 	m_boundSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/bound.wav", false);
 	if (!m_boundSound.wpSound.expired())
 	{
-		m_boundSound.wpSound.lock()->SetVolume(0.02f);
+		m_boundSound.wpSound.lock()->SetVolume(0.06f);
 		m_boundSound.wpSound.lock()->Stop();
 	}
 	m_boundSound.flg = false;
@@ -1282,7 +1282,7 @@ void Player::HitJudgeEvent()
 					if (m_goalSEFlg == false)
 					{
 						std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/goal.wav", false);
-						se->SetVolume(0.02f);
+						se->SetVolume(0.06f);
 						m_goalSEFlg = true;
 					}
 					break;
@@ -1302,6 +1302,7 @@ void Player::HitJudgeEvent()
 					// セーブポイント
 				case ObjectType::SavePoint:
 					m_respawnPos = spHitObject->GetPos();
+					m_respawnPos.z -= 1.0f;
 					for (auto& data : m_wpEventObjectController.lock()->WorkCSVData())
 					{
 						if (data.name == spHitObject->GetObjectName())
@@ -1719,7 +1720,7 @@ void Player::GoalProcess()
 		if (m_goalBGMFlg == false)
 		{
 			std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/BGM/clear.wav", false);
-			se->SetVolume(0.02);
+			se->SetVolume(0.06f);
 		}
 		m_goalBGMFlg = true;
 	}

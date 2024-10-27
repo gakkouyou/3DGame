@@ -409,21 +409,21 @@ void BoxEnemy::Init()
 	m_wpLandSound[LandSoundType::Grass] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/grassWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Grass].expired())
 	{
-		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Grass].lock()->Stop();
 	}
 	// かたい地面を着地した音
 	m_wpLandSound[LandSoundType::Tile] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/tileWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Tile].expired())
 	{
-		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.1f);
+		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Tile].lock()->Stop();
 	}
 	// キノコではねた時の音
 	m_wpLandSound[LandSoundType::Bound] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/bound.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Bound].expired())
 	{
-		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.02f);
+		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
 	}
 }
@@ -451,6 +451,8 @@ void BoxEnemy::SetParam(Param _param)
 {
 	m_param = _param;
 	m_pos = m_param.startPos;
+
+	m_setParamFlg = true;
 }
 
 void BoxEnemy::OnHit()

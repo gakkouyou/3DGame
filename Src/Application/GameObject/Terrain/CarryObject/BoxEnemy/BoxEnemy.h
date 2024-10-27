@@ -101,4 +101,6 @@ private:
 
 	// 地面に付いた瞬間かどうかを判断するフラグ
 	bool m_landFlg = true;
+
+	bool m_setParamFlg = false;
 };

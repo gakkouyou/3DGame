@@ -169,7 +169,7 @@ void ResultScene::Init()
 	m_bgm.sound = KdAudioManager::Instance().Play("Asset/Sounds/BGM/resultBGM.wav");
 	if (m_bgm.sound.expired() == false)
 	{
-		m_bgm.vol = 0.02f;
+		m_bgm.vol = 0.06f;
 		m_bgm.sumVol = m_bgm.vol / 180.0f;
 		m_bgm.sound.lock()->SetVolume(m_bgm.vol);
 	}
@@ -177,7 +177,7 @@ void ResultScene::Init()
 	m_morning.sound = KdAudioManager::Instance().Play("Asset/Sounds/SE/morning.wav");
 	if (m_morning.sound.expired() == false)
 	{
-		m_morning.vol = 0.02f;
+		m_morning.vol = 0.06f;
 		m_morning.sumVol = m_morning.vol / 60.0f;
 		m_morning.sound.lock()->SetVolume(m_morning.vol);
 	}
@@ -185,7 +185,7 @@ void ResultScene::Init()
 	m_evening.sound = KdAudioManager::Instance().Play("Asset/Sounds/SE/evening.wav");
 	if (m_evening.sound.expired() == false)
 	{
-		m_evening.vol = 0.02f;
+		m_evening.vol = 0.06f;
 		m_evening.sumVol = m_evening.vol / 60.0f;
 		m_evening.sound.lock()->SetVolume(m_evening.vol);
 		m_evening.sound.lock()->Stop();

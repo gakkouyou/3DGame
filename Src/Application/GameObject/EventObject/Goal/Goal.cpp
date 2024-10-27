@@ -65,13 +65,6 @@ void Goal::Update()
 			m_mWorld = scaleMat * rotMat * transMat;
 		}
 	}
-
-	if (m_flg == false)
-	{
-		m_wpSound.lock()->SetPos(m_pos);
-		//m_wpSound.lock()->Play(true);
-		m_flg = true;
-	}
 }
 
 void Goal::GenerateDepthMapFromLight()
@@ -103,14 +96,6 @@ void Goal::Init()
 	m_pCollider = std::make_unique<KdCollider>();
 
 	m_objectType = ObjectType::Goal;
-
-	m_wpSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/clock.wav", m_pos, true);
-	if (!m_wpSound.expired())
-	{
-		m_wpSound.lock()->SetVolume(0.1f);
-		m_wpSound.lock()->Stop();
-	}
-	m_flg = false;
 }
 
 void Goal::OnHit()

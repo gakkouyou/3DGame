@@ -51,7 +51,7 @@ void FinalGoal::Init()
 	m_wpSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/alarm.wav", m_pos, true);
 	if (!m_wpSound.expired())
 	{
-		m_wpSound.lock()->SetVolume(0.1f);
+		m_wpSound.lock()->SetVolume(0.3f);
 		m_wpSound.lock()->Stop();
 	}
 	m_flg = false;

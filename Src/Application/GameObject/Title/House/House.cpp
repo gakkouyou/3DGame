@@ -176,7 +176,7 @@ void House::Init()
 	m_wpOpenSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/doorOpen.wav", false);
 	if (m_wpOpenSound.expired() == false)
 	{
-		m_wpOpenSound.lock()->SetVolume(0.05f);
+		m_wpOpenSound.lock()->SetVolume(0.15f);
 		m_wpOpenSound.lock()->Stop();
 	}
 
@@ -184,7 +184,7 @@ void House::Init()
 	m_wpCloseSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/doorClose.wav", false);
 	if (m_wpCloseSound.expired() == false)
 	{
-		m_wpCloseSound.lock()->SetVolume(0.05f);
+		m_wpCloseSound.lock()->SetVolume(0.15f);
 		m_wpCloseSound.lock()->Stop();
 	}
 }

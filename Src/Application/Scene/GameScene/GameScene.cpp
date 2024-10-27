@@ -115,7 +115,7 @@ void GameScene::Event()
 				{
 					m_wpSceneChange.lock()->EndScene();
 					// 音をフェードアウト
-					m_vol -= 0.001f;
+					m_vol -= 0.02f;
 					if (m_vol < 0)
 					{
 						m_vol = 0;
@@ -142,7 +142,7 @@ void GameScene::Event()
 		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
 			// 音をフェードアウト
-			m_vol -= 0.001f;
+			m_vol -= 0.002f;
 			if (m_vol < 0)
 			{
 				m_vol = 0;

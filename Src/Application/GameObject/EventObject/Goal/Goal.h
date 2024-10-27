@@ -49,7 +49,4 @@ private:
 
 	// ポーズ画面かどうか
 	bool m_pauseFlg = false;
-
-	std::weak_ptr<KdSoundInstance3D> m_wpSound;
-	bool m_flg = false;
 };

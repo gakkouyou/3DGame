@@ -68,7 +68,7 @@ void ResultPlayer::Init()
 	m_wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/tileWalk.wav", false);
 	if (!m_wpSound.expired())
 	{
-		m_wpSound.lock()->SetVolume(0.1f);
+		m_wpSound.lock()->SetVolume(0.06f);
 		m_wpSound.lock()->Stop();
 	}
 }

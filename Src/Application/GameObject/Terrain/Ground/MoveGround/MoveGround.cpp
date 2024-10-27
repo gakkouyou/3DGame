@@ -13,6 +13,10 @@ void MoveGround::Update()
 
 		if (m_moveFlg)
 		{
+			m_degAng += m_addDegAng;
+
+			m_progress = (sin(DirectX::XMConvertToRadians(m_degAng)) + 1) / 2.0f;
+
 			// スタート→ゴール
 			if (m_moveDirFlg == false)
 			{
@@ -24,12 +28,15 @@ void MoveGround::Update()
 					m_param.pos = m_param.goalPos;
 					m_moveFlg = false;
 					m_moveDirFlg = true;
+					m_degAng = m_startDegAng;
+					m_progress = 0;
 				}
 				// 大きかったらスピード分進める
 				else
 				{
 					moveVec.Normalize();
-					m_param.pos += moveVec * m_param.speed;
+					m_param.pos = Math::Vector3::Lerp(m_param.startPos, m_param.goalPos, m_progress);
+					//m_param.pos += moveVec * m_param.speed;
 				}
 			}
 			// ゴール→スタート
@@ -43,12 +50,15 @@ void MoveGround::Update()
 					m_param.pos = m_param.startPos;
 					m_moveFlg = false;
 					m_moveDirFlg = !m_moveDirFlg;
+					m_degAng = m_startDegAng;
+					m_progress = 0;
 				}
 				// 大きかったらスピード分進める
 				else
 				{
 					moveVec.Normalize();
-					m_param.pos += moveVec * m_param.speed;
+					m_param.pos = Math::Vector3::Lerp(m_param.goalPos, m_param.startPos, m_progress);
+					//m_param.pos += moveVec * m_param.speed;
 				}
 			}
 		}
@@ -146,5 +156,7 @@ void MoveGround::SetParam(const Param& _param)
 
 	m_mWorld = scaleMat * transMat;
 
-	m_setParamFlg = true;
+	float moveFrame = (m_param.startPos - m_param.goalPos).Length() / m_param.speed;
+
+	m_addDegAng = 180.0f / moveFrame;
 }

@@ -15,19 +15,16 @@ void BoxEnemy::Update()
 		EnemyUpdate();
 	}
 
-	if (m_aliveFlg == true)
+	// 運ばれていない時の処理
+	if (m_carryFlg == false)
 	{
-		// 運ばれていない時の処理
-		if (m_carryFlg == false)
+		// 重力
+		m_gravity += m_gravityPow;
+		m_pos.y -= m_gravity;
+		// 重力の制限
+		if (m_gravity >= m_maxGravity)
 		{
-			// 重力
-			m_gravity += m_gravityPow;
-			m_pos.y -= m_gravity;
-			// 重力の制限
-			if (m_gravity >= m_maxGravity)
-			{
-				m_gravity = m_maxGravity;
-			}
+			m_gravity = m_maxGravity;
 		}
 	}
 
@@ -81,32 +78,35 @@ void BoxEnemy::Update()
 	// Y座標が一定以下になると死亡
 	if (m_pos.y < m_underLine)
 	{
+		// リスポーン
+		m_pos = m_param.startPos;
+		// 少し上から
+		m_pos.y += 1.0f;
+		m_gravity = 0;
+		// 箱状態にする
+		m_enemyFlg = false;
+		// プレイヤーが近くに来たら震える状態にする
 		m_aliveFlg = false;
+		// 角度をリセット
+		m_degAng = 0;
+
+		// 当たり判定の切り替え
+		m_pCollider->SetEnable("BoxEnemyEnemy", false);
+		m_pCollider->SetEnable("BoxEnemyBox", true);
 	}
 
-	// 死んでいてプレイヤーが近くにいたらリスポーン
+	// プレイヤーが近くに来たら震えて敵状態になる
 	if (m_aliveFlg == false)
 	{
 		float length = (m_wpPlayer.lock()->GetPos() - m_param.startPos).Length();
 
-		// 当たり判定の切り替え
-		m_pCollider->SetEnable("BoxEnemyEnemy", false);
-		m_pCollider->SetEnable("BoxEnemyBox", false);
-
-		if (length < 10.0f)
+		if (length < m_enemyChangeLength)
 		{
-			// リスポーン
-			m_pos = m_param.startPos;
-			m_aliveFlg = true;
-			// 重力リセット
-			m_gravity = 0;
-			// 当たり判定の切り替え
-			m_pCollider->SetEnable("BoxEnemyEnemy", true);
-			// 敵状態からスタート
-			m_enemyCount = 0;
-			m_enemyFlg = true;
+			// 敵状態にする
+			m_enemyCount = m_shakeTime;
 			// 追尾しないようにする
 			m_homingFlg = false;
+			m_aliveFlg = true;
 		}
 	}
 }
@@ -259,7 +259,7 @@ void BoxEnemy::PostUpdate()
 	// 震えている状態に入ったかどうかのフラグ
 	bool flg = false;
 	// 箱状態の時にカウントを進めていく
-	if (m_enemyFlg == false)
+	if (m_enemyFlg == false && m_aliveFlg == true)
 	{
 		m_enemyCount++;
 		// 一定時間たったら敵に戻る
@@ -289,6 +289,12 @@ void BoxEnemy::PostUpdate()
 			{
 				m_wpPlayer.lock()->CancelCarryMode();
 			}
+
+			// 生存フラグ
+			m_aliveFlg = true;
+
+			// ジャンプのカウントリセット
+			m_stayCount = 0;
 		}
 		// 一定時間たったら震え始める
 		else if (m_enemyCount > m_shakeTime)
@@ -307,8 +313,6 @@ void BoxEnemy::PostUpdate()
 
 void BoxEnemy::GenerateDepthMapFromLight()
 {
-	if (m_aliveFlg == false) return;
-
 	// 箱状態
 	if (m_enemyFlg == false)
 	{
@@ -329,8 +333,6 @@ void BoxEnemy::GenerateDepthMapFromLight()
 
 void BoxEnemy::DrawLit()
 {
-	if (m_aliveFlg == false) return;
-
 	// 箱状態
 	if (m_enemyFlg == false)
 	{
@@ -670,6 +672,7 @@ void BoxEnemy::HitJudge()
 	}
 
 	// 地面(壁)とのスフィア判定
+	if (m_carryFlg == true)
 	{
 		// スフィアの情報
 		KdCollider::SphereInfo sphereInfo;
@@ -687,15 +690,59 @@ void BoxEnemy::HitJudge()
 
 		hitFlg = SphereHitGround(sphereInfo, false);
 
-		if (m_carryFlg)
+		if (hitFlg == true)
 		{
-			if (hitFlg == true)
+			if (m_wpPlayer.expired() == false)
 			{
-				if (m_wpPlayer.expired() == false)
-				{
-					m_wpPlayer.lock()->BackPos();
-				}
+				m_wpPlayer.lock()->BackPos();
 			}
+		}
+	}
+
+	// 敵状態の時の壁とのスフィア判定
+	if (m_enemyFlg == true)
+	{
+		// スフィアの情報
+		KdCollider::SphereInfo sphereInfo;
+		// スフィアの中心座標
+		sphereInfo.m_sphere.Center = m_pos;
+		// スフィアの半径
+		sphereInfo.m_sphere.Radius = m_edgeBasePos[Up].y - m_edgeBasePos[Down].y;
+		sphereInfo.m_sphere.Radius *= 0.5f;
+		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.03f;
+		// スフィアのタイプ
+		sphereInfo.m_type = KdCollider::TypeGround;
+
+		// 当たった結果
+		std::list<KdCollider::CollisionResult> resultList;
+
+		for (auto& obj : SceneManager::Instance().GetObjList())
+		{
+			obj->Intersects(sphereInfo, &resultList);
+		}
+
+		// めり込み具合
+		float maxOverLap = 0;
+		// 当たったかどうかのフラグ
+		bool hitFlg = false;
+		// 当たった方向
+		Math::Vector3 hitDir;
+
+		for (auto& result : resultList)
+		{
+			if (result.m_overlapDistance > maxOverLap)
+			{
+				maxOverLap = result.m_overlapDistance;
+				hitDir = result.m_hitDir;
+				hitFlg = true;
+			}
+		}
+
+		if (hitFlg == true)
+		{
+			hitDir.y = 0;
+			hitDir.Normalize();
+			m_pos += hitDir * maxOverLap;
 		}
 	}
 }

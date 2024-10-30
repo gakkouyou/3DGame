@@ -3,65 +3,65 @@
 void SavePoint::Update()
 {
 	if (m_progress >= 1 || m_aliveFlg == true) return;
-	//if (m_aliveFlg == false && m_degAng > 0)
-	//{
-	//	m_degAng -= m_sumDegAng;
-	//}
-	//else if(m_aliveFlg == false && m_degAng <= 0)
-	//{
-	//	m_degAng = 0;
-	//}
-
-	//m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
-	//m_mWorld.Translation(m_pos);
-
-	Math::Vector3 goalPos = (m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld).Translation();
-
-	Math::Vector3 pos = Math::Vector3::Lerp(m_pos, goalPos, m_progress);
-
-	m_progress += m_speed;
-	if (m_progress >= 1)
+	if (m_aliveFlg == false && m_degAng > 0)
 	{
-		m_progress = 1;
+		m_degAng -= m_sumDegAng;
+	}
+	else if(m_aliveFlg == false && m_degAng <= 0)
+	{
+		m_degAng = 0;
 	}
 
-	m_flagMat.Translation(pos);
+	m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
+	m_mWorld.Translation(m_pos);
+
+	//Math::Vector3 goalPos = (m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld).Translation();
+
+	//Math::Vector3 pos = Math::Vector3::Lerp(m_pos, goalPos, m_progress);
+
+	//m_progress += m_speed;
+	//if (m_progress >= 1)
+	//{
+	//	m_progress = 1;
+	//}
+
+	//m_flagMat.Translation(pos);
 }
 
 void SavePoint::GenerateDepthMapFromLight()
 {
-	//if (m_spModel)
+	if (m_spModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	}
+
+	//if (m_spPoleModel)
 	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
 	//}
 
-	if (m_spPoleModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
-	}
-
-	if (m_spFlagModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
-	}
+	//if (m_spFlagModel)
+	//{
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
+	//}
 }
 
 void SavePoint::DrawLit()
 {
-	//if (m_spModel)
+	if (m_spModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	}
+
+	//if (m_spPoleModel)
 	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
 	//}
 
-	if (m_spPoleModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
-	}
-
-	if (m_spFlagModel)
-	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
-	}
+	//if (m_spFlagModel)
+	//{
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
+	//}
 }
 
 void SavePoint::DrawUnLit()
@@ -85,11 +85,11 @@ void SavePoint::Init()
 {
 	EventObjectBase::Init();
 
-	//if (!m_spModel)
-	//{
-	//	m_spModel = std::make_shared<KdModelData>();
-	//	m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
-	//}
+	if (!m_spModel)
+	{
+		m_spModel = std::make_shared<KdModelData>();
+		m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
+	}
 
 	if (!m_spPoleModel)
 	{
@@ -110,6 +110,11 @@ void SavePoint::Init()
 		m_pCollider = std::make_unique<KdCollider>();
 		//m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
 		m_pCollider->RegisterCollisionShape("SavePoint", m_spPoleModel, KdCollider::TypeEvent);
+	}
+	else
+	{
+		m_flagMat = m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld;
+		m_progress = 1.0f;
 	}
 }
 
@@ -134,7 +139,7 @@ void SavePoint::SetParam(const Param& _param)
 	m_pos = m_param.basePos;
 	m_respawnPos = m_param.basePos;
 
-	//m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
+	m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
 	m_mWorld.Translation(m_pos);
 
 	m_flagMat.Translation(m_pos);

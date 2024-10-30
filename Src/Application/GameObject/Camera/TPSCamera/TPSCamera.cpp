@@ -178,17 +178,11 @@ void TPSCamera::Init()
 	m_goalMat = rotMat;
 	m_goalMat.Translation({ 0, 3.5f, -8.0f });
 
-	m_goalProcess.moveFrame = 150;
 	m_goalProcess.startPos	= { 0, 1, -2.25 };
 	m_goalProcess.endPos	= { 0, 3.5, -8 };
-	m_goalProcess.nowPos	= m_goalProcess.startPos;
-	m_goalProcess.moveVec	= m_goalProcess.endPos - m_goalProcess.startPos;
-	m_goalProcess.moveVec.Normalize();
-	m_goalProcess.speed		= (m_goalProcess.endPos - m_goalProcess.startPos).Length() / m_goalProcess.moveFrame;
+	m_goalProcess.speed		= 0.007;
 	m_goalProcess.startDegAng	= { 0, 0, 0 };
 	m_goalProcess.endDegAng		= { 20, 0, 0 };
-	m_goalProcess.nowDegAng		= m_goalProcess.startDegAng;
-	m_goalProcess.moveDegAng.x	= (m_goalProcess.endDegAng.x - m_goalProcess.startDegAng.x) / m_goalProcess.moveFrame;
 	m_goalProcess.stayFrame		= 60;
 }
 
@@ -218,11 +212,13 @@ void TPSCamera::SetFirstClearFlg(const bool _firstClearFlg)
 {
 	if (_firstClearFlg)
 	{
+		// 演出を始める
 		m_firstClear |= FirstClear::NowStartProcess;
 		m_startMat = m_mWorld;
 	}
 	else
 	{
+		// 元に戻る演出を始める
 		m_firstClear |= FirstClear::NowEndProcess;
 		m_firstClear &= (~FirstClear::NowStartProcess);
 	}
@@ -240,34 +236,52 @@ void TPSCamera::GoalProcess()
 	m_goalProcess.stayCount++;
 	if (m_goalProcess.stayCount > m_goalProcess.stayFrame)
 	{
-		m_goalProcess.frameCount++;
+		// 回転の補完
+		// スタートの行列
+		Math::Matrix startMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_goalProcess.startDegAng.y), DirectX::XMConvertToRadians(m_goalProcess.startDegAng.x), DirectX::XMConvertToRadians(m_goalProcess.startDegAng.z));
+		// ゴールの行列
+		Math::Matrix goalMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(m_goalProcess.endDegAng.y), DirectX::XMConvertToRadians(m_goalProcess.endDegAng.x), DirectX::XMConvertToRadians(m_goalProcess.endDegAng.z));
 
-		if (m_goalProcess.frameCount < m_goalProcess.moveFrame)
+		// クォータニオン用意
+		Math::Quaternion startQue;
+		Math::Quaternion endQue;
+		Math::Quaternion nowQue;
+
+		// 最初の行列からクォータニオン作成
+		startQue = Math::Quaternion::CreateFromRotationMatrix(startMat);
+		endQue = Math::Quaternion::CreateFromRotationMatrix(goalMat);
+
+		// 進行具合を加味した回転を求める
+		// 球面線形補完
+		nowQue = Math::Quaternion::Slerp(startQue, endQue, m_goalProcess.progress);
+
+		// ワールド行列を更新（回転）
+		m_mWorld = Math::Matrix::CreateFromQuaternion(nowQue);
+
+		// 座標の補完
+		Math::Vector3 startVec;
+		Math::Vector3 endVec;
+
+		startVec = m_goalProcess.startPos + m_goalProcess.targetPos;
+		endVec = m_goalProcess.endPos + m_goalProcess.targetPos;
+
+		// 進行具合を加味した座標を求める
+		Math::Vector3 nowVec;
+
+		// 線形補完
+		nowVec = Math::Vector3::Lerp(startVec, endVec, m_goalProcess.progress);
+
+		// ワールド行列を更新(座標)
+		m_mWorld.Translation(nowVec);
+
+		//=========================================
+		// 進行具合の更新
+		//=========================================
+		m_goalProcess.progress += m_goalProcess.speed;
+
+		if (m_goalProcess.progress >= 1.0f)
 		{
-			m_goalProcess.nowPos += m_goalProcess.moveVec * m_goalProcess.speed;
-
-			Math::Matrix targetMat = Math::Matrix::CreateTranslation(m_goalProcess.targetPos);
-
-			Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalProcess.nowPos);
-
-			m_goalProcess.nowDegAng += m_goalProcess.moveDegAng;
-
-			Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_goalProcess.nowDegAng.x));
-
-			m_mWorld = rotMat * localMat * targetMat;
-		}
-		else
-		{
-			Math::Matrix targetMat = Math::Matrix::CreateTranslation(m_goalProcess.targetPos);
-
-			Math::Matrix localMat = Math::Matrix::CreateTranslation(m_goalProcess.endPos);
-
-			Math::Vector3 targetPos = m_goalProcess.targetPos;
-
-			Math::Matrix rotMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_goalProcess.endDegAng.x));
-
-			m_mWorld = rotMat * localMat * targetMat;
-
+			m_goalProcess.progress = 1.0f;
 			m_goalProcess.moveEndFlg = true;
 		}
 	}
@@ -275,9 +289,7 @@ void TPSCamera::GoalProcess()
 
 void TPSCamera::FirstClearProcess()
 {
-	//=========================================
 	// 回転の補完
-	//=========================================
 
 	Math::Matrix startMat = m_startMat;
 
@@ -314,14 +326,7 @@ void TPSCamera::FirstClearProcess()
 	// ワールド行列を更新（回転）
 	m_mWorld = Math::Matrix::CreateFromQuaternion(nowQue);
 
-	//=========================================
-	// 回転の補完 ここまで
-	//=========================================
-
-	//=========================================
 	// 座標の補完
-	//=========================================
-
 	Math::Vector3 startVec;
 	Math::Vector3 endVec;
 
@@ -336,10 +341,6 @@ void TPSCamera::FirstClearProcess()
 
 	// ワールド行列を更新(座標)
 	m_mWorld.Translation(nowVec);
-
-	//=========================================
-	// 座標の補完 ここまで
-	//=========================================
 
 	//=========================================
 	// 進行具合の更新

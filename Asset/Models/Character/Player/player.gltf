@@ -8932,8 +8932,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"Color_Palet.png",
-			"uri":"Color_Palet_png.png"
+			"name":"Color_Palet",
+			"uri":"Color_Palet.png"
 		}
 	],
 	"skins":[

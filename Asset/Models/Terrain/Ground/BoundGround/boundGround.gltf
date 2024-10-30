@@ -8,7 +8,8 @@
 		{
 			"name":"Scene",
 			"nodes":[
-				0
+				0,
+				1
 			]
 		}
 	],
@@ -18,8 +19,22 @@
 			"name":"\u5186\u67f1",
 			"scale":[
 				2.5,
-				0.125,
+				1,
 				2.5
+			]
+		},
+		{
+			"mesh":1,
+			"name":"COL",
+			"scale":[
+				2.5,
+				0.3663358986377716,
+				2.5
+			],
+			"translation":[
+				0,
+				-0.12579049170017242,
+				0
 			]
 		}
 	],
@@ -73,6 +88,19 @@
 					"material":1
 				}
 			]
+		},
+		{
+			"name":"\u7acb\u65b9\u4f53",
+			"primitives":[
+				{
+					"attributes":{
+						"POSITION":8,
+						"NORMAL":9,
+						"TEXCOORD_0":10
+					},
+					"indices":11
+				}
+			]
 		}
 	],
 	"textures":[
@@ -84,23 +112,23 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"kinoko.png",
-			"uri":"kinoko_png.png"
+			"name":"kinoko",
+			"uri":"kinoko.png"
 		}
 	],
 	"accessors":[
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":64,
+			"count":256,
 			"max":[
 				1,
-				1,
+				0.23811054229736328,
 				1
 			],
 			"min":[
 				-1,
-				0.8788875937461853,
+				-0.4880870580673218,
 				-1
 			],
 			"type":"VEC3"
@@ -108,28 +136,62 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":64,
+			"count":256,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":64,
+			"count":256,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":282,
+			"count":1434,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":107,
+			"count":32,
 			"max":[
 				1,
-				0.8788875937461853,
+				-0.4880870580673218,
+				1
+			],
+			"min":[
+				-1,
+				-0.4880870580673218,
+				-1
+			],
+			"type":"VEC3"
+		},
+		{
+			"bufferView":5,
+			"componentType":5126,
+			"count":32,
+			"type":"VEC3"
+		},
+		{
+			"bufferView":6,
+			"componentType":5126,
+			"count":32,
+			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":90,
+			"type":"SCALAR"
+		},
+		{
+			"bufferView":8,
+			"componentType":5126,
+			"count":24,
+			"max":[
+				1,
+				1,
 				1
 			],
 			"min":[
@@ -140,71 +202,95 @@
 			"type":"VEC3"
 		},
 		{
-			"bufferView":5,
+			"bufferView":9,
 			"componentType":5126,
-			"count":107,
+			"count":24,
 			"type":"VEC3"
 		},
 		{
-			"bufferView":6,
+			"bufferView":10,
 			"componentType":5126,
-			"count":107,
+			"count":24,
 			"type":"VEC2"
 		},
 		{
-			"bufferView":7,
+			"bufferView":11,
 			"componentType":5123,
-			"count":282,
+			"count":36,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":768,
+			"byteLength":3072,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":768,
-			"byteOffset":768,
+			"byteLength":3072,
+			"byteOffset":3072,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":512,
-			"byteOffset":1536,
+			"byteLength":2048,
+			"byteOffset":6144,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":564,
-			"byteOffset":2048,
+			"byteLength":2868,
+			"byteOffset":8192,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":1284,
-			"byteOffset":2612,
+			"byteLength":384,
+			"byteOffset":11060,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1284,
-			"byteOffset":3896,
+			"byteLength":384,
+			"byteOffset":11444,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":856,
-			"byteOffset":5180,
+			"byteLength":256,
+			"byteOffset":11828,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":564,
-			"byteOffset":6036,
+			"byteLength":180,
+			"byteOffset":12084,
+			"target":34963
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":12264,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":288,
+			"byteOffset":12552,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":192,
+			"byteOffset":12840,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":13032,
 			"target":34963
 		}
 	],
@@ -216,7 +302,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":6600,
+			"byteLength":13104,
 			"uri":"boundGround.bin"
 		}
 	]

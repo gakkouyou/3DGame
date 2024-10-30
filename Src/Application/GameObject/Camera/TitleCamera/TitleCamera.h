@@ -39,4 +39,14 @@ private:
 
 	float m_progress = 0;
 	float m_speed = 0.005f;
+
+	struct CosCurve
+	{
+		float degAng = 0;
+		float addDegAng = 0;
+		float maxDegAng = 0;
+	};
+	CosCurve m_cosCurveYPos;
+
+	CosCurve m_cosCurveMove;
 };

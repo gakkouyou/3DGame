@@ -73,7 +73,7 @@ private:
 	std::shared_ptr<KdModelData> m_spEnemyModel = nullptr;
 
 	// 敵状態か箱状態かのフラグ
-	bool m_enemyFlg = true;
+	bool m_enemyFlg = false;
 
 	// 移動系
 	const float m_jumpPow	= 0.1f;	// ジャンプ力
@@ -103,4 +103,7 @@ private:
 	bool m_landFlg = true;
 
 	bool m_setParamFlg = false;
+
+	// 箱→敵になる、プレイヤーとの距離
+	const float m_enemyChangeLength = 10.0f;
 };

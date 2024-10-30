@@ -7,7 +7,6 @@
 #include "../../GameObject/EventObject/Goal/Goal.h"
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Result/Result.h"
-#include "../../GameObject/StageStart/StageStart.h"
 #include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
@@ -17,8 +16,6 @@
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
-
-#include "../../GameObject/EventObject/SavePoint/SavePoint.h"
 
 #include "../../main.h"
 
@@ -73,15 +70,15 @@ void GameScene::Event()
 		}
 	}
 
-
-
+	// ポーズクラスからポーズ状況を取得する前のポーズ状況
+	bool oldPauseFlg = m_pauseFlg;
 	// ポーズ画面の処理
 	if (!m_wpPause.expired())
 	{
 		m_pauseFlg = m_wpPause.lock()->GetPauseFlg();
 	}
 	// ポーズ画面かどうかが変わっていた時だけ処理する
-	if (m_pauseFlg != m_oldPauseFlg)
+	if (m_pauseFlg != oldPauseFlg)
 	{
 		// ポーズかどうかをオブジェクトに渡す
 		for (auto& obj : m_objList)
@@ -92,40 +89,44 @@ void GameScene::Event()
 			}
 		}
 	}
-	// 前のポーズフラグを保持しておく
-	m_oldPauseFlg = m_pauseFlg;
 
-	// 選ばれたポーズのボタンによって、処理を変えていく
-	if (!m_wpPause.expired())
+	// ポーズ中なら処理をする
+	if (m_pauseFlg)
 	{
-		if (!m_wpSceneChange.expired())
+		// 選ばれたポーズのボタンによって、処理を変えていく
+		if (!m_wpPause.expired())
 		{
-			switch (m_wpPause.lock()->GetSelectButton())
+			if (!m_wpSceneChange.expired())
 			{
-			case Pause::Again:	// ステージをやり直す
-				GameEnd(0);
-				break;
+				switch (m_wpPause.lock()->GetSelectButton())
+				{
+				case Pause::Again:	// ステージをやり直す
+					GameEnd(0);
+					break;
 
-			case Pause::Back:	// ステージから出る
-				if (m_wpSceneChange.lock()->GetFinishFlg())
-				{
-					SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
-				}
-				else
-				{
-					m_wpSceneChange.lock()->EndScene();
-					// 音をフェードアウト
-					m_vol -= 0.02f;
-					if (m_vol < 0)
+				case Pause::Back:	// ステージから出る
+					if (m_wpSceneChange.lock()->GetFinishFlg())
 					{
-						m_vol = 0;
+						// シーン切り替え
+						SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 					}
-					if (m_bgm.expired() == false)
+					else
 					{
-						m_bgm.lock()->SetVolume(m_vol);
+						// シーンを終了
+						m_wpSceneChange.lock()->EndScene();
+						// 音をフェードアウト
+						m_vol -= 0.02f;
+						if (m_vol < 0)
+						{
+							m_vol = 0;
+						}
+						if (m_bgm.expired() == false)
+						{
+							m_bgm.lock()->SetVolume(m_vol);
+						}
 					}
+					break;
 				}
-				break;
 			}
 		}
 	}
@@ -160,6 +161,7 @@ void GameScene::Event()
 
 			if (!m_wpCamera.expired())
 			{
+				// カメラのゴール時の演出をスタート
 				m_wpCamera.lock()->SetGoalFlg(true);
 
 				// 動き終わった後の処理
@@ -256,13 +258,6 @@ void GameScene::Init()
 	AddObject(result);
 	// 保持
 	m_wpResult = result;
-
-	// "Stage Start"
-	//std::shared_ptr<StageStart> stageStart = std::make_shared<StageStart>();
-	//stageStart->Init();
-	//AddObject(stageStart);
-	//// 保持
-	//m_wpStart = stageStart;
 
 	// ポーズ画面
 	std::shared_ptr<Pause> pause = std::make_shared<Pause>();
@@ -372,11 +367,6 @@ void GameScene::StartGameScene()
 			{
 				m_wpPause.lock()->SetStopFlg(false);
 			}
-			// フェードインが終了したら"Stage Start"を消していく
-			//if (!m_wpStart.expired())
-			//{
-			//	m_wpStart.lock()->SetEnd();
-			//}
 		}
 		else
 		{
@@ -401,12 +391,11 @@ void GameScene::GameEnd(int _stayCnt)
 		// シーン遷移を終えたらリセット
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			// 敵、地形、運べるオブジェクトを全て削除する
+			// 敵、運べるオブジェクトを全て削除する
 			auto it = m_objList.begin();
 			while (it != m_objList.end())
 			{
 				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
-					//|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground
 					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
 					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
 				{
@@ -425,7 +414,7 @@ void GameScene::GameEnd(int _stayCnt)
 				obj->Reset();
 			}
 
-			// 地形をリストの最後にする
+			// 地形をリストの最後に並べ替える
 			{
 				std::list<std::shared_ptr<KdGameObject>> objList = m_objList;
 				std::list<std::shared_ptr<KdGameObject>> terrainList;
@@ -443,7 +432,6 @@ void GameScene::GameEnd(int _stayCnt)
 					}
 				}
 			}
-
 			m_resetFlg = true;
 		}
 		else
@@ -454,7 +442,7 @@ void GameScene::GameEnd(int _stayCnt)
 			{
 				m_wpPlayer.lock()->SetStopFlg(true);
 			}
-			// ポーズも止める
+			// ポーズも出来ないようにする
 			if (!m_wpPause.expired())
 			{
 				m_wpPause.lock()->SetStopFlg(true);
@@ -491,6 +479,7 @@ void GameScene::GameSceneReStart()
 
 void GameScene::ResetCSV()
 {
+	// ステージの地形のCSVをリセットする
 	{
 		std::ifstream ifs("Asset/Data/CSV/Terrain/BaseStage" + std::to_string(m_nowStage) + ".csv");
 
@@ -515,6 +504,7 @@ void GameScene::ResetCSV()
 		}
 	}
 
+	// ステージのイベントオブジェクトのCSVをリセットする
 	{
 		std::ifstream ifs("Asset/Data/CSV/EventObject/BaseStage" + std::to_string(m_nowStage) + ".csv");
 

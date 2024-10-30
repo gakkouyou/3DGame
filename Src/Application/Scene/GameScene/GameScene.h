@@ -7,7 +7,6 @@ class Player;
 class SceneChange;
 class Goal;
 class Result;
-class StageStart;
 class Pause;
 class GameUI;
 
@@ -47,9 +46,6 @@ private:
 
 	// リザルト
 	std::weak_ptr<Result> m_wpResult;
-
-	// "Stage Start"
-	std::weak_ptr<StageStart> m_wpStart;
 
 	// ポーズ画面
 	std::weak_ptr<Pause> m_wpPause;

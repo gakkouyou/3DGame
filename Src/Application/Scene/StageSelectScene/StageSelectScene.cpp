@@ -38,15 +38,17 @@ void StageSelectScene::Event()
 	// 演出しているオブジェクトがある場合
 	if (m_wpFirstClearObject.expired() == false)
 	{
-		// カメラがアニメーションをし終わったら演出
 		if (m_wpCamera.expired() == false)
 		{
+			// カメラがアニメーションをし終わったらする処理
 			if (m_wpCamera.lock()->IsFirstClearProcess() == true)
 			{
+				// 出現するオブジェクトの演出
 				m_wpFirstClearObject.lock()->Active();
 				// 演出が終わった時の処理
 				if (m_wpFirstClearObject.lock()->IsActive() == false)
 				{
+					// カメラを元に戻す演出をする
 					m_wpCamera.lock()->SetFirstClearFlg(false);
 
 					if (m_wpCamera.lock()->IsFirstClearEndProcess() == true)
@@ -68,11 +70,12 @@ void StageSelectScene::Event()
 
 	if (m_wpPlayer.expired() == false)
 	{
-		// シーンを変える(ゲームシーンへ)
+		// ゲームシーンへ移行(プレイヤーから取得)
 		if (m_wpPlayer.lock()->GetBeginGameScene())
 		{
 			if (!m_wpSceneChange.expired())
 			{
+				// フェード後
 				m_wpSceneChange.lock()->EndScene();
 
 				// フェードアウト終了後シーンをゲームシーンに
@@ -90,6 +93,7 @@ void StageSelectScene::Event()
 		{
 			if (!m_wpSceneChange.expired())
 			{
+				// 白フェードアウト
 				m_wpSceneChange.lock()->EndScene(0, true, { 1, 1, 1 });
 
 				// フェードアウト終了後シーンをタイトルシーンに
@@ -175,6 +179,7 @@ void StageSelectScene::FirstClearProcess()
 							if (m_wpCamera.expired() == false)
 							{
 								m_wpCamera.lock()->SetTarget(obj.lock());
+								// 演出スタート
 								m_wpCamera.lock()->SetFirstClearFlg(true);
 							}
 						}
@@ -210,13 +215,13 @@ void StageSelectScene::Init()
 	if (nowStage != 0)
 	{
 		// 初クリアかどうか
-		if (SceneManager::Instance().GetStageInfo()[SceneManager::Instance().GetNowStage() - 1] == SceneManager::StageInfo::FirstClear)
+		if (SceneManager::Instance().GetStageInfo()[nowStage - 1] == SceneManager::StageInfo::FirstClear)
 		{
-			m_firstClearFlg = true;
+			m_firstClearFlg = true;		// 初クリア
 		}
 		else
 		{
-			m_firstClearFlg = false;
+			m_firstClearFlg = false;	// 初クリアでない
 		}
 	}
 
@@ -257,8 +262,8 @@ void StageSelectScene::Init()
 	// EventObjectController
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
 	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect");	// CSVセット
-	eventObjectController->SetCamera(camera);										// カメラセット
-	eventObjectController->SetStageSelectUI(ui);									// UIセット
+	eventObjectController->SetCamera(camera);									// カメラセット
+	eventObjectController->SetStageSelectUI(ui);								// UIセット
 	eventObjectController->Init();
 	AddObject(eventObjectController);
 	// 保持
@@ -287,7 +292,7 @@ void StageSelectScene::Init()
 	{
 		if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::StageSelectObject)
 		{
-			if (obj.lock()->GetParam().modelNum == SceneManager::Instance().GetNowStage())
+			if (obj.lock()->GetParam().modelNum == nowStage)
 			{
 				Math::Vector3 pos = obj.lock()->GetPos();
 				pos.z -= 4.0f;
@@ -303,25 +308,25 @@ void StageSelectScene::Init()
 	if (m_firstClearFlg == true)
 	{
 		int stageNum = SceneManager::Instance().GetNowStage();
-		if (m_wpEventObjectController.expired() == false)
+		int count = 0;
+		for (auto& obj : eventObjectController->GetObjList())
 		{
-			int count = 0;
-			for (auto& obj : m_wpEventObjectController.lock()->GetObjList())
+			if (obj.expired() == false)
 			{
-				if (obj.expired() == false)
+				if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::FinalGoal)
 				{
-					if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::FinalGoal)
-					{
-						m_wpEventObjectController.lock()->WorkCSVData()[count].modelNum = stageNum;
-						EventObjectBase::Param param = obj.lock()->GetParam();
-						param.modelNum = stageNum;
-						obj.lock()->SetParam(param);
-						m_wpEventObjectController.lock()->CSVWriter();
-						break;
-					}
+					// CSVに書き込む用のデータを書き換える
+					eventObjectController->WorkCSVData()[count].modelNum = stageNum;
+					EventObjectBase::Param param = obj.lock()->GetParam();
+					param.modelNum = stageNum;
+					// モデルを変更
+					obj.lock()->SetParam(param);
+					// CSVに書き込む
+					eventObjectController->CSVWriter();
+					break;
 				}
-				count++;
 			}
+			count++;
 		}
 	}
 

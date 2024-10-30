@@ -53,7 +53,7 @@ private:
 	bool m_rayDownFlg	= false;
 
 	// 下に落ちたら、リスポーンさせる
-	float m_underLine		= -30.0f;
+	const float m_underLine		= -30.0f;
 
 	Math::Vector3 m_oldPos;
 

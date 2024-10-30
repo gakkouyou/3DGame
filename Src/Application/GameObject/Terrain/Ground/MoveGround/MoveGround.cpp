@@ -13,17 +13,32 @@ void MoveGround::Update()
 
 		if (m_moveFlg)
 		{
-			m_degAng += m_addDegAng;
+			// サインカーブ用の角度
+			m_degAng += 1;
+			// 0～1にする
+			m_progress = (sin(DirectX::XMConvertToRadians(m_degAng)));
 
-			m_progress = (sin(DirectX::XMConvertToRadians(m_degAng)) + 1) / 2.0f;
+			// 角度が上限まで行ったら、進行度を１にする
+			if (m_degAng >= 360)
+			{
+				m_progress = 1.0f;
+			}
+
+			static float a = 0;
+			static float d = 0.1;
+			a += d;
+			if (a > 1 || a < 0)
+			{
+				d *= -1;
+			}
 
 			// スタート→ゴール
 			if (m_moveDirFlg == false)
 			{
 				moveVec = m_param.goalPos - m_param.pos;
 				// 実際の移動
-				// もしゴールまでの距離がスピードより小さかったら、座標をゴール座標にする
-				if (moveVec.Length() < m_param.speed)
+				// 進行度が１になったらゴール座標にする
+				if (m_progress >= 1.0f)
 				{
 					m_param.pos = m_param.goalPos;
 					m_moveFlg = false;
@@ -44,12 +59,12 @@ void MoveGround::Update()
 			{
 				moveVec = m_param.startPos - m_param.pos;
 				// 実際の移動
-				// もしゴールまでの距離がスピードより小さかったら、座標をゴール座標にする
-				if (moveVec.Length() < m_param.speed)
+				// 進行度が１になったらスタート座標にする
+				if (m_progress >= 1.0f)
 				{
 					m_param.pos = m_param.startPos;
 					m_moveFlg = false;
-					m_moveDirFlg = !m_moveDirFlg;
+					m_moveDirFlg = false;
 					m_degAng = m_startDegAng;
 					m_progress = 0;
 				}
@@ -141,12 +156,12 @@ void MoveGround::Reset()
 
 void MoveGround::SetParam(const Param& _param)
 {
-	m_param.startPos	= _param.startPos;
-	m_param.pos			= _param.startPos;
-	m_param.goalPos		= _param.goalPos;
-	m_param.speed		= _param.speed;
-	m_param.stayTime	= _param.stayTime;
-	m_param.scale		= _param.scale;
+	m_param.startPos	= _param.startPos;	// スタートの座標
+	m_param.pos			= _param.startPos;	// 座標
+	m_param.goalPos		= _param.goalPos;	// ゴールの座標
+	m_param.speed		= _param.speed;		// 速度
+	m_param.stayTime	= _param.stayTime;	// 待機時間
+	m_param.scale		= _param.scale;		// 拡縮
 
 	m_stopFlg = true;
 	m_setParamFlg = true;
@@ -156,7 +171,9 @@ void MoveGround::SetParam(const Param& _param)
 
 	m_mWorld = scaleMat * transMat;
 
+	// 等速で動いていた場合の、スタートからゴールまで行くフレーム数
 	float moveFrame = (m_param.startPos - m_param.goalPos).Length() / m_param.speed;
 
-	m_addDegAng = 180.0f / moveFrame;
+	// サインカーブ用の角度に足しこむ数値
+	m_addDegAng = 360.0f / moveFrame;
 }

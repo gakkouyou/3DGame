@@ -40,6 +40,7 @@ void TitlePlayer::Init()
 		m_spAnimator->SetAnimation(m_spModel->GetAnimation("Idle"), false);
 	}
 
+	// 寝っ転がっている姿勢にする
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(5.0f);
 	Math::Matrix rotMat = Math::Matrix::CreateFromYawPitchRoll(DirectX::XMConvertToRadians(180.0f), DirectX::XMConvertToRadians(-90.0f), 0);
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_bedPos);

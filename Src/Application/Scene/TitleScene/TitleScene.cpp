@@ -36,9 +36,12 @@ void TitleScene::Init()
 	}
 	SceneManager::Instance().CSVReset();
 
+	// 影の範囲
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
+	// 環境光
 	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
+	// 平行光
 	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
 
 	// シーンチェンジ

@@ -52,6 +52,8 @@ private:
 	// 拡縮
 	float m_scale = 0;
 	const float m_maxScale = 1.5f;
+	//const float m_maxScale = 0.45f;
 	const float m_minScale = 1.0f;
-	const float m_addScale = 0.1f;
+	//const float m_minScale = 0.3f;
+	const float m_addScale = 0.02f;
 };

@@ -255,7 +255,14 @@ void Player::Update()
 	// 走り
 	else if (m_situationType & SituationType::Run)
 	{
-		m_pos += m_moveVec * m_runSpeed;
+		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
+		{
+			m_pos += m_moveVec * 1.0f;
+		}
+		else
+		{
+			m_pos += m_moveVec * m_runSpeed;
+		}
 	}
 
 	// 重力
@@ -465,7 +472,7 @@ void Player::Update()
 		GoalProcess();
 	}
 
-	Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", m_pos.x, m_pos.y, m_pos.z);
+	//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Player::PostUpdate()
@@ -1054,19 +1061,57 @@ void Player::HitJudgeGround()
 
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
+
 	{
+		const float radius = 0.35f;
+
+		// ボックス判定
+		KdCollider::BoxInfo boxInfo;
+		// 右前上のノード
+		Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
+		// 左後上のノード
+		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
+		// キャラクターの高さ
+		float charaHighLength = rightBackUpPos.y;
+		// 中心座標(キャラクターの真ん中)
+		boxInfo.m_Abox.Center = m_pos;
+		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
+		// キャラクターの横幅(半径)
+		float charaSideRadius = abs(rightBackUpPos.x);
+		// キャラクターの奥行幅(直径)
+		float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
+		boxInfo.m_Abox.Extents = { radius, charaHighLength / 2, radius };
+		// 当たり判定をするタイプ
+		boxInfo.m_type |= KdCollider::TypeGround;
+
+		// 当たり判定の結果格納リスト
+		std::list<KdCollider::CollisionResult> resultList;
+
+		bool hitFlg = false;
+
+		for (auto& obj : SceneManager::Instance().GetObjList())
+		{
+			if (obj->Intersects(boxInfo, nullptr))
+			{
+				hitFlg = true;
+				break;
+			}
+		}
+
+		if (hitFlg == false) return;
+
 		// スフィアの情報
 		KdCollider::SphereInfo sphereInfo;
 		// スフィアの中心座標
 		sphereInfo.m_sphere.Center = m_pos;
 		// スフィアの半径
-		sphereInfo.m_sphere.Radius = 0.35f;
+		sphereInfo.m_sphere.Radius = radius;
 		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
 		// スフィアのタイプ
 		sphereInfo.m_type = KdCollider::TypeGround;
 
 		// 当たったかどうかのフラグ
-		bool hitFlg = false;
+		hitFlg = false;
 		// 当たった結果
 		KdCollider::CollisionResult collisionResult;
 		// 複数に当たったかどうかのフラグ
@@ -1122,101 +1167,6 @@ void Player::HitJudgeGround()
 			m_pos.y -= collisionResult.m_overlapDistance;
 		}
 	}
-
-	// ボックス判定
-	//{
-	//	// ボックス判定
-	//	KdCollider::BoxInfo boxInfo;
-	//	// 右前上のノード
-	//	Math::Vector3 rightBackUpPos = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
-	//	// 左後上のノード
-	//	Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
-	//	// キャラクターの高さ
-	//	float charaHighLength = rightBackUpPos.y;
-	//	// 中心座標(キャラクターの真ん中)
-	//	boxInfo.m_Abox.Center = m_pos;
-	//	boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
-	//	// キャラクターの横幅(半径)
-	//	float charaSideRadius = abs(rightBackUpPos.x);
-	//	// キャラクターの奥行幅(直径)
-	//	float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
-	//	// ボックスのサイズ
-	//	//boxInfo.m_Abox.Extents = { 5, 5, 5 };
-	//	boxInfo.m_Abox.Extents = { charaSideRadius, charaHighLength / 2, charaZLength / 2 };
-	//	// 当たり判定をするタイプ
-	//	boxInfo.m_type |= KdCollider::TypeGround;
-
-
-	//	// 当たり判定の結果格納リスト
-	//	std::list<KdCollider::CollisionResult> resultList;
-
-	//	bool hitFlg = false;
-
-	//	for (auto& obj : SceneManager::Instance().GetObjList())
-	//	{
-	//		if (obj->Intersects(boxInfo, &resultList))
-	//		{
-	//			m_wpHitObjectList.push_back(obj);
-	//			hitFlg = true;
-	//		}
-	//	}
-
-	//	if (hitFlg)
-	//	{
-	//		// 当たったオブジェクト
-	//		std::shared_ptr<KdGameObject> spHitObject;
-
-	//		// 探す
-	//		for (auto& hitObject : m_wpHitObjectList)
-	//		{
-	//			if (!hitObject.expired())
-	//			{
-	//				if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Ground)
-	//				{
-	//					spHitObject = hitObject.lock();
-	//					break;
-	//				}
-	//			}
-	//		}
-	//		if (spHitObject)
-	//		{
-	//			spHitObject->OnHit();
-	//			switch (spHitObject->GetObjectType())
-	//			{
-	//				// ゴール
-	//			case ObjectType::Goal:
-	//				m_goalFlg = true;
-	//				m_stopFlg = true;
-	//				break;
-
-	//				// 回復アイテム
-	//			case ObjectType::HealItem:
-	//				// ライフが上限じゃなければ回復
-	//				if (m_life != m_maxLife)
-	//				{
-	//					m_life += 1;
-	//				}
-	//				// 回復エフェクト
-	//				if (!m_effectFlg)
-	//				{
-	//					//m_effectFlg = true;
-	//					m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
-	//				}
-	//				break;
-
-	//				// セーブポイント
-	//			case ObjectType::SavePoint:
-	//				m_respawnPos = spHitObject->GetPos();
-	//				break;
-
-	//				// ワープポイント
-	//			case ObjectType::WarpPoint:
-	//				m_pos = spHitObject->GetPos();
-	//				break;
-	//			}
-	//		}
-	//	}
-	//}
 }
 
 void Player::HitJudgeEvent()
@@ -1393,21 +1343,6 @@ void Player::HitJudgeEvent()
 
 void Player::HitJudgeEnemy()
 {
-	// スフィアの情報
-	//KdCollider::SphereInfo sphereInfo;
-	//// スフィアの中心座標
-	//sphereInfo.m_sphere.Center = m_pos;
-	//// スフィアの半径
-	//sphereInfo.m_sphere.Radius = 0.25f;
-	//sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
-	//// スフィアのタイプ
-	//sphereInfo.m_type = KdCollider::TypeDamage;
-
-	//// 当たったかどうかのフラグ
-	//bool hitFlg = false;
-
-	//hitFlg = SphereHitJudge(sphereInfo, true);
-
 	// ボックス判定
 	{
 		// ボックス判定

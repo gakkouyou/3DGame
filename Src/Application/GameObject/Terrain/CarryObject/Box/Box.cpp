@@ -74,6 +74,7 @@ void Box::Update()
 	if (m_pos.y < m_underLine)
 	{
 		m_pos = m_param.startPos;
+		// 少し上から
 		m_pos.y += 1.0f;
 		m_gravity = 0;
 	}

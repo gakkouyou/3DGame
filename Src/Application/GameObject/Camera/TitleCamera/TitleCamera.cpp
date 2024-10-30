@@ -1,9 +1,8 @@
 ﻿#include "TitleCamera.h"
-#include "Application/main.h"
 
 void TitleCamera::Update()
 {
-	if (m_animationFlg)
+	if (m_animationFlg && m_animationFinishFlg == false)
 	{
 		Math::Quaternion startQua = Math::Quaternion::CreateFromRotationMatrix(m_startMat);
 		Math::Quaternion goalQua = Math::Quaternion::CreateFromRotationMatrix(m_goalMat);
@@ -13,12 +12,23 @@ void TitleCamera::Update()
 		Math::Vector3 goalPos = m_goalMat.Translation();
 		Math::Vector3 nowPos = Math::Vector3::Lerp(startPos, goalPos, m_progress);
 
-		m_progress += 0.005f;
+		// Y座標のみコサインカーブの軌道
+		float progress = cos(DirectX::XMConvertToRadians(m_cosCurveYPos.degAng)) * -1 + 1;
+		Math::Vector3 y = Math::Vector3::Lerp(startPos, goalPos, progress);
+		nowPos.y = y.y;
+		m_cosCurveYPos.degAng += m_cosCurveYPos.addDegAng;
 
-		if (m_progress > 1.0f)
+		// 移動のコサインカーブ
+		m_cosCurveMove.degAng += m_cosCurveMove.addDegAng;
+		float speed = (cos(DirectX::XMConvertToRadians(m_cosCurveMove.degAng)) * -1 + 1) / 2;
+
+		m_progress = speed;
+
+		if (m_progress >= 1.0f)
 		{
 			m_progress = 1.0f;
 			m_animationFinishFlg = true;
+			m_cosCurveYPos.degAng = m_cosCurveYPos.maxDegAng;
 		}
 
 		Math::Matrix mat = Math::Matrix::CreateFromQuaternion(nowQua);
@@ -26,7 +36,7 @@ void TitleCamera::Update()
 
 		m_mWorld = mat;
 	}
-	else
+	else if(m_animationFlg == false)
 	{
 		m_mWorld = m_startMat;
 
@@ -57,4 +67,12 @@ void TitleCamera::Init()
 	m_goalMat = rotMat * transMat;
 
 	m_DegAng = { 20.0f, 0, 0 };
+
+	// Y座標のコサインカーブ
+	m_cosCurveYPos.maxDegAng = 90.0f;									// 上限
+	m_cosCurveYPos.addDegAng = m_cosCurveYPos.maxDegAng / (1 / m_speed);// 加算量
+
+	// 移動のコサインカーブ
+	m_cosCurveMove.maxDegAng = 180.0f;									// 上限
+	m_cosCurveMove.addDegAng = m_cosCurveMove.maxDegAng / (1 / m_speed);// 加算量
 }

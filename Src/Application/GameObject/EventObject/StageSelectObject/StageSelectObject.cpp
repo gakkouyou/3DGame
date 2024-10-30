@@ -101,6 +101,33 @@ void StageSelectObject::SetParam(const Param& _param)
 	if (m_param.modelNum != _param.modelNum && _param.modelNum != 0)
 	{
 		m_spModel->Load("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/stage" + std::to_string(_param.modelNum) + ".gltf");
+
+		//switch (_param.modelNum)
+		//{
+		//	// ステージ１のモデル
+		//case 1:
+		//	m_spModel->Load("Asset/Models/EventObject/Clock/Body/body.gltf");
+		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+		//	break;
+
+		//	// ステージ２のモデル
+		//case 2:
+		//	m_spModel->Load("Asset/Models/EventObject/Clock/Needle/needle.gltf");
+		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+		//	break;
+
+		//	// ステージ３のモデル
+		//case 3:
+		//	m_spModel->Load("Asset/Models/EventObject/Clock/Bell/bell.gltf");
+		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+		//	break;
+
+		//	// 発表用のモデル
+		//case 4:
+		//	m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
+		//	break;
+		//}
 	}
 
 	m_param = _param;

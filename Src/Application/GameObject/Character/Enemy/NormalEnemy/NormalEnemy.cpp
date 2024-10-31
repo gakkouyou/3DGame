@@ -312,7 +312,6 @@ void NormalEnemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		//m_spModel->SetModelData("Asset/Models/Character/Enemy/NormalEnemy(old)/normalEnemy.gltf");
 		m_spModel->SetModelData("Asset/Models/Character/Enemy/NormalEnemy/normalEnemy.gltf");
 
 	}

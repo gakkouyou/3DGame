@@ -2,18 +2,36 @@
 
 void SavePoint::Update()
 {
-	if (m_progress >= 1 || m_aliveFlg == true) return;
-	if (m_aliveFlg == false && m_degAng > 0)
+	if (m_situationType == SituationType::Stand) return;
+	if (m_situationType == SituationType::Up)
 	{
-		m_degAng -= m_sumDegAng;
-	}
-	else if(m_aliveFlg == false && m_degAng <= 0)
-	{
-		m_degAng = 0;
+		if (m_degAng > m_maxDegAng)
+		{
+			m_degAng -= m_sumDegAng;
+			m_sumDegAng += 0.2f;
+		}
+		else
+		{
+			m_situationType = SituationType::Down;
+			m_degAng = m_maxDegAng;
+		}
 	}
 
-	m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
-	m_mWorld.Translation(m_pos);
+	if (m_situationType == SituationType::Down)
+	{
+		if (m_degAng < m_standDegAng)
+		{
+			m_degAng += m_sumDegAng;
+		}
+		else
+		{
+			m_degAng = m_standDegAng;
+			m_situationType = SituationType::Stand;
+		}
+	}
+
+	m_flagMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
+	m_flagMat.Translation(m_pos);
 
 	//Math::Vector3 goalPos = (m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld).Translation();
 
@@ -32,8 +50,13 @@ void SavePoint::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_flagMat);
 	}
+	if (m_spBaseModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_mWorld);
+	}
+
 
 	//if (m_spPoleModel)
 	//{
@@ -50,7 +73,11 @@ void SavePoint::DrawLit()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_flagMat);
+	}
+	if (m_spBaseModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_mWorld);
 	}
 
 	//if (m_spPoleModel)
@@ -91,6 +118,12 @@ void SavePoint::Init()
 		m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
 	}
 
+	if (!m_spBaseModel)
+	{
+		m_spBaseModel = std::make_shared<KdModelData>();
+		m_spBaseModel->Load("Asset/Models/EventObject/SavePoint/Base/base.gltf");
+	}
+
 	if (!m_spPoleModel)
 	{
 		m_spPoleModel = std::make_shared<KdModelData>();
@@ -105,33 +138,28 @@ void SavePoint::Init()
 
 	m_objectType = ObjectType::SavePoint;
 
-	if (m_aliveFlg == true)
+	if (m_situationType == SituationType::NotStand)
 	{
 		m_pCollider = std::make_unique<KdCollider>();
 		//m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
-		m_pCollider->RegisterCollisionShape("SavePoint", m_spPoleModel, KdCollider::TypeEvent);
-	}
-	else
-	{
-		m_flagMat = m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld;
-		m_progress = 1.0f;
+		m_pCollider->RegisterCollisionShape("SavePoint", m_spBaseModel, KdCollider::TypeEvent);
 	}
 }
 
 void SavePoint::OnHit()
 {
-	if (m_aliveFlg == false) return;
+	if ((m_situationType == SituationType::NotStand) == 0) return;
 	std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/savePoint.wav");
 	se->SetVolume(0.06f);
-	m_aliveFlg = false;
+	m_situationType = SituationType::Up;
 }
 
 void SavePoint::SetParam(const Param& _param)
 {
 	if (_param.modelNum == 1)
 	{
-		m_aliveFlg = false;
-		m_degAng = 0;
+		m_situationType = SituationType::Stand;
+		m_degAng = m_standDegAng;
 	}
 
 	m_param = _param;
@@ -139,8 +167,8 @@ void SavePoint::SetParam(const Param& _param)
 	m_pos = m_param.basePos;
 	m_respawnPos = m_param.basePos;
 
-	m_mWorld = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
-	m_mWorld.Translation(m_pos);
-
+	m_flagMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
 	m_flagMat.Translation(m_pos);
+
+	m_mWorld.Translation(m_pos);
 }

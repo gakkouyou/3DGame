@@ -37,10 +37,9 @@ private:
 	// 止めるフラグ
 	bool m_stopFlg = false;
 
-	const float m_startDegAng = 0;
-	float m_degAng = 0;
-	float m_addDegAng = 0;
-	const float m_maxDegAng = 360;
-
+	// 進行度
 	float m_progress = 0;
+
+	// 進行度を進める値
+	float m_speed = 0;
 };

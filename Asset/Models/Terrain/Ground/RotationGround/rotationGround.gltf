@@ -122,8 +122,8 @@
 		},
 		{
 			"mimeType":"image/png",
-			"name":"grassWall.png",
-			"uri":"grassWall_png.png"
+			"name":"grassWall",
+			"uri":"grassWall.png"
 		}
 	],
 	"accessors":[

@@ -89,7 +89,8 @@ void House::DrawLit()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.SetDitherEnable(true);
+		// アルファディザ有効化
+		KdShaderManager::Instance().m_StandardShader.SetDitherEnable(true, 3.0f);
 
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);

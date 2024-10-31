@@ -1,6 +1,7 @@
 ﻿#include "MoveGround.h"
 #include "../../../../main.h"
 #include "../../../../Scene/SceneManager.h"
+#include "Application/../Framework/Math/KdEasing.h"
 
 void MoveGround::Update()
 {
@@ -9,73 +10,48 @@ void MoveGround::Update()
 
 	if (!m_stopFlg)
 	{
-		Math::Vector3 moveVec = Math::Vector3::Zero;
-
 		if (m_moveFlg)
 		{
-			// サインカーブ用の角度
-			m_degAng += 1;
-			// 0～1にする
-			m_progress = (sin(DirectX::XMConvertToRadians(m_degAng)));
+			// 進行度を進める
+			m_progress += m_speed;
 
-			// 角度が上限まで行ったら、進行度を１にする
-			if (m_degAng >= 360)
-			{
-				m_progress = 1.0f;
-			}
-
-			static float a = 0;
-			static float d = 0.1;
-			a += d;
-			if (a > 1 || a < 0)
-			{
-				d *= -1;
-			}
+			// イージング
+			float progress = -(cos(DirectX::XM_PI * m_progress) - 1.0f) * 0.5f;
 
 			// スタート→ゴール
 			if (m_moveDirFlg == false)
 			{
-				moveVec = m_param.goalPos - m_param.pos;
-				// 実際の移動
-				// 進行度が１になったらゴール座標にする
+				// ゴールに着いた時の処理
 				if (m_progress >= 1.0f)
 				{
+					// 座標をゴール座標にする
 					m_param.pos = m_param.goalPos;
+					// 止める
 					m_moveFlg = false;
+					// 反転
 					m_moveDirFlg = true;
-					m_degAng = m_startDegAng;
-					m_progress = 0;
-				}
-				// 大きかったらスピード分進める
-				else
-				{
-					moveVec.Normalize();
-					m_param.pos = Math::Vector3::Lerp(m_param.startPos, m_param.goalPos, m_progress);
-					//m_param.pos += moveVec * m_param.speed;
+					m_progress = 1.0f;
+					m_speed *= -1;
 				}
 			}
 			// ゴール→スタート
 			else
 			{
-				moveVec = m_param.startPos - m_param.pos;
-				// 実際の移動
-				// 進行度が１になったらスタート座標にする
-				if (m_progress >= 1.0f)
+				// スタートに着いた時の処理
+				if (m_progress <= 0.0f)
 				{
+					// 座標をスタート座標にする
 					m_param.pos = m_param.startPos;
+					// 止める
 					m_moveFlg = false;
+					// 反転
 					m_moveDirFlg = false;
-					m_degAng = m_startDegAng;
-					m_progress = 0;
-				}
-				// 大きかったらスピード分進める
-				else
-				{
-					moveVec.Normalize();
-					m_param.pos = Math::Vector3::Lerp(m_param.goalPos, m_param.startPos, m_progress);
-					//m_param.pos += moveVec * m_param.speed;
+					m_progress = 0.0f;
+					m_speed *= -1;
 				}
 			}
+			// 座標
+			m_param.pos = Math::Vector3::Lerp(m_param.startPos, m_param.goalPos, progress);
 		}
 
 		// 待機カウントを進める
@@ -133,7 +109,7 @@ void MoveGround::Init()
 	TerrainBase::Init();
 
 	// 描画タイプ
-	m_drawType = eDrawTypeLit;
+	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
 
 	m_param.pos		= Math::Vector3::Zero;
 	m_param.startPos = Math::Vector3::Zero;
@@ -174,6 +150,6 @@ void MoveGround::SetParam(const Param& _param)
 	// 等速で動いていた場合の、スタートからゴールまで行くフレーム数
 	float moveFrame = (m_param.startPos - m_param.goalPos).Length() / m_param.speed;
 
-	// サインカーブ用の角度に足しこむ数値
-	m_addDegAng = 360.0f / moveFrame;
+	// 進行度を進める値を決める
+	m_speed = 1 / moveFrame;
 }

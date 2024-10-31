@@ -72,7 +72,7 @@ float4 main(VSOutput In) : SV_Target0
 		float dither = bayerMatrix[y][x] / 16.0f;
 
 		// ディザ抜きするカメラからの距離
-		float ditherDist = 5.0;
+		float ditherDist = g_ditherArea;
 
 		// 半径
 		float range = max(0, camDist - ditherDist);

@@ -38,7 +38,8 @@ public:
 
 		// アルファディザ
 		int DitherEnable = 0;
-		float _blank[3] = { 0.0f, 0.0f, 0.0f };
+		float DitherArea = 0;
+		float _blank[2] = { 0.0f, 0.0f };
 	};
 
 	// 定数バッファ(メッシュ単位更新)
@@ -78,9 +79,10 @@ public:
 	}
 
 	// アルファディザ
-	void SetDitherEnable(bool _enable)
+	void SetDitherEnable(bool _enable, float _area = 5.0f)
 	{
-		m_cb0_Obj.Work().DitherEnable = _enable;
+		m_cb0_Obj.Work().DitherEnable	= _enable;
+		m_cb0_Obj.Work().DitherArea		= _area;
 		m_dirtyCBObj = true;
 	}
 

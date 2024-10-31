@@ -49,7 +49,7 @@ void Smoke::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelWork>();
-		m_spModel->SetModelData("Asset/Models/Effect/Smoke2/smoke2.gltf");
+		m_spModel->SetModelData("Asset/Models/Effect/Smoke/smoke.gltf");
 	}
 
 	m_scale = 1.0f;

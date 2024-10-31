@@ -33,7 +33,7 @@
 			"name":"COL",
 			"scale":[
 				2.5,
-				0.30000001192092896,
+				0.37387847900390625,
 				2.5
 			]
 		}
@@ -49,8 +49,7 @@
 					0,
 					1
 				],
-				"metallicFactor":0,
-				"roughnessFactor":0.5
+				"metallicFactor":0
 			}
 		}
 	],
@@ -88,7 +87,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":504,
+			"count":672,
 			"max":[
 				10,
 				1.5,
@@ -104,25 +103,25 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":504,
+			"count":672,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":504,
+			"count":672,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5126,
-			"count":504,
+			"count":672,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":4,
 			"componentType":5123,
-			"count":792,
+			"count":1104,
 			"type":"SCALAR"
 		},
 		{
@@ -163,62 +162,62 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6048,
+			"byteLength":8064,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":6048,
+			"byteLength":8064,
+			"byteOffset":8064,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":12096,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":4032,
+			"byteLength":5376,
 			"byteOffset":16128,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1584,
-			"byteOffset":20160,
+			"byteLength":5376,
+			"byteOffset":21504,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":2208,
+			"byteOffset":26880,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":288,
-			"byteOffset":21744,
+			"byteOffset":29088,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":288,
-			"byteOffset":22032,
+			"byteOffset":29376,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":192,
-			"byteOffset":22320,
+			"byteOffset":29664,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":72,
-			"byteOffset":22512,
+			"byteOffset":29856,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":22584,
+			"byteLength":29928,
 			"uri":"moveGround.bin"
 		}
 	]

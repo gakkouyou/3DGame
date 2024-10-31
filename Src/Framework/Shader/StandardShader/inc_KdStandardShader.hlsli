@@ -18,6 +18,7 @@ cbuffer cbObject : register(b0)
 
 	// アルファディザ
 	int g_ditherEnable;
+	float g_ditherArea;
 };
 
 // 定数バッファ(メッシュ単位)

@@ -186,11 +186,11 @@ public:
 	//================================================
 	// メッシュ描画
 	void DrawMesh(const KdMesh* mesh, const Math::Matrix& mWorld, const std::vector<KdMaterial>& materials,
-		const Math::Vector4& col, const Math::Vector3& emissive, const float _metallicRate, const float _roughnessRate);
+		const Math::Vector4& col, const Math::Vector3& emissive);
 
 	// モデルデータ描画：アニメーションに非対応
 	void DrawModel(const KdModelData& rModel, const Math::Matrix& mWorld = Math::Matrix::Identity,
-		const Math::Color& colRate = kWhiteColor, const Math::Vector3& emissive = Math::Vector3::Zero, const float _metallicRate = 0.0f, const float _roughnessRate = 1.0f);
+		const Math::Color& colRate = kWhiteColor, const Math::Vector3& emissive = Math::Vector3::Zero);
 
 	// モデルワーク描画：アニメーションに対応
 	void DrawModel(KdModelWork& rModel, const Math::Matrix& mWorld = Math::Matrix::Identity,
@@ -223,7 +223,7 @@ public:
 private:
 
 	// マテリアルのセット
-	void WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate, const float _metallicRate = 0.0f, const float _roughnessRate = 0.0f);
+	void WriteMaterial(const KdMaterial& material, const Math::Vector4& colRate, const Math::Vector3& emiRate);
 
 	// ポリゴンの法線情報を2Dように書き換える
 	void ConvertNormalsFor2D(std::vector<KdPolygon::Vertex>& target, const Math::Matrix& mWorld);

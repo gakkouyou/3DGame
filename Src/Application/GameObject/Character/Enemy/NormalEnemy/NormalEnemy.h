@@ -27,32 +27,19 @@ private:
 	// 敵同士での当たり判定
 	void HitEnemy();
 
-	// ターゲットを追尾する
-	void TargetHoming();
-
-	// 今の状況
-	enum SituationType
-	{
-		Stop	= 1 << 0,	// 止まっている
-		Run		= 1 << 1,	// 走っている
-		Jump	= 1 << 2,	// ジャンプしている
-		Air		= 1 << 3,	// 空中にいる
-		WallHit = 1 << 4,	// 壁に触れている
-		Homing	= 1 << 5,	// 追尾している
-		Find	= 1 << 6,	// 発見している
-		LostTarget	= 1 << 7,	// 見失う
-	};
-
-	UINT m_situationType	= SituationType::Stop;
-
 	// 追尾していない時に動くための変数
 	struct Move
 	{
 		Math::Vector3 goalPos = Math::Vector3::Zero;	// ゴール座標
 		float degAng = 0;								// 角度
-		bool confirmedAngFlg = false;					// 角度を決定させるためのフラグ
 		bool rotFlg = false;							// 回転中かのフラグ
 		const float minRotAng = 3.0f;					// 回転を制限する
+
+		const float jumpPow = 0.05f;					// ジャンプ力
+		const float movePow = 0.05f;					// 動く量
+		const int	stayTime = 60;						// 待機時間
+		int			stayCount = 0;						// 待機カウント
+		bool		stayFlg = false;					// 待機フラグ
 	};
 	Move m_move;
 
@@ -67,19 +54,14 @@ private:
 	// ホーミング用構造体
 	struct HomingStruct
 	{
-		const float viewingAngle	= 60.0f;
-		const float rotDegAng		= 5.0f;
-		const float speed			= 0.05f;
+		const float viewingAngle	= 60.0f;// 視野角
+		const float minRotDegAng	= 5.0f;	// 回転する際の制限
+		const float speed			= 0.05f;// 移動量
+		const float jumpPow			= 0.05f;// ジャンプ力
 	};
 
 	HomingStruct m_homing;
 
-
-	// ターゲットを見つけた時の処理
-	void FindTarget();
-
-	// ターゲットを見失った時の処理(左右に見渡す→元の角度に戻る→戻る)
-	void LostTargetProcess();
 	struct LostTargetAnimation
 	{
 		const float maxLotAng	= 45.0f;	// 左右に見渡す？時の角度の上限
@@ -103,18 +85,6 @@ private:
 	// ジャンプ力
 	const float m_findJumpPow	= 0.1f;
 
-	// 歩くモーション用
-	struct Walk
-	{
-		const float jumpPow		= 0.05f;		// ジャンプ力
-		const float movePow		= 0.05f;		// 動く量
-		const int	stayTime	= 60;		// 待機時間
-		int			stayCount	= 0;		// 待機カウント
-		bool		stayFlg		= false;	// 待機フラグ
-	};
-
-	Walk m_walkMotion;
-
 
 
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
@@ -136,4 +106,75 @@ private:
 	// 死亡モーション用
 	int m_deathCount = 0;
 	const int m_deathTime = 45;
+
+	// 地面にいるかどうか
+	bool m_isGround = false;
+
+	// ターゲットが視野角内にいるかどうかの判定
+	bool TargetViewingAngleCheck();
+
+	// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	([[maybe_unused]] NormalEnemy& _owner)	{}
+		virtual void Update	([[maybe_unused]] NormalEnemy& _owner)	{}
+		virtual void Exit	([[maybe_unused]] NormalEnemy& _owner)	{}
+	};
+
+	// 待機中
+	class Idle : public StateBase
+	{
+	public:
+		~Idle()	override {}
+
+		void Enter	(NormalEnemy& _owner)	override;
+		void Update	(NormalEnemy& _owner)	override;
+		void Exit	(NormalEnemy& _owner)	override;
+	};
+	
+	// ジャンプ移動
+	class JumpMove : public StateBase
+	{
+	public:
+		~JumpMove()	override {}
+
+		void Enter	(NormalEnemy& _owner)	override;
+		void Update	(NormalEnemy& _owner)	override;
+	};
+
+	// 見つけた時の動き
+	class Find : public StateBase
+	{
+	public:
+		~Find()	override {}
+
+		void Enter	(NormalEnemy& _owner)	override;
+		void Update	(NormalEnemy& _owner)	override;
+	};
+
+	// 追尾
+	class Homing : public StateBase
+	{
+	public:
+		~Homing()	override {}
+
+		void Update	(NormalEnemy& _owner)	override;
+	};
+
+	// 見失った時の動き
+	class LostTarget : public StateBase
+	{
+	public:
+		~LostTarget()	override {}
+
+		void Enter	(NormalEnemy& _owner)	override;
+		void Update	(NormalEnemy& _owner)	override;
+		void Exit	(NormalEnemy& _owner)	override;
+	};
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

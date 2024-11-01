@@ -116,7 +116,7 @@ void TPSCamera::PostUpdate()
 			}
 
 			// 滑らかに動くようにする
-			targetMat.Translation(Math::Vector3::Lerp(m_mWorld.Translation() - m_mLocalPos.Translation(), targetPos, 0.1));
+			targetMat.Translation(Math::Vector3::Lerp(m_mWorld.Translation() - m_mLocalPos.Translation(), targetPos, 0.1f));
 
 			// 行列確定
 			m_mWorld = m_mLocalPos * targetMat;
@@ -180,7 +180,7 @@ void TPSCamera::Init()
 
 	m_goalProcess.startPos	= { 0, 1, -2.25 };
 	m_goalProcess.endPos	= { 0, 3.5, -8 };
-	m_goalProcess.speed		= 0.007;
+	m_goalProcess.speed		= 0.007f;
 	m_goalProcess.startDegAng	= { 0, 0, 0 };
 	m_goalProcess.endDegAng		= { 20, 0, 0 };
 	m_goalProcess.stayFrame		= 60;

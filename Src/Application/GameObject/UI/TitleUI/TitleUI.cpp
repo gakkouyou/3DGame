@@ -53,13 +53,13 @@ void TitleUI::DrawSprite()
 
 	if (m_title.spTex)
 	{
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_title.spTex, m_title.pos.x, m_title.pos.y, nullptr, &color);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_title.spTex, (int)m_title.pos.x, (int)m_title.pos.y, nullptr, &color);
 	}
 
 	color = { 1, 1, 1, m_pushSpaceAlpha };
 	if (m_pushSpace.spTex)
 	{
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_pushSpace.spTex, m_pushSpace.pos.x, m_pushSpace.pos.y, nullptr, &color);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_pushSpace.spTex, (int)m_pushSpace.pos.x, (int)m_pushSpace.pos.y, nullptr, &color);
 	}
 }
 

@@ -30,7 +30,7 @@ void TitleScene::Init()
 	// とりあえずリセット
 	SceneManager::Instance().SetNowStage(0);
 	std::vector<UINT>& stageInfoList = SceneManager::Instance().WorkStageInfo();
-	for (int i = 0; i < stageInfoList.size(); i++)
+	for (int i = 0; i < (int)stageInfoList.size(); i++)
 	{
 		stageInfoList[i] = 0;
 	}
@@ -40,9 +40,9 @@ void TitleScene::Init()
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
 	// 環境光
-	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0, 0.0, 0.0, 1.0 });
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.0f, 0.0f, 0.0f, 1.0f });
 	// 平行光
-	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0.0f, -1.0f, 1.0f }, { 0.7f, 0.7f, 0.7f });
 
 	// シーンチェンジ
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

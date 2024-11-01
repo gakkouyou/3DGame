@@ -1076,10 +1076,6 @@ void Player::HitJudgeGround()
 		// 中心座標(キャラクターの真ん中)
 		boxInfo.m_Abox.Center = m_pos;
 		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
-		// キャラクターの横幅(半径)
-		float charaSideRadius = abs(rightBackUpPos.x);
-		// キャラクターの奥行幅(直径)
-		float charaZLength = abs(rightBackUpPos.z - leftFrontUpPos.z);
 		boxInfo.m_Abox.Extents = { radius, charaHighLength / 2, radius };
 		// 当たり判定をするタイプ
 		boxInfo.m_type |= KdCollider::TypeGround;
@@ -1430,7 +1426,7 @@ void Player::HitJudgeEnemy()
 					// もしジャンプ状態ならジャンプのアニメーションをする
 					if (m_situationType & SituationType::Jump)
 					{
-						//m_spAnimator->SetAnimation(m_spModel->GetAnimation("Jump"), false);
+						//m_spAnimator->SetAnimation(m_spModel->GetAnimation("JumpMove"), false);
 					}
 					// 違うならジャンプ状態にする
 					else

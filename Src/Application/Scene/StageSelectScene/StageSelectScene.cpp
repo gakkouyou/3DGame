@@ -206,7 +206,7 @@ void StageSelectScene::FirstClearProcess()
 void StageSelectScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 1, -1, 1 }, { 3, 3, 3 });
-	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.3, 0.3, 0.3, 1.0 });
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.3f, 0.3f, 0.3f, 1.0f });
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50,50 }, 50);
 
 	int nowStage = SceneManager::Instance().GetNowStage();

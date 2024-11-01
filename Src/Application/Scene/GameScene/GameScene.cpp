@@ -391,27 +391,29 @@ void GameScene::GameEnd(int _stayCnt)
 		// シーン遷移を終えたらリセット
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
-			// 敵、運べるオブジェクトを全て削除する
-			auto it = m_objList.begin();
-			while (it != m_objList.end())
 			{
-				if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
-					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
-					|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
+				// 敵、運べるオブジェクトを全て削除する
+				auto it = m_objList.begin();
+				while (it != m_objList.end())
 				{
-					(*it)->SetExpired(true);
-					it = m_objList.erase(it);
+					if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
+						|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
+						|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
+					{
+						(*it)->SetExpired(true);
+						it = m_objList.erase(it);
+					}
+					else
+					{
+						it++;
+					}
 				}
-				else
-				{
-					it++;
-				}
-			}
 
-			for (auto& obj : m_objList)
-			{
-				// リセット(敵、地形、運べるオブジェクトも作り直される)
-				obj->Reset();
+				for (auto& obj : m_objList)
+				{
+					// リセット(敵、地形、運べるオブジェクトも作り直される)
+					obj->Reset();
+				}
 			}
 
 			// 地形をリストの最後に並べ替える

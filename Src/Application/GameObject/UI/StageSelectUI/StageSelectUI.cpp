@@ -29,7 +29,7 @@ void StageSelectUI::DrawSprite()
 		// Clear!
 		if (m_clear.spTex)
 		{
-			if (SceneManager::Instance().GetStageInfo()[nowStage - 1] == SceneManager::Instance().Clear)
+			if ((int)SceneManager::Instance().GetStageInfo()[nowStage - 1] == SceneManager::Instance().StageInfo::Clear)
 			{
 				KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y);
 			}

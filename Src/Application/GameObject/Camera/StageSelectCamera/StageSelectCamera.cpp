@@ -116,7 +116,7 @@ void StageSelectCamera::PostUpdate()
 			}
 
 			// 滑らかに動くようにする
-			targetMat.Translation(Math::Vector3::Lerp(m_mWorld.Translation() - m_mLocalPos.Translation(), targetPos, 0.1));
+			targetMat.Translation(Math::Vector3::Lerp(m_mWorld.Translation() - m_mLocalPos.Translation(), targetPos, 0.1f));
 
 			// 行列確定
 			m_mWorld = m_mLocalPos * targetMat;

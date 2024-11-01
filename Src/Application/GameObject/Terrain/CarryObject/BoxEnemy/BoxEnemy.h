@@ -28,7 +28,7 @@ private:
 	void HitJudge();
 
 	// 角度
-	float m_degAng = 0;
+	float m_degAng = 180;
 
 	enum Dir
 	{
@@ -54,9 +54,9 @@ private:
 	Math::Vector3 m_oldPos;
 
 	// 箱から敵に戻るまでの時間
-	const int m_enemyTime = 600;
+	const int m_enemyTime = 840;
 	// ガタガタし始めるまでの時間
-	const int m_shakeTime = 540;
+	const int m_shakeTime = 780;
 	// カウント
 	int m_enemyCount = 0;
 	// ガタガタの角度制限

@@ -221,8 +221,6 @@ void ResultPlayer::ThirdAnimation()
 	// 煙を出すカウント
 	m_smokeCount++;
 
-	UINT oldAnimation = m_animation;
-
 	if (GetPos().x < m_startPos.x)
 	{
 		m_animation |= ThirdAnimationEnd;

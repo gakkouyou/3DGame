@@ -107,9 +107,6 @@ void SceneManager::CSVReset()
 			std::istringstream iss(lineString);
 			std::string commaString;
 
-			int cnt = 0;
-			// 空かどうかを確認するフラグ
-			bool emptyFlg = true;
 			while (std::getline(iss, commaString, ','))
 			{
 				ofs << commaString << ",";
@@ -136,9 +133,6 @@ void SceneManager::CSVReset()
 			std::istringstream iss(lineString);
 			std::string commaString;
 
-			int cnt = 0;
-			// 空かどうかを確認するフラグ
-			bool emptyFlg = true;
 			while (std::getline(iss, commaString, ','))
 			{
 				ofs << commaString << ",";

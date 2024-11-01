@@ -299,7 +299,7 @@ void BoxEnemy::PostUpdate()
 		// 一定時間たったら震え始める
 		else if (m_enemyCount > m_shakeTime)
 		{
-			Math::Vector3 shakeAng = { DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2) };
+			Math::Vector3 shakeAng = { DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f) };
 			Math::Matrix shakeMat = Math::Matrix::CreateFromYawPitchRoll(shakeAng);
 			m_mWorld = rotMat * shakeMat * transMat;
 			flg = true;
@@ -363,7 +363,7 @@ void BoxEnemy::Init()
 	if (!m_spModel)
 	{
 		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/CarryObject/Box/Box.gltf");
+		m_spModel->Load("Asset/Models/Terrain/CarryObject/BoxEnemyBox/BoxEnemyBox.gltf");
 	}
 
 	// 角っこの座標
@@ -401,7 +401,7 @@ void BoxEnemy::Init()
 	if (!m_spEnemyModel)
 	{
 		m_spEnemyModel = std::make_shared<KdModelData>();
-		m_spEnemyModel->Load("Asset/Models/Character/Enemy/BoxEnemy/boxEnemy.gltf");
+		m_spEnemyModel->Load("Asset/Models/Terrain/CarryObject/BoxEnemy/boxEnemy.gltf");
 	}
 
 	m_pCollider->RegisterCollisionShape("BoxEnemyEnemy", m_spEnemyModel, KdCollider::TypeDamage);

@@ -264,7 +264,7 @@ void DebugWindow::TerrainWindow()
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch || spObjectController->GetObjectType() == KdGameObject::ObjectType::SlopeGround || spObjectController->GetObjectType() == KdGameObject::ObjectType::TransparentWall)
 			{
 				ImGui::InputText("TargetName", &m_terrainParam.targetName);
-				ImGui::SameLine;
+				ImGui::SameLine();
 				// スイッチの時だけ
 				if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch)
 				{

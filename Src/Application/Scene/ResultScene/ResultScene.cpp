@@ -125,8 +125,8 @@ void ResultScene::Init()
 {
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({ 50, 50 }, 50);
 
-	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.6, 0.6, 0.6, 1.0f });
-	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 1 }, { 0.7, 0.7, 0.7 });
+	KdShaderManager::Instance().WorkAmbientController().SetAmbientLight({ 0.6f, 0.6f, 0.6f, 1.0f });
+	KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0.0f, -1.0f, 1.0f }, { 0.7f, 0.7f, 0.7f });
 
 	// シーンチェンジ
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

@@ -59,6 +59,9 @@ public:
 	// CSVに書き込む
 	void CSVWriter(bool _baseFlg = false);
 
+	// 動かすオブジェクトのセット
+	void SetObject(std::weak_ptr<EventObjectBase> _wpTargetObject);
+
 private:
 	// CSVファイルの名前
 	std::string m_fileName;

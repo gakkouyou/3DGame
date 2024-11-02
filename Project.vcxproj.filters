@@ -181,9 +181,6 @@
     <Filter Include="Src\Application\GameObject\UI\StageSelectUI">
       <UniqueIdentifier>{321515d7-7839-48d9-bdad-69de964528d5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\UI\GameUI">
-      <UniqueIdentifier>{961ffe16-025a-4170-a41d-5aa1c72fdb52}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Terrain\Object\FenceBar">
       <UniqueIdentifier>{9d08345c-f92d-4851-a7e5-6d11d4ef7318}</UniqueIdentifier>
     </Filter>
@@ -282,6 +279,9 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\Effect\Smoke">
       <UniqueIdentifier>{27067f60-3fce-4e47-920b-5e5809c41e91}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Tool\MouseClickHit">
+      <UniqueIdentifier>{a8e9a585-ce5a-43c5-945e-cef85b875457}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -534,9 +534,6 @@
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h">
       <Filter>Src\Application\GameObject\UI\StageSelectUI</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h">
-      <Filter>Src\Application\GameObject\UI\GameUI</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.h">
       <Filter>Src\Application\GameObject\Terrain\Object\FenceBar</Filter>
     </ClInclude>
@@ -635,6 +632,9 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Effect\Smoke\Smoke.h">
       <Filter>Src\Application\GameObject\Effect\Smoke</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Tool\MouseClickHit\MouseClickHit.h">
+      <Filter>Src\Application\Tool\MouseClickHit</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -860,9 +860,6 @@
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp">
       <Filter>Src\Application\GameObject\UI\StageSelectUI</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp">
-      <Filter>Src\Application\GameObject\UI\GameUI</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\FenceBar\FenceBar.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\FenceBar</Filter>
     </ClCompile>
@@ -958,6 +955,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Effect\Smoke\Smoke.cpp">
       <Filter>Src\Application\GameObject\Effect\Smoke</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\MouseClickHit\MouseClickHit.cpp">
+      <Filter>Src\Application\Tool\MouseClickHit</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -7,7 +7,6 @@
 
 #include "../../../GameObject/EventObject/EventObjectBase.h"
 #include "../../../GameObject/EventObject/Goal/Goal.h"
-#include "../../../GameObject/EventObject/HealItem/HealItem.h"
 #include "../../../GameObject/EventObject/Candy/Candy.h"
 #include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
 #include "../../../GameObject/EventObject/WarpPoint/WarpPoint.h"
@@ -246,16 +245,6 @@ void EventObjectController::CreateObject(ObjectType _object)
 		break;
 	}
 
-	// 回復アイテム
-	case ObjectType::HealItem:
-	{
-		std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
-		object->Init();
-		SceneManager::Instance().AddObject(object);
-		m_wpTargetObject = object;
-		break;
-	}
-
 	// キャンディー
 	case ObjectType::Candy:
 	{
@@ -314,74 +303,7 @@ void EventObjectController::CreateObject(ObjectType _object)
 
 void EventObjectController::MouseSelect()
 {
-	if (SceneManager::Instance().GetDebug() == false) return;
 
-	// マウスでオブジェクトを選択する
-	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
-
-	// カメラが無かったら終了
-	if (!spCamera) return;
-
-	// クリックしたら選んだオブジェクトをセットする
-	if (GetAsyncKeyState('E') & 0x8000)
-	{
-		// マウス位置の取得
-		POINT mousePos;
-		GetCursorPos(&mousePos);
-		ScreenToClient(Application::Instance().GetWindowHandle(), &mousePos);
-
-		Math::Vector3	cameraPos = spCamera->GetPos();
-		Math::Vector3	rayDir = Math::Vector3::Zero;
-		float			rayRange = 100.0f;
-
-		// レイの方向取得
-		spCamera->GetCamera()->GenerateRayInfoFromClientPos(mousePos, cameraPos, rayDir, rayRange);
-
-		Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
-
-		KdCollider::RayInfo rayInfo(KdCollider::TypeEvent, cameraPos, endRayPos);
-
-		// 当たり判定の結果
-		std::list<KdCollider::CollisionResult> resultList;
-
-		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<EventObjectBase>> hitObjList;
-
-		int listSize = m_wpObjectList.size();
-
-		// 当たり判定
-		for (int i = 0; i < listSize; i++)
-		{
-			std::weak_ptr<EventObjectBase> obj = m_wpObjectList[i];
-			if (!obj.expired())
-			{
-				if (obj.lock()->Intersects(rayInfo, &resultList))
-				{
-					hitObjList.push_back(obj);
-					// １回でも当たったらリセット
-					ConfirmedObject();
-				}
-			}
-		}
-
-		// 一番近いオブジェクトを探す
-		float maxOverLap = 0;
-		int cnt = 0;
-
-		for (auto& ret : resultList)
-		{
-			if (ret.m_overlapDistance > maxOverLap)
-			{
-				maxOverLap = ret.m_overlapDistance;
-				m_wpTargetObject = hitObjList[cnt];
-
-				EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.modelNum };
-				DebugWindow::Instance().SetEventObjectParam(setParam);
-			}
-			cnt++;
-		}
-	}
 }
 
 void EventObjectController::BeginCreateObject()
@@ -415,26 +337,6 @@ void EventObjectController::BeginCreateObject()
 			{
 				m_wpCamera.lock()->SetTarget(object);
 			}
-			// リストに追加
-			m_wpObjectList.push_back(object);
-		}
-		// 回復アイテム
-		else if (data.type == "HealItem")
-		{
-			std::shared_ptr<HealItem> object = std::make_shared<HealItem>();
-			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos };
-			object->SetParam(setParam);
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			// カウントを進める
-			m_objectCount.HealItem++;
-			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.HealItem);
-			// 名前をセットする
-			object->SetObjectName(name);
-			// 配列の名前を変更する
-			data.name = name;
 			// リストに追加
 			m_wpObjectList.push_back(object);
 		}
@@ -663,4 +565,16 @@ void EventObjectController::CSVWriter(bool _baseFlg)
 		// ステージ数
 		ofs << data.modelNum << std::endl;
 	}
+}
+
+void EventObjectController::SetObject(std::weak_ptr<EventObjectBase> _wpTargetObject)
+{
+	// 確定
+	ConfirmedObject();
+
+	m_wpTargetObject = _wpTargetObject;
+
+	EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
+	DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.modelNum };
+	DebugWindow::Instance().SetEventObjectParam(setParam);
 }

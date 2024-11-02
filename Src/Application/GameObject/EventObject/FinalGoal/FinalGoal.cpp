@@ -81,7 +81,7 @@ void FinalGoal::SetParam(const Param& _param)
 		case 3:
 		case 4:
 			m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
-			m_pCollider->RegisterCollisionShape("FinalGoal", m_spModel, KdCollider::TypeEvent);
+			m_pCollider->RegisterCollisionShape("FinalGoal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 		}
 	}

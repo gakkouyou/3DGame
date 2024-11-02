@@ -27,7 +27,7 @@ void LeftDoor::Init()
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("LeftDoor", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("LeftDoor", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
 

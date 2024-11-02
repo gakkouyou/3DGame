@@ -9,7 +9,7 @@ void DoorWall::Init()
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("DoorWall", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("DoorWall", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
 

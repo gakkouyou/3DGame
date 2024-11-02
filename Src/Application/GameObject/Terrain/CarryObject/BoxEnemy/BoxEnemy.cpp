@@ -4,6 +4,8 @@
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 
+#include <../Library/tinygltf/json.hpp>
+
 void BoxEnemy::Update()
 {
 	m_oldPos = m_pos;
@@ -358,6 +360,9 @@ void BoxEnemy::DrawLit()
 
 void BoxEnemy::Init()
 {
+	DataLoad();
+	DataSave();
+
 	srand(timeGetTime());
 
 	if (!m_spModel)
@@ -386,7 +391,7 @@ void BoxEnemy::Init()
 
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("BoxEnemyBox", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("BoxEnemyBox", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 	m_pCollider->SetEnable("BoxEnemyBox", false);
 
 	// オブジェクトのタイプ
@@ -747,10 +752,6 @@ void BoxEnemy::HitJudge()
 	}
 }
 
-void BoxEnemy::BoxUpdate()
-{
-}
-
 void BoxEnemy::EnemyUpdate()
 {
 	if (SceneManager::Instance().GetDebug() == true) return;
@@ -829,4 +830,50 @@ void BoxEnemy::EnemyUpdate()
 			m_stayCount = 0;
 		}
 	}
+}
+
+void BoxEnemy::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	for (const auto& objData : data["GameObject"])
+	{
+		m_moveSpeed			= objData["m_moveSpeed"];			// 移動量
+		m_jumpPow			= objData["m_jumpPow"];				// ジャンプ力
+		m_enemyTime			= objData["m_enemyTime"];			// 敵に戻るまでの時間
+		m_shakeTime			= objData["m_shakeTime"];			// 震えるまでの時間
+		m_enemyChangeLength = objData["m_enemyChangeLength"];	// 箱から敵になる、プレイヤーからの距離
+	}
+}
+
+void BoxEnemy::DataSave()
+{
+	nlohmann::json objData;
+
+	// リストごと
+	nlohmann::json objStat;
+	objStat["m_moveSpeed"]			= m_moveSpeed;			// 移動量
+	objStat["m_jumpPow"]			= m_jumpPow;			// ジャンプ力
+	objStat["m_enemyTime"]			= m_enemyTime;			// 敵に戻るまでの時間
+	objStat["m_shakeTime"]			= m_shakeTime;			// 震えるまでの時間
+	objStat["m_enemyChangeLength"]	= m_enemyChangeLength;	// 箱から敵になる、プレイヤーからの距離
+
+	objStat["name"] = m_name.data();
+
+	// ゲームオブジェクトに追加
+	objData["GameObject"][m_name.data()] = objStat;
+
+	// ファイルに書き込む
+	std::ofstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	// JSONデータをファイルに書き込む
+	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
+	file.close();
 }

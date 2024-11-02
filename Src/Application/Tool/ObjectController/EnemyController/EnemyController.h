@@ -49,6 +49,9 @@ public:
 	// 敵を全員殺す
 	void AllDeath();
 
+	// 動かすオブジェクトのセット
+	void SetObject(std::weak_ptr<EnemyBase> _wpTargetObject);
+
 private:
 	// CSVファイルの名前
 	std::string m_fileName;

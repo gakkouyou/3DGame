@@ -50,9 +50,6 @@ private:
 	// ポーズ画面
 	std::weak_ptr<Pause> m_wpPause;
 
-	// UI
-	std::weak_ptr<GameUI> m_wpGameUI;
-
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
 

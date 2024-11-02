@@ -68,6 +68,30 @@ void DebugWindow::Draw()
 					m_wpEventObjectController.lock()->CSVWriter(true);
 				}
 			}
+			ImGui::SameLine();
+			// 一括確定ボタン
+			if (ImGui::Button("AllConfirmed"))
+			{
+				if (m_wpTerrainController.expired() == false)
+				{
+					m_wpTerrainController.lock()->ConfirmedObject();
+				}
+
+				if (m_wpEnemyController.expired() == false)
+				{
+					m_wpEnemyController.lock()->ConfirmedObject();
+				}
+
+				if (m_wpCarryObjectController.expired() == false)
+				{
+					m_wpCarryObjectController.lock()->ConfirmedObject();
+				}
+
+				if (m_wpEventObjectController.expired() == false)
+				{
+					m_wpEventObjectController.lock()->ConfirmedObject();
+				}
+			}
 
 			if(ImGui::CollapsingHeader("Terrain"))
 			{

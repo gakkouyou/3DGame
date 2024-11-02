@@ -27,7 +27,7 @@ void TransparentWall::Init()
 	TerrainBase::Init();
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("TransParentWall", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("TransParentWall", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 }
 
 void TransparentWall::SetParam(const Param& _param)

@@ -15,6 +15,8 @@
 
 #include "../../../main.h"
 
+#include <../Library/tinygltf/json.hpp>
+
 void Player::Update()
 {
 	// デバッグモード中は更新しない
@@ -250,7 +252,7 @@ void Player::Update()
 	// 歩き
 	if (m_situationType & SituationType::Walk)
 	{
-		m_pos += m_moveVec * m_moveSpeed;
+		m_pos += m_moveVec * m_walkSpeed;
 	}
 	// 走り
 	else if (m_situationType & SituationType::Run)
@@ -342,12 +344,6 @@ void Player::Update()
 		{
 			m_lastGroundSituationType = m_situationType;
 		}
-	}
-
-	// ダメージを受けた時の処理
-	if (m_damage.nowDamageFlg == true)
-	{
-		DamageProcess();
 	}
 
 	// 着地した瞬間
@@ -471,8 +467,6 @@ void Player::Update()
 	{
 		GoalProcess();
 	}
-
-	//Application::Instance().m_log.AddLog("%.2f, %.2f, %.2f\n", m_pos.x, m_pos.y, m_pos.z);
 }
 
 void Player::PostUpdate()
@@ -707,10 +701,7 @@ void Player::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
-		if (m_damage.drawFlg || m_aliveFlg == false)
-		{
-			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-		}
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 	}
 }
 
@@ -718,15 +709,15 @@ void Player::DrawLit()
 {
 	if (m_spModel)
 	{
-		if (m_damage.drawFlg || m_aliveFlg == false)
-		{
-			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-		}
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+
 	}
 }
 
 void Player::Init()
 {
+	DataLoad();
+
 	if (!m_spModel)
 	{
 		// モデル
@@ -743,35 +734,13 @@ void Player::Init()
 
 	m_baseObjectType = BaseObjectType::Player;
 
-	// 移動速度
-	m_moveSpeed = 0.06f;
-
 	m_pos = { 0, 0.25f, -5.0f };
 	m_respawnPos = m_pos;
-
-	// ジャンプ力
-	m_jumpPow = 0.125f;
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
 	// 移動が出来なくなるフラグ
 	m_stopFlg = true;
-	
-	// ライフ
-	m_life = m_maxLife;
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// 音
 	// 草の上を歩いた音
@@ -837,14 +806,6 @@ void Player::Reset()
 	m_rotMat = Math::Matrix::CreateRotationY(m_angle);
 
 	m_stopFlg = true;
-
-	// ライフ
-	m_life = m_maxLife;
-
-	// ダメージ受けた時の変数をリセット
-	m_damage.nowDamageFlg = false;
-	m_damage.damageCount = 0;
-	m_damage.drawFlg = true;
 
 	// アニメーションをIdleに
 	SetAnimation("Idle", true);
@@ -983,7 +944,7 @@ void Player::HitJudgeGround()
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
-					m_gravity = -0.25f;
+					m_gravity = -m_boundJunpPow;
 
 					// ジャンプ状態にする
 					m_situationType |= SituationType::Jump;
@@ -1061,7 +1022,6 @@ void Player::HitJudgeGround()
 
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
-
 	{
 		const float radius = 0.35f;
 
@@ -1233,17 +1193,6 @@ void Player::HitJudgeEvent()
 					}
 					break;
 				}
-
-					// 回復アイテム
-				case ObjectType::HealItem:
-					m_life += 1;
-					// 回復エフェクト
-					if (!m_effectFlg)
-					{
-						//m_effectFlg = true;
-						m_wpEffekseer = KdEffekseerManager::GetInstance().Play("Heal/heal.efkefc", m_pos, { 0.0f, 0.0f, 0 }, 0.3f, 1.0f, false);
-					}
-					break;
 
 					// セーブポイント
 				case ObjectType::SavePoint:
@@ -1444,21 +1393,10 @@ void Player::HitJudgeEnemy()
 						}
 					}
 				}
-				// 下半分ならダメージを受ける
+				// 下半分なら死亡
 				else
 				{
-					if (m_damage.nowDamageFlg == false)
-					{
-						// ダメージ処理をする
-						m_damage.nowDamageFlg = true;
-						// ライフを減らす
-						m_life -= 1;
-						// ライフが０以下になったら死亡
-						if (m_life <= 0)
-						{
-							m_aliveFlg = false;
-						}
-					}
+					m_aliveFlg = false;
 				}
 			}
 		}
@@ -1617,24 +1555,45 @@ void Player::HitJudgeCarryObject()
 	}
 }
 
-void Player::DamageProcess()
+void Player::DataLoad()
 {
-	// 生きている時だけ
-	if (m_aliveFlg == true)
-	{
-		m_damage.damageCount++;
-		if (m_damage.damageCount % m_damage.blinkingTime == 0)
-		{
-			m_damage.drawFlg = !m_damage.drawFlg;
-		}
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
 
-		if (m_damage.damageCount > m_damage.damageTime)
-		{
-			m_damage.nowDamageFlg = false;
-			m_damage.damageCount = 0;
-			m_damage.drawFlg = true;
-		}
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	for (const auto& objData : data["GameObject"])
+	{
+		// 走る速度
+		m_runSpeed = objData["m_runSpeed"];
+		// 歩く速度
+		m_walkSpeed = objData["m_walkSpeed"];
 	}
+}
+
+void Player::DataSave()
+{
+	nlohmann::json objData;
+
+	// リストごと
+	nlohmann::json objStat;
+	objStat["m_runSpeed"] = m_runSpeed;
+	objStat["m_walkSpeed"] = m_walkSpeed;
+	objStat["name"] = m_name.data();
+
+	// ゲームオブジェクトに追加
+	objData["GameObject"][m_name.data()] = objStat;
+
+	// ファイルに書き込む
+	std::ofstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	// JSONデータをファイルに書き込む
+	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
+	file.close();
 }
 
 void Player::GoalProcess()
@@ -1646,7 +1605,6 @@ void Player::GoalProcess()
 		m_pos.z = m_goalPos.z;
 		m_angle = 180;
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-		//m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation("Goal"), true);
 
 		if (m_goalBGMFlg == false)
 		{

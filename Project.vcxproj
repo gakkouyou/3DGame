@@ -207,7 +207,6 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.h" />
     <ClInclude Include="Src\Application\GameObject\Title\House\House.h" />
     <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h" />
-    <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="Src\Application\main.h" />
@@ -218,6 +217,7 @@
     <ClInclude Include="Src\Application\Scene\StageSelectScene\StageSelectScene.h" />
     <ClInclude Include="Src\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h" />
+    <ClInclude Include="Src\Application\Tool\MouseClickHit\MouseClickHit.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.h" />
@@ -319,7 +319,6 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Title\House\House.cpp" />
     <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp" />
-    <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="Src\Application\main.cpp" />
@@ -330,6 +329,7 @@
     <ClCompile Include="Src\Application\Scene\StageSelectScene\StageSelectScene.cpp" />
     <ClCompile Include="Src\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp" />
+    <ClCompile Include="Src\Application\Tool\MouseClickHit\MouseClickHit.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.cpp" />

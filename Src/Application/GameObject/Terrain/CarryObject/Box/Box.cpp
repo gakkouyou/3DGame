@@ -256,7 +256,7 @@ void Box::Init()
 
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("Box", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("Box", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::Box;

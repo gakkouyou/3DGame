@@ -5,7 +5,7 @@ class NormalEnemy : public EnemyBase
 {
 public:
 	NormalEnemy() {}
-	~NormalEnemy()	override {}
+	~NormalEnemy()	override { DataSave(); }
 
 	void Update()		override;
 	void PostUpdate()	override;
@@ -30,18 +30,19 @@ private:
 	// 追尾していない時に動くための変数
 	struct Move
 	{
-		Math::Vector3 goalPos = Math::Vector3::Zero;	// ゴール座標
-		float degAng = 0;								// 角度
-		bool rotFlg = false;							// 回転中かのフラグ
-		const float minRotAng = 3.0f;					// 回転を制限する
+		Math::Vector3	goalPos;			// ゴール座標
+		float			degAng = 0;			// 角度
+		bool			rotFlg = false;		// 回転中かのフラグ
+		const float		minRotAng = 3.0f;	// 回転を制限する
 
-		const float jumpPow = 0.05f;					// ジャンプ力
-		const float movePow = 0.05f;					// 動く量
-		const int	stayTime = 60;						// 待機時間
-		int			stayCount = 0;						// 待機カウント
-		bool		stayFlg = false;					// 待機フラグ
+		const int		stayTime = 60;		// 待機時間
+		int				stayCount = 0;		// 待機カウント
+		bool			stayFlg = false;	// 待機フラグ
 	};
 	Move m_move;
+
+	// ジャンプ力
+	float m_jumpPow = 0;
 
 	// 回転角度
 	float m_degAng = 0;
@@ -56,8 +57,6 @@ private:
 	{
 		const float viewingAngle	= 60.0f;// 視野角
 		const float minRotDegAng	= 5.0f;	// 回転する際の制限
-		const float speed			= 0.05f;// 移動量
-		const float jumpPow			= 0.05f;// ジャンプ力
 	};
 
 	HomingStruct m_homing;
@@ -82,8 +81,8 @@ private:
 	};
 	LostTargetAnimation m_lostTarget;
 
-	// ジャンプ力
-	const float m_findJumpPow	= 0.1f;
+	// 見つけた時のジャンプ力
+	float m_findJumpPow	= 0;
 
 
 
@@ -112,6 +111,15 @@ private:
 
 	// ターゲットが視野角内にいるかどうかの判定
 	bool TargetViewingAngleCheck();
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/NormalEnemy.json";
+
+	std::string m_name = "NormalEnemy";
+	// JSONのデータをロードする
+	void DataLoad();
+	// JSONのデータをセーブする
+	void DataSave();
 
 	// ステートパターン
 private:

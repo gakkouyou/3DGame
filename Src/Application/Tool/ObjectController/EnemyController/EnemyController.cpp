@@ -208,76 +208,21 @@ void EnemyController::AllDeath()
 	}
 }
 
+void EnemyController::SetObject(std::weak_ptr<EnemyBase> _wpTargetObject)
+{
+	// 確定
+	ConfirmedObject();
+
+	m_wpTargetObject = _wpTargetObject;
+
+	EnemyBase::Param param = m_wpTargetObject.lock()->GetParam();
+	DebugWindow::EnemyParam setParam{ param.startPos, param.moveArea, param.searchArea, param.rotDegAng };
+	DebugWindow::Instance().SetEnemyParam(setParam);
+}
+
 void EnemyController::MouseSelect()
 {
-	if (SceneManager::Instance().GetDebug() == false) return;
 
-	// マウスでオブジェクトを選択する
-	std::shared_ptr<const TPSCamera> spCamera = m_wpCamera.lock();
-
-	// カメラが無かったら終了
-	if (!spCamera) return;
-
-	// クリックしたら選んだオブジェクトをセットする
-	if (GetAsyncKeyState(VK_MBUTTON) & 0x8000)
-	{
-		// マウス位置の取得
-		POINT mousePos;
-		GetCursorPos(&mousePos);
-		ScreenToClient(Application::Instance().GetWindowHandle(), &mousePos);
-
-		Math::Vector3	cameraPos = spCamera->GetPos();
-		Math::Vector3	rayDir = Math::Vector3::Zero;
-		float			rayRange = 100.0f;
-
-		// レイの方向取得
-		spCamera->GetCamera()->GenerateRayInfoFromClientPos(mousePos, cameraPos, rayDir, rayRange);
-
-		Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
-
-		KdCollider::RayInfo rayInfo(KdCollider::TypeDamage, cameraPos, endRayPos);
-
-		// 当たり判定の結果
-		std::list<KdCollider::CollisionResult> resultList;
-
-		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<EnemyBase>> hitObjList;
-
-		int listSize = m_wpEnemyList.size();
-
-		// 当たり判定
-		for (int i = 0; i < listSize; i++)
-		{
-			std::weak_ptr<EnemyBase> obj = m_wpEnemyList[i];
-			if (!obj.expired())
-			{
-				if (obj.lock()->Intersects(rayInfo, &resultList))
-				{
-					hitObjList.push_back(obj);
-					// １回でも当たったらリセット
-					ConfirmedObject();
-				}
-			}
-		}
-
-		// 一番近いオブジェクトを探す
-		float maxOverLap = 0;
-		int cnt = 0;
-
-		for (auto& ret : resultList)
-		{
-			if (ret.m_overlapDistance > maxOverLap)
-			{
-				maxOverLap = ret.m_overlapDistance;
-				m_wpTargetObject = hitObjList[cnt];
-
-				EnemyBase::Param param = m_wpTargetObject.lock()->GetParam();
-				DebugWindow::EnemyParam setParam{ param.startPos, param.moveArea, param.searchArea, param.rotDegAng };
-				DebugWindow::Instance().SetEnemyParam(setParam);
-			}
-			cnt++;
-		}
-	}
 }
 
 void EnemyController::BeginCreateObject()

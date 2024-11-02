@@ -279,6 +279,7 @@ void TerrainController::ConfirmedObject()
 	}
 
 	m_wpTargetObject.reset();
+	m_targetFlg = false;
 }
 
 void TerrainController::DeleteObject()
@@ -964,101 +965,38 @@ void TerrainController::CSVWriter(bool _baseFlg)
 	}
 }
 
-void TerrainController::MouseSelect()
+void TerrainController::SetObject(std::weak_ptr<TerrainBase> _wpTargetObject)
 {
-	if (SceneManager::Instance().GetDebug() == false) return;
-	// マウスでオブジェクトを選択する
-	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
-
-	// カメラが無かったら終了
-	if (!spCamera) return;
-
-	// クリックしたら選んだオブジェクトをセットする
-	if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
+	//　ターゲットセレクトモードの場合
+	if (m_targetFlg == true)
 	{
-		if (m_rightClickFlg == true) return;
-		m_rightClickFlg = true;
-		// マウス位置の取得
-		POINT mousePos;
-		GetCursorPos(&mousePos);
-		ScreenToClient(Application::Instance().GetWindowHandle(), &mousePos);
-
-		Math::Vector3	cameraPos = spCamera->GetPos();
-		Math::Vector3	rayDir = Math::Vector3::Zero;
-		float			rayRange = 100.0f;
-
-		// レイの方向取得
-		spCamera->GetCamera()->GenerateRayInfoFromClientPos(mousePos, cameraPos, rayDir, rayRange);
-
-		Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
-
-		KdCollider::RayInfo rayInfo(KdCollider::TypeGround, cameraPos, endRayPos);
-
-		// 当たり判定の結果
-		std::list<KdCollider::CollisionResult> resultList;
-
-		// 当たったオブジェクトのリスト
-		std::vector<std::weak_ptr<TerrainBase>> hitObjList;
-
-		int listSize = m_wpTerrainList.size();
-
-		// 当たり判定
-		for (int i = 0; i < listSize; i++)
+		if (m_wpTargetObject.expired() == false)
 		{
-			std::weak_ptr<TerrainBase> obj = m_wpTerrainList[i];
-			if (obj.expired() == false)
-			{
-				if (obj.lock()->Intersects(rayInfo, &resultList))
-				{
-					hitObjList.push_back(obj);
-					// ターゲットモードじゃなかったら
-					if (!m_targetFlg)
-					{
-						// １回でも当たったらリセット
-						ConfirmedObject();
-					}
-				}
-			}
-		}
+			// ターゲットセット
+			m_wpTargetObject.lock()->SetTarget(_wpTargetObject);
 
-		// 一番近いオブジェクトを探す
-		float maxOverLap = 0;
-		int cnt = 0;
-
-		for (auto& ret : resultList)
-		{
-			if (ret.m_overlapDistance > maxOverLap)
-			{
-				maxOverLap = ret.m_overlapDistance;
-
-				// ターゲットセレクトモードじゃなかったら
-				if (!m_targetFlg)
-				{
-					m_wpTargetObject = hitObjList[cnt];
-
-					TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-					DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
-					DebugWindow::Instance().SetTerrainParam(setParam);
-				}
-				// ターゲットセレクトモードの場合
-				else
-				{
-					if (m_wpTargetObject.expired() == false)
-					{
-						m_wpTargetObject.lock()->SetTarget(hitObjList[cnt]);
-						TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
-						DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
-						DebugWindow::Instance().SetTerrainParam(setParam);
-						// ターゲットセレクトモードを終了する
-						m_targetFlg = false;
-					}
-				}
-			}
-			cnt++;
+			TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+			DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+			DebugWindow::Instance().SetTerrainParam(setParam);
+			// ターゲットセレクトモードを終了する
+			m_targetFlg = false;
 		}
 	}
+	// ターゲットセレクトモードじゃない場合
 	else
 	{
-		m_rightClickFlg = false;
+		// 確定
+		ConfirmedObject();
+
+		m_wpTargetObject = _wpTargetObject;
+
+		TerrainBase::Param param = m_wpTargetObject.lock()->GetParam();
+		DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
+		DebugWindow::Instance().SetTerrainParam(setParam);
 	}
+}
+
+void TerrainController::MouseSelect()
+{
+
 }

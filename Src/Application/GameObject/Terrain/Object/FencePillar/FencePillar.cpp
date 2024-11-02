@@ -14,7 +14,7 @@ void FencePillar::Init()
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("FencePillar", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("FencePillar", m_spModel, KdCollider::TypeDebug);
 
 	// オブジェクトのタイプ
 	m_objectType = KdGameObject::ObjectType::FencePillar;

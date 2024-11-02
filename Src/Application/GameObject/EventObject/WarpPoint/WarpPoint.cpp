@@ -33,7 +33,7 @@ void WarpPoint::Init()
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("WarpPoint", m_spInModel, KdCollider::TypeEvent);
+	m_pCollider->RegisterCollisionShape("WarpPoint", m_spInModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 
 	m_objectType = ObjectType::WarpPoint;
 }

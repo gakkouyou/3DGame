@@ -90,7 +90,7 @@ void StageSelectObject::Init()
 
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("StageSelectObject", m_spSphereModel, KdCollider::TypeGround | KdCollider::TypeEvent);
+	m_pCollider->RegisterCollisionShape("StageSelectObject", m_spSphereModel, KdCollider::TypeGround | KdCollider::TypeEvent | KdCollider::TypeDebug);
 
 	// 拡縮
 	m_scale = m_minScale;

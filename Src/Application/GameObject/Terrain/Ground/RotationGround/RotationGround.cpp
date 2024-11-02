@@ -70,7 +70,7 @@ void RotationGround::Init()
 
 	// 当たり判定付与
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("RotationGround", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("RotationGround", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	// タイプ
 	m_objectType = ObjectType::RotationGround;

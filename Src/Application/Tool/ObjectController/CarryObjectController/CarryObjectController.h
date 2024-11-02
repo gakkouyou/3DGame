@@ -46,6 +46,9 @@ public:
 	// TerrainControllerをセットする
 	void SetTerrainController(const std::shared_ptr<TerrainController>& _spTerrainController) { m_wpTerrainController = _spTerrainController; }
 
+	// 動かすオブジェクトのセット
+	void SetObject(std::weak_ptr<CarryObjectBase> _wpTargetObject);
+
 private:
 	// CSVファイルの名前
 	std::string m_fileName;

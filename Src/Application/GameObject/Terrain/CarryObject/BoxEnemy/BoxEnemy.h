@@ -54,16 +54,13 @@ private:
 	Math::Vector3 m_oldPos;
 
 	// 箱から敵に戻るまでの時間
-	const int m_enemyTime = 840;
+	int m_enemyTime = 0;
 	// ガタガタし始めるまでの時間
-	const int m_shakeTime = 780;
+	int m_shakeTime = 0;
 	// カウント
 	int m_enemyCount = 0;
 	// ガタガタの角度制限
 	const int m_maxDegAng = 10;
-
-	// 箱の時の更新関数
-	void BoxUpdate();
 
 	// 生存フラグ
 	bool m_aliveFlg = false;
@@ -76,8 +73,8 @@ private:
 	bool m_enemyFlg = false;
 
 	// 移動系
-	const float m_jumpPow	= 0.1f;	// ジャンプ力
-	const float m_moveSpeed = 0.05f;// 移動速度
+	float		m_jumpPow	= 0;	// ジャンプ力
+	float		m_moveSpeed	= 0;	// 移動速度
 	const int	m_stayTime	= 30;	// ジャンプの待機時間
 	int			m_stayCount = 0;	// ジャンプの待機のカウント
 	bool		m_airFlg	= false;// 空中にいるかどうか
@@ -105,5 +102,14 @@ private:
 	bool m_setParamFlg = false;
 
 	// 箱→敵になる、プレイヤーとの距離
-	const float m_enemyChangeLength = 10.0f;
+	float m_enemyChangeLength = 0;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/BoxEnemy.json";
+
+	std::string m_name = "BoxEnemy";
+	// JSONのデータをロードする
+	void DataLoad();
+	// JSONのデータをセーブする
+	void DataSave();
 };

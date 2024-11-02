@@ -59,6 +59,13 @@ public:
 
 	// スイッチのターゲット選択モードの切替
 	void TargetSelect() { m_targetFlg = !m_targetFlg; };
+	const bool GetTargetSelect() const { return m_targetFlg; }
+
+	// 動かすオブジェクトのセット
+	void SetObject(std::weak_ptr<TerrainBase> _wpTargetObject);
+
+	// 今のターゲットのオブジェクト
+	const std::weak_ptr<TerrainBase> GetTargetObject() const { return m_wpTargetObject; }
 
 private:
 	// CSVファイルの名前
@@ -111,4 +118,7 @@ private:
 
 	// ターゲットセレクトモードに移行する為のフラグ
 	bool m_targetFlg = false;
+
+	// マウスクリックでオブジェクトを選択できたかどうか
+	bool m_clickHitFlg = false;
 };

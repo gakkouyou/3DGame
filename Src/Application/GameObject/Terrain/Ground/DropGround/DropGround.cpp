@@ -68,7 +68,7 @@ void DropGround::Init()
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("DropGroundCollision", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("DropGroundCollision", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::DropGround;

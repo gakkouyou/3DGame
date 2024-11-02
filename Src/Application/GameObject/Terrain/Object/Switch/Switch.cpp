@@ -31,7 +31,7 @@ void Switch::Init()
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("SwitchButton", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("SwitchButton", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	// オブジェクトタイプ
 	m_objectType = ObjectType::Switch;

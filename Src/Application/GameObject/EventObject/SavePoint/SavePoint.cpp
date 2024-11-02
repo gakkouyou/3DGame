@@ -142,7 +142,7 @@ void SavePoint::Init()
 	{
 		m_pCollider = std::make_unique<KdCollider>();
 		//m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
-		m_pCollider->RegisterCollisionShape("SavePoint", m_spBaseModel, KdCollider::TypeEvent);
+		m_pCollider->RegisterCollisionShape("SavePoint", m_spBaseModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 	}
 }
 

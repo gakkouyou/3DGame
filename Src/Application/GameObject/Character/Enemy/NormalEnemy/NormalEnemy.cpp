@@ -5,6 +5,8 @@
 #include "../../Player/Player.h"
 #include "../../../Effect/Smoke/Smoke.h"
 
+#include <../Library/tinygltf/json.hpp>
+
 void NormalEnemy::Update()
 {
 	if (m_aliveFlg == false) return;
@@ -148,6 +150,8 @@ void NormalEnemy::PostUpdate()
 
 void NormalEnemy::Init()
 {
+	DataLoad();
+
 	srand(timeGetTime());
 
 	if (!m_spModel)
@@ -159,14 +163,9 @@ void NormalEnemy::Init()
 	// 行列を作っておく
 	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 
-
-
-	// スピード
-	m_moveSpeed = 0.05f;
-
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("NormalEnemy", m_spModel, KdCollider::TypeDamage);
+	m_pCollider->RegisterCollisionShape("NormalEnemy", m_spModel, KdCollider::TypeDamage | KdCollider::TypeDebug);
 
 	// ゴールの座標を求める
 	m_degAng = float(rand() % 360);
@@ -425,6 +424,50 @@ bool NormalEnemy::TargetViewingAngleCheck()
 	return false;
 }
 
+void NormalEnemy::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	for (const auto& objData : data["GameObject"])
+	{
+		m_moveSpeed		= objData["m_moveSpeed"];
+		m_jumpPow		= objData["m_jumpPow"];
+		m_findJumpPow	= objData["m_findJumpPow"];
+	}
+}
+
+void NormalEnemy::DataSave()
+{
+	nlohmann::json objData;
+
+	// リストごと
+	nlohmann::json objStat;
+	objStat["m_moveSpeed"]	= m_moveSpeed;	// 移動量
+	objStat["m_jumpPow"]	= m_jumpPow;	// ジャンプ力
+	objStat["m_findJumpPow"]= m_findJumpPow;// 見つけた時のジャンプ力
+	objStat["name"]			= m_name.data();
+
+	// ゲームオブジェクトに追加
+	objData["GameObject"][m_name.data()] = objStat;
+
+	// ファイルに書き込む
+	std::ofstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	// JSONデータをファイルに書き込む
+	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
+	file.close();
+}
+
+
+
+
 void NormalEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)
 {
 	if (m_nowAction)m_nowAction->Exit(*this);
@@ -490,7 +533,7 @@ void NormalEnemy::Idle::Exit(NormalEnemy& _owner)
 void NormalEnemy::JumpMove::Enter(NormalEnemy& _owner)
 {
 	// ジャンプさせる
-	_owner.m_gravity = -_owner.m_move.jumpPow;
+	_owner.m_gravity = -_owner.m_jumpPow;
 }
 
 void NormalEnemy::JumpMove::Update(NormalEnemy& _owner)
@@ -535,7 +578,7 @@ void NormalEnemy::JumpMove::Update(NormalEnemy& _owner)
 		{
 			moveVec.Normalize();
 			// 移動
-			_owner.m_pos += moveVec * _owner.m_move.movePow;
+			_owner.m_pos += moveVec * _owner.m_moveSpeed;
 		}
 	}
 
@@ -608,7 +651,7 @@ void NormalEnemy::Homing::Update(NormalEnemy& _owner)
 	_owner.RotationCharacter(_owner.m_degAng, vec, _owner.m_homing.minRotDegAng);
 
 	// 移動
-	_owner.m_pos += vec * _owner.m_homing.speed;
+	_owner.m_pos += vec * _owner.m_moveSpeed;
 
 	// 接地したときの処理
 	if (_owner.m_isGround == true)
@@ -620,7 +663,7 @@ void NormalEnemy::Homing::Update(NormalEnemy& _owner)
 			return;
 		}
 		// ジャンプ
-		_owner.m_gravity = -_owner.m_homing.jumpPow;
+		_owner.m_gravity = -_owner.m_jumpPow;
 	}
 }
 

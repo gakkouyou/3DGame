@@ -9,13 +9,13 @@
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
-#include "../../GameObject/UI/GameUI/GameUI.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
+#include "../../Tool/MouseClickHit/MouseClickHit.h"
 
 #include "../../main.h"
 
@@ -153,12 +153,6 @@ void GameScene::Event()
 				m_bgm.lock()->SetVolume(m_vol);
 			}
 
-			// UIにクリアしたことを伝える
-			if (m_wpGameUI.expired() == false)
-			{
-				m_wpGameUI.lock()->SetClearFlg(true);
-			}
-
 			if (!m_wpCamera.expired())
 			{
 				// カメラのゴール時の演出をスタート
@@ -266,15 +260,6 @@ void GameScene::Init()
 	// 保持
 	m_wpPause = pause;
 
-	// UI
-	std::shared_ptr<GameUI> ui = std::make_shared<GameUI>();
-	ui->Init();
-	AddObject(ui);
-	// プレイヤーを渡す
-	ui->SetPlayer(player);
-	// 保持
-	m_wpGameUI = ui;
-
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
@@ -345,6 +330,15 @@ void GameScene::Init()
 
 	m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
 	m_bgm.lock()->SetVolume(m_vol);
+
+	// デバッグ用マウスクリック当たり判定クラス
+	std::shared_ptr<MouseClickHit> mouseClickHit = std::make_shared<MouseClickHit>();
+	AddObject(mouseClickHit);
+	mouseClickHit->SetTerrainController(terrainController);
+	mouseClickHit->SetEventController(eventObjectController);
+	mouseClickHit->SetEnemyController(enemyController);
+	mouseClickHit->SetCarryObjectController(carryObjectController);
+	mouseClickHit->SetCamera(tpsCamera);
 }
 
 void GameScene::StartGameScene()

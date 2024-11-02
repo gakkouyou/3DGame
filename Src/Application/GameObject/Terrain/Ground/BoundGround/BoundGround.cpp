@@ -21,7 +21,7 @@ void BoundGround::Init()
 	m_drawType = eDrawTypeLit;
 
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("BoundGround", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("BoundGround", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	// オブジェクトタイプ
 	m_objectType = ObjectType::BoundGround;

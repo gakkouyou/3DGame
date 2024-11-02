@@ -93,7 +93,7 @@ void FlyEnemy::Init()
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("FlyEnemy", m_spModel, KdCollider::TypeDamage);
+	m_pCollider->RegisterCollisionShape("FlyEnemy", m_spModel, KdCollider::TypeDamage | KdCollider::TypeDebug);
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::FlyEnemy;

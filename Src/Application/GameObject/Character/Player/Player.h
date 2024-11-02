@@ -12,7 +12,7 @@ class Player : public CharacterBase
 {
 public:
 	Player()									{}
-	~Player()							override{}
+	~Player()							override { DataSave(); }
 
 	// 更新
 	void Update()						override;
@@ -62,11 +62,6 @@ public:
 	// モデルをゲット
 	const std::shared_ptr<KdModelWork>& GetModel() const { return m_spModel; }
 
-	// ライフをゲット
-	const int GetLife() const { return m_life; }
-	// ライフの上限をゲット
-	const int GetLifeMax()	const { return m_maxLife; }
-
 	// SituationTypeのゲット
 	const int GetSituationType() const { return m_situationType; }
 
@@ -103,9 +98,6 @@ private:
 	// 運べるオブジェクトとの当たり判定
 	void HitJudgeCarryObject();
 
-	// ダメージを受けた時の処理
-	void DamageProcess();
-
 	// カメラのウィークポインタ
 	std::weak_ptr<CameraBase> m_wpCamera;
 
@@ -113,7 +105,9 @@ private:
 	UINT m_situationType	= Idle;
 
 	// ジャンプ力
-	float m_jumpPow			= 0;
+	const float m_jumpPow	= 0.125f;
+	// 跳ねる床に乗った時のジャンプ力
+	const float m_boundJunpPow = 0.25f;
 
 	// 角度
 	float m_angle			= 0.0f;
@@ -165,7 +159,9 @@ private:
 	int m_runSmokeTime	= 16;
 
 	// 走り状態の時のスピード
-	const float m_runSpeed	= 0.125f;
+	float m_runSpeed	= 0;
+	// 歩き状態の時のスピード
+	float m_walkSpeed	= 0;
 
 	// 音
 	struct Sound
@@ -194,21 +190,6 @@ private:
 	Sound m_stampSound;
 	// きのこで跳ねた時の音
 	Sound m_boundSound;
-
-	// ライフ
-	int m_life = 0;
-	const int m_maxLife = 3;
-
-	// ダメージを受けた時の処理用
-	struct Damage
-	{
-		bool		nowDamageFlg	= false;	// ダメージを受けている最中
-		const int	damageTime		= 90;		// 無敵時間
-		int			damageCount		= 0;		// ダメージを受けた時からのカウント
-		const int	blinkingTime	= 5;		// 点滅の間隔の時間
-		bool		drawFlg			= true;		// 描画するフラグ
-	};
-	Damage m_damage;
 
 	// 移動前の座標
 	Math::Vector3 m_oldPos;
@@ -250,4 +231,13 @@ private:
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;
 	bool m_mugenJumpKeyFlg = false;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Player.json";
+
+	std::string m_name = "Player";
+	// JSONのデータをロードする
+	void DataLoad();
+	// JSONのデータをセーブする
+	void DataSave();
 };

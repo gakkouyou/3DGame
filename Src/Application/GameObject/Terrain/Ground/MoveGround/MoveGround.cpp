@@ -99,7 +99,7 @@ void MoveGround::Init()
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
-	m_pCollider->RegisterCollisionShape("MoveBlockCollision", m_spModel, KdCollider::TypeGround);
+	m_pCollider->RegisterCollisionShape("MoveBlockCollision", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
 	m_moveFlg = true;
 

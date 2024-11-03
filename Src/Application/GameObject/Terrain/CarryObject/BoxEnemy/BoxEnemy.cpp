@@ -398,7 +398,7 @@ void BoxEnemy::Init()
 	m_objectType = ObjectType::BoxEnemy;
 
 	// ベースのオブジェクトのタイプ
-	m_baseObjectType = BaseObjectType::Enemy;
+	m_baseObjectType = BaseObjectType::CarryObject;
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
@@ -409,7 +409,7 @@ void BoxEnemy::Init()
 		m_spEnemyModel->Load("Asset/Models/Terrain/CarryObject/BoxEnemy/boxEnemy.gltf");
 	}
 
-	m_pCollider->RegisterCollisionShape("BoxEnemyEnemy", m_spEnemyModel, KdCollider::TypeDamage);
+	m_pCollider->RegisterCollisionShape("BoxEnemyEnemy", m_spEnemyModel, KdCollider::TypeDamage | KdCollider::TypeDebug);
 
 	// 音
 	// 草の上に着地した音

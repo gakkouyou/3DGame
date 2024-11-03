@@ -23,16 +23,6 @@
 
 void TerrainController::Update()
 {
-	// 一度だけ実行する
-	if (m_beginCreateFlg == false)
-	{
-		//BeginCreateObject();
-	}
-	m_beginCreateFlg = true;
-
-	// マウスでオブジェクトを選択する
-	MouseSelect();
-
 	// 対象のオブジェクト
 	std::shared_ptr<TerrainBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
@@ -994,9 +984,4 @@ void TerrainController::SetObject(std::weak_ptr<TerrainBase> _wpTargetObject)
 		DebugWindow::TerrainParam setParam{ param.startPos, param.goalPos, param.scale, param.speed, param.stayTime, param.degAng, param.targetName };
 		DebugWindow::Instance().SetTerrainParam(setParam);
 	}
-}
-
-void TerrainController::MouseSelect()
-{
-
 }

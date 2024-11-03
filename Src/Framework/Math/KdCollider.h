@@ -162,6 +162,8 @@ public:
 	bool Intersects(const BoxInfo& targetBox, const Math::Matrix& ownerMatrix, std::list<KdCollider::CollisionResult>* pResults) const;
 	bool Intersects(const RayInfo& targetShape, const Math::Matrix& ownerMatrix, std::list<KdCollider::CollisionResult>* pResults) const;
 
+	bool Intersects(const DirectX::BoundingFrustum& frustum, const Math::Matrix& ownerMatrix) const;
+
 	// 登録した当たり判定の有効/無効の設定
 	void SetEnable(std::string_view name, bool flag);
 	void SetEnable(int type, bool flag);
@@ -193,6 +195,8 @@ public:
 	virtual bool Intersects(const DirectX::BoundingBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) = 0;
 	virtual bool Intersects(const DirectX::BoundingOrientedBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) = 0;
 	virtual bool Intersects(const KdCollider::RayInfo& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) = 0;
+
+	virtual bool Intersects(const DirectX::BoundingFrustum& target, const Math::Matrix& world) { return false; }
 
 	void SetEnable(bool flag) { m_enable = flag; }
 
@@ -285,6 +289,8 @@ public:
 	bool Intersects(const DirectX::BoundingBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) override;
 	bool Intersects(const DirectX::BoundingOrientedBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) override;
 	bool Intersects(const KdCollider::RayInfo& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) override;
+
+	bool Intersects(const DirectX::BoundingFrustum& target, const Math::Matrix& world) override;
 
 private:
 	std::shared_ptr<KdModelWork> m_shape;

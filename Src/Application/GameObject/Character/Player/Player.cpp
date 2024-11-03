@@ -944,7 +944,7 @@ void Player::HitJudgeGround()
 					// 座標
 					m_pos.y = hitPos.y;
 					// 重力
-					m_gravity = -m_boundJunpPow;
+					m_gravity = -m_boundJumpPow;
 
 					// ジャンプ状態にする
 					m_situationType |= SituationType::Jump;
@@ -1317,11 +1317,14 @@ void Player::HitJudgeEnemy()
 
 		bool hitFlg = false;
 
+		std::shared_ptr<KdGameObject> spHitObject = nullptr;
+
 		for (auto& obj : SceneManager::Instance().GetObjList())
 		{
 			if (obj->Intersects(boxInfo, &resultList))
 			{
 				m_wpHitObjectList.push_back(obj);
+				spHitObject = obj;
 				hitFlg = true;
 			}
 		}
@@ -1330,23 +1333,23 @@ void Player::HitJudgeEnemy()
 		if (hitFlg)
 		{
 			// 当たったオブジェクト
-			std::shared_ptr<KdGameObject> spHitObject;
+			//std::shared_ptr<KdGameObject> spHitObject;
 
 			// 音のフラグをリセット
 			m_stampSound.flg = false;	// 敵を踏んだ時の音
 
-			// 敵を探す
-			for (auto& hitObject : m_wpHitObjectList)
-			{
-				if (!hitObject.expired())
-				{
-					if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
-					{
-						spHitObject = hitObject.lock();
-						break;
-					}
-				}
-			}
+			//// 敵を探す
+			//for (auto& hitObject : m_wpHitObjectList)
+			//{
+			//	if (!hitObject.expired())
+			//	{
+			//		if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
+			//		{
+			//			spHitObject = hitObject.lock();
+			//			break;
+			//		}
+			//	}
+			//}
 
 			if (spHitObject)
 			{
@@ -1370,7 +1373,7 @@ void Player::HitJudgeEnemy()
 
 					// 敵を踏んだ時の処理
 					spHitObject->OnHit();
-					m_gravity = -0.15f;
+					m_gravity = -m_enemyJumpPow;
 
 					// もしジャンプ状態ならジャンプのアニメーションをする
 					if (m_situationType & SituationType::Jump)
@@ -1571,6 +1574,12 @@ void Player::DataLoad()
 		m_runSpeed = objData["m_runSpeed"];
 		// 歩く速度
 		m_walkSpeed = objData["m_walkSpeed"];
+		// ジャンプ力
+		m_jumpPow	= objData["m_jumpPow"];
+		// 跳ねる床を踏んだ時のジャンプ力
+		m_boundJumpPow = objData["m_boundJumpPow"];
+		// 敵を踏んだ時のジャンプ力
+		m_enemyJumpPow = objData["m_enemyJumpPow"];
 	}
 }
 
@@ -1580,8 +1589,11 @@ void Player::DataSave()
 
 	// リストごと
 	nlohmann::json objStat;
-	objStat["m_runSpeed"] = m_runSpeed;
-	objStat["m_walkSpeed"] = m_walkSpeed;
+	objStat["m_runSpeed"]		= m_runSpeed;
+	objStat["m_walkSpeed"]		= m_walkSpeed;
+	objStat["m_jumpPow"]		= m_jumpPow;
+	objStat["m_boundJumpPow"]	= m_boundJumpPow;
+	objStat["m_enemyJumpPow"]	= m_enemyJumpPow;
 	objStat["name"] = m_name.data();
 
 	// ゲームオブジェクトに追加

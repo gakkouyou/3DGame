@@ -71,9 +71,6 @@ private:
 	// CSVファイルの名前
 	std::string m_fileName;
 
-	// マウスでオブジェクトを選択する
-	void MouseSelect();
-
 	// 動かすオブジェクト
 	std::weak_ptr<TerrainBase>		m_wpTargetObject;
 
@@ -85,8 +82,6 @@ private:
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();
-	// ↑をInitで呼べない為、Updateで1度だけ実行する為のフラグ
-	bool m_beginCreateFlg = false;
 
 	// オブジェクトの個数
 	struct Count

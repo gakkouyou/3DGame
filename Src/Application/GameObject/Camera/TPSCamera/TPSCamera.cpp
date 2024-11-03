@@ -1,6 +1,7 @@
 ﻿#include "TPSCamera.h"
 #include "../../../Scene/SceneManager.h"
 #include "../../Character/Player/Player.h"
+#include "../../../main.h"
 
 void TPSCamera::PostUpdate()
 {
@@ -158,6 +159,33 @@ void TPSCamera::PostUpdate()
 	CameraBase::Update();
 
 	KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
+
+	DirectX::BoundingFrustum frustum;
+	DirectX::BoundingFrustum::CreateFromMatrix(frustum, m_spCamera->GetProjMatrix());
+	frustum.Transform(frustum, m_mWorld);
+
+	int count = 0;
+	int drawCount = 0;
+
+	for (auto& obj : SceneManager::Instance().GetObjList())
+	{
+		if (obj->GetBaseObjectType() == BaseObjectType::Ground)
+		{
+			count++;
+			if (obj->Intersects(frustum))
+			{
+				obj->SetDrawFlg(true);
+				drawCount++;
+			}
+			else
+			{
+				obj->SetDrawFlg(false);
+			}
+		}
+	}
+
+	Application::Instance().m_log.Clear();
+	Application::Instance().m_log.AddLog("obj:%d draw:%d", count, drawCount);
 }
 
 void TPSCamera::Init()

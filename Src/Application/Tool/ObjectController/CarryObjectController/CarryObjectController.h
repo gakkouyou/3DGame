@@ -53,9 +53,6 @@ private:
 	// CSVファイルの名前
 	std::string m_fileName;
 
-	// マウスでオブジェクトを選択する
-	void MouseSelect();
-
 	// 動かすオブジェクト
 	std::weak_ptr<CarryObjectBase>		m_wpTargetObject;
 

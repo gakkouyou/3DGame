@@ -31,3 +31,6 @@ void KdPointToTriangle(const DirectX::XMVECTOR& point, const DirectX::XMVECTOR& 
 // ボックスの当たり判定
 bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box,
 	const DirectX::XMMATRIX& matrix, CollisionMeshResult* pResult = nullptr);
+
+// 視錐台カリング用
+bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingFrustum& frustum, const DirectX::XMMATRIX& matrix);

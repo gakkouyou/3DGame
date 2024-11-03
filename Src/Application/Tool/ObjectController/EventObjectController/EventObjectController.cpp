@@ -15,9 +15,6 @@
 
 void EventObjectController::Update()
 {
-	// マウスでオブジェクトを選択する
-	MouseSelect();
-
 	// 対象のオブジェクト
 	std::shared_ptr<EventObjectBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
@@ -299,11 +296,6 @@ void EventObjectController::CreateObject(ObjectType _object)
 		break;
 	}
 	}
-}
-
-void EventObjectController::MouseSelect()
-{
-
 }
 
 void EventObjectController::BeginCreateObject()

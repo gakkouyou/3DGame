@@ -24,6 +24,8 @@ public:
 
 	virtual const bool IsActive()	const { return false; }
 
+	bool CheckInScreen(const DirectX::BoundingFrustum& frustum) override;
+
 	struct Param
 	{
 		Math::Vector3	pos			= Math::Vector3::Zero;

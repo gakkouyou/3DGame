@@ -32,10 +32,6 @@ void MouseClickHit::Update()
 	}
 }
 
-void MouseClickHit::ConfimedObject(UINT _objectType)
-{
-}
-
 void MouseClickHit::ClickHit()
 {
 	// マウスでオブジェクトを選択する
@@ -94,6 +90,9 @@ void MouseClickHit::ClickHit()
 		count++;
 	}
 
+	// 確定
+	ConfirmedObject(hitObj->GetBaseObjectType());
+
 	switch (hitObj->GetBaseObjectType())
 	{
 	case BaseObjectType::Ground:
@@ -151,5 +150,37 @@ void MouseClickHit::ClickHit()
 			}
 		}
 		break;
+	}
+}
+
+void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
+{
+	if (_objectType != BaseObjectType::Ground)
+	{
+		if (m_wpTerrainController.expired() == false)
+		{
+			m_wpTerrainController.lock()->ConfirmedObject();
+		}
+	}
+	if (_objectType != BaseObjectType::Event)
+	{
+		if (m_wpEventController.expired() == false)
+		{
+			m_wpEventController.lock()->ConfirmedObject();
+		}
+	}
+	if (_objectType != BaseObjectType::Enemy)
+	{
+		if (m_wpEnemyController.expired() == false)
+		{
+			m_wpEnemyController.lock()->ConfirmedObject();
+		}
+	}
+	if (_objectType != BaseObjectType::CarryObject)
+	{
+		if (m_wpCarryObjectController.expired() == false)
+		{
+			m_wpCarryObjectController.lock()->ConfirmedObject();
+		}
 	}
 }

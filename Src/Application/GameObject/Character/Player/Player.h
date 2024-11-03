@@ -105,9 +105,11 @@ private:
 	UINT m_situationType	= Idle;
 
 	// ジャンプ力
-	const float m_jumpPow	= 0.125f;
+	float m_jumpPow	= 0;
 	// 跳ねる床に乗った時のジャンプ力
-	const float m_boundJunpPow = 0.25f;
+	float m_boundJumpPow = 0;
+	// 敵を踏んだ時のジャンプ力
+	float m_enemyJumpPow = 0;
 
 	// 角度
 	float m_angle			= 0.0f;

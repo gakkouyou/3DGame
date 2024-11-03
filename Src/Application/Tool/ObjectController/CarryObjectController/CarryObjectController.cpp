@@ -13,9 +13,6 @@
 
 void CarryObjectController::Update()
 {
-	// マウスでオブジェクトを選択する
-	MouseSelect();
-
 	// 対象のオブジェクト
 	std::shared_ptr<CarryObjectBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
@@ -207,11 +204,6 @@ void CarryObjectController::SetObject(std::weak_ptr<CarryObjectBase> _wpTargetOb
 	CarryObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
 	DebugWindow::CarryObjectParam setParam{ param.startPos, param.area };
 	DebugWindow::Instance().SetCarryObjectParam(setParam);
-}
-
-void CarryObjectController::MouseSelect()
-{
-
 }
 
 void CarryObjectController::BeginCreateObject()

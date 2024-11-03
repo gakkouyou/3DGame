@@ -2,6 +2,7 @@
 
 void TerrainBase::GenerateDepthMapFromLight()
 {
+	if (m_drawFlg == false) return;
 	if (m_drawType & eDrawTypeDepthOfShadow)
 	{
 		if (m_spModel)
@@ -13,6 +14,8 @@ void TerrainBase::GenerateDepthMapFromLight()
 
 void TerrainBase::DrawLit()
 {
+	if (m_drawFlg == false) return;
+
 	if (m_drawType & eDrawTypeLit)
 	{
 		if (m_spModel)
@@ -49,6 +52,11 @@ void TerrainBase::Init()
 {
 	// 大まかなオブジェクトのタイプ
 	m_baseObjectType = BaseObjectType::Ground;
+}
+
+bool TerrainBase::CheckInScreen(const DirectX::BoundingFrustum& frustum)
+{
+	return Intersects(frustum);
 }
 
 void TerrainBase::SetTarget(const std::weak_ptr<TerrainBase>& _wpTarget)

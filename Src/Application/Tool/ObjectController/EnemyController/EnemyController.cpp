@@ -14,9 +14,6 @@
 
 void EnemyController::Update()
 {
-	// マウスでオブジェクトを選択する
-	MouseSelect();
-
 	// 対象のオブジェクト
 	std::shared_ptr<EnemyBase> spTargetObject = m_wpTargetObject.lock();
 	if (spTargetObject)
@@ -218,11 +215,6 @@ void EnemyController::SetObject(std::weak_ptr<EnemyBase> _wpTargetObject)
 	EnemyBase::Param param = m_wpTargetObject.lock()->GetParam();
 	DebugWindow::EnemyParam setParam{ param.startPos, param.moveArea, param.searchArea, param.rotDegAng };
 	DebugWindow::Instance().SetEnemyParam(setParam);
-}
-
-void EnemyController::MouseSelect()
-{
-
 }
 
 void EnemyController::BeginCreateObject()

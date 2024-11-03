@@ -189,6 +189,20 @@ bool KdCollider::Intersects(const RayInfo& targetShape, const Math::Matrix& owne
 	return isHit;
 }
 
+bool KdCollider::Intersects(const DirectX::BoundingFrustum& frustum, const Math::Matrix& ownerMatrix) const
+{
+	bool isHit = false;
+	for (auto& collisionShape : m_collisionShapes)
+	{
+		if (collisionShape.second->Intersects(frustum, ownerMatrix))
+		{
+			isHit = true;
+			break;
+		}
+	}
+	return isHit;
+}
+
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 // 任意のCollisionShapeを検索して有効/無効を切り替える
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -576,6 +590,38 @@ bool KdModelCollision::Intersects(const KdCollider::RayInfo& target, const Math:
 	}
 
 	return isHit;
+}
+
+bool KdModelCollision::Intersects(const DirectX::BoundingFrustum& target, const Math::Matrix& world)
+{
+	// 当たり判定が無効 or 形状が解放済みなら判定せず返る
+	if (!m_enable || !m_shape) { return false; }
+
+	std::shared_ptr<KdModelData> spModelData = m_shape->GetData();
+
+	// データが無ければ判定不能なので返る
+	if (!spModelData) { return false; }
+
+	const std::vector<KdModelData::Node>& dataNodes = spModelData->GetOriginalNodes();
+	const std::vector<KdModelWork::Node>& workNodes = m_shape->GetNodes();
+
+	// 当たり判定ノードとのみ当たり判定
+	for (int index : spModelData->GetCollisionMeshNodeIndices())
+	{
+		const KdModelData::Node& dataNode = dataNodes[index];
+		const KdModelWork::Node& workNode = workNodes[index];
+
+		// あり得ないはずだが一応チェック
+		if (!dataNode.m_spMesh) { continue; }
+
+		// メッシュと球形の当たり判定実行
+		if (MeshIntersect(*dataNode.m_spMesh, target, workNode.m_worldTransform * world))
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

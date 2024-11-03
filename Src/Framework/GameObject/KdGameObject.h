@@ -54,7 +54,9 @@ public:
 	virtual bool IsRideable()	const { return false; }
 
 	// 視錐台範囲内に入っているかどうか
-	virtual bool CheckInScreen(const DirectX::BoundingFrustum&) const { return false; }
+	virtual bool CheckInScreen(const DirectX::BoundingFrustum&) { return false; }
+
+	void SetDrawFlg(bool _flg) { m_drawFlg = _flg; }
 
 	// カメラからの距離を計算
 	virtual void CalcDistSqrFromCamera(const Math::Vector3& camPos);
@@ -66,6 +68,7 @@ public:
 	bool Intersects(const KdCollider::SphereInfo& targetShape, std::list<KdCollider::CollisionResult>* pResults);
 	bool Intersects(const KdCollider::BoxInfo& targetBox, std::list<KdCollider::CollisionResult>* pResults);
 	bool Intersects(const KdCollider::RayInfo& targetShape, std::list<KdCollider::CollisionResult>* pResults);
+	bool Intersects(const DirectX::BoundingFrustum& frustum);
 
 	// 当たった時の処理
 	virtual void OnHit() {}
@@ -164,4 +167,6 @@ protected:
 
 	// オブジェクトの名前
 	std::string m_objectName	= "None";
+
+	bool m_drawFlg = true;
 };

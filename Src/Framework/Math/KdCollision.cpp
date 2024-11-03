@@ -816,3 +816,17 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box, const Di
 
 	return isHit;
 }
+
+bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingFrustum& frustum, const DirectX::XMMATRIX& matrix)
+{
+	// メッシュのAABBを元に、行列で変換したAABBを作成
+	DirectX::BoundingBox aabb;
+	mesh.GetBoundingBox().Transform(aabb, matrix);
+
+	if (frustum.Contains(aabb))
+	{
+		return true;
+	}
+
+	return false;
+}

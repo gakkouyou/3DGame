@@ -60,3 +60,10 @@ bool KdGameObject::Intersects(const KdCollider::RayInfo& targetShape, std::list<
 
 	return m_pCollider->Intersects(targetShape, m_mWorld, pResults);
 }
+
+bool KdGameObject::Intersects(const DirectX::BoundingFrustum& frustum)
+{
+	if (!m_pCollider) { return false; }
+
+	return m_pCollider->Intersects(frustum, m_mWorld);
+}

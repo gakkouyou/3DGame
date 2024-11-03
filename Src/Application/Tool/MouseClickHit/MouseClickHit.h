@@ -23,9 +23,6 @@ public:
 	void SetEnemyController			(const std::shared_ptr<EnemyController>& _spEnemyController)				{ m_wpEnemyController		= _spEnemyController; }
 	void SetCarryObjectController	(const std::shared_ptr<CarryObjectController>& _spCarryObjectController)	{ m_wpCarryObjectController	= _spCarryObjectController; }
 
-	// 選ばれたオブジェクト以外確定する
-	void ConfimedObject(UINT _objectType);
-
 private:
 	// カメラ
 	std::weak_ptr<const CameraBase>	m_wpCamera;
@@ -35,7 +32,11 @@ private:
 	std::weak_ptr<EnemyController> m_wpEnemyController;
 	std::weak_ptr<CarryObjectController> m_wpCarryObjectController;
 
+	// マウスカーソルのレイ判定を実行
 	void ClickHit();
+
+	// 選ばれたオブジェクト以外確定する
+	void ConfirmedObject(BaseObjectType _objectType);
 
 	// クリック制御
 	bool m_rightClickFlg = false;

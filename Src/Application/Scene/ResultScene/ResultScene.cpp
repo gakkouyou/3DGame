@@ -6,7 +6,7 @@
 #include "../../GameObject/BackGround/TitleBackGround/TitleBackGround.h"
 #include "../../GameObject/BackGround/ResultBackGround/ResultBackGround.h"
 #include "../../GameObject/Camera/ResultCamera/ResultCamera.h"
-#include "../../GameObject/Character/ResultPlayer/ResultPlayer.h"
+#include "../../GameObject/Title/ResultPlayer/ResultPlayer.h"
 #include "../../GameObject/UI/TitleUI/TitleUI.h"
 
 void ResultScene::Event()

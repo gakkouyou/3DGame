@@ -95,16 +95,6 @@ void EventObjectController::ConfirmedObject()
 				data.name = data.type + std::to_string(m_objectCount.Goal);
 				break;
 
-				// 回復アイテムの場合
-			case ObjectType::HealItem:
-				// タイプのセット
-				data.type = "HealItem";
-				// カウントを進める
-				m_objectCount.HealItem++;
-				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.HealItem);
-				break;
-
 				// キャンディーの場合
 			case ObjectType::Candy:
 				// タイプのセット

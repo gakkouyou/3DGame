@@ -9,7 +9,8 @@
 			"name":"Scene",
 			"nodes":[
 				0,
-				1
+				1,
+				2
 			]
 		}
 	],
@@ -40,6 +41,14 @@
 			"translation":[
 				0,
 				0.625,
+				0
+			]
+		},
+		{
+			"name":"DeathPoint",
+			"translation":[
+				0,
+				0.6892649531364441,
 				0
 			]
 		}
@@ -137,10 +146,10 @@
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":24,
+			"count":36,
 			"max":[
 				1,
-				1,
+				0.8542804718017578,
 				1
 			],
 			"min":[
@@ -153,19 +162,19 @@
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":24,
+			"count":36,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":24,
+			"count":36,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":7,
 			"componentType":5123,
-			"count":36,
+			"count":60,
 			"type":"SCALAR"
 		}
 	],
@@ -196,26 +205,26 @@
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
+			"byteLength":432,
 			"byteOffset":11968,
 			"target":34962
 		},
 		{
 			"buffer":0,
+			"byteLength":432,
+			"byteOffset":12400,
+			"target":34962
+		},
+		{
+			"buffer":0,
 			"byteLength":288,
-			"byteOffset":12256,
+			"byteOffset":12832,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":192,
-			"byteOffset":12544,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":72,
-			"byteOffset":12736,
+			"byteLength":120,
+			"byteOffset":13120,
 			"target":34963
 		}
 	],
@@ -227,7 +236,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":12808,
+			"byteLength":13240,
 			"uri":"normalEnemy.bin"
 		}
 	]

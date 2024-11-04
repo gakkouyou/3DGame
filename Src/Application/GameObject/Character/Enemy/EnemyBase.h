@@ -20,6 +20,9 @@ public:
 	// ターゲットをセットする
 	void SetTarget(const std::shared_ptr<Player>& _spTarget) { m_wpTarget = _spTarget; }
 
+	// これ以上上で当たると倒せる座標
+	Math::Vector3 GetPos() const override = 0;
+
 	// 情報
 	struct Param
 	{

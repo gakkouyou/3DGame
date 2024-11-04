@@ -12,6 +12,8 @@ public:
 	void PostUpdate()					override;
 	void Init()							override;
 
+	Math::Vector3 GetPos() const override;
+
 	void SetParam(const Param _param)	override;
 
 	void OnHit()				override;

@@ -58,7 +58,6 @@ void BoxEnemy::Update()
 			case ObjectType::BoundGround:
 				m_wpLandSound[LandSoundType::Bound].lock()->Play();
 				break;
-				break;
 
 				// コツコツ見たいな音
 			default:
@@ -90,7 +89,7 @@ void BoxEnemy::Update()
 		// プレイヤーが近くに来たら震える状態にする
 		m_aliveFlg = false;
 		// 角度をリセット
-		m_degAng = 0;
+		m_degAng = 180;
 
 		// 当たり判定の切り替え
 		m_pCollider->SetEnable("BoxEnemyEnemy", false);
@@ -100,15 +99,19 @@ void BoxEnemy::Update()
 	// プレイヤーが近くに来たら震えて敵状態になる
 	if (m_aliveFlg == false)
 	{
-		float length = (m_wpPlayer.lock()->GetPos() - m_param.startPos).Length();
-
-		if (length < m_enemyChangeLength)
+		// 地面にいる時
+		if (m_airFlg == false)
 		{
-			// 敵状態にする
-			m_enemyCount = m_shakeTime;
-			// 追尾しないようにする
-			m_homingFlg = false;
-			m_aliveFlg = true;
+			float length = (m_wpPlayer.lock()->GetPos() - m_param.startPos).Length();
+
+			if (length < m_enemyChangeLength)
+			{
+				// 敵状態にする
+				m_enemyCount = m_shakeTime;
+				// 追尾しないようにする
+				m_homingFlg = false;
+				m_aliveFlg = true;
+			}
 		}
 	}
 }
@@ -452,6 +455,16 @@ void BoxEnemy::CarryFlg(bool _carryFlg)
 		// 敵に戻るカウントをリセット
 		m_enemyCount = 0;
 	}
+}
+
+Math::Vector3 BoxEnemy::GetPos() const
+{
+	Math::Vector3 pos;
+	if (m_spEnemyModel)
+	{
+		pos = (m_spEnemyModel->FindNode("DeathPoint")->m_worldTransform * m_mWorld).Translation();
+	}
+	return pos;
 }
 
 void BoxEnemy::SetParam(Param _param)

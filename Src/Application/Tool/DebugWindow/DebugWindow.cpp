@@ -520,12 +520,6 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::Goal);
 			}
 			ImGui::SameLine();
-			// ハート
-			if (ImGui::Button("HealItem"))
-			{
-				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(KdGameObject::ObjectType::HealItem);
-			}
 
 			// キャンディー(コイン的な)
 			if (ImGui::Button("Candy"))
@@ -533,13 +527,13 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::Candy);
 			}
-			ImGui::SameLine();
 			// セーブポイント
 			if (ImGui::Button("SavePoint"))
 			{
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::SavePoint);
 			}
+			ImGui::SameLine();
 
 			// ワープポイント
 			if (ImGui::Button("WarpPoint"))
@@ -547,7 +541,6 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::WarpPoint);
 			}
-			ImGui::SameLine();
 			
 			// ステージセレクトのオブジェクト
 			if (ImGui::Button("StageSelectObject"))
@@ -555,6 +548,7 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::StageSelectObject);
 			}
+			ImGui::SameLine();
 
 			// 最終ゴール
 			if (ImGui::Button("FinalGoal"))

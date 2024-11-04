@@ -16,6 +16,9 @@ public:
 
 	void CarryFlg(bool _carryFlg)		override;
 
+	// これ以上上に当たったら死亡判定
+	Math::Vector3 GetPos() const override;
+
 	void SetParam(const Param _param)	override;
 
 	void OnHit()						override;

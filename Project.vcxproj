@@ -161,7 +161,6 @@
     <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\CameraBase.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.h" />
-    <ClInclude Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Character\CharacterBase.h" />
@@ -169,14 +168,11 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Player\Player.h" />
-    <ClInclude Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.h" />
-    <ClInclude Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.h" />
     <ClInclude Include="Src\Application\GameObject\Effect\Smoke\Smoke.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Candy\Candy.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h" />
-    <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.h" />
@@ -184,7 +180,6 @@
     <ClInclude Include="Src\Application\GameObject\Result\Result.h" />
     <ClInclude Include="Src\Application\GameObject\SceneChange\SceneChange.h" />
     <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h" />
-    <ClInclude Include="Src\Application\GameObject\StageStart\StageStart.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\BoxEnemy\BoxEnemy.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.h" />
@@ -204,8 +199,8 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.h" />
-    <ClInclude Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.h" />
     <ClInclude Include="Src\Application\GameObject\Title\House\House.h" />
+    <ClInclude Include="Src\Application\GameObject\Title\ResultPlayer\ResultPlayer.h" />
     <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h" />
     <ClInclude Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.h" />
     <ClInclude Include="Src\Application\GameObject\UI\TitleUI\TitleUI.h" />
@@ -273,7 +268,6 @@
     <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\CameraBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\TPSCamera\TPSCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\CharacterBase.cpp" />
@@ -281,14 +275,11 @@
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\FlyEnemy\FlyEnemy.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Player\Player.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\Effect\Smoke\Smoke.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Candy\Candy.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp" />
-    <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\SavePoint\SavePoint.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\StageSelectObject\StageSelectObject.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\WarpPoint\WarpPoint.cpp" />
@@ -296,7 +287,6 @@
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp" />
     <ClCompile Include="Src\Application\GameObject\SceneChange\SceneChange.cpp" />
     <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp" />
-    <ClCompile Include="Src\Application\GameObject\StageStart\StageStart.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\BoxEnemy\BoxEnemy.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\Box\Box.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.cpp" />
@@ -316,8 +306,8 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\MoveGround\MoveGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\NormalGround\NormalGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\RotationGround\RotationGround.cpp" />
-    <ClCompile Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Title\House\House.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Title\ResultPlayer\ResultPlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\StageSelectUI\StageSelectUI.cpp" />
     <ClCompile Include="Src\Application\GameObject\UI\TitleUI\TitleUI.cpp" />

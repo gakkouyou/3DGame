@@ -15,6 +15,8 @@ public:
 	// リセット処理
 	void Reset()		override;
 
+	Math::Vector3 GetPos()	const override;
+
 	void SetParam(const Param _param)	override;
 
 	void OnHit()	override;

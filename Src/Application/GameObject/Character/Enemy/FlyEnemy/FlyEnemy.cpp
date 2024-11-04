@@ -105,6 +105,16 @@ void FlyEnemy::Init()
 
 }
 
+Math::Vector3 FlyEnemy::GetPos() const
+{
+	Math::Vector3 pos;
+	if (m_spModel)
+	{
+		pos = (m_spModel->FindNode("DeathPoint")->m_worldTransform * m_mWorld).Translation();
+	}
+	return pos;
+}
+
 void FlyEnemy::SetParam(Param _param)
 {
 	m_pos				= _param.startPos;

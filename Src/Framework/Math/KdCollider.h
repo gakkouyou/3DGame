@@ -196,7 +196,7 @@ public:
 	virtual bool Intersects(const DirectX::BoundingOrientedBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) = 0;
 	virtual bool Intersects(const KdCollider::RayInfo& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes) = 0;
 
-	virtual bool Intersects(const DirectX::BoundingFrustum& target, const Math::Matrix& world) { return false; }
+	virtual bool Intersects(const DirectX::BoundingFrustum&, const Math::Matrix&) { return false; }
 
 	void SetEnable(bool flag) { m_enable = flag; }
 

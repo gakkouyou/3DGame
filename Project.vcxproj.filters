@@ -97,12 +97,6 @@
     <Filter Include="Src\Application\GameObject\Terrain\Ground\BoundGround">
       <UniqueIdentifier>{4a3e224f-87fb-4fb8-8e0e-dda44ee65a98}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Terrain\Wall">
-      <UniqueIdentifier>{3753c03b-08b2-4403-8a1e-9a8ae06b3b79}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Terrain\Wall\NormalWall">
-      <UniqueIdentifier>{eb06f6c8-7dd7-4f6c-a451-11c14107cd10}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\Tool">
       <UniqueIdentifier>{67cd0c6b-b42f-4d92-9ed7-77a0c20234d9}</UniqueIdentifier>
     </Filter>
@@ -148,20 +142,11 @@
     <Filter Include="Src\Application\Scene\StageSelectScene">
       <UniqueIdentifier>{955d4cb6-3a83-4d67-a7d8-1ac84349c9bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Character\StageSelectPlayer">
-      <UniqueIdentifier>{9deaefb4-b41d-446b-b9e3-713ea4ef295d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\Camera\StageSelectCamera">
-      <UniqueIdentifier>{7bd10deb-263b-48e5-86ff-7f3b5f0aac57}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\StageSelectTexture">
       <UniqueIdentifier>{7d8fa946-bc18-4b89-b4fe-3f06cd34109b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Src\Application\GameObject\Result">
       <UniqueIdentifier>{8cf6b13e-8492-45f4-a33b-feda3911f2ad}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Src\Application\GameObject\StageStart">
-      <UniqueIdentifier>{307b19a5-0760-48ef-847e-bfd181b0165a}</UniqueIdentifier>
     </Filter>
     <Filter Include="Src\Application\GameObject\Terrain\Ground\DropGround">
       <UniqueIdentifier>{54587157-688e-4d5c-a758-1636df0c1b8b}</UniqueIdentifier>
@@ -220,9 +205,6 @@
     <Filter Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall">
       <UniqueIdentifier>{e078ed3b-3928-40ea-a72b-557dba47820e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\EventObject\HealItem">
-      <UniqueIdentifier>{9e770f15-e50a-4ef1-a4bd-3fd0e38931ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\EventObject\Candy">
       <UniqueIdentifier>{2421a39d-da78-4bc3-b2f3-faa49db9257b}</UniqueIdentifier>
     </Filter>
@@ -247,9 +229,6 @@
     <Filter Include="Src\Application\GameObject\BackGround\TitleBackGround">
       <UniqueIdentifier>{1f728cb5-dc08-4ee8-87dd-d32cee8d8272}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Title\TitlePlayer">
-      <UniqueIdentifier>{ab917bdd-c6c7-4ebb-aacb-f91c31b16f46}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Terrain\Ground\SlopeGround">
       <UniqueIdentifier>{73484797-9ed1-40a5-bd86-239764b5d8d3}</UniqueIdentifier>
     </Filter>
@@ -268,9 +247,6 @@
     <Filter Include="Src\Application\Scene\ResultScene">
       <UniqueIdentifier>{0c3073cc-5f0e-4fe7-8093-ce3c8e2381b9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Character\ResultPlayer">
-      <UniqueIdentifier>{52be9cd7-25e6-482d-94bb-d327d990285c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Camera\ResultCamera">
       <UniqueIdentifier>{5ee39fd3-f15a-49b3-b90b-74b4a06824a6}</UniqueIdentifier>
     </Filter>
@@ -282,6 +258,12 @@
     </Filter>
     <Filter Include="Src\Application\Tool\MouseClickHit">
       <UniqueIdentifier>{a8e9a585-ce5a-43c5-945e-cef85b875457}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Title\TitlePlayer">
+      <UniqueIdentifier>{ec602fac-afbb-48b1-a182-f00323947634}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Title\ResultPlayer">
+      <UniqueIdentifier>{0f130d2f-4e00-4e99-a7c1-92605e8b8501}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -468,9 +450,6 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.h">
       <Filter>Src\Application\GameObject\Terrain\Ground\BoundGround</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.h">
-      <Filter>Src\Application\GameObject\Terrain\Wall\NormalWall</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClInclude>
@@ -507,20 +486,11 @@
     <ClInclude Include="Src\Application\Scene\StageSelectScene\StageSelectScene.h">
       <Filter>Src\Application\Scene\StageSelectScene</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.h">
-      <Filter>Src\Application\GameObject\Character\StageSelectPlayer</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.h">
-      <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h">
       <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Result\Result.h">
       <Filter>Src\Application\GameObject\Result</Filter>
-    </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\StageStart\StageStart.h">
-      <Filter>Src\Application\GameObject\StageStart</Filter>
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h">
       <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
@@ -570,9 +540,6 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.h">
       <Filter>Src\Application\GameObject\Terrain\Object\Door\DoorWall</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\EventObject\HealItem\HealItem.h">
-      <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\EventObject\Candy\Candy.h">
       <Filter>Src\Application\GameObject\EventObject\Candy</Filter>
     </ClInclude>
@@ -600,9 +567,6 @@
     <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h">
       <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h">
-      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.h">
       <Filter>Src\Application\GameObject\Terrain\Ground\SlopeGround</Filter>
     </ClInclude>
@@ -621,9 +585,6 @@
     <ClInclude Include="Src\Application\Scene\ResultScene\ResultScene.h">
       <Filter>Src\Application\Scene\ResultScene</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.h">
-      <Filter>Src\Application\GameObject\Character\ResultPlayer</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.h">
       <Filter>Src\Application\GameObject\Camera\ResultCamera</Filter>
     </ClInclude>
@@ -635,6 +596,12 @@
     </ClInclude>
     <ClInclude Include="Src\Application\Tool\MouseClickHit\MouseClickHit.h">
       <Filter>Src\Application\Tool\MouseClickHit</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.h">
+      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Title\ResultPlayer\ResultPlayer.h">
+      <Filter>Src\Application\GameObject\Title\ResultPlayer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -797,9 +764,6 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\BoundGround\BoundGround.cpp">
       <Filter>Src\Application\GameObject\Terrain\Ground\BoundGround</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Terrain\Wall\NormalWall\NormalWall.cpp">
-      <Filter>Src\Application\GameObject\Terrain\Wall\NormalWall</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp">
       <Filter>Src\Application\Tool\DebugWindow</Filter>
     </ClCompile>
@@ -833,20 +797,11 @@
     <ClCompile Include="Src\Application\Scene\StageSelectScene\StageSelectScene.cpp">
       <Filter>Src\Application\Scene\StageSelectScene</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Character\StageSelectPlayer\StageSelectPlayer.cpp">
-      <Filter>Src\Application\GameObject\Character\StageSelectPlayer</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Camera\StageSelectCamera\StageSelectCamera.cpp">
-      <Filter>Src\Application\GameObject\Camera\StageSelectCamera</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp">
       <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp">
       <Filter>Src\Application\GameObject\Result</Filter>
-    </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\StageStart\StageStart.cpp">
-      <Filter>Src\Application\GameObject\StageStart</Filter>
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp">
       <Filter>Src\Application\GameObject\Terrain\Ground\DropGround</Filter>
@@ -896,9 +851,6 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.cpp">
       <Filter>Src\Application\GameObject\Terrain\Object\Door\DoorWall</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\EventObject\HealItem\HealItem.cpp">
-      <Filter>Src\Application\GameObject\EventObject\HealItem</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\EventObject\Candy\Candy.cpp">
       <Filter>Src\Application\GameObject\EventObject\Candy</Filter>
     </ClCompile>
@@ -923,9 +875,6 @@
     <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp">
       <Filter>Src\Application\GameObject\BackGround\TitleBackGround</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp">
-      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.cpp">
       <Filter>Src\Application\GameObject\Terrain\Ground\SlopeGround</Filter>
     </ClCompile>
@@ -944,9 +893,6 @@
     <ClCompile Include="Src\Application\Scene\ResultScene\ResultScene.cpp">
       <Filter>Src\Application\Scene\ResultScene</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Character\ResultPlayer\ResultPlayer.cpp">
-      <Filter>Src\Application\GameObject\Character\ResultPlayer</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.cpp">
       <Filter>Src\Application\GameObject\Camera\ResultCamera</Filter>
     </ClCompile>
@@ -958,6 +904,12 @@
     </ClCompile>
     <ClCompile Include="Src\Application\Tool\MouseClickHit\MouseClickHit.cpp">
       <Filter>Src\Application\Tool\MouseClickHit</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Title\TitlePlayer\TitlePlayer.cpp">
+      <Filter>Src\Application\GameObject\Title\TitlePlayer</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Title\ResultPlayer\ResultPlayer.cpp">
+      <Filter>Src\Application\GameObject\Title\ResultPlayer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

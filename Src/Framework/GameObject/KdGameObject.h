@@ -82,7 +82,6 @@ public:
 		Player,			// プレイヤー
 		NormalGround,	// 触れても何も起きない地形
 		BoundGround,	// 触れたら跳ねる地形
-		NormalWall,		// 触れても何も起きない壁
 		MoveGround,		// 動く床
 		RotationGround,	// 回転する床
 		FenceBar,		// 柵
@@ -98,7 +97,6 @@ public:
 		FlyEnemy,		// 飛ぶ敵
 
 		Goal,			// ゴール
-		HealItem,		// 回復アイテム
 		Candy,			// コイン的な
 		SavePoint,		// セーブポイント
 		WarpPoint,		// ワープポイント

@@ -1217,6 +1217,7 @@ void Player::HitJudgeEvent()
 				case ObjectType::FinalGoal:
 					m_stopFlg = true;
 					m_finalGoalFlg = true;
+					break;
 				}
 			}
 		}
@@ -1332,37 +1333,14 @@ void Player::HitJudgeEnemy()
 		// 当たっていた時の処理
 		if (hitFlg)
 		{
-			// 当たったオブジェクト
-			//std::shared_ptr<KdGameObject> spHitObject;
-
 			// 音のフラグをリセット
 			m_stampSound.flg = false;	// 敵を踏んだ時の音
-
-			//// 敵を探す
-			//for (auto& hitObject : m_wpHitObjectList)
-			//{
-			//	if (!hitObject.expired())
-			//	{
-			//		if (hitObject.lock()->GetBaseObjectType() == BaseObjectType::Enemy)
-			//		{
-			//			spHitObject = hitObject.lock();
-			//			break;
-			//		}
-			//	}
-			//}
-
 			if (spHitObject)
 			{
-				// 敵の座標
+				// 敵の倒せる座標
 				Math::Vector3 enemyPos = spHitObject->GetPos();
-				enemyPos.y += 0.5f;
-				// 敵からプレイヤーのベクトル
-				Math::Vector3 vec = m_pos - enemyPos;
-				vec.z = 0;
-				// 敵から見たプレイヤーの角度
-				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-				// 上半分なら倒す
-				if (degAng < 90 && degAng > -90)
+				// 上なら倒す
+				if (m_pos.y >= enemyPos.y)
 				{
 					// 煙を生み出す
 					std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
@@ -1375,13 +1353,8 @@ void Player::HitJudgeEnemy()
 					spHitObject->OnHit();
 					m_gravity = -m_enemyJumpPow;
 
-					// もしジャンプ状態ならジャンプのアニメーションをする
-					if (m_situationType & SituationType::Jump)
-					{
-						//m_spAnimator->SetAnimation(m_spModel->GetAnimation("JumpMove"), false);
-					}
-					// 違うならジャンプ状態にする
-					else
+					// もしジャンプ状態じゃないならジャンプ状態にする
+					if ((m_situationType & SituationType::Jump) == 0)
 					{
 						m_situationType |= SituationType::Jump;
 					}

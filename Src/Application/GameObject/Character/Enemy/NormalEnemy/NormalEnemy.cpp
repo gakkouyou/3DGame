@@ -199,6 +199,16 @@ void NormalEnemy::Reset()
 	m_move.rotFlg = true;
 }
 
+Math::Vector3 NormalEnemy::GetPos() const
+{
+	Math::Vector3 pos;
+	if (m_spModel)
+	{
+		pos = (m_spModel->FindNode("DeathPoint")->m_worldTransform * m_mWorld).Translation();
+	}
+	return pos;
+}
+
 void NormalEnemy::HitJudge()
 {
 	HitGround();

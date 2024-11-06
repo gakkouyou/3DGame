@@ -91,11 +91,7 @@ void MoveGround::PostUpdate()
 
 void MoveGround::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/MoveGround/moveGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/MoveGround/moveGround.gltf");
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
@@ -128,6 +124,14 @@ void MoveGround::Reset()
 	m_stopFlg = false;
 
 	m_pauseFlg = false;
+
+	// 等速で動いていた場合の、スタートからゴールまで行くフレーム数
+	float moveFrame = (m_param.startPos - m_param.goalPos).Length() / m_param.speed;
+
+	// 進行度を進める値を決める
+	m_speed = 1 / moveFrame;
+
+	m_progress = 0;
 }
 
 void MoveGround::SetParam(const Param& _param)

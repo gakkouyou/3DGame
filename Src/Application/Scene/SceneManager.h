@@ -108,8 +108,8 @@ private :
 	//SceneType m_nextSceneType = SceneType::Result;
 
 	// プレイするステージ
-	UINT m_nowStage	= Stage::AllGimmick;
-	//UINT m_nowStage = Stage::Stage3;
+	//UINT m_nowStage	= Stage::AllGimmick;
+	UINT m_nowStage = Stage::Stage3;
 	//UINT m_nowStage	= 1;
 
 	// ステージのクリア状況

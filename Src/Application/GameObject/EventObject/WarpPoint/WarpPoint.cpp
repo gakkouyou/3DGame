@@ -2,17 +2,55 @@
 
 void WarpPoint::Update()
 {
+	m_degAng++;
+	if (m_degAng <= 360)
+	{
+		m_degAng -= 360;
+	}
 }
 
 void WarpPoint::DrawUnLit()
 {
 	if (m_spInModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, m_mWorld);
+		KdShaderManager::Instance().ChangeBlendState(KdBlendState::Add);
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld);
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(0.9f);
+		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, scaleMat * rotMat * m_mWorld);
+		KdShaderManager::Instance().UndoRasterizerState();
+		KdShaderManager::Instance().UndoBlendState();
 	}
 	if (m_spOutModel)
 	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_mWorld);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat);
+	}
+}
+
+void WarpPoint::DrawBright()
+{
+	if (m_spInModel)
+	{
+		KdShaderManager::Instance().ChangeBlendState(KdBlendState::Add);
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld);
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(0.9f);
+		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, scaleMat * rotMat * m_mWorld);
+		KdShaderManager::Instance().UndoRasterizerState();
+		KdShaderManager::Instance().UndoBlendState();
+	}
+	if (m_spOutModel)
+	{
+		Math::Color color = { 0.3, 0.3, 0.3, 1 };
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_mWorld, color);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat, color);
 	}
 }
 

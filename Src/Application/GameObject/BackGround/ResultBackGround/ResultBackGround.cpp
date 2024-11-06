@@ -67,11 +67,7 @@ void ResultBackGround::DrawLit()
 
 void ResultBackGround::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/BackGround/ResultBackGround/resultBackGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/BackGround/ResultBackGround/resultBackGround.gltf");
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(9.5f);
 

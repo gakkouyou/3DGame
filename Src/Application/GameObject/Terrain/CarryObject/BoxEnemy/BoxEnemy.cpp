@@ -368,11 +368,7 @@ void BoxEnemy::Init()
 
 	srand(timeGetTime());
 
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/CarryObject/BoxEnemyBox/BoxEnemyBox.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/CarryObject/BoxEnemyBox/BoxEnemyBox.gltf");
 
 	// 角っこの座標
 	Math::Vector3 rightBackUp = m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();
@@ -395,7 +391,6 @@ void BoxEnemy::Init()
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("BoxEnemyBox", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
-	m_pCollider->SetEnable("BoxEnemyBox", false);
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::BoxEnemy;
@@ -436,6 +431,9 @@ void BoxEnemy::Init()
 		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
 	}
+
+	// 最初の当たり判定は箱のみ
+	m_pCollider->SetEnable("BoxEnemyEnemy", false);
 }
 
 void BoxEnemy::CarryFlg(bool _carryFlg)

@@ -38,11 +38,6 @@ void FinalGoal::Init()
 {
 	EventObjectBase::Init();
 
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-	}
-
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
 
@@ -69,18 +64,18 @@ void FinalGoal::SetParam(const Param& _param)
 		{
 		// ステージ１をクリアしたときのモデル
 		case 1:
-			m_spModel->Load("Asset/Models/EventObject/Clock/Body/body.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/Body/body.gltf");
 			break;
 
 			// ステージ２をクリアしたときのモデル
 		case 2:
-			m_spModel->Load("Asset/Models/EventObject/Clock/BodyNeedle/bodyNeedle.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/BodyNeedle/bodyNeedle.gltf");
 			break;
 
 			// ステージ３をクリアしたときのモデル
 		case 3:
 		case 4:
-			m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/clock.gltf");
 			m_pCollider->RegisterCollisionShape("FinalGoal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 		}

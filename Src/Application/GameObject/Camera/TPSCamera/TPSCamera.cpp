@@ -171,8 +171,7 @@ void TPSCamera::PostUpdate()
 	{
 		if (obj->GetBaseObjectType() == BaseObjectType::Ground)
 		{
-			count++;
-			if (obj->Intersects(frustum))
+			if (obj->CheckInScreen(frustum))
 			{
 				obj->SetDrawFlg(true);
 				drawCount++;
@@ -181,6 +180,7 @@ void TPSCamera::PostUpdate()
 			{
 				obj->SetDrawFlg(false);
 			}
+			count++;
 		}
 	}
 

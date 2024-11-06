@@ -24,11 +24,7 @@ void Switch::Update()
 void Switch::Init()
 {
 	// スイッチのボタンのモデル
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Object/Switch/Button/button.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Object/Switch/Button/button.gltf");
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("SwitchButton", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);

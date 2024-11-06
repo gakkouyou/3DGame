@@ -3,11 +3,7 @@
 void SwitchBaseModel::Init()
 {
 	// スイッチの土台のようなモデル
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Object/Switch/Base/base.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Object/Switch/Base/base.gltf");
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("SwitchBase", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);

@@ -87,11 +87,6 @@ void Goal::Init()
 {
 	EventObjectBase::Init();
 
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-	}
-
 	// コライダー
 	m_pCollider = std::make_unique<KdCollider>();
 
@@ -121,25 +116,25 @@ void Goal::SetParam(const Param& _param)
 		{
 		// ステージ１のモデル
 		case 1:
-			m_spModel->Load("Asset/Models/EventObject/Clock/Body/body.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/Body/body.gltf");
 			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 
 		// ステージ２のモデル
 		case 2:
-			m_spModel->Load("Asset/Models/EventObject/Clock/Needle/needle.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/Needle/needle.gltf");
 			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 
 		// ステージ３のモデル
 		case 3:
-			m_spModel->Load("Asset/Models/EventObject/Clock/Bell/bell.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/Bell/bell.gltf");
 			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 
 		// 発表用のモデル
 		case 4:
-			m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
+			m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/Clock/clock.gltf");
 			m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 			break;
 		}

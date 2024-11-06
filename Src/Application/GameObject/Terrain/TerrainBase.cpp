@@ -2,7 +2,6 @@
 
 void TerrainBase::GenerateDepthMapFromLight()
 {
-	if (m_drawFlg == false) return;
 	if (m_drawType & eDrawTypeDepthOfShadow)
 	{
 		if (m_spModel)

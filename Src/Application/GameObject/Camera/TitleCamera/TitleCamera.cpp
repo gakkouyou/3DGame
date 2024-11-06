@@ -1,4 +1,5 @@
 ﻿#include "TitleCamera.h"
+#include "Application/main.h"
 
 void TitleCamera::Update()
 {
@@ -14,6 +15,7 @@ void TitleCamera::Update()
 
 		// Y座標のみコサインカーブの軌道
 		float progress = cos(DirectX::XMConvertToRadians(m_cosCurveYPos.degAng)) * -1 + 1;
+		progress = -(cos(DirectX::XM_PI * progress) - 1.0f) * 0.5f;
 		Math::Vector3 y = Math::Vector3::Lerp(startPos, goalPos, progress);
 		nowPos.y = y.y;
 		m_cosCurveYPos.degAng += m_cosCurveYPos.addDegAng;
@@ -36,7 +38,7 @@ void TitleCamera::Update()
 
 		m_mWorld = mat;
 	}
-	else if(m_animationFlg == false)
+	else if (m_animationFlg == false)
 	{
 		m_mWorld = m_startMat;
 
@@ -46,7 +48,6 @@ void TitleCamera::Update()
 		}
 	}
 }
-
 void TitleCamera::Init()
 {
 	// 親クラスの初期化呼び出し

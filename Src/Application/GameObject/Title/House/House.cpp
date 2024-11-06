@@ -129,17 +129,13 @@ void House::DrawLit()
 void House::Init()
 {
 	// 家のモデル
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Title/House/house.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/House/house.gltf");
 
 	// ドアのモデル
 	if (!m_spDoorModel)
 	{
 		m_spDoorModel = std::make_shared<KdModelData>();
-		m_spDoorModel->Load("Asset/Models/Title/Door/door.gltf");
+		m_spDoorModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/Door/door.gltf");
 	}
 	m_doorMat.Translation(m_spModel->FindNode("DoorPoint")->m_worldTransform.Translation());
 
@@ -147,7 +143,7 @@ void House::Init()
 	if (!m_spHouseObjectModel)
 	{
 		m_spHouseObjectModel = std::make_shared<KdModelData>();
-		m_spHouseObjectModel->Load("Asset/Models/Title/HouseObject/houseObject.gltf");
+		m_spHouseObjectModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/HouseObject/houseObject.gltf");
 	}
 
 	// ベッドの座標
@@ -157,7 +153,7 @@ void House::Init()
 	if (!m_spRoadModel)
 	{
 		m_spRoadModel = std::make_shared<KdModelData>();
-		m_spRoadModel->Load("Asset/Models/Title/Road/road.gltf");
+		m_spRoadModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/Road/road.gltf");
 
 		Math::Matrix transMat = Math::Matrix::CreateTranslation({ 0, 0, -10 });
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(2);
@@ -168,7 +164,7 @@ void House::Init()
 	if (!m_spTreeModel)
 	{
 		m_spTreeModel = std::make_shared<KdModelData>();
-		m_spTreeModel->Load("Asset/Models/Title/Tree/tree.gltf");
+		m_spTreeModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/Tree/tree.gltf");
 		m_treeMat[0].Translation({-10, 0, -7});
 		m_treeMat[1].Translation({ 8.5, 0, -7 });
 	}

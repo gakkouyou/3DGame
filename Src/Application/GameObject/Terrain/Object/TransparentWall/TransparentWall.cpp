@@ -16,11 +16,7 @@ void TransparentWall::DrawLit()
 
 void TransparentWall::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Object/TransparentWall/transparentWall.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Object/TransparentWall/transparentWall.gltf");
 
 	m_objectType = ObjectType::TransparentWall;
 

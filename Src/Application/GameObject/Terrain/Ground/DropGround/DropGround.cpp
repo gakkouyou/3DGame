@@ -60,11 +60,7 @@ void DropGround::Update()
 
 void DropGround::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/DropGround/dropGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/DropGround/dropGround.gltf");
 
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();

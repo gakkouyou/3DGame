@@ -10,6 +10,7 @@ public:
 
 	void Update()		override;
 	void DrawUnLit()	override;
+	void DrawBright()	override;
 	void Init()			override;
 
 	// 出口の座標を返す
@@ -31,4 +32,6 @@ private:
 	Math::Vector3 m_inPos;
 	// 出口の座標
 	Math::Vector3 m_outPos;
+
+	float m_degAng = 0;
 };

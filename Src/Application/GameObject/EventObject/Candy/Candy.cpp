@@ -41,10 +41,7 @@ void Candy::Init()
 
 	if (!m_spModel)
 	{
-		m_spModel = std::make_shared<KdModelData>();
-		//m_spModel->Load("Asset/Models/EventObject/candy/candy.gltf");
-		m_spModel->Load("Asset/Models/EventObject/test/test.gltf");
-		//m_spModel->Load("Asset/Models/EventObject/test2/test2.gltf");
+
 	}
 
 	m_objectType = ObjectType::Candy;

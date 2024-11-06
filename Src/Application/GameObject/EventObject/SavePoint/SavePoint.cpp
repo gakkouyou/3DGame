@@ -8,20 +8,37 @@ void SavePoint::Update()
 		if (m_degAng > m_maxDegAng)
 		{
 			m_degAng -= m_sumDegAng;
-			m_sumDegAng += 0.2f;
+			m_sumDegAng += m_addSumDegAng;
 		}
 		else
 		{
 			m_situationType = SituationType::Down;
 			m_degAng = m_maxDegAng;
+			m_sumDegAng = m_baseSumDegAng;
 		}
 	}
 
 	if (m_situationType == SituationType::Down)
 	{
-		if (m_degAng < m_standDegAng)
+		if (m_degAng < m_minDegAng)
 		{
 			m_degAng += m_sumDegAng;
+			m_sumDegAng += m_addSumDegAng;
+		}
+		else
+		{
+			m_degAng = m_minDegAng;
+			m_situationType = SituationType::Up2;
+			m_sumDegAng = m_baseSumDegAng;
+		}
+	}
+
+	if (m_situationType == SituationType::Up2)
+	{
+		if (m_degAng > m_standDegAng)
+		{
+			m_degAng -= m_sumDegAng;
+			m_sumDegAng += m_addSumDegAng;
 		}
 		else
 		{
@@ -112,29 +129,11 @@ void SavePoint::Init()
 {
 	EventObjectBase::Init();
 
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/EventObject/SavePoint/savePoint.gltf");
-	}
+	// 旗
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/savePoint.gltf");
 
-	if (!m_spBaseModel)
-	{
-		m_spBaseModel = std::make_shared<KdModelData>();
-		m_spBaseModel->Load("Asset/Models/EventObject/SavePoint/Base/base.gltf");
-	}
-
-	if (!m_spPoleModel)
-	{
-		m_spPoleModel = std::make_shared<KdModelData>();
-		m_spPoleModel->Load("Asset/Models/EventObject/SavePoint/Pole/pole.gltf");
-	}
-
-	if (!m_spFlagModel)
-	{
-		m_spFlagModel = std::make_shared<KdModelData>();
-		m_spFlagModel->Load("Asset/Models/EventObject/SavePoint/Flag/flag.gltf");
-	}
+	// 土台
+	m_spBaseModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Base/base.gltf");
 
 	m_objectType = ObjectType::SavePoint;
 

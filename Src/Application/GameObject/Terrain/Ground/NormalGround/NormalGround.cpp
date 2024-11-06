@@ -3,11 +3,7 @@
 void NormalGround::Init()
 {
 	// モデル読み込み
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
 
 	m_drawType = eDrawTypeLit;
 	m_drawType |= eDrawTypeDepthOfShadow;

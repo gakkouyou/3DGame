@@ -8,11 +8,7 @@
 void BoundGround::Init()
 {
 	// モデルセット
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/BoundGround/boundGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/BoundGround/boundGround.gltf");
 
 	// 座標セット
 	SetPos({ 20.0f, 0.0f, 0.0f });

@@ -7,6 +7,7 @@ class CarryObjectController;
 class CarryObjectBase;
 class EnemyController;
 class EventObjectController;
+class GameUI;
 
 class Player : public CharacterBase
 {
@@ -43,6 +44,9 @@ public:
 
 	// ゴールの座標をセット
 	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalPos = _goalPos; }
+
+	// UIセット
+	void SetGameUI(const std::shared_ptr<GameUI>& _gameUI) { m_wpGameUI = _gameUI; }
 
 	// EnemyControllerをセットする
 	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
@@ -229,6 +233,9 @@ private:
 
 	// EventObjectController
 	std::weak_ptr<EventObjectController> m_wpEventObjectController;
+
+	// ゲームのUI
+	std::weak_ptr<GameUI> m_wpGameUI;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;

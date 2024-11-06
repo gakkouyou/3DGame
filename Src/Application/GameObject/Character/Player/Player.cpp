@@ -1,11 +1,12 @@
 ﻿#include "Player.h"
 #include "../../../Scene/SceneManager.h"
 #include "../../Camera/CameraBase.h"
-#include "../../Terrain/TerrainBase.h"
-#include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
 
 #include "../../Effect/Smoke/Smoke.h"
+#include "../../UI/GameUI/GameUI.h"
 
+#include "../../Terrain/TerrainBase.h"
+#include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Terrain/CarryObject/CarryObjectBase.h"
 #include "../../../Tool/ObjectController/EnemyController/EnemyController.h"
@@ -393,8 +394,8 @@ void Player::Update()
 				// ジャンプの場合
 				if (m_situationType & SituationType::Jump)
 				{
-					// もしジャンプをすでにしている場合変えない
-					if ((oldSituationType & SituationType::Jump) == 0)
+					// ジャンプをしていなかった、または、運ばれている状態が解除された時にジャンプアニメーションを再生する
+					if ((oldSituationType & SituationType::Jump) == 0 || oldSituationType & SituationType::Carry)
 					{
 						SetAnimation("Jump", false);
 					}
@@ -847,6 +848,9 @@ void Player::HitJudge()
 	// 当たったオブジェクトリストをリセット
 	m_wpHitObjectList.clear();
 
+	// 運べるオブジェクトとの当たり判定
+	HitJudgeCarryObject();
+
 	// 地面との当たり判定
 	HitJudgeGround();
 
@@ -857,9 +861,6 @@ void Player::HitJudge()
 
 		// 敵との当たり判定
 		HitJudgeEnemy();
-
-		// 運べるオブジェクトとの当たり判定
-		HitJudgeCarryObject();
 	}
 }
 
@@ -877,6 +878,7 @@ void Player::HitJudgeGround()
 	m_wpHitTerrain.reset();
 
 	// 地面とのレイ当たり判定
+	if(m_carryObject.hitFlg == false)
 	{
 		// 当たった座標
 		Math::Vector3 hitPos = Math::Vector3::Zero;
@@ -1210,7 +1212,14 @@ void Player::HitJudgeEvent()
 
 					// ワープポイント
 				case ObjectType::WarpPoint:
-					m_pos = spHitObject->GetPos();
+					if (GetAsyncKeyState('F') & 0x8000)
+					{
+						m_pos = spHitObject->GetPos();
+					}
+					if (m_wpGameUI.expired() == false)
+					{
+						m_wpGameUI.lock()->SetDrawType(GameUI::DrawType::Warp);
+					}
 					break;
 
 					// 最終ゴール

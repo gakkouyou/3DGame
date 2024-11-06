@@ -70,12 +70,6 @@ void StageSelectObject::DrawSprite()
 
 void StageSelectObject::Init()
 {
-	// モデル
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-	}
-
 	EventObjectBase::Init();
 
 	// オブジェクトタイプ
@@ -100,7 +94,7 @@ void StageSelectObject::SetParam(const Param& _param)
 {
 	if (m_param.modelNum != _param.modelNum && _param.modelNum != 0)
 	{
-		m_spModel->Load("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/stage" + std::to_string(_param.modelNum) + ".gltf");
+		m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/stage" + std::to_string(_param.modelNum) + ".gltf");
 
 		//switch (_param.modelNum)
 		//{

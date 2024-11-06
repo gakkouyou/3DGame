@@ -14,11 +14,7 @@ void BackGround::DrawUnLit()
 
 void BackGround::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/BackGround/backGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/BackGround/backGround.gltf");
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(15.0f);
 

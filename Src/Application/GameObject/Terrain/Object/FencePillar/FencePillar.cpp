@@ -2,11 +2,7 @@
 
 void FencePillar::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Object/FencePillar/fencePillar.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Object/FencePillar/fencePillar.gltf");
 
 	// 描画タイプ
 	m_drawType |= eDrawTypeLit;

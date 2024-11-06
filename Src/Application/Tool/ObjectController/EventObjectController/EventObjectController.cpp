@@ -185,15 +185,19 @@ void EventObjectController::ConfirmedObject()
 			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
 			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
 			m_dataList[num].modelNum	= spTargetObject->GetParam().modelNum;	// ステージ数
-			// プレイヤーにゴールの座標を渡す
-			if (!m_wpPlayer.expired())
+
+			if (spTargetObject->GetObjectType() == ObjectType::Goal)
 			{
-				m_wpPlayer.lock()->SetGoalPos(m_dataList[num].pos);
-			}
-			// カメラにゴールを渡す
-			if (!m_wpCamera.expired())
-			{
-				m_wpCamera.lock()->SetTarget(spTargetObject);
+				// プレイヤーにゴールの座標を渡す
+				if (!m_wpPlayer.expired())
+				{
+					m_wpPlayer.lock()->SetGoalPos(m_dataList[num].pos);
+				}
+				// カメラにゴールを渡す
+				if (!m_wpCamera.expired())
+				{
+					m_wpCamera.lock()->SetTarget(spTargetObject);
+				}
 			}
 		}
 	}

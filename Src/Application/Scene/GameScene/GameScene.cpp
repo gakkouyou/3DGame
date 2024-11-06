@@ -9,6 +9,7 @@
 #include "../../GameObject/Result/Result.h"
 #include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
+#include "../../GameObject/UI/GameUI/GameUI.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -259,6 +260,13 @@ void GameScene::Init()
 	AddObject(pause);
 	// 保持
 	m_wpPause = pause;
+
+	// UI
+	std::shared_ptr<GameUI> ui = std::make_shared<GameUI>();
+	ui->Init();
+	AddObject(ui);
+	// プレイヤーに渡す
+	player->SetGameUI(ui);
 
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

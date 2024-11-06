@@ -230,11 +230,7 @@ void Box::PostUpdate()
 
 void Box::Init()
 {
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/CarryObject/Box/Box.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/CarryObject/Box/Box.gltf");
 
 	// 角っこの座標
 	Math::Vector3 rightBackUp	= m_spModel->FindNode("RightBackUp")->m_worldTransform.Translation();

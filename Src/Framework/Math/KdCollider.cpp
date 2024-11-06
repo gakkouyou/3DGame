@@ -592,6 +592,7 @@ bool KdModelCollision::Intersects(const KdCollider::RayInfo& target, const Math:
 	return isHit;
 }
 
+// 視錐台カリング
 bool KdModelCollision::Intersects(const DirectX::BoundingFrustum& target, const Math::Matrix& world)
 {
 	// 当たり判定が無効 or 形状が解放済みなら判定せず返る

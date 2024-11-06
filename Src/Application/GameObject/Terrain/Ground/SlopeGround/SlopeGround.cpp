@@ -32,11 +32,7 @@ void SlopeGround::DrawLit()
 void SlopeGround::Init()
 {
 	// モデル読み込み
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		m_spModel->Load("Asset/Models/Terrain/Ground/SlopeGround/slopeGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/SlopeGround/slopeGround.gltf");
 
 	m_drawType = eDrawTypeLit;
 	m_drawType |= eDrawTypeDepthOfShadow;

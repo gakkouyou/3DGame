@@ -61,12 +61,7 @@ void RotationGround::Update()
 void RotationGround::Init()
 {
 	// モデルロード
-	if (!m_spModel)
-	{
-		m_spModel = std::make_shared<KdModelData>();
-		//m_spModel->Load("Asset/Models/Terrain/Ground/NormalGround/normalGround.gltf");
-		m_spModel->Load("Asset/Models/Terrain/Ground/RotationGround/rotationGround.gltf");
-	}
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/RotationGround/rotationGround.gltf");
 
 	// 当たり判定付与
 	m_pCollider = std::make_unique<KdCollider>();

@@ -21,7 +21,7 @@
 void Player::Update()
 {
 	// デバッグモード中は更新しない
-	if (SceneManager::Instance().GetDebug()) return;
+	//if (SceneManager::Instance().GetDebug()) return;
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
@@ -902,7 +902,7 @@ void Player::HitJudgeGround()
 		// レイ判定
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
-		// 当たっていなかったら右足からのレイ判定をする
+		// 当たっていなかったら右前足からのレイ判定をする
 		if (hitFlg == false)
 		{
 			// 右足の場所
@@ -910,11 +910,34 @@ void Player::HitJudgeGround()
 			// 回転処理
 			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle)) + m_pos.x;
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
+			Math::Vector3 z;
+			Math::Vector3::TransformNormal({0, 0, 0.2f}, rotMat, z);
+			rayInfo.m_pos += z;
+
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+		}
+		// 当たっていなかったら右後足からのレイ判定をする
+		if (hitFlg == false)
+		{
+			// 右足の場所
+			nodePos = m_spModel->FindNode("Right")->m_worldTransform.Translation();
+			// 回転処理
+			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle)) + m_pos.x;
+			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
+			Math::Vector3 z;
+			Math::Vector3::TransformNormal({ 0, 0, -0.2f }, rotMat, z);
+			rayInfo.m_pos += z;
+
+			// レイ判定
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 		}
 
-		// 当たっていなかったら左足からのレイ判定をする
+		// 当たっていなかったら左前足からのレイ判定をする
 		if (hitFlg == false)
 		{
 			// 左足の場所
@@ -922,6 +945,29 @@ void Player::HitJudgeGround()
 			// 回転処理
 			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle)) + m_pos.x;
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
+			Math::Vector3 z;
+			Math::Vector3::TransformNormal({ 0, 0, 0.2f }, rotMat, z);
+			rayInfo.m_pos += z;
+
+			// レイ判定
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+		}
+		// 当たっていなかったら左後足からのレイ判定をする
+		if (hitFlg == false)
+		{
+			// 左足の場所
+			nodePos = m_spModel->FindNode("Left")->m_worldTransform.Translation();
+			// 回転処理
+			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle)) + m_pos.x;
+			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
+
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
+			Math::Vector3 z;
+			Math::Vector3::TransformNormal({ 0, 0, -0.2f }, rotMat, z);
+			rayInfo.m_pos += z;
+
 			// レイ判定
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		}
@@ -1022,6 +1068,10 @@ void Player::HitJudgeGround()
 		}
 	}
 
+	{
+
+	}
+
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
 	{
@@ -1056,74 +1106,117 @@ void Player::HitJudgeGround()
 			}
 		}
 
-		if (hitFlg == false) return;
+		if (hitFlg == true)
+		{
 
-		// スフィアの情報
-		KdCollider::SphereInfo sphereInfo;
-		// スフィアの中心座標
-		sphereInfo.m_sphere.Center = m_pos;
-		// スフィアの半径
-		sphereInfo.m_sphere.Radius = radius;
-		sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius + 0.1f;
-		// スフィアのタイプ
-		sphereInfo.m_type = KdCollider::TypeGround;
+			// スフィアの情報
+			KdCollider::SphereInfo sphereInfo;
+			// スフィアの中心座標
+			sphereInfo.m_sphere.Center = m_pos;
+			// スフィアの半径
+			sphereInfo.m_sphere.Radius = radius;
+			sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
+			// スフィアのタイプ
+			sphereInfo.m_type = KdCollider::TypeGround;
 
-		// 当たったかどうかのフラグ
-		hitFlg = false;
-		// 当たった結果
-		KdCollider::CollisionResult collisionResult;
-		// 複数に当たったかどうかのフラグ
-		bool multiHitFlg = false;
+			Math::Vector3 pos = sphereInfo.m_sphere.Center;
+			m_pDebugWire->AddDebugSphere(pos, radius);
+			pos.y += 0.5f;
+			m_pDebugWire->AddDebugSphere(pos, radius);
+			pos.y += 0.5f;
+			m_pDebugWire->AddDebugSphere(pos, radius);
+			pos.y += 0.5f;
+			m_pDebugWire->AddDebugSphere(pos, radius);
 
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
-		if (hitFlg == false)
-		{
-			sphereInfo.m_sphere.Center.y += 0.5f;
-			hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		}
+			// 当たったかどうかのフラグ
+			hitFlg = false;
+			// 当たった結果
+			KdCollider::CollisionResult collisionResult;
+			// 複数に当たったかどうかのフラグ
+			bool multiHitFlg = false;
 
-		// 複数のオブジェクトに当たっていた場合
-		if (multiHitFlg == true)
-		{
-			// Y座標以外、更新前の座標に戻す
-			m_pos.x = m_oldPos.x;
-			m_pos.z = m_oldPos.z;
-		}
-		// 一つのオブジェクトに当たった場合
-		else if (hitFlg)
-		{
-			// Y軸の補正はなし
-			collisionResult.m_hitDir.y = 0;
-			collisionResult.m_hitDir.Normalize();
-			m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
-		}
+			if (m_situationType & SituationType::Air)
+			{
+				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+			}
+			if (hitFlg == false)
+			{
+				sphereInfo.m_sphere.Center.y += 0.5f;
+				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+			}
+			if (hitFlg == false)
+			{
+				sphereInfo.m_sphere.Center.y += 0.5f;
+				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+			}
+			if (hitFlg == false)
+			{
+				sphereInfo.m_sphere.Center.y += 0.5f;
+				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+			}
 
-		hitFlg = false;
-		sphereInfo.m_sphere.Center = m_pos;
-		sphereInfo.m_sphere.Radius -= 0.05f;
-		sphereInfo.m_sphere.Center.y += 2.2f;
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		// 複数のオブジェクトに当たっていた場合
-		if (multiHitFlg == true)
+			// 複数のオブジェクトに当たっていた場合
+			if (multiHitFlg == true)
+			{
+				// Y座標以外、更新前の座標に戻す
+				m_pos.x = m_oldPos.x;
+				m_pos.z = m_oldPos.z;
+			}
+			// 一つのオブジェクトに当たった場合
+			else if (hitFlg)
+			{
+				// Y軸の補正はなし
+				collisionResult.m_hitDir.y = 0;
+				collisionResult.m_hitDir.Normalize();
+				Math::Vector3 pos = collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+				pos.y = 0;
+				m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+			}
+
+			//hitFlg = false;
+			//sphereInfo.m_sphere.Center = m_pos;
+			//sphereInfo.m_sphere.Radius -= 0.05f;
+			//sphereInfo.m_sphere.Center.y += 2.2f;
+			//hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+			//// 複数のオブジェクトに当たっていた場合
+			////if (multiHitFlg == true)
+			//{
+			//	// Y座標のみ、更新前の座標に戻す
+			//	m_pos.y = m_oldPos.y;
+			//}
+			//// 一つのオブジェクトに当たった場合
+			////else if (hitFlg == true)
+			//{
+			//	//m_pos.y = sphereInfo.m_sphere.Center.y + sphereInfo.m_sphere.Radius - (sphereInfo.m_sphere.Radius + (sphereInfo.m_sphere.Center.y - m_pos.y));
+			//	//m_pos.y -= collisionResult.m_overlapDistance;
+			//}
+		}
+	}
+	bool hitFlg = false;
+	KdCollider::SphereInfo sphereInfo;
+	sphereInfo.m_sphere.Center = m_pos;
+	sphereInfo.m_sphere.Radius = 0.3f;
+	sphereInfo.m_sphere.Center.y += 2.2f;
+	sphereInfo.m_type = KdCollider::TypeGround;
+	KdCollider::CollisionResult collisionResult;
+	// 複数に当たったかどうかのフラグ
+	bool multiHitFlg = false;
+
+	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+	// 複数のオブジェクトに当たっていた場合
+	//if (multiHitFlg == true)
+	{
+		// Y座標のみ、更新前の座標に戻す
+		if (hitFlg == true)
 		{
-			// Y座標のみ、更新前の座標に戻す
 			m_pos.y = m_oldPos.y;
 		}
-		// 一つのオブジェクトに当たった場合
-		else if (hitFlg == true)
-		{
-			m_pos.y -= collisionResult.m_overlapDistance;
-		}
+	}
+	// 一つのオブジェクトに当たった場合
+	//else if (hitFlg == true)
+	{
+		//m_pos.y = sphereInfo.m_sphere.Center.y + sphereInfo.m_sphere.Radius - (sphereInfo.m_sphere.Radius + (sphereInfo.m_sphere.Center.y - m_pos.y));
+		//m_pos.y -= collisionResult.m_overlapDistance;
 	}
 }
 

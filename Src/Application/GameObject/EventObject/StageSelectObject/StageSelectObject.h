@@ -29,8 +29,15 @@ public:
 	void OnHit()	override;
 
 private:
-	float m_degAng = 0.0f;
+	float m_degAng = 0;
 	const float m_addDegAng = 0.7f;
+
+	// 時計のパーツのモデル
+	std::shared_ptr<KdModelData> m_spClockPartsModel = nullptr;
+	// パーツの回転角度
+	float m_partsDegAng = 0;
+	const float m_addPartsDegAng = 0.3f;
+	Math::Matrix m_partsMat;
 
 	std::shared_ptr<KdModelData> m_spSphereModel = nullptr;
 

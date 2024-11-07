@@ -13,6 +13,14 @@ void StageSelectObject::Update()
 		m_degAng -= 360;
 	}
 
+	// パーツの回転
+	m_partsDegAng += m_addPartsDegAng;
+
+	if (m_partsDegAng >= 360)
+	{
+		m_partsDegAng -= 360;
+	}
+
 	// プレイヤーが近くにいなかったら小さくする
 	if (m_onHitFlg == false)
 	{
@@ -30,6 +38,9 @@ void StageSelectObject::Update()
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.basePos);
 	m_objMat = scaleMat * rotMat * transMat;
+
+	Math::Matrix partsRotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_partsDegAng));
+	m_partsMat = scaleMat * partsRotMat * transMat;
 }
 
 void StageSelectObject::GenerateDepthMapFromLight()
@@ -41,6 +52,10 @@ void StageSelectObject::GenerateDepthMapFromLight()
 	if (m_spSphereModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
+	}
+	if (m_spClockPartsModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
 	}
 }
 
@@ -55,7 +70,10 @@ void StageSelectObject::DrawLit()
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
 	}
-
+	if (m_spClockPartsModel)
+	{
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
+	}
 }
 
 void StageSelectObject::DrawUnLit()
@@ -94,7 +112,8 @@ void StageSelectObject::SetParam(const Param& _param)
 {
 	if (m_param.modelNum != _param.modelNum && _param.modelNum != 0)
 	{
-		m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/stage" + std::to_string(_param.modelNum) + ".gltf");
+		m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/StageObject/stage" + std::to_string(_param.modelNum) + ".gltf");
+		m_spClockPartsModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/ClockParts/clockParts.gltf");
 
 		//switch (_param.modelNum)
 		//{

@@ -34,4 +34,9 @@ private:
 	Math::Vector3 m_outPos;
 
 	float m_degAng = 0;
+
+	// エフェクシア用フラグ
+	bool m_effectFlg = false;
+	// エフェクシア用ウィークポインタ
+	std::weak_ptr<KdEffekseerObject> m_wpEffekseer;
 };

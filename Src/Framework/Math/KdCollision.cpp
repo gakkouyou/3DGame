@@ -768,43 +768,43 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box, const Di
 		front	= finalPos.z + size.z;	// 前面(奥)
 		back	= finalPos.z - size.z;	// 後ろ(手前)
 
-		//// もし当たっていたらboxをずらす
-		//if (isHit)
-		//{
-		//	float x = center.x - pos.x;
-		//	if (x > 0)
-		//	{
-		//		// boxの左辺から当たった頂点までの距離
-		//		x = size.x - x;
-		//		// ずらす
-		//		center.x += x;
-		//	}
-		//	else if (x < 0)
-		//	{
-		//		// boxの右辺から当たった頂点までの距離
-		//		x *= -1;
-		//		x = size.x - x;
-		//		// ずらす
-		//		center.x -= x;
-		//	}
+		// もし当たっていたらboxをずらす
+		if (isHit)
+		{
+			float x = center.x - pos.x;
+			if (x > 0)
+			{
+				// boxの左辺から当たった頂点までの距離
+				x = size.x - x;
+				// ずらす
+				center.x += x;
+			}
+			else if (x < 0)
+			{
+				// boxの右辺から当たった頂点までの距離
+				x *= -1;
+				x = size.x - x;
+				// ずらす
+				center.x -= x;
+			}
 
-		//	float z = center.z - pos.z;
-		//	if (z > 0)
-		//	{
-		//		// boxの左辺から当たった頂点までの距離
-		//		z = size.x - z;
-		//		// ずらす
-		//		center.z += z;
-		//	}
-		//	else if (z < 0)
-		//	{
-		//		// boxの右辺から当たった頂点までの距離
-		//		z *= -1;
-		//		z = size.z - z;
-		//		// ずらす
-		//		center.x -= z;
-		//	}
-		//}
+			float z = center.z - pos.z;
+			if (z > 0)
+			{
+				// boxの左辺から当たった頂点までの距離
+				z = size.x - z;
+				// ずらす
+				center.z += z;
+			}
+			else if (z < 0)
+			{
+				// boxの右辺から当たった頂点までの距離
+				z *= -1;
+				z = size.z - z;
+				// ずらす
+				center.x -= z;
+			}
+		}
 	}
 
 	// リザルトに結果を格納
@@ -817,6 +817,7 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingBox& box, const Di
 	return isHit;
 }
 
+// 視錐台カリング用
 bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingFrustum& frustum, const DirectX::XMMATRIX& matrix)
 {
 	// メッシュのAABBを元に、行列で変換したAABBを作成

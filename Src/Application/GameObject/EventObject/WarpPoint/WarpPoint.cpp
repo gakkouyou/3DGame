@@ -2,16 +2,10 @@
 
 void WarpPoint::Update()
 {
-	m_degAng+= 3;
+	m_degAng += m_addDegAng;
 	if (m_degAng <= 360)
 	{
 		m_degAng -= 360;
-	}
-
-	if (m_effectFlg == false)
-	{
-		m_effectFlg = true;
-
 	}
 }
 
@@ -20,7 +14,7 @@ void WarpPoint::DrawUnLit()
 	if (m_spOutModel)
 	{
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, rotMat * m_mWorld);
+		//KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, rotMat * m_mWorld);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat);
 	}
 	if (m_spInModel)
@@ -28,11 +22,13 @@ void WarpPoint::DrawUnLit()
 		KdShaderManager::Instance().ChangeBlendState(KdBlendState::Add);
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
 
-		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld);
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(0.98f);
-		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, scaleMat * rotMat * m_mWorld);
+
+		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld);
+
 		KdShaderManager::Instance().UndoRasterizerState();
 		KdShaderManager::Instance().UndoBlendState();
 	}
@@ -40,25 +36,26 @@ void WarpPoint::DrawUnLit()
 
 void WarpPoint::DrawBright()
 {
+	if (m_spOutModel)
+	{
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		Math::Color color = { 0.3, 0.3, 0.3, 1 };
+		//KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_mWorld, color);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat, color);
+	}
 	if (m_spInModel)
 	{
 		KdShaderManager::Instance().ChangeBlendState(KdBlendState::Add);
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		Math::Color color = { 0.2, 0.2, 0.2, 1 };
+		Math::Color color = { 0.1, 0.1, 0.1, 1 };
 
-		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld, color);
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(0.98f);
-		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, scaleMat * rotMat * m_mWorld);
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, scaleMat * rotMat * m_mWorld, color);
+		rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spInModel, rotMat * m_mWorld, color);
 		KdShaderManager::Instance().UndoRasterizerState();
 		KdShaderManager::Instance().UndoBlendState();
-	}
-	if (m_spOutModel)
-	{
-		Math::Color color = { 0.3, 0.3, 0.3, 1 };
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_mWorld, color);
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat, color);
 	}
 }
 
@@ -69,14 +66,14 @@ void WarpPoint::Init()
 	if (!m_spInModel)
 	{
 		m_spInModel = std::make_shared<KdModelData>();
-		m_spInModel->Load("Asset/Models/EventObject/WarpPoint/In/in.gltf");
+		m_spInModel->Load("Asset/Models/EventObject/WarpPoint/In4/in.gltf");
 	}
 
 	if (!m_spOutModel)
 	{
 		m_spOutModel = std::make_shared<KdModelData>();
-		//m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Out/out.gltf");
-		m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Base/base.gltf");
+		m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Out/out.gltf");
+		//m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Base/base.gltf");
 	}
 
 	m_pCollider = std::make_unique<KdCollider>();

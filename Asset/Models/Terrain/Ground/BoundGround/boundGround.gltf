@@ -102,7 +102,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":24,
+			"count":48,
 			"max":[
 				1,
 				1,
@@ -118,19 +118,19 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":24,
+			"count":48,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":24,
+			"count":48,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":36,
+			"count":84,
 			"type":"SCALAR"
 		},
 		{
@@ -171,50 +171,50 @@
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":288,
+			"byteLength":576,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":288,
-			"byteOffset":288,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":192,
+			"byteLength":576,
 			"byteOffset":576,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":72,
-			"byteOffset":768,
+			"byteLength":384,
+			"byteOffset":1152,
+			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":168,
+			"byteOffset":1536,
 			"target":34963
 		},
 		{
 			"buffer":0,
 			"byteLength":4992,
-			"byteOffset":840,
+			"byteOffset":1704,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4992,
-			"byteOffset":5832,
+			"byteOffset":6696,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":3328,
-			"byteOffset":10824,
+			"byteOffset":11688,
 			"target":34962
 		},
 		{
 			"buffer":0,
 			"byteLength":4584,
-			"byteOffset":14152,
+			"byteOffset":15016,
 			"target":34963
 		}
 	],
@@ -226,7 +226,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":18736,
+			"byteLength":19600,
 			"uri":"boundGround.bin"
 		}
 	]

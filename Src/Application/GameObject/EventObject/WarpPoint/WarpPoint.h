@@ -34,6 +34,7 @@ private:
 	Math::Vector3 m_outPos;
 
 	float m_degAng = 0;
+	const float m_addDegAng = 1.0f;
 
 	// エフェクシア用フラグ
 	bool m_effectFlg = false;

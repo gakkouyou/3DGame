@@ -16,6 +16,9 @@ bool KdWindow::Create(int clientWidth, int clientHeight, std::string_view titleN
 
 	std::wstring wndClsName = sjis_to_wide(windowClassName.data());
 
+	std::shared_ptr<KdTexture> tex = std::make_shared<KdTexture>();
+	tex->Load("Asset/Textures/Game/UI/life.png");
+
 	//ウィンドウクラスの定義
 	WNDCLASSEX wc;											// ウィンドウクラスの定義用
 	wc.cbSize = sizeof(WNDCLASSEX);							// 構造体のサイズ

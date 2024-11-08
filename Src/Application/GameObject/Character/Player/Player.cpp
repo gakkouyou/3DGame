@@ -21,7 +21,7 @@
 void Player::Update()
 {
 	// デバッグモード中は更新しない
-	//if (SceneManager::Instance().GetDebug()) return;
+	if (SceneManager::Instance().GetDebug()) return;
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
@@ -1068,10 +1068,6 @@ void Player::HitJudgeGround()
 		}
 	}
 
-	{
-
-	}
-
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
 	{
@@ -1090,7 +1086,7 @@ void Player::HitJudgeGround()
 		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
 		boxInfo.m_Abox.Extents = { radius, charaHighLength / 2, radius };
 		// 当たり判定をするタイプ
-		boxInfo.m_type |= KdCollider::TypeGround;
+		boxInfo.m_type = KdCollider::TypeGround;
 
 		// 当たり判定の結果格納リスト
 		std::list<KdCollider::CollisionResult> resultList;

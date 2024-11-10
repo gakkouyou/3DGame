@@ -38,7 +38,6 @@ public:
 		std::string type;
 		std::string name;
 		Math::Vector3 pos;
-		Math::Vector3 secondPos;
 		int modelNum;
 	};
 

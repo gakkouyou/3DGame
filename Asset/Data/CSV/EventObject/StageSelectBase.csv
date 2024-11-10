@@ -1,5 +1,4 @@
-StageSelectObject,StageSelectObject1,0,0.25,0,0,0,0,1
-StageSelectObject,StageSelectObject2,0,2.25,17.5,0,0,0,2
-StageSelectObject,StageSelectObject3,20,4.25,17.25,0,0,0,3
-StageSelectObject,StageSelectObject4,40,4.25,33,0,0,0,4
-FinalGoal,FinalGoal1,20,6,30,0,0,0,0
+StageSelectObject,StageSelectObject1,0,0.25,0,1
+StageSelectObject,StageSelectObject2,0,2.25,17.5,2
+StageSelectObject,StageSelectObject3,20,4.25,17.25,3
+FinalGoal,FinalGoal1,20,6,30,0

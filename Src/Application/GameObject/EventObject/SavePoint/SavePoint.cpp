@@ -2,6 +2,9 @@
 
 void SavePoint::Update()
 {
+	// ポーズ中なら更新しない
+	if (m_pauseFlg == true) return;
+
 	if (m_situationType == SituationType::Stand) return;
 	if (m_situationType == SituationType::Up)
 	{

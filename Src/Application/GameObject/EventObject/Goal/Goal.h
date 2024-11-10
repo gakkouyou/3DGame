@@ -23,8 +23,6 @@ public:
 
 	void SetParam(const Param& _param)	override;
 
-	void SetPauseFlg(const bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
-
 private:
 	Math::Vector3 m_pos	= Math::Vector3::Zero;
 
@@ -46,7 +44,4 @@ private:
 
 	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
-
-	// ポーズ画面かどうか
-	bool m_pauseFlg = false;
 };

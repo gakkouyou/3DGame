@@ -153,6 +153,15 @@ void EnemyController::DeleteObject()
 			if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
 			{
 				m_dataList.erase(m_dataList.begin() + i);
+				break;
+			}
+		}
+		// オブジェクトリストからも削除する
+		for (int i = 0; i < (int)m_wpEnemyList.size(); i++)
+		{
+			if (m_wpEnemyList[i].lock()->GetObjectName() == m_wpTargetObject.lock()->GetObjectName())
+			{
+				m_wpEnemyList.erase(m_wpEnemyList.begin() + i);
 			}
 		}
 		m_wpTargetObject.lock()->SetExpired(true);

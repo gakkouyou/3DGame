@@ -15,7 +15,6 @@ public:
 	struct Param
 	{
 		Math::Vector3 basePos;	// オブジェクトの始めの座標
-		Math::Vector3 secondPos;// 二つ目の座標 オブジェクトによって使い分ける
 		int modelNum = 0;		// モデルを使い分けるオブジェクト用
 	};
 
@@ -25,9 +24,13 @@ public:
 
 	virtual void OnHit()	override {}
 
+	void SetPauseFlg(const bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+
 protected:
 	// モデル
 	std::shared_ptr<KdModelData> m_spModel = nullptr;
 
 	Param m_param;
+
+	bool m_pauseFlg = false;
 };

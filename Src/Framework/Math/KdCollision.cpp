@@ -625,7 +625,7 @@ static bool HitCheck(const Math::Vector3 center, const float left, const float r
 
 // 当たり判定２
 static bool HitCheck(Math::Vector3& finalPos, Math::Vector3& finalHitPos,
-	const Math::Vector3& nearPoint, const Math::Vector3& center, const float left, const float right, const float up, const float down, const float front, const float back)
+	Math::Vector3& nearPoint, const Math::Vector3& center, const float left, const float right, const float up, const float down, const float front, const float back)
 {
 	// ボックスの外なら当たっていない
 	if (nearPoint.x < left || nearPoint.x > right || nearPoint.y < down || nearPoint.y > up || nearPoint.z < back || nearPoint.z > front)
@@ -651,13 +651,13 @@ static bool HitCheck(Math::Vector3& finalPos, Math::Vector3& finalHitPos,
 	// 後ろ側にある場合
 	if (nearPoint.z < center.z)
 	{
-		adjust = nearPoint.z - back;
+		adjust += nearPoint.z - back;
 		finalPos.z += adjust;
 	}
 	// 前側にある場合
 	else
 	{
-		adjust = nearPoint.z - front;
+		adjust += nearPoint.z - front;
 		finalPos.z += adjust;
 	}
 

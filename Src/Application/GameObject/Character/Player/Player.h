@@ -8,6 +8,7 @@ class CarryObjectBase;
 class EnemyController;
 class EventObjectController;
 class GameUI;
+class Tutorial;
 
 class Player : public CharacterBase
 {
@@ -47,6 +48,9 @@ public:
 
 	// UIセット
 	void SetGameUI(const std::shared_ptr<GameUI>& _gameUI) { m_wpGameUI = _gameUI; }
+
+	// 操作説明セット
+	void SetTutorial(const std::shared_ptr<Tutorial>& _tutorial) { m_wpTutorial = _tutorial; }
 
 	// EnemyControllerをセットする
 	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
@@ -101,6 +105,9 @@ private:
 	void HitJudgeEnemy();
 	// 運べるオブジェクトとの当たり判定
 	void HitJudgeCarryObject();
+
+	// ステージに入った時の座標
+	const Math::Vector3 m_stageStartPos = { 0, 0.26f, -5.0f };
 
 	// カメラのウィークポインタ
 	std::weak_ptr<CameraBase> m_wpCamera;
@@ -236,6 +243,9 @@ private:
 
 	// ゲームのUI
 	std::weak_ptr<GameUI> m_wpGameUI;
+
+	// 操作説明
+	std::weak_ptr<Tutorial> m_wpTutorial;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;

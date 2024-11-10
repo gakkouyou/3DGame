@@ -34,13 +34,14 @@ void StageSelectUI::DrawSprite()
 				KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y);
 			}
 		}
+
+		// 「ステージにはいる」
+		if (m_stageIn.spTex)
+		{
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_stageIn.spTex, (int)m_stageIn.pos.x, (int)m_stageIn.pos.y);
+		}
 	}
 	m_onHitFlg = false;
-
-	//if (m_frame.spTex)
-	//{
-	//	KdShaderManager::Instance().m_spriteShader.DrawTex(m_frame.spTex, m_frame.pos.x, m_frame.pos.y);
-	//}
 }
 
 void StageSelectUI::Init()
@@ -61,23 +62,6 @@ void StageSelectUI::Init()
 	}
 	m_number.pos = { -370, 305 };
 
-	// "PUSH SPACE"
-	if (!m_space.spTex)
-	{
-		m_space.spTex = std::make_shared<KdTexture>();
-		m_space.spTex->Load("Asset/Textures/StageSelect/UI/space.png");
-	}
-	m_space.pos = { 0, -250 };
-
-	// プッシュスペースを見やすくするための白い画像
-	if (!m_white.spTex)
-	{
-		m_white.spTex = std::make_shared<KdTexture>();
-		m_white.spTex->Load("Asset/Textures/StageSelect/UI/white.png");
-	}
-	m_white.pos = m_space.pos;
-	m_white.alpha = 0.7f;
-
 	// "Clear!"
 	if (!m_clear.spTex)
 	{
@@ -86,21 +70,9 @@ void StageSelectUI::Init()
 	}
 	m_clear.pos = { -500, 230 };
 
-	// 黒い画像
-	if (!m_black.spTex)
-	{
-		m_black.spTex = std::make_shared<KdTexture>();
-		m_black.spTex->Load("Asset/Textures/Scene/black.png");
-	}
-	m_black.alpha = 0.5f;
-
-	//// ステージ数の枠
-	//if (!m_frame.spTex)
-	//{
-	//	m_frame.spTex = std::make_shared<KdTexture>();
-	//	m_frame.spTex->Load("Asset/Textures/StageSelect/UI/frame2.png");
-	//}
-	//m_frame.pos = { 0, -200 };
+	// 「ステージにはいる」
+	m_stageIn.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/StageSelect/UI/stageInText.png");
+	m_stageIn.pos = { 0, -300 };
 }
 
 void StageSelectUI::OnHit()

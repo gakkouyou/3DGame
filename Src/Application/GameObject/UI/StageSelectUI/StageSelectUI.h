@@ -36,19 +36,10 @@ private:
 	Texture m_stage;
 	// 数字
 	Texture m_number;
-	// ステージ数の枠
-	Texture m_frame;
-	// "PUSH SPACE"
-	Texture m_space;
-	// 白い画像
-	Texture m_white;
 	// "Clear!"
 	Texture m_clear;
-	// 黒い画像
-	Texture m_black;
-
-	// ステージ数とか持ってるクラス
-	std::weak_ptr<StageSelectTexture> m_wpStage;
+	// 「ステージにはいる」の画像
+	Texture m_stageIn;
 
 	// OnHitに入ったかどうか
 	bool m_onHitFlg = false;

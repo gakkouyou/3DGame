@@ -13,6 +13,7 @@ public:
 	enum DrawType
 	{
 		Warp,
+		HoldBox,
 		Max,
 	};
 

@@ -62,17 +62,26 @@ void MouseClickHit::ClickHit()
 	// 当たったオブジェクトのリスト
 	std::vector<std::shared_ptr<KdGameObject>> hitObjList;
 
+	bool hitFlg = false;
+
 	// レイ判定
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
 		if (obj->Intersects(rayInfo, &resultList))
 		{
 			hitObjList.push_back(obj);
+			hitFlg = true;
 		}
 	}
 
+	// もし当たっていなかったら全て確定させて処理を終了
+	if (hitFlg == false)
+	{
+		ConfirmedObject(BaseObjectType::None);
+		return;
+	}
+
 	float maxOverLap = 0;
-	bool hitFlg = false;
 	int count = 0;
 
 	// 一番近いオブジェクト
@@ -84,7 +93,6 @@ void MouseClickHit::ClickHit()
 		if (result.m_overlapDistance > maxOverLap)
 		{
 			maxOverLap = result.m_overlapDistance;
-			hitFlg = true;
 			hitObj = hitObjList[count];
 		}
 		count++;

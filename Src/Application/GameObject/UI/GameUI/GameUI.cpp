@@ -40,13 +40,13 @@ void GameUI::DrawSprite()
 
 void GameUI::Init()
 {
-	if (!m_tex[DrawType::Warp].spTex)
-	{
-		m_tex[DrawType::Warp].spTex = std::make_shared<KdTexture>();
-		m_tex[DrawType::Warp].spTex->Load("Asset/Textures/Game/UI/warp.png");
-	}
+	m_tex[DrawType::Warp].spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Game/UI/warp.png");
 	m_tex[DrawType::Warp].pos = { 0, -300 };
 	m_tex[DrawType::Warp].addAlpha = 0.05f;
+
+	m_tex[DrawType::HoldBox].spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Game/UI/holdBox.png");
+	m_tex[DrawType::HoldBox].pos = { 0, -300 };
+	m_tex[DrawType::HoldBox].addAlpha = 0.05f;
 }
 
 void GameUI::SetDrawType(DrawType _drawType)

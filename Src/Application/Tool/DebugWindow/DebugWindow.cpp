@@ -36,7 +36,7 @@ void DebugWindow::Draw()
 
 
 		// ログウィンドウ
-	Application::Instance().m_log.Draw("Log Window");
+	//Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
 		if (ImGui::Begin("DebugWindow"))
@@ -561,15 +561,6 @@ void DebugWindow::EventObjectWindow()
 			ImGui::DragFloat("Pos.x", &m_eventObjectParam.pos.x, 0.25f);
 			ImGui::DragFloat("Pos.y", &m_eventObjectParam.pos.y, 0.25f);
 			ImGui::DragFloat("Pos.z", &m_eventObjectParam.pos.z, 0.25f);
-
-			// ワープポイント用
-			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::WarpPoint)
-			{
-				// 座標
-				ImGui::DragFloat("OutPos.x", &m_eventObjectParam.secondPos.x, 0.25f);
-				ImGui::DragFloat("OutPos.y", &m_eventObjectParam.secondPos.y, 0.25f);
-				ImGui::DragFloat("OutPos.z", &m_eventObjectParam.secondPos.z, 0.25f);
-			}
 
 			// ステージセレクトのオブジェクト用
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::StageSelectObject || spObjectController->GetObjectType() == KdGameObject::ObjectType::Goal)

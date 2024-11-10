@@ -2,6 +2,8 @@
 
 void WarpPoint::Update()
 {
+	if (m_pauseFlg == true) return;
+
 	m_degAng += m_addDegAng;
 	if (m_degAng <= 360)
 	{
@@ -62,19 +64,8 @@ void WarpPoint::DrawBright()
 void WarpPoint::Init()
 {
 	EventObjectBase::Init();
-
-	if (!m_spInModel)
-	{
-		m_spInModel = std::make_shared<KdModelData>();
-		m_spInModel->Load("Asset/Models/EventObject/WarpPoint/In4/in.gltf");
-	}
-
-	if (!m_spOutModel)
-	{
-		m_spOutModel = std::make_shared<KdModelData>();
-		m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Out/out.gltf");
-		//m_spOutModel->Load("Asset/Models/EventObject/WarpPoint/Base/base.gltf");
-	}
+	
+	m_spInModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/WarpPoint/In/in.gltf");
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("WarpPoint", m_spInModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
@@ -94,9 +85,6 @@ void WarpPoint::SetParam(const Param& _param)
 
 	// ワープの入り口の座標
 	m_inPos		= m_param.basePos;
-	// ワープの出口の座標
-	m_outPos	= m_param.secondPos;
 
 	m_mWorld.Translation(m_inPos);
-	m_outMat.Translation(m_outPos);
 }

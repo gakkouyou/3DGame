@@ -4,6 +4,7 @@
 
 #include "../../Effect/Smoke/Smoke.h"
 #include "../../UI/GameUI/GameUI.h"
+#include "../../Tutorial/Tutorial.h"
 
 #include "../../Terrain/TerrainBase.h"
 #include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -66,6 +67,24 @@ void Player::Update()
 
 	if (m_stopFlg == false)
 	{
+		// ステージセレクトシーンなら操作ができる状態の時は常に操作説明を表示する
+		if (SceneManager::Instance().GetNowScene() == SceneManager::SceneType::StageSelect)
+		{
+			if (m_wpTutorial.expired() == false)
+			{
+				m_wpTutorial.lock()->Display();
+			}
+		}
+
+		// 動ける状態かつ 止まっている or 箱を持って止まっている状態なら操作説明を表示させる状態にする
+		if((m_situationType ^ SituationType::Idle) == 0 || (m_situationType ^ SituationType::Carry) == 0)
+		{
+			if (m_wpTutorial.expired() == false)
+			{
+				m_wpTutorial.lock()->Display();
+			}
+		}
+
 		// WASDで移動
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
@@ -280,10 +299,18 @@ void Player::Update()
 	// 落下死
 	if (m_pos.y < -15.0f && m_aliveFlg == true)
 	{
-		m_aliveFlg = false;
-		
-		std::shared_ptr<KdSoundInstance> dropSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/drop.wav");
-		dropSE->SetVolume(0.06f);
+		// 万が一ステージセレクト画面で落ちたら、座標を初期座標に戻す
+		if (SceneManager::Instance().GetNowScene() == SceneManager::SceneType::StageSelect)
+		{
+			m_pos = m_stageStartPos;
+		}
+		else
+		{
+			m_aliveFlg = false;
+
+			std::shared_ptr<KdSoundInstance> dropSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/drop.wav");
+			dropSE->SetVolume(0.06f);
+		}
 	}
 
 	// 移動中
@@ -296,17 +323,6 @@ void Player::Update()
 		// 回転行列
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
-
-	// エフェクシア座標追尾===========================================================
-	if (!m_wpEffekseer.expired())
-	{
-		m_wpEffekseer.lock()->SetPos(m_pos);
-		if (!m_wpEffekseer.lock()->IsPlaying() == true)
-		{
-			m_wpEffekseer.reset();
-		}
-	}
-	// ===============================================================================
 
 	// 運び状態を解除する
 	if (GetAsyncKeyState('F') & 0x8000)
@@ -735,7 +751,7 @@ void Player::Init()
 
 	m_baseObjectType = BaseObjectType::Player;
 
-	m_pos = { 0, 0.25f, -5.0f };
+	m_pos = m_stageStartPos;
 	m_respawnPos = m_pos;
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
@@ -791,11 +807,11 @@ void Player::Init()
 void Player::Reset()
 {
 	CharacterBase::Reset();
-
-	// 座標
+	
+	// リスポーン座標からやり直す
 	m_pos = m_respawnPos;
 	m_oldPos = Math::Vector3::Zero;
-	
+
 	// 生存フラグ
 	m_aliveFlg = true;
 
@@ -917,7 +933,7 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos += z;
 
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		}
 		// 当たっていなかったら右後足からのレイ判定をする
 		if (hitFlg == false)
@@ -934,7 +950,7 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos += z;
 
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		}
 
 		// 当たっていなかったら左前足からのレイ判定をする
@@ -1104,7 +1120,6 @@ void Player::HitJudgeGround()
 
 		if (hitFlg == true)
 		{
-
 			// スフィアの情報
 			KdCollider::SphereInfo sphereInfo;
 			// スフィアの中心座標
@@ -1116,13 +1131,6 @@ void Player::HitJudgeGround()
 			sphereInfo.m_type = KdCollider::TypeGround;
 
 			Math::Vector3 pos = sphereInfo.m_sphere.Center;
-			m_pDebugWire->AddDebugSphere(pos, radius);
-			pos.y += 0.5f;
-			m_pDebugWire->AddDebugSphere(pos, radius);
-			pos.y += 0.5f;
-			m_pDebugWire->AddDebugSphere(pos, radius);
-			pos.y += 0.5f;
-			m_pDebugWire->AddDebugSphere(pos, radius);
 
 			// 当たったかどうかのフラグ
 			hitFlg = false;
@@ -1130,25 +1138,69 @@ void Player::HitJudgeGround()
 			KdCollider::CollisionResult collisionResult;
 			// 複数に当たったかどうかのフラグ
 			bool multiHitFlg = false;
+			float maxOverLap = 0;
 
 			if (m_situationType & SituationType::Air)
 			{
 				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				if (hitFlg == true)
+				{
+					maxOverLap = collisionResult.m_overlapDistance;
+				}
 			}
-			if (hitFlg == false)
+			if (multiHitFlg == false)
 			{
+				bool flg = false;
 				sphereInfo.m_sphere.Center.y += 0.5f;
-				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				if (flg == true)
+				{
+					if (hitFlg == false)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+						hitFlg = true;
+					}
+					else if (maxOverLap > collisionResult.m_overlapDistance)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+					}
+				}
 			}
-			if (hitFlg == false)
+			if (multiHitFlg == false)
 			{
+				bool flg = false;
 				sphereInfo.m_sphere.Center.y += 0.5f;
-				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				if (flg == true)
+				{
+					if (hitFlg == false)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+						hitFlg = true;
+					}
+					else if (maxOverLap > collisionResult.m_overlapDistance)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+					}
+				}
 			}
-			if (hitFlg == false)
+			if (multiHitFlg == false)
 			{
+				bool flg = false;
 				sphereInfo.m_sphere.Center.y += 0.5f;
-				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+				if (flg == true)
+				{
+					if (hitFlg == false)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+						hitFlg = true;
+					}
+					else if (maxOverLap > collisionResult.m_overlapDistance)
+					{
+						maxOverLap = collisionResult.m_overlapDistance;
+					}
+				}
 			}
 
 			// 複数のオブジェクトに当たっていた場合
@@ -1164,55 +1216,34 @@ void Player::HitJudgeGround()
 				// Y軸の補正はなし
 				collisionResult.m_hitDir.y = 0;
 				collisionResult.m_hitDir.Normalize();
-				Math::Vector3 pos = collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+				//Math::Vector3 pos = collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+				Math::Vector3 pos = collisionResult.m_hitDir * maxOverLap;
 				pos.y = 0;
 				m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
 			}
-
-			//hitFlg = false;
-			//sphereInfo.m_sphere.Center = m_pos;
-			//sphereInfo.m_sphere.Radius -= 0.05f;
-			//sphereInfo.m_sphere.Center.y += 2.2f;
-			//hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-			//// 複数のオブジェクトに当たっていた場合
-			////if (multiHitFlg == true)
-			//{
-			//	// Y座標のみ、更新前の座標に戻す
-			//	m_pos.y = m_oldPos.y;
-			//}
-			//// 一つのオブジェクトに当たった場合
-			////else if (hitFlg == true)
-			//{
-			//	//m_pos.y = sphereInfo.m_sphere.Center.y + sphereInfo.m_sphere.Radius - (sphereInfo.m_sphere.Radius + (sphereInfo.m_sphere.Center.y - m_pos.y));
-			//	//m_pos.y -= collisionResult.m_overlapDistance;
-			//}
 		}
 	}
 	bool hitFlg = false;
 	KdCollider::SphereInfo sphereInfo;
 	sphereInfo.m_sphere.Center = m_pos;
 	sphereInfo.m_sphere.Radius = 0.3f;
-	sphereInfo.m_sphere.Center.y += 2.2f;
+	sphereInfo.m_sphere.Center.y += 2.1f;
 	sphereInfo.m_type = KdCollider::TypeGround;
 	KdCollider::CollisionResult collisionResult;
 	// 複数に当たったかどうかのフラグ
 	bool multiHitFlg = false;
 
-	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg, true);
+	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 	// 複数のオブジェクトに当たっていた場合
 	//if (multiHitFlg == true)
 	{
 		// Y座標のみ、更新前の座標に戻す
 		if (hitFlg == true)
 		{
-			m_pos.y = m_oldPos.y;
+			//m_pos.y = m_oldPos.y;
+			collisionResult.m_hitDir.Normalize();
+			m_pos += collisionResult.m_overlapDistance* collisionResult.m_hitDir;
 		}
-	}
-	// 一つのオブジェクトに当たった場合
-	//else if (hitFlg == true)
-	{
-		//m_pos.y = sphereInfo.m_sphere.Center.y + sphereInfo.m_sphere.Radius - (sphereInfo.m_sphere.Radius + (sphereInfo.m_sphere.Center.y - m_pos.y));
-		//m_pos.y -= collisionResult.m_overlapDistance;
 	}
 }
 
@@ -1287,6 +1318,7 @@ void Player::HitJudgeEvent()
 
 					// セーブポイント
 				case ObjectType::SavePoint:
+					// リスポーン地点を更新
 					m_respawnPos = spHitObject->GetPos();
 					m_respawnPos.z -= 1.0f;
 					for (auto& data : m_wpEventObjectController.lock()->WorkCSVData())
@@ -1301,10 +1333,12 @@ void Player::HitJudgeEvent()
 
 					// ワープポイント
 				case ObjectType::WarpPoint:
+					// リスポーン座標にワープ
 					if (GetAsyncKeyState('F') & 0x8000)
 					{
-						m_pos = spHitObject->GetPos();
+						m_pos = m_respawnPos;
 					}
+					// UIを出す
 					if (m_wpGameUI.expired() == false)
 					{
 						m_wpGameUI.lock()->SetDrawType(GameUI::DrawType::Warp);
@@ -1600,6 +1634,10 @@ void Player::HitJudgeCarryObject()
 			if (deg < 90)
 			{
 				obj.lock()->SetSelectWhite(true);
+				if (m_wpGameUI.expired() == false)
+				{
+					m_wpGameUI.lock()->SetDrawType(GameUI::DrawType::HoldBox);
+				}
 				if (GetAsyncKeyState('F') & 0x8000)
 				{
 					// 運んでいる状態なら処理しない

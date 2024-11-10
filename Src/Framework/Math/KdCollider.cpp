@@ -462,7 +462,7 @@ bool KdModelCollision::Intersects(const DirectX::BoundingSphere& target, const M
 bool KdModelCollision::Intersects(const DirectX::BoundingBox& target, const Math::Matrix& world, KdCollider::CollisionResult* pRes)
 {
 	// TODO: 当たり計算は各自必要に応じて拡張して下さい
-		// 当たり判定が無効 or 形状が解放済みなら判定せず返る
+	// 当たり判定が無効 or 形状が解放済みなら判定せず返る
 	if (!m_enable || !m_shape) { return false; }
 
 	std::shared_ptr<KdModelData> spModelData = m_shape->GetData();

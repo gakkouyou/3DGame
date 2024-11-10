@@ -20,7 +20,7 @@ void EventObjectController::Update()
 	if (spTargetObject)
 	{
 		DebugWindow::EventObjectParam debugParam = DebugWindow::Instance().GetEventObjectParam();
-		EventObjectBase::Param param{ debugParam.pos, debugParam.secondPos, debugParam.stageNum };
+		EventObjectBase::Param param{ debugParam.pos, debugParam.stageNum };
 		spTargetObject->SetParam(param);
 	}
 
@@ -149,7 +149,6 @@ void EventObjectController::ConfirmedObject()
 			spTargetObject->SetObjectName(data.name);
 			// 情報をセットする
 			data.pos		= spTargetObject->GetParam().basePos;	// 座標
-			data.secondPos	= spTargetObject->GetParam().secondPos;	// 二つ目の座標
 			data.modelNum	= spTargetObject->GetParam().modelNum;	// ステージ数
 			if (spTargetObject->GetObjectType() == ObjectType::Goal)
 			{
@@ -183,7 +182,6 @@ void EventObjectController::ConfirmedObject()
 				}
 			}
 			m_dataList[num].pos			= spTargetObject->GetParam().basePos;	// 座標
-			m_dataList[num].secondPos	= spTargetObject->GetParam().secondPos;	// 座標
 			m_dataList[num].modelNum	= spTargetObject->GetParam().modelNum;	// ステージ数
 
 			if (spTargetObject->GetObjectType() == ObjectType::Goal)
@@ -216,6 +214,15 @@ void EventObjectController::DeleteObject()
 			if (m_dataList[i].name == m_wpTargetObject.lock()->GetObjectName())
 			{
 				m_dataList.erase(m_dataList.begin() + i);
+				break;
+			}
+		}
+		// オブジェクトリストからも削除する
+		for (int i = 0; i < (int)m_wpObjectList.size(); i++)
+		{
+			if (m_wpObjectList[i].lock()->GetObjectName() == m_wpTargetObject.lock()->GetObjectName())
+			{
+				m_wpObjectList.erase(m_wpObjectList.begin() + i);
 			}
 		}
 		m_wpTargetObject.lock()->SetExpired(true);
@@ -301,7 +308,7 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<Goal> object = std::make_shared<Goal>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
+			EventObjectBase::Param setParam{ data.pos, data.modelNum };
 			object->Init();
 			object->SetParam(setParam);
 			SceneManager::Instance().AddObject(object);
@@ -351,7 +358,7 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<SavePoint> object = std::make_shared<SavePoint>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
+			EventObjectBase::Param setParam{ data.pos, data.modelNum };
 			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
@@ -371,7 +378,7 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<WarpPoint> object = std::make_shared<WarpPoint>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos, data.secondPos };
+			EventObjectBase::Param setParam{ data.pos };
 			object->SetParam(setParam);
 			object->Init();
 			SceneManager::Instance().AddObject(object);
@@ -391,7 +398,7 @@ void EventObjectController::BeginCreateObject()
 		{
 			std::shared_ptr<StageSelectObject> object = std::make_shared<StageSelectObject>();
 			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos, data.secondPos, data.modelNum };
+			EventObjectBase::Param setParam{ data.pos, data.modelNum };
 			object->Init();
 			object->SetParam(setParam);
 			// ステージセレクトのUIをセットする
@@ -482,18 +489,6 @@ void EventObjectController::CSVLoader()
 				break;
 
 			case 5:
-				data.secondPos.x = stof(commaString);
-				break;
-
-			case 6:
-				data.secondPos.y = stof(commaString);
-				break;
-
-			case 7:
-				data.secondPos.z = stof(commaString);
-				break;
-
-			case 8:
 				data.modelNum = stoi(commaString);
 			}
 			cnt++;
@@ -524,9 +519,6 @@ void EventObjectController::CSVWriter(bool _baseFlg)
 			// 座標
 			ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
 
-			// 二つ目の座標
-			ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << ",";
-
 			// ステージ数
 			ofs << data.modelNum << std::endl;
 		}
@@ -545,9 +537,6 @@ void EventObjectController::CSVWriter(bool _baseFlg)
 		// 座標
 		ofs << data.pos.x << "," << data.pos.y << "," << data.pos.z << ",";
 
-		// 二つ目の座標
-		ofs << data.secondPos.x << "," << data.secondPos.y << "," << data.secondPos.z << ",";
-
 		// ステージ数
 		ofs << data.modelNum << std::endl;
 	}
@@ -561,6 +550,6 @@ void EventObjectController::SetObject(std::weak_ptr<EventObjectBase> _wpTargetOb
 	m_wpTargetObject = _wpTargetObject;
 
 	EventObjectBase::Param param = m_wpTargetObject.lock()->GetParam();
-	DebugWindow::EventObjectParam setParam{ param.basePos, param.secondPos, param.modelNum };
+	DebugWindow::EventObjectParam setParam{ param.basePos, param.modelNum };
 	DebugWindow::Instance().SetEventObjectParam(setParam);
 }

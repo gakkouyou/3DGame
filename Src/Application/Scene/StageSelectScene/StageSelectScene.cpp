@@ -4,6 +4,7 @@
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
+#include "../../Tool/MouseClickHit/MouseClickHit.h"
 
 #include "../../GameObject/EventObject/EventObjectBase.h"
 #include "../../GameObject/Terrain/TerrainBase.h"
@@ -13,6 +14,7 @@
 #include "../../GameObject/BackGround/BackGround.h"
 #include "../../GameObject/Character/Player/Player.h"
 #include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
+#include "../../GameObject/Tutorial/Tutorial.h"
 
 void StageSelectScene::Event()
 {
@@ -252,6 +254,13 @@ void StageSelectScene::Init()
 	ui->Init();
 	AddObject(ui);
 
+	// 操作説明
+	std::shared_ptr<Tutorial> tutorial = std::make_shared<Tutorial>();
+	tutorial->Init();
+	AddObject(tutorial);
+	// プレイヤーにセット
+	player->SetTutorial(tutorial);
+
 	// シーンを変える
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();
 	sceneChange->Init();
@@ -329,6 +338,13 @@ void StageSelectScene::Init()
 			count++;
 		}
 	}
+
+	// ツール用マウスクリックで当たり判定をするクラス
+	std::shared_ptr<MouseClickHit> mouseClickHit = std::make_shared<MouseClickHit>();
+	AddObject(mouseClickHit);
+	mouseClickHit->SetTerrainController(objectController);
+	mouseClickHit->SetEventController(eventObjectController);
+	mouseClickHit->SetCamera(camera);
 
 	// 音
 	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageSelectBGM.wav", true);

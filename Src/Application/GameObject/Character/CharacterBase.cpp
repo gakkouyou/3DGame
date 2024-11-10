@@ -37,8 +37,6 @@ void CharacterBase::Reset()
 
 	// 当たった地形をリセット
 	m_wpHitTerrain.reset();
-
-	m_pauseFlg = false;
 }
 
 // レイ判定　当たったオブジェクトをリストに追加

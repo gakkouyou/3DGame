@@ -142,9 +142,6 @@
     <Filter Include="Src\Application\Scene\StageSelectScene">
       <UniqueIdentifier>{955d4cb6-3a83-4d67-a7d8-1ac84349c9bf}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\StageSelectTexture">
-      <UniqueIdentifier>{7d8fa946-bc18-4b89-b4fe-3f06cd34109b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Src\Application\GameObject\Result">
       <UniqueIdentifier>{8cf6b13e-8492-45f4-a33b-feda3911f2ad}</UniqueIdentifier>
     </Filter>
@@ -267,6 +264,9 @@
     </Filter>
     <Filter Include="Src\Application\GameObject\UI\GameUI">
       <UniqueIdentifier>{67fd26b4-a9bf-4a2a-9129-ebe12be0f072}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Tutorial">
+      <UniqueIdentifier>{a2fba0e3-641f-45b1-bf14-01b10f61ffdd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -489,9 +489,6 @@
     <ClInclude Include="Src\Application\Scene\StageSelectScene\StageSelectScene.h">
       <Filter>Src\Application\Scene\StageSelectScene</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.h">
-      <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
-    </ClInclude>
     <ClInclude Include="Src\Application\GameObject\Result\Result.h">
       <Filter>Src\Application\GameObject\Result</Filter>
     </ClInclude>
@@ -608,6 +605,9 @@
     </ClInclude>
     <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h">
       <Filter>Src\Application\GameObject\UI\GameUI</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Tutorial\Tutorial.h">
+      <Filter>Src\Application\GameObject\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -803,9 +803,6 @@
     <ClCompile Include="Src\Application\Scene\StageSelectScene\StageSelectScene.cpp">
       <Filter>Src\Application\Scene\StageSelectScene</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\StageSelectTexture\StageSelectTexture.cpp">
-      <Filter>Src\Application\GameObject\StageSelectTexture</Filter>
-    </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Result\Result.cpp">
       <Filter>Src\Application\GameObject\Result</Filter>
     </ClCompile>
@@ -919,6 +916,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp">
       <Filter>Src\Application\GameObject\UI\GameUI</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Tutorial\Tutorial.cpp">
+      <Filter>Src\Application\GameObject\Tutorial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

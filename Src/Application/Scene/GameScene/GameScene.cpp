@@ -10,6 +10,7 @@
 #include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
+#include "../../GameObject/Tutorial/Tutorial.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -267,6 +268,13 @@ void GameScene::Init()
 	AddObject(ui);
 	// プレイヤーに渡す
 	player->SetGameUI(ui);
+
+	// 操作説明
+	std::shared_ptr<Tutorial> tutorial = std::make_shared<Tutorial>();
+	tutorial->Init();
+	AddObject(tutorial);
+	// プレイヤーに渡す
+	player->SetTutorial(tutorial);
 
 	// シーンを変える sprite描画する中では一番下に置く
 	std::shared_ptr<SceneChange> sceneChange = std::make_shared<SceneChange>();

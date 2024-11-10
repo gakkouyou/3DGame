@@ -286,6 +286,15 @@ void TerrainController::DeleteObject()
 				break;
 			}
 		}
+		// オブジェクトリストからも削除する
+		for (int i = 0; i < (int)m_wpTerrainList.size(); i++)
+		{
+			if (m_wpTerrainList[i].lock()->GetObjectName() == m_wpTargetObject.lock()->GetObjectName())
+			{
+				m_wpTerrainList.erase(m_wpTerrainList.begin() + i);
+			}
+		}
+		// オブジェクト削除
 		m_wpTargetObject.lock()->SetExpired(true);
 	}
 }

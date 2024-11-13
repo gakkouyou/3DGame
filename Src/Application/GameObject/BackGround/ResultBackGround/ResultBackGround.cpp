@@ -29,12 +29,19 @@ void ResultBackGround::Update()
 	// オレンジから黒にしていく
 	if (m_blackAnimationFlg)
 	{
-		m_color = Math::Vector3::Lerp(m_goalColor, { 0, 0, 0 }, m_progress);
-		m_progress += m_speed;
+		//m_color = Math::Vector3::Lerp(m_goalColor, { 0, 0, 0 }, m_progress);
+		//m_progress += m_speed;
 
-		if (m_progress > 1)
+		//if (m_progress > 1)
+		//{
+		//	m_progress = 1.0f;
+		//}
+
+		// 夕方
+		m_alpha -= m_speed;
+		if (m_alpha < 0)
 		{
-			m_progress = 1.0f;
+			m_alpha = 0;
 		}
 
 		// 環境光も弱めていく
@@ -51,23 +58,40 @@ void ResultBackGround::Update()
 	}
 }
 
-void ResultBackGround::DrawLit()
+void ResultBackGround::DrawUnLit()
 {
+	if (m_spNightModel)
+	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
+
+		Math::Matrix mat = m_mWorld;
+		Math::Vector3 pos = GetPos();
+		pos.z += 0.1f;
+		mat.Translation(pos);
+
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spNightModel, mat);
+
+		KdShaderManager::Instance().UndoRasterizerState();
+	}
+
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
 
+		Math::Color color = { 1, 1, 1, m_alpha };
+
 		KdShaderManager::Instance().m_StandardShader.SetColorEnable(true, m_color);
 
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld, color);
 
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullBack);
+		KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 
 void ResultBackGround::Init()
 {
 	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/BackGround/ResultBackGround/resultBackGround.gltf");
+	m_spNightModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/BackGround/backGround.gltf");
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(9.5f);
 

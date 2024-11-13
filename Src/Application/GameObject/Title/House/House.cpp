@@ -52,14 +52,14 @@ void House::GenerateDepthMapFromLight()
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[0], m_mWorld);
 		KdShaderManager::Instance().UndoRasterizerState();
 
 		Math::Matrix mat = Math::Matrix::CreateTranslation({ -20, 0, 0 });
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[1], mat);
 
 		mat.Translation({ 20, 0, 0 });
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[2], mat);
 	}
 
 	if (m_spDoorModel)
@@ -93,14 +93,14 @@ void House::DrawLit()
 		KdShaderManager::Instance().m_StandardShader.SetDitherEnable(true, 3.0f);
 
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[0], m_mWorld);
 		KdShaderManager::Instance().UndoRasterizerState();
 
 		Math::Matrix mat = Math::Matrix::CreateTranslation({ -20, 0, 0 });
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[1], mat);
 
 		mat.Translation({ 20, 0, 0 });
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, mat);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel[2], mat);
 	}
 
 	if (m_spDoorModel)
@@ -129,7 +129,9 @@ void House::DrawLit()
 void House::Init()
 {
 	// 家のモデル
-	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/House/house.gltf");
+	m_spModel[0] = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/House/house.gltf");
+	m_spModel[1] = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/GreenHouse/greenHouse.gltf");
+	m_spModel[2] = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/BlueHouse/blueHouse.gltf");
 
 	// ドアのモデル
 	if (!m_spDoorModel)
@@ -137,7 +139,7 @@ void House::Init()
 		m_spDoorModel = std::make_shared<KdModelData>();
 		m_spDoorModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/Door/door.gltf");
 	}
-	m_doorMat.Translation(m_spModel->FindNode("DoorPoint")->m_worldTransform.Translation());
+	m_doorMat.Translation(m_spModel[0]->FindNode("DoorPoint")->m_worldTransform.Translation());
 
 	// 家具とかのモデル
 	if (!m_spHouseObjectModel)

@@ -14,9 +14,6 @@ public:
 	void Update()		override;
 	void Init()			override;
 
-	// リセット処理
-	void Reset()		override;
-
 	// CSVファイルを指定する
 	void SetCSV(const std::string& _fileName) { m_fileName = _fileName; }
 

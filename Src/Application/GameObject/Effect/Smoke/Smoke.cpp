@@ -88,7 +88,7 @@ void Smoke::SetSmokeType(SmokeType _smokeType)
 			m_appearanceSmoke.movePow.push_back(float(rand() % 100 / 1000.0f));
 		}
 
-		m_scale = 4.0f;
+		m_scale = 8.0f;
 
 		break;
 	}

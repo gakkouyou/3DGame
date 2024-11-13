@@ -17,8 +17,8 @@ public:
 	void CloseDoor() { m_closeDoorFlg = true; }
 
 private:
-	// モデル
-	std::shared_ptr<KdModelData> m_spModel = nullptr;
+	// 家のモデル
+	std::shared_ptr<KdModelData> m_spModel[3] = { nullptr, nullptr, nullptr };
 
 	// 道路のモデル
 	std::shared_ptr<KdModelData> m_spRoadModel = nullptr;

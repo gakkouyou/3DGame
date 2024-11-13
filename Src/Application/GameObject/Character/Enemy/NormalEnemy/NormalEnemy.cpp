@@ -19,6 +19,20 @@ void NormalEnemy::Update()
 
 	if (m_setParamFlg == false)
 	{
+		// 動く床に乗っていた時の処理
+		if (m_moveGround.hitFlg == true)
+		{
+			if (m_wpHitTerrain.expired() == false)
+			{
+				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+
+				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+
+				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+				m_pos = m_mWorld.Translation();
+			}
+		}
+
 		// 状態毎の更新
 		if (m_nowAction)
 		{
@@ -64,27 +78,6 @@ void NormalEnemy::PostUpdate()
 		pos.y = m_pos.y;
 		// moveエリア可視化
 		m_pDebugWire->AddDebugSphere(pos, m_param.moveArea, kWhiteColor);
-	}
-
-	// 動く床に当たっていた時の処理
-	if (m_moveGround.hitFlg)
-	{
-		// 動く床の動く前の逆行列
-		Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
-		// 動く床から見たプレイヤーの座標行列
-		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-		// 動く床を探す
-		std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-
-		if (spHitObject)
-		{
-			// 動く床の動いた後の行列
-			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
-
-			// 座標を確定
-			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
-		}
 	}
 
 	// 回る床に当たっていた時の処理
@@ -201,6 +194,7 @@ void NormalEnemy::Reset()
 
 Math::Vector3 NormalEnemy::GetPos() const
 {
+	// これ以上上に当たったら倒せるという座標を返す
 	Math::Vector3 pos;
 	if (m_spModel)
 	{
@@ -339,26 +333,41 @@ void NormalEnemy::HitGround()
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
 		// 当たった結果
-		KdCollider::CollisionResult collisionResult;
+		std::vector<KdCollider::CollisionResult> collisionResultList;
 		// 複数に当たったかどうかのフラグ
 		bool multiHitFlg = false;
 
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
 
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
 		{
-			// Y座標以外、更新前の座標に戻す
-			m_pos.x = m_oldPos.x;
-			m_pos.z = m_oldPos.z;
+			Math::Vector3 normal1 = collisionResultList[0].m_hitNormal;
+			normal1.Normalize();
+			Math::Vector3 normal2 = collisionResultList[1].m_hitNormal;
+			normal2.Normalize();
+
+			float dot = normal1.Dot(normal2);
+
+			dot = std::clamp(dot, -1.0f, 1.0f);
+			float deg = DirectX::XMConvertToDegrees(acos(dot));
+
+			if (deg > 90)
+			{
+				// Y座標以外、更新前の座標に戻す
+				m_pos.x = m_oldPos.x;
+				m_pos.z = m_oldPos.z;
+			}
 		}
 		// 一つのオブジェクトに当たった場合
 		else if (hitFlg)
 		{
+			KdCollider::CollisionResult result = collisionResultList.front();
 			// Y軸の補正はなし
-			collisionResult.m_hitDir.y = 0;
-			collisionResult.m_hitDir.Normalize();
-			m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+			result.m_hitDir.Normalize();
+			Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+			pos.y = 0;
+			m_pos += pos;
 		}
 	}
 }
@@ -379,17 +388,32 @@ void NormalEnemy::HitEnemy()
 	bool hitFlg = false;
 
 	// 当たった結果
-	KdCollider::CollisionResult collisionResult;
+	std::vector<KdCollider::CollisionResult> collisionResultList;
 
 	bool flg = false;
-	hitFlg = SphereHitJudge(sphereInfo, collisionResult, flg);
+	hitFlg = SphereHitJudge(sphereInfo, collisionResultList, flg);
 
-	// 当たった場合
-	if (hitFlg)
+	// 当たっていた場合
+	if (hitFlg == true)
 	{
-		collisionResult.m_hitDir.y = 0;
-		collisionResult.m_hitDir.Normalize();
-		m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+		// 一番近いオブジェクトを見つける
+		float maxOverLap = 0;
+		Math::Vector3 hitDir;
+
+		for (auto& result : collisionResultList)
+		{
+			if (result.m_overlapDistance > maxOverLap)
+			{
+				maxOverLap = result.m_overlapDistance;
+				hitDir = result.m_hitDir;
+			}
+		}
+		// 補正
+		hitDir.Normalize();
+		Math::Vector3 pos = hitDir * maxOverLap;
+		// Y軸は補正無し
+		pos.y = 0;
+		m_pos += pos;
 	}
 }
 

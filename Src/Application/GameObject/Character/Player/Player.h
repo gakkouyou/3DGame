@@ -114,6 +114,8 @@ private:
 
 	// 今の状況
 	UINT m_situationType	= Idle;
+	// 更新前の状況
+	UINT m_oldSituationType = Idle;
 
 	// ジャンプ力
 	float m_jumpPow	= 0;
@@ -217,6 +219,9 @@ private:
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
 
+	// アニメーションの変更をまとめた関数
+	void ChangeAnimation();
+
 	// EnemyController
 	std::weak_ptr<EnemyController> m_wpEnemyController;
 
@@ -246,6 +251,9 @@ private:
 
 	// 操作説明
 	std::weak_ptr<Tutorial> m_wpTutorial;
+
+	// 二つのオブジェクトに触れた時、何度以上の角度なら座標を戻すかの角度
+	const float m_doubleObjectHitDegAng = 80.0f;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;

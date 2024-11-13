@@ -6,7 +6,7 @@ public:
 	TitleBackGround() {}
 	~TitleBackGround()	override {}
 
-	void DrawLit();
+	void DrawUnLit();
 	void Init();
 
 private:

@@ -26,6 +26,42 @@ void Player::Update()
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
+	// 動く床に乗っていた時の処理
+	if (m_moveGround.hitFlg == true)
+	{
+		if (m_wpHitTerrain.expired() == false)
+		{
+			Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+
+			Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+
+			m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+			m_pos = m_mWorld.Translation();
+		}
+	}
+
+	// 運べるオブジェクトに乗っている時の処理(地面に触れている場合)
+	if (m_carryObjectHitTerrain.hitFlg)
+	{
+		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
+		if (spHitTerrain)
+		{
+			switch (spHitTerrain->GetObjectType())
+			{
+				// 動く床の場合
+			case ObjectType::MoveGround:
+			{
+				Math::Matrix localMatFromRideObject = m_mWorld * m_carryObjectHitTerrain.transMat.Invert();
+
+				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(spHitTerrain->GetPos());
+
+				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+				m_pos = m_mWorld.Translation();
+			}
+			}
+		}
+	}
+
 	// 死んでいたら操作を受け付けない
 	if (m_aliveFlg == false)
 	{
@@ -48,9 +84,8 @@ void Player::Update()
 
 	// 移動前の座標を保存
 	m_oldPos = m_pos;
-
-	// 更新前のプレイヤーの状態を保持
-	UINT oldSituationType = m_situationType;
+	// 更新前の状況を保存
+	m_oldSituationType = m_situationType;
 
 	// Idle以外のフラグが立っていたらIdleをおろす
 	if (m_situationType ^ SituationType::Idle)
@@ -351,13 +386,35 @@ void Player::Update()
 		m_actionKeyFlg = false;
 	}
 
+
+
+
+
+	// ゴールの処理
+	if (m_goalFlg)
+	{
+		GoalProcess();
+	}
+
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
+
+	m_mWorld = scaleMat * m_rotMat * transMat;
+}
+
+void Player::PostUpdate()
+{
+	// ポーズ画面中は更新しない
+	if (m_pauseFlg == true) return;
+
 	// 当たり判定
 	HitJudge();
 
 	// 空中になった瞬間の状態を保持
 	if (m_situationType & SituationType::Air)
 	{
-		if ((oldSituationType & SituationType::Air) == 0)
+		if ((m_oldSituationType & SituationType::Air) == 0)
 		{
 			m_lastGroundSituationType = m_situationType;
 		}
@@ -366,73 +423,17 @@ void Player::Update()
 	// 着地した瞬間
 	if ((m_situationType & SituationType::Air) == 0)
 	{
-		if (oldSituationType & SituationType::Air)
+		if (m_oldSituationType & SituationType::Air)
 		{
 			// ジャンプ音のフラグをfalseに
 			m_jumpSound.flg = false;
 		}
 	}
 
-
-
 	// アニメーションを切り替える
-	if (oldSituationType != m_situationType)
+	if (m_oldSituationType != m_situationType)
 	{
-		// 運び状態の場合
-		if (m_situationType & SituationType::Carry)
-		{
-			// 運び状態のみの場合
-			if ((m_situationType ^ SituationType::Carry) == 0)
-			{
-				SetAnimation("Carry", true);
-			}
-			// 歩きの場合
-			if (m_situationType & SituationType::Walk)
-			{
-				SetAnimation("CarryWalk", true);
-			}
-			// 空中の場合
-			if (m_situationType & SituationType::Air)
-			{
-				SetAnimation("Carry", true);
-			}
-		}
-		// 運び状態じゃない場合
-		else
-		{
-			// Idleのみの場合
-			if ((m_situationType ^ SituationType::Idle) == 0)
-			{
-				SetAnimation("Idle", true);
-			}
-			else
-			{
-				// ジャンプの場合
-				if (m_situationType & SituationType::Jump)
-				{
-					// ジャンプをしていなかった、または、運ばれている状態が解除された時にジャンプアニメーションを再生する
-					if ((oldSituationType & SituationType::Jump) == 0 || oldSituationType & SituationType::Carry)
-					{
-						SetAnimation("Jump", false);
-					}
-				}
-				// ジャンプではないが空中の場合
-				else if (m_situationType & SituationType::Air)
-				{
-					SetAnimation("Idle", true);
-				}
-				// 歩きの場合
-				else if (m_situationType & SituationType::Walk)
-				{
-					SetAnimation("Walk", true);
-				}
-				// 走りの場合
-				else if (m_situationType & SituationType::Run)
-				{
-					SetAnimation("Run", true);
-				}
-			}
-		}
+		ChangeAnimation();
 	}
 
 	// 何の地面に乗っているかによって、音を変える
@@ -441,7 +442,7 @@ void Player::Update()
 		ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
 		switch (type)
 		{
-		// 草の音
+			// 草の音
 		case ObjectType::NormalGround:
 		case ObjectType::SlopeGround:
 		case ObjectType::RotationGround:
@@ -451,7 +452,7 @@ void Player::Update()
 		case ObjectType::BoundGround:
 			break;
 
-		// コツコツ見たいな音
+			// コツコツ見たいな音
 		default:
 			m_walkSoundType = WalkSoundType::Tile;
 			break;
@@ -459,7 +460,7 @@ void Player::Update()
 	}
 
 	// Walk or Run 状態の時に空中にいなかったら歩く音を鳴らすようにする
-	if(((m_situationType & Walk) || (m_situationType & Run)) && ((m_situationType & Air) == 0))
+	if (((m_situationType & Walk) || (m_situationType & Run)) && ((m_situationType & Air) == 0))
 	{
 		if (m_nowWalkSoundFlg == false)
 		{
@@ -479,38 +480,7 @@ void Player::Update()
 		}
 	}
 
-	// ゴールの処理
-	if (m_goalFlg)
-	{
-		GoalProcess();
-	}
-}
-
-void Player::PostUpdate()
-{
-	// ポーズ画面中は更新しない
-	if (m_pauseFlg == true) return;
-
 	Math::Matrix transMat = Math::Matrix::Identity;
-	// 動く床に当たっていた時の処理
-	if (m_moveGround.hitFlg)
-	{
-		// 動く床の動く前の逆行列
-		Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
-		// 動く床から見たプレイヤーの座標行列
-		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-		// 動く床の場合
-		std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-		if (spHitObject)
-		{
-			// 動く床の動いた後の行列
-			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
-
-			// 座標を確定
-			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
-		}
-	}
 
 	// 回る床に当たっていた時の処理
 	if (m_rotationGround.hitFlg)
@@ -751,6 +721,9 @@ void Player::Init()
 
 	m_baseObjectType = BaseObjectType::Player;
 
+	// 段差許容範囲
+	m_enableStepHeight = 0.35f;
+
 	m_pos = m_stageStartPos;
 	m_respawnPos = m_pos;
 
@@ -891,7 +864,7 @@ void Player::HitJudgeGround()
 	m_rotationGround.hitFlg = false;
 
 	// 当たった地面をリセット
-	m_wpHitTerrain.reset();
+	//m_wpHitTerrain.reset();
 
 	// 地面とのレイ当たり判定
 	if(m_carryObject.hitFlg == false)
@@ -916,9 +889,9 @@ void Player::HitJudgeGround()
 		rayInfo.m_type = KdCollider::TypeGround;
 
 		// レイ判定
-		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 
-		// 当たっていなかったら右前足からのレイ判定をする
+		// 当たっていなかったら右足からのレイ判定をする
 		if (hitFlg == false)
 		{
 			// 右足の場所
@@ -927,33 +900,11 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle)) + m_pos.x;
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
 
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-			Math::Vector3 z;
-			Math::Vector3::TransformNormal({0, 0, 0.2f}, rotMat, z);
-			rayInfo.m_pos += z;
-
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
-		}
-		// 当たっていなかったら右後足からのレイ判定をする
-		if (hitFlg == false)
-		{
-			// 右足の場所
-			nodePos = m_spModel->FindNode("Right")->m_worldTransform.Translation();
-			// 回転処理
-			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(-m_angle)) + m_pos.x;
-			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
-
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-			Math::Vector3 z;
-			Math::Vector3::TransformNormal({ 0, 0, -0.2f }, rotMat, z);
-			rayInfo.m_pos += z;
-
-			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 		}
 
-		// 当たっていなかったら左前足からのレイ判定をする
+		// 当たっていなかったら左足からのレイ判定をする
 		if (hitFlg == false)
 		{
 			// 左足の場所
@@ -962,30 +913,8 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle)) + m_pos.x;
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
 
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-			Math::Vector3 z;
-			Math::Vector3::TransformNormal({ 0, 0, 0.2f }, rotMat, z);
-			rayInfo.m_pos += z;
-
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
-		}
-		// 当たっていなかったら左後足からのレイ判定をする
-		if (hitFlg == false)
-		{
-			// 左足の場所
-			nodePos = m_spModel->FindNode("Left")->m_worldTransform.Translation();
-			// 回転処理
-			rayInfo.m_pos.x = nodePos.x * cos(DirectX::XMConvertToRadians(m_angle)) + m_pos.x;
-			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
-
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-			Math::Vector3 z;
-			Math::Vector3::TransformNormal({ 0, 0, -0.2f }, rotMat, z);
-			rayInfo.m_pos += z;
-
-			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
 		}
 
 		// 当たっていた時の処理
@@ -1104,16 +1033,29 @@ void Player::HitJudgeGround()
 		// 当たり判定をするタイプ
 		boxInfo.m_type = KdCollider::TypeGround;
 
+		Math::Matrix mat = Math::Matrix::CreateTranslation(boxInfo.m_Abox.Center);
+		//m_pDebugWire->AddDebugBox(mat, boxInfo.m_Abox.Extents);
+
 		// 当たり判定の結果格納リスト
 		std::list<KdCollider::CollisionResult> resultList;
 
 		bool hitFlg = false;
+
+		bool fineHitFlg = false;
 
 		for (auto& obj : SceneManager::Instance().GetObjList())
 		{
 			if (obj->Intersects(boxInfo, nullptr))
 			{
 				hitFlg = true;
+				if (obj->CheckFineHitJudge() == true)
+				{
+					//Math::Vector3 vec = m_pos - obj->GetPos();
+					//if (vec.Length() < obj->GetFineHitJudgeArea())
+					{
+						fineHitFlg = true;
+					}
+				}
 				break;
 			}
 		}
@@ -1122,6 +1064,10 @@ void Player::HitJudgeGround()
 		{
 			// スフィアの情報
 			KdCollider::SphereInfo sphereInfo;
+
+			// 動いた量
+			Math::Vector3 movePos = m_pos - m_oldPos;
+
 			// スフィアの中心座標
 			sphereInfo.m_sphere.Center = m_pos;
 			// スフィアの半径
@@ -1130,75 +1076,80 @@ void Player::HitJudgeGround()
 			// スフィアのタイプ
 			sphereInfo.m_type = KdCollider::TypeGround;
 
-			Math::Vector3 pos = sphereInfo.m_sphere.Center;
-
 			// 当たったかどうかのフラグ
-			hitFlg = false;
+			bool hitFlg = false;
 			// 当たった結果
-			KdCollider::CollisionResult collisionResult;
+			std::vector<KdCollider::CollisionResult> collisionResultList;
 			// 複数に当たったかどうかのフラグ
 			bool multiHitFlg = false;
 			float maxOverLap = 0;
 
-			if (m_situationType & SituationType::Air)
+			if (fineHitFlg == false)
 			{
-				hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-				if (hitFlg == true)
+				if (m_situationType & SituationType::Air)
 				{
-					maxOverLap = collisionResult.m_overlapDistance;
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+				}
+				if (hitFlg == false)
+				{
+					sphereInfo.m_sphere.Center.y += 0.5f;
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+				}
+				if (hitFlg == false)
+				{
+					sphereInfo.m_sphere.Center.y += 0.5f;
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+				}
+				if (hitFlg == false)
+				{
+					sphereInfo.m_sphere.Center.y += 0.5f;
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
 				}
 			}
-			if (multiHitFlg == false)
+			else
 			{
-				bool flg = false;
-				sphereInfo.m_sphere.Center.y += 0.5f;
-				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-				if (flg == true)
+				for (int i = 0; i < 3; i++)
 				{
+					sphereInfo.m_sphere.Center = m_oldPos + (movePos / 2) * i;
+					sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
+
+					if (m_situationType & SituationType::Air)
+					{
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					}
 					if (hitFlg == false)
 					{
-						maxOverLap = collisionResult.m_overlapDistance;
-						hitFlg = true;
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
 					}
-					else if (maxOverLap > collisionResult.m_overlapDistance)
-					{
-						maxOverLap = collisionResult.m_overlapDistance;
-					}
-				}
-			}
-			if (multiHitFlg == false)
-			{
-				bool flg = false;
-				sphereInfo.m_sphere.Center.y += 0.5f;
-				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-				if (flg == true)
-				{
 					if (hitFlg == false)
 					{
-						maxOverLap = collisionResult.m_overlapDistance;
-						hitFlg = true;
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
 					}
-					else if (maxOverLap > collisionResult.m_overlapDistance)
-					{
-						maxOverLap = collisionResult.m_overlapDistance;
-					}
-				}
-			}
-			if (multiHitFlg == false)
-			{
-				bool flg = false;
-				sphereInfo.m_sphere.Center.y += 0.5f;
-				flg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-				if (flg == true)
-				{
 					if (hitFlg == false)
 					{
-						maxOverLap = collisionResult.m_overlapDistance;
-						hitFlg = true;
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
 					}
-					else if (maxOverLap > collisionResult.m_overlapDistance)
+					if (hitFlg == false)
 					{
-						maxOverLap = collisionResult.m_overlapDistance;
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					}
+					if (hitFlg == false)
+					{
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					}
+					if (hitFlg == false)
+					{
+						sphereInfo.m_sphere.Center.y += 0.25f;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					}
+					if (hitFlg == true)
+					{
+						break;
 					}
 				}
 			}
@@ -1206,32 +1157,48 @@ void Player::HitJudgeGround()
 			// 複数のオブジェクトに当たっていた場合
 			if (multiHitFlg == true)
 			{
-				// Y座標以外、更新前の座標に戻す
-				m_pos.x = m_oldPos.x;
-				m_pos.z = m_oldPos.z;
+				Math::Vector3 normal1 = collisionResultList[0].m_hitNormal;
+				normal1.Normalize();
+				Math::Vector3 normal2 = collisionResultList[1].m_hitNormal;
+				normal2.Normalize();
+
+				float dot = normal1.Dot(normal2);
+
+				dot = std::clamp(dot, -1.0f, 1.0f);
+				float deg = DirectX::XMConvertToDegrees(acos(dot));
+
+				if (deg > m_doubleObjectHitDegAng)
+				{
+					// Y座標以外、更新前の座標に戻す
+					m_pos.x = m_oldPos.x;
+					m_pos.z = m_oldPos.z;
+				}
 			}
 			// 一つのオブジェクトに当たった場合
 			else if (hitFlg)
 			{
+				KdCollider::CollisionResult result = collisionResultList.front();
 				// Y軸の補正はなし
-				collisionResult.m_hitDir.y = 0;
-				collisionResult.m_hitDir.Normalize();
-				//Math::Vector3 pos = collisionResult.m_hitDir * collisionResult.m_overlapDistance;
-				Math::Vector3 pos = collisionResult.m_hitDir * maxOverLap;
-				pos.y = 0;
-				m_pos += collisionResult.m_hitDir * collisionResult.m_overlapDistance;
+				result.m_hitDir.Normalize();
+				Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+				// 当たった時のスフィアの座標
+				Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
+				m_pos.x = hitSpherePos.x + pos.x;
+				m_pos.z = hitSpherePos.z + pos.z;
 			}
 		}
 	}
+	// 頭判定
 	bool hitFlg = false;
 	KdCollider::SphereInfo sphereInfo;
 	sphereInfo.m_sphere.Center = m_pos;
-	sphereInfo.m_sphere.Radius = 0.3f;
-	sphereInfo.m_sphere.Center.y += 2.1f;
+	sphereInfo.m_sphere.Radius = 0.35f;
+	sphereInfo.m_sphere.Center.y += 1.85f;
 	sphereInfo.m_type = KdCollider::TypeGround;
-	KdCollider::CollisionResult collisionResult;
+	std::vector<KdCollider::CollisionResult> collisionResult;
 	// 複数に当たったかどうかのフラグ
 	bool multiHitFlg = false;
+	m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, 0.3f, kRedColor);
 
 	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 	// 複数のオブジェクトに当たっていた場合
@@ -1240,9 +1207,15 @@ void Player::HitJudgeGround()
 		// Y座標のみ、更新前の座標に戻す
 		if (hitFlg == true)
 		{
-			//m_pos.y = m_oldPos.y;
-			collisionResult.m_hitDir.Normalize();
-			m_pos += collisionResult.m_overlapDistance* collisionResult.m_hitDir;
+			KdCollider::CollisionResult result = collisionResult.front();
+			// ひっかかり防止
+			if (result.m_hitDir.y > 0)
+			{
+				result.m_hitDir *= -1;
+			}
+			result.m_hitDir.Normalize();
+			Math::Vector3 pos = result.m_overlapDistance * result.m_hitDir;
+			m_pos.y += pos.y;
 		}
 	}
 }
@@ -1513,6 +1486,7 @@ void Player::HitJudgeEnemy()
 
 void Player::HitJudgeCarryObject()
 {
+	m_wpHitTerrain.reset();
 	m_wpHitCarryObject.reset();
 	// 当たったオブジェクト系をリセット
 	m_carryObjectHitTerrain.hitFlg = false;
@@ -1662,6 +1636,65 @@ void Player::HitJudgeCarryObject()
 				{
 					m_actionKeyFlg = false;
 				}
+			}
+		}
+	}
+}
+
+void Player::ChangeAnimation()
+{
+	// 運び状態の場合
+	if (m_situationType & SituationType::Carry)
+	{
+		// 運び状態のみの場合
+		if ((m_situationType ^ SituationType::Carry) == 0)
+		{
+			SetAnimation("Carry", true);
+		}
+		// 歩きの場合
+		if (m_situationType & SituationType::Walk)
+		{
+			SetAnimation("CarryWalk", true);
+		}
+		// 空中の場合
+		if (m_situationType & SituationType::Air)
+		{
+			SetAnimation("Carry", true);
+		}
+	}
+	// 運び状態じゃない場合
+	else
+	{
+		// Idleのみの場合
+		if ((m_situationType ^ SituationType::Idle) == 0)
+		{
+			SetAnimation("Idle", true);
+		}
+		else
+		{
+			// ジャンプの場合
+			if (m_situationType & SituationType::Jump)
+			{
+				// ジャンプをしていなかった、または、運ばれている状態が解除された時にジャンプアニメーションを再生する
+				if ((m_oldSituationType & SituationType::Jump) == 0 || m_oldSituationType & SituationType::Carry)
+				{
+					SetAnimation("Jump", false);
+				}
+			}
+			// ジャンプではないが空中の場合
+			else if (m_situationType & SituationType::Air)
+			{
+				SetAnimation("Idle", true);
+			}
+			// 歩きの場合
+			else if (m_situationType & SituationType::Walk)
+			{
+				SetAnimation("Walk", true);
+			}
+			// 走りの場合
+			else if (m_situationType & SituationType::Run)
+			{
+				SetAnimation("Run", true);
 			}
 		}
 	}

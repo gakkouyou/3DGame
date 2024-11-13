@@ -20,6 +20,20 @@ void BoxEnemy::Update()
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
 	{
+		// 動く床に乗っていた時の処理
+		if (m_moveGround.hitFlg == true)
+		{
+			if (m_wpHitTerrain.expired() == false)
+			{
+				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+
+				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+
+				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+				m_pos = m_mWorld.Translation();
+			}
+		}
+
 		// 重力
 		m_gravity += m_gravityPow;
 		m_pos.y -= m_gravity;
@@ -35,37 +49,7 @@ void BoxEnemy::Update()
 		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
-	bool airFlg = m_airFlg;
 
-	HitJudge();
-
-	// 着地した瞬間
-	if (airFlg == false && m_airFlg == true)
-	{
-		// 何の地面に乗っているかによって、音を変える
-		if (!m_wpHitTerrain.expired())
-		{
-			ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
-			switch (type)
-			{
-				// 草の音
-			case ObjectType::NormalGround:
-			case ObjectType::SlopeGround:
-			case ObjectType::RotationGround:
-				m_wpLandSound[LandSoundType::Grass].lock()->Play();
-				break;
-
-			case ObjectType::BoundGround:
-				m_wpLandSound[LandSoundType::Bound].lock()->Play();
-				break;
-
-				// コツコツ見たいな音
-			default:
-				m_wpLandSound[LandSoundType::Tile].lock()->Play();
-				break;
-			}
-		}
-	}
 
 	// 音座標更新
 	for (int i = 0; i < LandSoundType::MaxNum; i++)
@@ -114,36 +98,53 @@ void BoxEnemy::Update()
 			}
 		}
 	}
+
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+
+	m_mWorld = rotMat * transMat;
 }
 
 void BoxEnemy::PostUpdate()
 {
 	if (m_pauseFlg) return;
+
+	bool airFlg = m_airFlg;
+
+	HitJudge();
+
+	// 着地した瞬間
+	if (airFlg == false && m_airFlg == true)
+	{
+		// 何の地面に乗っているかによって、音を変える
+		if (!m_wpHitTerrain.expired())
+		{
+			ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
+			switch (type)
+			{
+				// 草の音
+			case ObjectType::NormalGround:
+			case ObjectType::SlopeGround:
+			case ObjectType::RotationGround:
+				m_wpLandSound[LandSoundType::Grass].lock()->Play();
+				break;
+
+			case ObjectType::BoundGround:
+				m_wpLandSound[LandSoundType::Bound].lock()->Play();
+				break;
+
+				// コツコツ見たいな音
+			default:
+				m_wpLandSound[LandSoundType::Tile].lock()->Play();
+				break;
+			}
+		}
+	}
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
 	{
 		Math::Matrix transMat = Math::Matrix::Identity;
-		// 動く床に当たっていた時の処理
-		if (m_moveGround.hitFlg)
-		{
-			// 動く床の動く前の逆行列
-			Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
-			// 動く床から見たプレイヤーの座標行列
-			Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-			// 動く床を探す
-			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-
-			if (spHitObject)
-			{
-				// 動く床の動いた後の行列
-				Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
-
-				// 座標を確定
-				m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
-			}
-		}
-
 		// 回る床に当たっていた時の処理
 		if (m_rotationGround.hitFlg)
 		{
@@ -210,6 +211,7 @@ void BoxEnemy::PostUpdate()
 					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
 					m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
 				}
+				m_degAng += lotDegAng.y;
 			}
 		}
 	}
@@ -481,6 +483,38 @@ void BoxEnemy::OnHit()
 	// 当たり判定の切り替え
 	m_pCollider->SetEnable("BoxEnemyEnemy", false);
 	m_pCollider->SetEnable("BoxEnemyBox", true);
+}
+
+void BoxEnemy::Reset()
+{
+	CarryObjectBase::Reset();
+
+	// 当たり判定は最初は箱
+	m_pCollider->SetEnable("BoxEnemyBox", true);
+	m_pCollider->SetEnable("BoxEnemyEnemy", false);
+
+	// レイを少し上から出す処理をやめるフラグ
+	m_rayDownFlg = false;
+
+	m_oldPos = Math::Vector3::Zero;
+
+	// 敵に戻るまでのカウント
+	m_enemyCount = 0;
+
+	// 生存フラグ
+	m_aliveFlg = false;
+
+	// 敵状態か箱状態かのフラグ
+	m_enemyFlg = false;
+
+	// 追尾しないようにする
+	m_homingFlg = false;
+
+	// 地面に付いた瞬間かどうかを判断するフラグ
+	m_landFlg = true;
+
+	// 角度
+	m_degAng = 180;
 }
 
 void BoxEnemy::HitJudge()

@@ -7,10 +7,7 @@ public:
 	BoundGround()				{}
 	~BoundGround()	override	{}
 
-	//void Update()	override;
 	void Init()		override;
-
-	void OnHit()	override;
 
 	void SetParam(const Param& _param) override;
 

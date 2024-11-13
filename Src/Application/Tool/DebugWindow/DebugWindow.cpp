@@ -36,7 +36,7 @@ void DebugWindow::Draw()
 
 
 		// ログウィンドウ
-	//Application::Instance().m_log.Draw("Log Window");
+	Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
 		if (ImGui::Begin("DebugWindow"))

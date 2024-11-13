@@ -1,22 +1,20 @@
 ﻿#include "TitleBackGround.h"
 
-void TitleBackGround::DrawLit()
+void TitleBackGround::DrawUnLit()
 {
 	if (m_spModel)
 	{
-		KdShaderManager::Instance().m_StandardShader.SetColorEnable(true, { 0, 0, 0 });
-
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullFront);
 
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
 
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullBack);
+		KdShaderManager::Instance().UndoRasterizerState();
 	}
 }
 
 void TitleBackGround::Init()
 {
-	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/BackGround/ResultBackGround/resultBackGround.gltf");
+	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Title/BackGround/backGround.gltf");
 
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(9.5f);
 

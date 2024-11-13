@@ -9,7 +9,6 @@ public:
 	~FlyEnemy()	override {}
 
 	void Update()						override;
-	void PostUpdate()					override;
 	void Init()							override;
 
 	Math::Vector3 GetPos() const override;

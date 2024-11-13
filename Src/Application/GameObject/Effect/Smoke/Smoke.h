@@ -86,7 +86,7 @@ private:
 	
 	struct AppearanceSmoke
 	{
-		const float subScale	= 0.08f;	// 縮小の量
+		const float subScale	= 0.16f;	// 縮小の量
 		const int	smokeNum	= 20;		// 煙の数
 		const int	subTime		= 0;		// 縮小するまでの時間
 		int			subCount	= 0;		// 縮小するまでのカウント

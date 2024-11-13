@@ -4,31 +4,26 @@
 
 void FlyEnemy::Update()
 {
-	if (m_aliveFlg == false) return;
-
 	// ポーズ画面中は更新しない
 	if (m_pauseFlg == true) return;
 
-	m_angle++;
-	if (m_angle >= 360)
+	// 生きている時だけ動く
+	if (m_aliveFlg == true)
 	{
-		m_angle -= 360;
+		// 上下に動く
+		m_angle++;
+		if (m_angle >= 360)
+		{
+			m_angle -= 360;
+		}
+
+		float pos = sin(DirectX::XMConvertToRadians(m_angle)) * m_param.moveArea;
+
+		m_pos.y = m_param.startPos.y + pos;
 	}
-
-	float pos = sin(DirectX::XMConvertToRadians(m_angle)) * m_param.moveArea;
-
-	m_pos.y = m_param.startPos.y + pos;
-}
-
-void FlyEnemy::PostUpdate()
-{
-	// ポーズ画面中は更新しない
-	if (m_pauseFlg == true) return;
 
 	if (SceneManager::Instance().GetDebug())
 	{
-		// searchエリア可視化
-		//m_pDebugWire->AddDebugSphere(m_pos, m_param.searchArea, kRedColor);
 		Math::Vector3 pos = m_param.startPos;
 		pos.y = m_pos.y;
 		// moveエリア可視化
@@ -68,7 +63,7 @@ void FlyEnemy::PostUpdate()
 		}
 	}
 
-	Math::Matrix rotMat		= Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
 
 	m_mWorld = scaleMat * rotMat * transMat;
 }
@@ -88,9 +83,6 @@ void FlyEnemy::Init()
 	// 行列を作っておく
 	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 
-	// スピード
-	m_moveSpeed = 5.f;
-
 	// 当たり判定
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("FlyEnemy", m_spModel, KdCollider::TypeDamage | KdCollider::TypeDebug);
@@ -102,11 +94,11 @@ void FlyEnemy::Init()
 
 	// デバッグワイヤー
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
-
 }
 
 Math::Vector3 FlyEnemy::GetPos() const
 {
+	// これ以上上なら倒せるという座標を返す
 	Math::Vector3 pos;
 	if (m_spModel)
 	{
@@ -125,5 +117,6 @@ void FlyEnemy::SetParam(Param _param)
 
 void FlyEnemy::OnHit()
 {
+	// 死ぬ
 	m_aliveFlg = false;
 }

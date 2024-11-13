@@ -210,7 +210,7 @@ bool CharacterBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vecto
 	return hit;
 }
 
-bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg, Math::Color _color)
+bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::vector<KdCollider::CollisionResult>& _collisionResult, bool& _multiHit, const bool _debugFlg, Math::Color _color)
 {
 	//==================
 	// 球判定
@@ -229,36 +229,28 @@ bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, Kd
 	// 球に当たったオブジェクト情報を格納
 	std::list<KdCollider::CollisionResult> retSphereList;
 
-	// 球に当たったオブジェクトを格納するリスト
-	std::vector<std::weak_ptr<KdGameObject>> retObjList;
-
-	int hitCount = 0;
+	bool hitFlg = false;
 
 	// 当たり判定！！！！！！！！！！！！！！！
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
 		if (obj->Intersects(_sphereInfo, &retSphereList))
 		{
-			// 当たったオブジェクトをリストで保持
-			retObjList.push_back(obj);
-			hitCount++;
+			if (hitFlg == true)
+			{
+				_multiHit = true;
+			}
+			hitFlg = true;
 		}
 	}
-	// 当たったオブジェクトが一つだった場合
-	if (hitCount == 1)
+
+	for (auto& result : retSphereList)
 	{
-		_collisionResult = retSphereList.front();
-		return true;
-	}
-	// 当たったオブジェクトが複数だった場合
-	else if (hitCount >= 2)
-	{
-		_multiHit = true;
-		return true;
+		_collisionResult.push_back(result);
 	}
 
 	// 当たらなかった場合
-	return false;
+	return hitFlg;
 }
 
 bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg)

@@ -6,12 +6,33 @@
 
 void Box::Update()
 {
+	// デバッグモード中は持てるエリアを描画
+	if (SceneManager::Instance().GetDebug())
+	{
+		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+	}
+
 	m_oldPos = m_pos;
 
 	if (m_pauseFlg) return;
+
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
 	{
+		// 動く床に乗っていた時の処理
+		if (m_moveGround.hitFlg == true)
+		{
+			if (m_wpHitTerrain.expired() == false)
+			{
+				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+
+				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+
+				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+				m_pos = m_mWorld.Translation();
+			}
+		}
+
 		// 重力
 		m_gravity += m_gravityPow;
 		m_pos.y -= m_gravity;
@@ -20,15 +41,34 @@ void Box::Update()
 		{
 			m_gravity = m_maxGravity;
 		}
-
-		Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * m_mWorld).Translation();
-		//m_pDebugWire->AddDebugSphere(carryPos, 0.1f, kRedColor);
 	}
 
-	if (SceneManager::Instance().GetDebug())
+	// 音座標更新
+	for (int i = 0; i < LandSoundType::MaxNum; i++)
 	{
-		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+		if (m_wpLandSound[i].lock()->IsPlaying() == true)
+		{
+			m_wpLandSound[i].lock()->SetPos(m_pos);
+		}
 	}
+
+	// Y座標が一定以下になるとリスポーン
+	if (m_pos.y < m_underLine)
+	{
+		m_pos = m_param.startPos;
+		// 少し上から
+		m_pos.y += 1.0f;
+		m_gravity = 0;
+	}
+
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+	m_mWorld = rotMat * transMat;
+}
+
+void Box::PostUpdate()
+{
+	if (m_pauseFlg) return;
 
 	bool landFlg = m_landFlg;
 	HitJudge();
@@ -61,52 +101,10 @@ void Box::Update()
 		}
 	}
 
-	// 音座標更新
-	for (int i = 0; i < LandSoundType::MaxNum; i++)
-	{
-		if (m_wpLandSound[i].lock()->IsPlaying() == true)
-		{
-			m_wpLandSound[i].lock()->SetPos(m_pos);
-		}
-	}
-
-	// Y座標が一定以下になるとリスポーン
-	if (m_pos.y < m_underLine)
-	{
-		m_pos = m_param.startPos;
-		// 少し上から
-		m_pos.y += 1.0f;
-		m_gravity = 0;
-	}
-}
-
-void Box::PostUpdate()
-{
-	if (m_pauseFlg) return;
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
 	{
 		Math::Matrix transMat = Math::Matrix::Identity;
-		// 動く床に当たっていた時の処理
-		if (m_moveGround.hitFlg)
-		{
-			// 動く床の動く前の逆行列
-			Math::Matrix inverseMatrix = DirectX::XMMatrixInverse(nullptr, m_moveGround.transMat);
-			// 動く床から見たプレイヤーの座標行列
-			Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-			// 動く床を探す
-			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
-
-			if (spHitObject)
-			{
-				// 動く床の動いた後の行列
-				Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
-
-				// 座標を確定
-				m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
-			}
-		}
 
 		// 回る床に当たっていた時の処理
 		if (m_rotationGround.hitFlg)
@@ -211,11 +209,8 @@ void Box::PostUpdate()
 				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * mat).Translation();
 			}
 
+			// 座標調整
 			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
-
-			//m_pDebugWire->AddDebugSphere(carryPos, 0.1f, kRedColor);
-
-			//m_pDebugWire->AddDebugSphere(playerCarryPos, 0.1f, kBlackColor);
 
 			m_pos += playerCarryPos - carryPos;
 		}
@@ -306,11 +301,15 @@ void Box::SetParam(Param _param)
 	m_pos = m_param.startPos;
 }
 
-void Box::HitJudge()
+void Box::Reset()
 {
-	// 運ばれている状態なら当たり判定をしない
-	//if (m_carryFlg == true)return;
-	
+	CarryObjectBase::Reset();
+
+	m_pCollider->SetEnable("Box", true);
+}
+
+void Box::HitJudge()
+{	
 	// レイ判定
 	// 動く床関連をリセット
 	// 動く床
@@ -340,11 +339,6 @@ void Box::HitJudge()
 
 			// レイの情報
 			KdCollider::RayInfo rayInfo;
-			//// レイの長さ
-			//rayInfo.m_range = m_gravity + enableStepHeight;
-			//// レイの座標(キャラの中心)
-			//rayInfo.m_pos.y = enableStepHeight;
-			//rayInfo.m_pos += m_pos;
 			// レイの方向
 			rayInfo.m_dir = Math::Vector3::Down;
 			// レイのタイプ
@@ -445,16 +439,6 @@ void Box::HitJudge()
 						m_pos.y = hitPos.y;
 						// 重力
 						m_gravity = -0.25f;
-
-						// 跳ねた時の音を鳴らす
-						//if (m_boundSound.flg == false)
-						//{
-						//	if (!m_boundSound.wpSound.expired())
-						//	{
-						//		m_boundSound.wpSound.lock()->Play();
-						//		m_boundSound.flg = true;
-						//	}
-						//}
 						break;
 
 						// 動く床に乗った場合

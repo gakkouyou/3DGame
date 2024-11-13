@@ -7,7 +7,7 @@ public:
 	~ResultBackGround()	override {}
 
 	void Update()	override;
-	void DrawLit()	override;
+	void DrawUnLit()override;
 	void Init()		override;
 
 	void OrangeAnimation() { m_orangeAnimationFlg = true; }
@@ -17,6 +17,11 @@ public:
 
 private:
 	std::shared_ptr<KdModelData> m_spModel = nullptr;
+	// 夜のモデル
+	std::shared_ptr<KdModelData> m_spNightModel = nullptr;
+
+	// 朝、夕のモデルのアルファ値
+	float m_alpha = 1.0f;
 
 	struct Color
 	{

@@ -27,7 +27,9 @@ void GameUI::Update()
 
 void GameUI::DrawSprite()
 {
-	if (m_drawType == DrawType::Max && m_oldDrawType == DrawType::Max) return;
+
+
+	if (m_oldDrawType == DrawType::Max) return;
 
 
 	Texture tex = m_tex[m_oldDrawType];

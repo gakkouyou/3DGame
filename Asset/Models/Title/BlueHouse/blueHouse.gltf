@@ -157,9 +157,9 @@
 			"name":"red",
 			"pbrMetallicRoughness":{
 				"baseColorFactor":[
-					0.800315260887146,
-					0.26506853103637695,
-					0.19326269626617432,
+					0.19774511456489563,
+					0.4846181273460388,
+					0.8713645935058594,
 					1
 				],
 				"metallicFactor":0,
@@ -969,7 +969,7 @@
 	"buffers":[
 		{
 			"byteLength":30052,
-			"uri":"emptyHouse.bin"
+			"uri":"blueHouse.bin"
 		}
 	]
 }

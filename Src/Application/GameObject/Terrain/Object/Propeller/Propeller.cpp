@@ -51,6 +51,8 @@ void Propeller::Update()
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
 
 	m_mWorld = scaleMat * rotMat * transMat;
+
+	m_pDebugWire->AddDebugSphere(m_param.pos, m_fineHitJudgeArea);
 }
 
 void Propeller::Init()
@@ -62,10 +64,16 @@ void Propeller::Init()
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("Propeller", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
 
+	// 当たり判定を細かくする範囲
+	Math::Vector3 nodePos = m_spModel->FindNode("Area")->m_localTransform.Translation();
+	m_fineHitJudgeArea = nodePos.Length();
+
 	// オブジェクトタイプ
 	m_objectType = ObjectType::Propeller;
 
 	TerrainBase::Init();
+
+	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 }
 
 void Propeller::SetParam(const Param& _param)
@@ -74,6 +82,8 @@ void Propeller::SetParam(const Param& _param)
 	m_param.startPos	= _param.startPos;
 	m_param.scale		= _param.scale;
 	m_param.degAng		= _param.degAng;
+
+	m_fineHitJudgeArea *= m_param.scale.x;
 
 	m_setParamFlg = true;
 }

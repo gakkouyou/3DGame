@@ -9,6 +9,7 @@ struct CollisionMeshResult
 	DirectX::XMVECTOR m_hitDir = {};// 対象への方向ベクトル
 	float m_overlapDistance = 0.0f; // 重なっている距離
 	bool m_hit = false;				// 当たったかどうか
+	DirectX::XMVECTOR m_hitNormal = {};	// 法線
 };
 
 // レイの当たり判定

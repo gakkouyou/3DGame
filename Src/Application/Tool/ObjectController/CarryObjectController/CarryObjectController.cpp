@@ -38,15 +38,6 @@ void CarryObjectController::Init()
 	BeginCreateObject();
 }
 
-void CarryObjectController::Reset()
-{
-	m_objectCount = m_objectCountReset;
-	m_wpObjectList.clear();
-
-	// 読み込んだデータからオブジェクトを作成する
-	BeginCreateObject();
-}
-
 const KdGameObject::ObjectType CarryObjectController::GetObjectType() const
 {
 	if (!m_wpTargetObject.expired())

@@ -52,6 +52,8 @@ public:
 	// 運べるか運べないかを返す
 	virtual const bool IsCarryCheck() const { return true; }
 
+	virtual void Reset()	override;
+
 protected:
 	//====================================
 	// レイ判定

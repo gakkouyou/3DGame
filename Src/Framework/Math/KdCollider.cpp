@@ -405,6 +405,7 @@ bool KdModelCollision::Intersects(const DirectX::BoundingSphere& target, const M
 	bool isHit = false;
 
 	Math::Vector3 hitPos;
+	Math::Vector3 hitNormal;	// 法線格納用
 
 	// 当たり判定ノードとのみ当たり判定
 	for (int index : spModelData->GetCollisionMeshNodeIndices())
@@ -436,6 +437,7 @@ bool KdModelCollision::Intersects(const DirectX::BoundingSphere& target, const M
 
 		// とりあえず当たった座標で更新
 		hitPos = tmpResult.m_hitPos;
+		hitNormal = tmpResult.m_hitNormal;
 	}
 
 	if (pRes && isHit)
@@ -449,6 +451,8 @@ bool KdModelCollision::Intersects(const DirectX::BoundingSphere& target, const M
 		pRes->m_overlapDistance = DirectX::XMVector3Length(pRes->m_hitDir).m128_f32[0];
 
 		pRes->m_hitDir = DirectX::XMVector3Normalize(pRes->m_hitDir);
+
+		pRes->m_hitNormal = hitNormal;
 	}
 
 	return isHit;

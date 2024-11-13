@@ -19,6 +19,8 @@ public:
 
 	void SetDrawType(DrawType _drawType);
 
+	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
+
 private:
 	struct Texture
 	{
@@ -31,4 +33,11 @@ private:
 
 	UINT m_drawType = DrawType::Max;
 	UINT m_oldDrawType = DrawType::Max;
+
+	// 「P:ポーズ」
+	std::shared_ptr<KdTexture> m_spPauseTex = nullptr;
+	const Math::Vector2 m_pausePos = { 500, -340 };
+
+	// ポーズフラグ
+	bool m_pauseFlg = false;
 };

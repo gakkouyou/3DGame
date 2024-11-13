@@ -229,12 +229,32 @@ void GameScene::Init()
 	backGround->Init();
 	AddObject(backGround);
 
-	// プレイヤー
+	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
+	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage);
+	// CSVファイルを指定する
+	terrainController->SetCSV(csvName);
+	terrainController->Init();
+	AddObject(terrainController);
+
 	std::shared_ptr<Player> player = std::make_shared<Player>();
+	// 運ぶオブジェクト作成
+	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
+	// CSVファイルを指定する
+	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage) + ".csv");
+	// Initより先に書く
+	carryObjectController->SetTerrainController(terrainController);
+	carryObjectController->SetPlayer(player);
+	carryObjectController->Init();
+
+	AddObject(carryObjectController);
+
+	// プレイヤー
 	player->Init();
 	AddObject(player);
 	// 保持
 	m_wpPlayer = player;
+
+
 
 	// TPSカメラ
 	std::shared_ptr<TPSCamera> tpsCamera = std::make_shared<TPSCamera>();
@@ -284,10 +304,8 @@ void GameScene::Init()
 	m_wpSceneChange = sceneChange;
 
 	// 地形作成
-	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
-	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage);
-	// CSVファイルを指定する
-	terrainController->SetCSV(csvName);
+
+
 
 	// 敵作成
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
@@ -300,15 +318,7 @@ void GameScene::Init()
 	enemyController->Init();
 	AddObject(enemyController);
 
-	// 運ぶオブジェクト作成
-	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
-	// CSVファイルを指定する
-	carryObjectController->SetCSV("Asset/Data/CSV/CarryObject/Stage" + std::to_string(m_nowStage) + ".csv");
-	// Initより先に書く
-	carryObjectController->SetTerrainController(terrainController);
-	carryObjectController->SetPlayer(player);
-	carryObjectController->Init();
-	AddObject(carryObjectController);
+
 
 	// EventObject作成
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
@@ -324,8 +334,7 @@ void GameScene::Init()
 	// ===========================================================================
 	// 地形によって挙動が変わるオブジェクトの後に更新するように書く
 	// ===========================================================================
-	terrainController->Init();
-	AddObject(terrainController);
+
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(terrainController);			// Terrain
@@ -407,7 +416,6 @@ void GameScene::GameEnd(int _stayCnt)
 				while (it != m_objList.end())
 				{
 					if ((*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Enemy
-						|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::CarryObject
 						|| (*it)->GetBaseObjectType() == KdGameObject::BaseObjectType::Event)
 					{
 						(*it)->SetExpired(true);
@@ -427,23 +435,23 @@ void GameScene::GameEnd(int _stayCnt)
 			}
 
 			// 地形をリストの最後に並べ替える
-			{
-				std::list<std::shared_ptr<KdGameObject>> objList = m_objList;
-				std::list<std::shared_ptr<KdGameObject>> terrainList;
-				auto it = m_objList.begin();
-				for (auto& obj : objList)
-				{
-					if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
-					{
-						m_objList.push_back(obj);
-						it = m_objList.erase(it);
-					}
-					else
-					{
-						it++;
-					}
-				}
-			}
+			//{
+			//	std::list<std::shared_ptr<KdGameObject>> objList = m_objList;
+			//	std::list<std::shared_ptr<KdGameObject>> terrainList;
+			//	auto it = m_objList.begin();
+			//	for (auto& obj : objList)
+			//	{
+			//		if (obj->GetBaseObjectType() == KdGameObject::BaseObjectType::Ground)
+			//		{
+			//			m_objList.push_back(obj);
+			//			it = m_objList.erase(it);
+			//		}
+			//		else
+			//		{
+			//			it++;
+			//		}
+			//	}
+			//}
 			m_resetFlg = true;
 		}
 		else

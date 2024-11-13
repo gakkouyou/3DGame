@@ -25,6 +25,37 @@ void CarryObjectBase::DrawLit()
 }
 
 
+void CarryObjectBase::Reset()
+{
+	// 動く床
+	m_moveGround.hitFlg = false;
+	m_moveGround.transMat = Math::Matrix::Identity;
+	// 回る床
+	m_rotationGround.hitFlg = false;
+	m_rotationGround.transMat = Math::Matrix::Identity;
+
+	// 座標
+	m_pos = m_param.startPos;
+
+	// 重力
+	m_gravity = 0;
+
+	// 持たれているかどうかのフラグ
+	m_carryFlg = false;
+
+	// 動きを完全に停止させるフラグ
+	m_pauseFlg = false;
+
+	// 当たった地形
+	m_wpHitTerrain.reset();
+
+	// 当たったオブジェクトのリスト
+	m_wpHitObjectList.clear();
+
+	// 少し白くするフラグ
+	m_whiteFlg = false;
+}
+
 // レイ判定　当たったオブジェクトをリストに追加
 bool CarryObjectBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vector3& _hitPos, const bool _debugFlg)
 {

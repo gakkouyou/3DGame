@@ -16,6 +16,8 @@ public:
 
 	void SetParam(Param _param)	override;
 
+	void Reset()	override;
+
 private:
 	enum LandSoundType
 	{
@@ -64,7 +66,7 @@ private:
 		Right,
 		Center,
 	};
-	Ray m_ray;
+	Ray m_ray = Ray::Left;
 
 	// 地面に付いた瞬間かどうかを判断するフラグ
 	bool m_landFlg = true;

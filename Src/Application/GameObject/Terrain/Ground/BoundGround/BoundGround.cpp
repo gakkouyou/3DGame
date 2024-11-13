@@ -1,20 +1,12 @@
 ﻿#include "BoundGround.h"
 
-//void BoundGround::Update()
-//{
-//	m_mWorld = Math::Matrix::CreateTranslation(m_param.pos);
-//}
-
 void BoundGround::Init()
 {
 	// モデルセット
 	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/Ground/BoundGround/boundGround.gltf");
 
-	// 座標セット
-	SetPos({ 20.0f, 0.0f, 0.0f });
-
 	// DrawLit
-	m_drawType = eDrawTypeLit;
+	m_drawType = eDrawTypeLit | eDrawTypeDepthOfShadow;
 
 	m_pCollider = std::make_unique<KdCollider>();
 	m_pCollider->RegisterCollisionShape("BoundGround", m_spModel, KdCollider::TypeGround | KdCollider::TypeDebug);
@@ -23,11 +15,6 @@ void BoundGround::Init()
 	m_objectType = ObjectType::BoundGround;
 
 	TerrainBase::Init();
-}
-
-void BoundGround::OnHit()
-{
-	
 }
 
 void BoundGround::SetParam(const Param& _param)

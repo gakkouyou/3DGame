@@ -184,8 +184,8 @@ void TPSCamera::PostUpdate()
 		}
 	}
 
-	Application::Instance().m_log.Clear();
-	Application::Instance().m_log.AddLog("obj:%d draw:%d", count, drawCount);
+	//Application::Instance().m_log.Clear();
+	//Application::Instance().m_log.AddLog("obj:%d draw:%d", count, drawCount);
 }
 
 void TPSCamera::Init()

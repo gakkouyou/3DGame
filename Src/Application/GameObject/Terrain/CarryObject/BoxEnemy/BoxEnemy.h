@@ -26,6 +26,8 @@ public:
 	// 運べるか運べないかを返す
 	const bool IsCarryCheck() const		override { return !m_enemyFlg; }
 
+	void Reset();
+
 private:
 	// 当たり判定
 	void HitJudge();

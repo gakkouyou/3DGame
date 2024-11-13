@@ -133,7 +133,12 @@ public:
 	const std::string GetObjectName() const { return m_objectName; }
 
 	// 更新を全て止める
-	virtual void SetPauseFlg([[maybe_unused]] bool _pauseFlg) {}
+	virtual void SetPauseFlg(bool) {}
+
+	// 当たり判定を綿密にする必要のあるオブジェクトかどうか
+	virtual const bool CheckFineHitJudge() const { return false; }
+	// 当たり判定を綿密にする必要にあった場合、範囲を返す
+	virtual const float GetFineHitJudgeArea() const { return 0; }
 
 protected:
 

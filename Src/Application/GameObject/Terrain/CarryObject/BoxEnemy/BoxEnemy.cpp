@@ -11,29 +11,33 @@ void BoxEnemy::Update()
 	m_oldPos = m_pos;
 
 	if (m_pauseFlg) return;
-	// 敵状態での更新
-	if(m_enemyFlg == true)
+
+	// 動く床に乗っていた時の処理
+	if (m_moveGround.hitFlg == true)
 	{
-		EnemyUpdate();
+		if (m_wpHitTerrain.expired() == false)
+		{
+			Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+
+			Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+
+			m_mWorld = localMatFromRideObject * hitTerrainTransMat;
+			m_pos = m_mWorld.Translation();
+		}
 	}
 
-	// 運ばれていない時の処理
-	if (m_carryFlg == false)
+	// 状態毎の更新
+	if (m_nowAction)
 	{
-		// 動く床に乗っていた時の処理
-		if (m_moveGround.hitFlg == true)
-		{
-			if (m_wpHitTerrain.expired() == false)
-			{
-				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
+		m_nowAction->Update(*this);
+	}
 
-				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
+	// ヒットフラグをリセット
+	m_onHitFlg = false;
 
-				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-				m_pos = m_mWorld.Translation();
-			}
-		}
-
+	// 重力の処理
+	if (m_isCarry == false)
+	{
 		// 重力
 		m_gravity += m_gravityPow;
 		m_pos.y -= m_gravity;
@@ -50,7 +54,6 @@ void BoxEnemy::Update()
 	}
 
 
-
 	// 音座標更新
 	for (int i = 0; i < LandSoundType::MaxNum; i++)
 	{
@@ -63,40 +66,8 @@ void BoxEnemy::Update()
 	// Y座標が一定以下になると死亡
 	if (m_pos.y < m_underLine)
 	{
-		// リスポーン
-		m_pos = m_param.startPos;
-		// 少し上から
-		m_pos.y += 1.0f;
-		m_gravity = 0;
-		// 箱状態にする
-		m_enemyFlg = false;
-		// プレイヤーが近くに来たら震える状態にする
-		m_aliveFlg = false;
-		// 角度をリセット
-		m_degAng = 180;
-
-		// 当たり判定の切り替え
-		m_pCollider->SetEnable("BoxEnemyEnemy", false);
-		m_pCollider->SetEnable("BoxEnemyBox", true);
-	}
-
-	// プレイヤーが近くに来たら震えて敵状態になる
-	if (m_aliveFlg == false)
-	{
-		// 地面にいる時
-		if (m_airFlg == false)
-		{
-			float length = (m_wpPlayer.lock()->GetPos() - m_param.startPos).Length();
-
-			if (length < m_enemyChangeLength)
-			{
-				// 敵状態にする
-				m_enemyCount = m_shakeTime;
-				// 追尾しないようにする
-				m_homingFlg = false;
-				m_aliveFlg = true;
-			}
-		}
+		// ステートを待機状態へ変更
+		ChangeActionState(std::make_shared<Idle>());
 	}
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
@@ -110,12 +81,12 @@ void BoxEnemy::PostUpdate()
 {
 	if (m_pauseFlg) return;
 
-	bool airFlg = m_airFlg;
+	bool isGround = m_isGround;
 
 	HitJudge();
 
 	// 着地した瞬間
-	if (airFlg == false && m_airFlg == true)
+	if (isGround == true && m_isGround == false)
 	{
 		// 何の地面に乗っているかによって、音を変える
 		if (!m_wpHitTerrain.expired())
@@ -142,7 +113,7 @@ void BoxEnemy::PostUpdate()
 		}
 	}
 	// 運ばれていない時の処理
-	if (m_carryFlg == false)
+	if (m_isCarry == false)
 	{
 		Math::Matrix transMat = Math::Matrix::Identity;
 		// 回る床に当たっていた時の処理
@@ -221,101 +192,43 @@ void BoxEnemy::PostUpdate()
 		// プレイヤー
 		std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
 
-		if (spPlayer)
+		if (!spPlayer) return;
+
+		// プレイヤーのモデル
+		const std::shared_ptr<KdModelWork> spPlayerModel = spPlayer->GetModel();
+		// プレイヤーの角度
+		m_degAng = spPlayer->GetAngle();
+
+		// 運ぶオブジェクトを置く座標の計算
+		Math::Vector3 playerCarryPos = spPlayerModel->FindNode("CarryPoint")->m_worldTransform.Translation();
+		// 回転処理
+		playerCarryPos.x = playerCarryPos.z * sin(DirectX::XMConvertToRadians(m_degAng));
+		playerCarryPos.z = playerCarryPos.z * cos(DirectX::XMConvertToRadians(m_degAng));
+		// 座標足しこみ
+		playerCarryPos += spPlayer->GetPos();
+
+		// 回転込みの行列を作成
+		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+		Math::Matrix mat = rotMat * transMat;
+
+		// 頂点の座標を回転
+		for (int i = 0; i < Max; i++)
 		{
-			// プレイヤーのモデル
-			const std::shared_ptr<KdModelWork> spPlayerModel = spPlayer->GetModel();
-			// プレイヤーの角度
-			m_degAng = spPlayer->GetAngle();
-
-			// 運ぶオブジェクトを置く座標の計算
-			Math::Vector3 playerCarryPos = spPlayerModel->FindNode("CarryPoint")->m_worldTransform.Translation();
-			// 回転処理
-			playerCarryPos.x = playerCarryPos.z * sin(DirectX::XMConvertToRadians(m_degAng));
-			playerCarryPos.z = playerCarryPos.z * cos(DirectX::XMConvertToRadians(m_degAng));
-			// 座標足しこみ
-			playerCarryPos += spPlayer->GetPos();
-
-			// 回転込みの行列を作成
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
-			Math::Matrix mat = rotMat * transMat;
-
-			// 頂点の座標を回転
-			for (int i = 0; i < Max; i++)
-			{
-				m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * mat).Translation();
-			}
-
-			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
-
-			//m_pDebugWire->AddDebugSphere(carryPos, 0.1f, kRedColor);
-
-			//m_pDebugWire->AddDebugSphere(playerCarryPos, 0.1f, kBlackColor);
-
-			m_pos += playerCarryPos - carryPos;
+			m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * mat).Translation();
 		}
+
+		Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
+
+		m_pos += playerCarryPos - carryPos;
 	}
 
+	// 行列確定
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-
-
-	// 震えている状態に入ったかどうかのフラグ
-	bool flg = false;
-	// 箱状態の時にカウントを進めていく
-	if (m_enemyFlg == false && m_aliveFlg == true)
-	{
-		m_enemyCount++;
-		// 一定時間たったら敵に戻る
-		if (m_enemyCount > m_enemyTime)
-		{
-			// 敵にする
-			m_enemyFlg = true;
-
-			// 追尾しないようにする
-			m_homingFlg = false;
-			
-			// 当たり判定を切り替える
-			m_pCollider->SetEnable("BoxEnemyEnemy", true);
-			m_pCollider->SetEnable("BoxEnemyBox", false);
-			
-			// 少しジャンプ
-			m_gravity -= m_jumpPow;
-
-			// カウントをリセット
-			m_enemyCount = 0;
-
-			// 運ばれている状態を終了
-			m_carryFlg = false;
-
-			// プレイヤーの運び状態を終了
-			if (m_wpPlayer.expired() == false)
-			{
-				m_wpPlayer.lock()->CancelCarryMode();
-			}
-
-			// 生存フラグ
-			m_aliveFlg = true;
-
-			// ジャンプのカウントリセット
-			m_stayCount = 0;
-		}
-		// 一定時間たったら震え始める
-		else if (m_enemyCount > m_shakeTime)
-		{
-			Math::Vector3 shakeAng = { DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % m_maxDegAng - m_maxDegAng / 2.0f) };
-			Math::Matrix shakeMat = Math::Matrix::CreateFromYawPitchRoll(shakeAng);
-			m_mWorld = rotMat * shakeMat * transMat;
-			flg = true;
-		}
-	}
-	if(flg == false)
-	{
-		m_mWorld = rotMat * transMat;
-	}
+	m_mWorld = rotMat * m_shakeMat * transMat;
 }
 
 void BoxEnemy::GenerateDepthMapFromLight()
@@ -436,12 +349,15 @@ void BoxEnemy::Init()
 
 	// 最初の当たり判定は箱のみ
 	m_pCollider->SetEnable("BoxEnemyEnemy", false);
+
+	// 初期状態は待機状態
+	m_nowAction = std::make_shared<Idle>();
 }
 
 void BoxEnemy::CarryFlg(bool _carryFlg)
 {
-	m_carryFlg = _carryFlg;
-	if (m_carryFlg == true)
+	m_carryFlg = true;
+	if (_carryFlg == true)
 	{
 		m_pCollider->SetEnable("BoxEnemyBox", false);
 		m_gravity = 0;
@@ -477,12 +393,14 @@ void BoxEnemy::SetParam(Param _param)
 
 void BoxEnemy::OnHit()
 {
-	// 箱状態にする
-	m_enemyFlg = false;
+	m_onHitFlg = true;
 
 	// 当たり判定の切り替え
 	m_pCollider->SetEnable("BoxEnemyEnemy", false);
-	m_pCollider->SetEnable("BoxEnemyBox", true);
+	m_pCollider->SetEnable("BoxEnemyBox", true); 
+
+	// 敵状態じゃなくす
+	m_enemyFlg = false;
 }
 
 void BoxEnemy::Reset()
@@ -501,27 +419,18 @@ void BoxEnemy::Reset()
 	// 敵に戻るまでのカウント
 	m_enemyCount = 0;
 
-	// 生存フラグ
-	m_aliveFlg = false;
-
 	// 敵状態か箱状態かのフラグ
 	m_enemyFlg = false;
 
-	// 追尾しないようにする
-	m_homingFlg = false;
-
-	// 地面に付いた瞬間かどうかを判断するフラグ
-	m_landFlg = true;
-
 	// 角度
 	m_degAng = 180;
+
+	// 初期状態は待機状態
+	m_nowAction = std::make_shared<Idle>();
 }
 
 void BoxEnemy::HitJudge()
 {
-	// 運ばれている状態なら当たり判定をしない
-	//if (m_carryFlg == true)return;
-
 	// レイ判定
 	// 動く床関連をリセット
 	// 動く床
@@ -534,7 +443,7 @@ void BoxEnemy::HitJudge()
 	// 当たった地面をリセット
 	m_wpHitTerrain.reset();
 
-	if (m_carryFlg == false)
+	if (m_isCarry == false)
 	{
 		// 地面とのレイ当たり判定
 		{
@@ -550,11 +459,6 @@ void BoxEnemy::HitJudge()
 
 			// レイの情報
 			KdCollider::RayInfo rayInfo;
-			//// レイの長さ
-			//rayInfo.m_range = m_gravity + enableStepHeight;
-			//// レイの座標(キャラの中心)
-			//rayInfo.m_pos.y = enableStepHeight;
-			//rayInfo.m_pos += m_pos;
 			// レイの方向
 			rayInfo.m_dir = Math::Vector3::Down;
 			// レイのタイプ
@@ -661,16 +565,6 @@ void BoxEnemy::HitJudge()
 						m_pos.y = hitPos.y;
 						// 重力
 						m_gravity = -0.25f;
-
-						// 跳ねた時の音を鳴らす
-						//if (m_boundSound.flg == false)
-						//{
-						//	if (!m_boundSound.wpSound.expired())
-						//	{
-						//		m_boundSound.wpSound.lock()->Play();
-						//		m_boundSound.flg = true;
-						//	}
-						//}
 						break;
 
 						// 動く床に乗った場合
@@ -685,8 +579,8 @@ void BoxEnemy::HitJudge()
 						m_moveGround.transMat = Math::Matrix::CreateTranslation(spHitObject->GetPos());
 						// 動く床に当たったかどうかのフラグ
 						m_moveGround.hitFlg = true;
-						// 空中にいない
-						m_airFlg = false;
+						// 地面にいる
+						m_isGround = true;
 						break;
 
 						// 回る床に乗った場合
@@ -698,8 +592,8 @@ void BoxEnemy::HitJudge()
 						m_gravity = 0;
 						// 当たったかどうか
 						m_rotationGround.hitFlg = true;
-						// 空中にいない
-						m_airFlg = false;
+						// 地面にいる
+						m_isGround = true;
 						break;
 
 					default:
@@ -707,22 +601,23 @@ void BoxEnemy::HitJudge()
 						m_pos.y = hitPos.y;
 						// 重力
 						m_gravity = 0;
-						// 空中にいない
-						m_airFlg = false;
+						// 地面にいる
+						m_isGround = true;
 						break;
 					}
 				}
 			}
 			else
 			{
-				m_airFlg = true;
+				// 地面にいない
+				m_isGround = false;
 			}
 		}
 		m_rayDownFlg = false;
 	}
 
 	// 地面(壁)とのスフィア判定
-	if (m_carryFlg == true)
+	if (m_isCarry == true)
 	{
 		// スフィアの情報
 		KdCollider::SphereInfo sphereInfo;
@@ -797,86 +692,6 @@ void BoxEnemy::HitJudge()
 	}
 }
 
-void BoxEnemy::EnemyUpdate()
-{
-	if (SceneManager::Instance().GetDebug() == true) return;
-
-	if (m_aliveFlg == false) return;
-
-	std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
-	if (!spPlayer) return;
-
-	// 敵からプレイヤーへのベクトル
-	Math::Vector3 vec = spPlayer->GetPos() - m_pos;
-	vec.y = 0;
-	vec.Normalize();
-
-	// キャラクターの正面方向
-	Math::Vector3 nowVec = m_mWorld.Backward();
-	nowVec.Normalize();
-
-	// 向きたい方向
-	vec.Normalize();
-
-	// 内積
-	float d = nowVec.Dot(vec);
-
-	// 丸め誤差
-	d = std::clamp(d, -1.0f, 1.0f);
-
-	// アークコサインで角度に変換
-	float ang = DirectX::XMConvertToDegrees(acos(d));
-
-	float _minDegAng = 5.0f;
-
-	// ゆっくり回転するように処理
-	if (ang >= 0.1f)
-	{
-		// 回転制御
-		if (ang > _minDegAng)
-		{
-			ang = _minDegAng;
-		}
-
-		// 外積
-		Math::Vector3 c = vec.Cross(nowVec);
-
-		if (c.y >= 0)	// 上
-		{
-			m_degAng -= ang;
-			if (m_degAng < 0)
-			{
-				m_degAng += 360;
-			}
-		}
-		else			//下
-		{
-			m_degAng += ang;
-			if (m_degAng >= 360)
-			{
-				m_degAng -= 360;
-			}
-		}
-	}
-
-	// 空中にいて、追尾していい場合移動
-	if (m_airFlg == true && m_homingFlg == true)
-	{
-		m_pos += vec * m_moveSpeed;
-	}
-	// 地面にいる場合カウントを進める
-	else if(m_airFlg == false)
-	{
-		m_stayCount++;
-		// カウントが待機時間を超えたらジャンプさせる
-		if (m_stayCount > m_stayTime)
-		{
-			m_gravity = -m_jumpPow;
-			m_stayCount = 0;
-		}
-	}
-}
-
 void BoxEnemy::DataLoad()
 {
 	// JSONファイルを読み込む
@@ -921,4 +736,402 @@ void BoxEnemy::DataSave()
 	// JSONデータをファイルに書き込む
 	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
 	file.close();
+}
+
+void BoxEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)
+{
+	if (m_nowAction)m_nowAction->Exit(*this);
+	m_nowAction = _nextState;
+	m_nowAction->Enter(*this);
+}
+
+void BoxEnemy::Idle::Enter(BoxEnemy& _owner)
+{
+	// リスポーン
+	_owner.m_pos = _owner.m_param.startPos;
+	// 少し上から
+	_owner.m_pos.y += 1.0f;
+	_owner.m_gravity = 0;
+	// 箱状態にする
+	_owner.m_enemyFlg = false;
+	// 角度をリセット
+	_owner.m_degAng = 180;
+
+	// 当たり判定の切り替え
+	_owner.m_pCollider->SetEnable("BoxEnemyEnemy", false);
+	_owner.m_pCollider->SetEnable("BoxEnemyBox", true);
+}
+
+void BoxEnemy::Idle::Update(BoxEnemy& _owner)
+{
+	// 接地している時のみ処理
+	if (_owner.m_isGround == false) return;
+
+	// プレイヤーが範囲内に来たら震える状態へ移行
+	if (_owner.m_wpPlayer.expired() == true) return;
+	float length = (_owner.m_wpPlayer.lock()->GetPos() - _owner.m_param.startPos).Length();
+
+	if (length < _owner.m_enemyChangeLength)
+	{
+		_owner.ChangeActionState(std::make_shared<Shake>());
+		return;
+	}
+}
+
+void BoxEnemy::JumpStay::Update(BoxEnemy& _owner)
+{
+	// 踏まれていたら箱状態へ移行
+	if (_owner.m_onHitFlg == true)
+	{
+		_owner.ChangeActionState(std::make_shared<Box>());
+		return;
+	}
+
+	std::shared_ptr<Player> spPlayer = _owner.m_wpPlayer.lock();
+	if (!spPlayer) return;
+
+	// 敵からプレイヤーへのベクトル
+	Math::Vector3 vec = spPlayer->GetPos() - _owner.m_pos;
+	vec.y = 0;
+	vec.Normalize();
+
+	// キャラクターの正面方向
+	Math::Vector3 nowVec = _owner.m_mWorld.Backward();
+	nowVec.Normalize();
+
+	// 向きたい方向
+	vec.Normalize();
+
+	// 内積
+	float d = nowVec.Dot(vec);
+
+	// 丸め誤差
+	d = std::clamp(d, -1.0f, 1.0f);
+
+	// アークコサインで角度に変換
+	float ang = DirectX::XMConvertToDegrees(acos(d));
+
+	float _minDegAng = 5.0f;
+
+	// ゆっくり回転するように処理
+	if (ang >= 0.1f)
+	{
+		// 回転制御
+		if (ang > _minDegAng)
+		{
+			ang = _minDegAng;
+		}
+
+		// 外積
+		Math::Vector3 c = vec.Cross(nowVec);
+
+		if (c.y >= 0)	// 上
+		{
+			_owner.m_degAng -= ang;
+			if (_owner.m_degAng < 0)
+			{
+				_owner.m_degAng += 360;
+			}
+		}
+		else			//下
+		{
+			_owner.m_degAng += ang;
+			if (_owner.m_degAng >= 360)
+			{
+				_owner.m_degAng -= 360;
+			}
+		}
+	}
+
+	// 地面にいたら待機時間を進める
+	if (_owner.m_isGround == true)
+	{
+		_owner.m_stayCount++;
+		// カウントが待機時間を超えたらジャンプに移行
+		if (_owner.m_stayCount > _owner.m_stayTime)
+		{
+			_owner.ChangeActionState(std::make_shared<JumpMove>());
+		}
+	}
+}
+
+void BoxEnemy::JumpStay::Exit(BoxEnemy& _owner)
+{
+	// カウントをリセット
+	_owner.m_stayCount = 0;
+}
+
+void BoxEnemy::JumpMove::Enter(BoxEnemy& _owner)
+{
+	// ジャンプ
+	_owner.m_gravity = -_owner.m_jumpPow;
+}
+
+void BoxEnemy::JumpMove::Update(BoxEnemy& _owner)
+{
+	// 接地していたらジャンプ待機状態へ移行
+	if (_owner.m_isGround == true)
+	{
+		_owner.ChangeActionState(std::make_shared<JumpStay>());
+		return;
+	}
+	// 踏まれていたら箱へ移行
+	if (_owner.m_onHitFlg == true)
+	{
+		_owner.ChangeActionState(std::make_shared<Box>());
+		return;
+	}
+
+	std::shared_ptr<Player> spPlayer = _owner.m_wpPlayer.lock();
+	if (!spPlayer) return;
+
+	// 敵からプレイヤーへのベクトル
+	Math::Vector3 vec = spPlayer->GetPos() - _owner.m_pos;
+	vec.y = 0;
+	vec.Normalize();
+
+	// キャラクターの正面方向
+	Math::Vector3 nowVec = _owner.m_mWorld.Backward();
+	nowVec.Normalize();
+
+	// 向きたい方向
+	vec.Normalize();
+
+	// 内積
+	float d = nowVec.Dot(vec);
+
+	// 丸め誤差
+	d = std::clamp(d, -1.0f, 1.0f);
+
+	// アークコサインで角度に変換
+	float ang = DirectX::XMConvertToDegrees(acos(d));
+
+	float _minDegAng = 5.0f;
+
+	// ゆっくり回転するように処理
+	if (ang >= 0.1f)
+	{
+		// 回転制御
+		if (ang > _minDegAng)
+		{
+			ang = _minDegAng;
+		}
+
+		// 外積
+		Math::Vector3 c = vec.Cross(nowVec);
+
+		if (c.y >= 0)	// 上
+		{
+			_owner.m_degAng -= ang;
+			if (_owner.m_degAng < 0)
+			{
+				_owner.m_degAng += 360;
+			}
+		}
+		else			//下
+		{
+			_owner.m_degAng += ang;
+			if (_owner.m_degAng >= 360)
+			{
+				_owner.m_degAng -= 360;
+			}
+		}
+	}
+
+	// 移動
+	_owner.m_pos += vec * _owner.m_moveSpeed;
+}
+
+void BoxEnemy::Box::Update(BoxEnemy& _owner)
+{
+	// 運ばれる状態になったら運ばれている状態にする
+	if (_owner.m_carryFlg == true)
+	{
+		_owner.ChangeActionState(std::make_shared<Carry>());
+		_owner.m_carryFlg = false;
+		return;
+	}
+
+	// 震える状態へ移行
+	_owner.m_enemyCount++;
+	if (_owner.m_enemyCount > _owner.m_shakeTime)
+	{
+		_owner.ChangeActionState(std::make_shared<Shake>());
+		return;
+	}
+}
+
+void BoxEnemy::Carry::Enter(BoxEnemy& _owner)
+{
+	// 当たり判定無効化
+	_owner.m_pCollider->SetEnable("BoxEnemyBox", false);
+
+	// 敵に戻るカウントリセット
+	_owner.m_enemyCount = 0;
+
+	// 運び状態を開始する
+	_owner.m_isCarry = true;
+}
+
+void BoxEnemy::Carry::Update(BoxEnemy& _owner)
+{
+	// 運ばれている状態
+	_owner.m_isCarry = true;
+
+	// プレイヤーの運び状態が変更があったら箱状態にする
+	if (_owner.m_carryFlg == true)
+	{
+		_owner.ChangeActionState(std::make_shared<Box>());
+		_owner.m_carryFlg = false;
+		_owner.m_isCarry = false;
+		return;
+	}
+
+	// 震える状態へ移行
+	_owner.m_enemyCount++;
+	if (_owner.m_enemyCount > _owner.m_shakeTime)
+	{
+		_owner.ChangeActionState(std::make_shared<Shake>());
+		return;
+	}
+}
+
+void BoxEnemy::Carry::Exit(BoxEnemy& _owner)
+{
+	// 当たり判定有効化
+	_owner.m_pCollider->SetEnable("BoxEnemyBox", true);
+}
+
+void BoxEnemy::Shake::Enter(BoxEnemy& _owner)
+{
+	// カウントを震え始める数値にする
+	_owner.m_enemyCount = _owner.m_shakeTime;
+}
+
+void BoxEnemy::Shake::Update(BoxEnemy& _owner)
+{
+	// 持たれた状態になっていたら持たれている状態にする
+	if (_owner.m_carryFlg)
+	{
+		_owner.ChangeActionState(std::make_shared<Carry>());
+		_owner.m_carryFlg = false;
+		return;
+	}
+
+	// 角度をランダムで決める
+	Math::Vector3 shakeAng = { DirectX::XMConvertToRadians(rand() % _owner.m_maxDegAng - _owner.m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % _owner.m_maxDegAng - _owner.m_maxDegAng / 2.0f), DirectX::XMConvertToRadians(rand() % _owner.m_maxDegAng - _owner.m_maxDegAng / 2.0f) };
+	// 行列作成
+	_owner.m_shakeMat = Math::Matrix::CreateFromYawPitchRoll(shakeAng);
+
+	// 敵に戻るカウントを進める
+	_owner.m_enemyCount++;
+	// 時間を超えたら敵に戻る 追尾なしのジャンプに移行
+	if (_owner.m_enemyCount > _owner.m_enemyTime)
+	{
+		_owner.ChangeActionState(std::make_shared<Jump>());
+		return;
+	}
+}
+
+void BoxEnemy::Shake::Exit(BoxEnemy& _owner)
+{
+	// 敵に戻るカウントをリセット
+	_owner.m_enemyCount = 0;
+	// 行列をリセット
+	_owner.m_shakeMat = Math::Matrix::Identity;
+}
+
+void BoxEnemy::Jump::Enter(BoxEnemy& _owner)
+{
+	// 当たり判定を切り替える
+	_owner.m_pCollider->SetEnable("BoxEnemyEnemy", true);
+	_owner.m_pCollider->SetEnable("BoxEnemyBox", false);
+
+	// 少しジャンプ
+	_owner.m_gravity = -_owner.m_jumpPow;
+
+	// 運び状態を解除
+	_owner.m_carryFlg = false;
+	_owner.m_isCarry = false;
+
+	// プレイヤーの運び状態を終了
+	if (_owner.m_wpPlayer.expired() == false)
+	{
+		_owner.m_wpPlayer.lock()->CancelCarryMode();
+	}
+
+	// 敵状態にする
+	_owner.m_enemyFlg = true;
+}
+
+void BoxEnemy::Jump::Update(BoxEnemy& _owner)
+{
+	std::shared_ptr<Player> spPlayer = _owner.m_wpPlayer.lock();
+	if (!spPlayer) return;
+
+	// 敵からプレイヤーへのベクトル
+	Math::Vector3 vec = spPlayer->GetPos() - _owner.m_pos;
+	vec.y = 0;
+	vec.Normalize();
+
+	// キャラクターの正面方向
+	Math::Vector3 nowVec = _owner.m_mWorld.Backward();
+	nowVec.Normalize();
+
+	// 向きたい方向
+	vec.Normalize();
+
+	// 内積
+	float d = nowVec.Dot(vec);
+
+	// 丸め誤差
+	d = std::clamp(d, -1.0f, 1.0f);
+
+	// アークコサインで角度に変換
+	float ang = DirectX::XMConvertToDegrees(acos(d));
+
+	float _minDegAng = 5.0f;
+
+	// ゆっくり回転するように処理
+	if (ang >= 0.1f)
+	{
+		// 回転制御
+		if (ang > _minDegAng)
+		{
+			ang = _minDegAng;
+		}
+
+		// 外積
+		Math::Vector3 c = vec.Cross(nowVec);
+
+		if (c.y >= 0)	// 上
+		{
+			_owner.m_degAng -= ang;
+			if (_owner.m_degAng < 0)
+			{
+				_owner.m_degAng += 360;
+			}
+		}
+		else			//下
+		{
+			_owner.m_degAng += ang;
+			if (_owner.m_degAng >= 360)
+			{
+				_owner.m_degAng -= 360;
+			}
+		}
+	}
+
+	// 踏まれたら箱状態へ移行
+	if (_owner.m_onHitFlg)
+	{
+		_owner.ChangeActionState(std::make_shared<Box>());
+		return;
+	}
+	// 接地したらジャンプ待機状態へ移行
+	if (_owner.m_isGround == true)
+	{
+		_owner.ChangeActionState(std::make_shared<JumpStay>());
+		return;
+	}
 }

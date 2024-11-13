@@ -176,6 +176,7 @@ void NormalEnemy::Init()
 	// デバッグワイヤー
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
+	// 初期状態は待機状態
 	m_nowAction = std::make_shared<Idle>();
 }
 

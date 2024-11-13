@@ -109,7 +109,7 @@ private :
 
 	// プレイするステージ
 	//UINT m_nowStage	= Stage::AllGimmick;
-	UINT m_nowStage = Stage::Stage2;
+	UINT m_nowStage = Stage::Stage1;
 	//UINT m_nowStage	= 0;
 
 	// ステージのクリア状況

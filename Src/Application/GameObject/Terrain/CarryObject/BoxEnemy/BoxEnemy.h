@@ -66,9 +66,8 @@ private:
 	int m_enemyCount = 0;
 	// ガタガタの角度制限
 	const int m_maxDegAng = 10;
-
-	// 生存フラグ
-	bool m_aliveFlg = false;
+	// ガタガタの行列
+	Math::Matrix m_shakeMat;
 
 	// ↓敵の状態の時用
 	// モデル
@@ -82,10 +81,8 @@ private:
 	float		m_moveSpeed	= 0;	// 移動速度
 	const int	m_stayTime	= 30;	// ジャンプの待機時間
 	int			m_stayCount = 0;	// ジャンプの待機のカウント
-	bool		m_airFlg	= false;// 空中にいるかどうか
+	bool		m_isGround	= false;// 地面にいるかどうか
 
-	// 敵の時の更新関数
-	void EnemyUpdate();
 
 	// 追尾していいかのフラグ
 	bool m_homingFlg = false;
@@ -101,13 +98,16 @@ private:
 	// 歩く音の配列
 	std::weak_ptr<KdSoundInstance3D> m_wpLandSound[LandSoundType::MaxNum];
 
-	// 地面に付いた瞬間かどうかを判断するフラグ
-	bool m_landFlg = true;
-
 	bool m_setParamFlg = false;
 
 	// 箱→敵になる、プレイヤーとの距離
 	float m_enemyChangeLength = 0;
+
+	// OnHitに入ったかどうかのフラグ
+	bool m_onHitFlg = false;
+
+	// 重力の処理をするかどうか
+	bool m_isCarry = false;
 
 	// JSONファイルのパス
 	std::string_view m_path = "Asset/Data/BoxEnemy.json";
@@ -117,4 +117,90 @@ private:
 	void DataLoad();
 	// JSONのデータをセーブする
 	void DataSave();
+
+// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	(BoxEnemy& _owner) {}
+		virtual void Update	(BoxEnemy& _owner) {}
+		virtual void Exit	(BoxEnemy& _owner) {}
+	};
+
+	// 待機中
+	class Idle : public StateBase
+	{
+	public:
+		~Idle()	override {}
+
+		void Enter(BoxEnemy& _owner)	override;
+		void Update(BoxEnemy& _owner)	override;
+	};
+
+	// ジャンプ待機中
+	class JumpStay : public StateBase
+	{
+	public:
+		~JumpStay()	override {}
+
+		void Update(BoxEnemy& _owner)	override;
+		void Exit(BoxEnemy& _owner)	override;
+	};
+
+	// ジャンプ移動
+	class JumpMove : public StateBase
+	{
+	public:
+		~JumpMove()	override {}
+
+		void Enter	(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
+	};
+
+	// 箱の時
+	class Box : public StateBase
+	{
+	public:
+		~Box()	override {}
+
+		void Update(BoxEnemy& _owner)	override;
+	};
+
+	// 運ばれている時
+	class Carry : public StateBase
+	{
+	public:
+		~Carry()	override {}
+
+		void Enter	(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
+		void Exit	(BoxEnemy& _owner)	override;
+	};
+
+	// 震える状態
+	class Shake : public StateBase
+	{
+	public:
+		~Shake()	override {}
+
+		void Enter	(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
+		void Exit	(BoxEnemy& _owner)	override;
+	};
+
+	// 敵に戻った時のただのジャンプ
+	class Jump : public StateBase
+	{
+	public:
+		~Jump()	override {}
+
+		void Enter	(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
+	};
+
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

@@ -4,8 +4,6 @@
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 
-#include <../Library/tinygltf/json.hpp>
-
 void BoxEnemy::Update()
 {
 	m_oldPos = m_pos;

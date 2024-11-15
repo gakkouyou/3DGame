@@ -3,6 +3,9 @@
 
 void Tutorial::Update()
 {
+	// ポーズ中は終了
+	if (m_pauseFlg == true) return;
+
 	// 表示する状態の場合
 	if (m_displayFlg)
 	{
@@ -21,6 +24,18 @@ void Tutorial::Update()
 			{
 				m_alpha += m_addAlpha;
 				m_displayCount = m_displayTime;
+			}
+			// カウントが時間を過ぎてないなら消していく
+			else
+			{
+				// アルファ値を減算
+				m_alpha -= m_addAlpha;
+
+				// アルファ値を下限以上にとどめる
+				if (m_alpha < m_minAlpha)
+				{
+					m_alpha = m_minAlpha;
+				}
 			}
 		}
 
@@ -52,11 +67,13 @@ void Tutorial::Update()
 
 void Tutorial::DrawSprite()
 {
+	// ポーズ中は終了
+	if (m_pauseFlg == true) return;
 	Math::Color color = { 1, 1, 1, m_alpha };
 	for (int i = 0; i < Type::Max; i++)
 	{
 		if (!m_tex[i].spTex) continue;
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_tex[i].spTex, m_tex[i].pos.x, m_tex[i].pos.y, nullptr, &color);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_tex[i].spTex, (int)m_tex[i].pos.x, (int)m_tex[i].pos.y, nullptr, &color);
 	}
 }
 

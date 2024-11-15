@@ -2,6 +2,10 @@
 
 void GameUI::Update()
 {
+	// ポーズ中は処理しない
+	if (m_pauseFlg == true) return;
+	if (m_stopFlg == true) return;
+
 	if (m_drawType == DrawType::Max && m_oldDrawType == DrawType::Max) return;
 
 	if (m_drawType == DrawType::Max)
@@ -27,7 +31,14 @@ void GameUI::Update()
 
 void GameUI::DrawSprite()
 {
+	// ポーズ中は処理しない
+	if (m_pauseFlg == true) return;
+	if (m_stopFlg == true) return;
 
+	if (m_spPauseTex)
+	{
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPauseTex, m_pausePos.x, m_pausePos.y);
+	}
 
 	if (m_oldDrawType == DrawType::Max) return;
 
@@ -49,9 +60,24 @@ void GameUI::Init()
 	m_tex[DrawType::HoldBox].spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Game/UI/holdBox.png");
 	m_tex[DrawType::HoldBox].pos = { 0, -300 };
 	m_tex[DrawType::HoldBox].addAlpha = 0.05f;
+
+	m_spPauseTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Game/UI/pause.png");
 }
 
 void GameUI::SetDrawType(DrawType _drawType)
 {
 	m_drawType = _drawType;
+}
+
+void GameUI::Reset()
+{
+	m_pauseFlg = false;
+
+	for (int i = 0; i < DrawType::Max; i++)
+	{
+		m_tex[i].alpha = 0;
+	}
+
+	m_drawType = DrawType::Max;
+	m_oldDrawType = DrawType::Max;
 }

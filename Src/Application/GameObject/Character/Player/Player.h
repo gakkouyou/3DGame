@@ -40,8 +40,8 @@ public:
 	// カメラセット
 	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
 
-	// 動いていいかのフラグのセット(操作を受け付けなくなるが、更新自体はする)
-	void SetStopFlg(const bool _stopFlg) { m_stopFlg = _stopFlg; }
+	// 動いていいかのフラグのセット(操作を受け付けなくなるが、更新自体はする) UIにも渡す
+	void SetStopFlg(const bool _stopFlg);
 
 	// ゴールの座標をセット
 	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalPos = _goalPos; }
@@ -253,7 +253,8 @@ private:
 	std::weak_ptr<Tutorial> m_wpTutorial;
 
 	// 二つのオブジェクトに触れた時、何度以上の角度なら座標を戻すかの角度
-	const float m_doubleObjectHitDegAng = 80.0f;
+	const float m_doubleObjectHitMinDegAng = 80.0f;
+	const float m_doubleObjectHitMaxDegAng = 100.0f;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;

@@ -21,6 +21,10 @@ public:
 
 	void SetPauseFlg(bool _pauseFlg)	override { m_pauseFlg = _pauseFlg; }
 
+	void SetStopFlg(bool _stopFlg) { m_stopFlg = _stopFlg; }
+
+	void Reset()	override;
+
 private:
 	struct Texture
 	{
@@ -36,8 +40,11 @@ private:
 
 	// 「P:ポーズ」
 	std::shared_ptr<KdTexture> m_spPauseTex = nullptr;
-	const Math::Vector2 m_pausePos = { 500, -340 };
+	const Math::Vector2 m_pausePos = { 500, -300 };
 
 	// ポーズフラグ
 	bool m_pauseFlg = false;
+
+	// ストップフラグ
+	bool m_stopFlg = false;
 };

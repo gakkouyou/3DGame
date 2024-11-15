@@ -5,8 +5,6 @@
 #include "../../Player/Player.h"
 #include "../../../Effect/Smoke/Smoke.h"
 
-#include <../Library/tinygltf/json.hpp>
-
 void NormalEnemy::Update()
 {
 	if (m_aliveFlg == false) return;
@@ -343,21 +341,57 @@ void NormalEnemy::HitGround()
 		// 複数のオブジェクトに当たっていた場合
 		if (multiHitFlg == true)
 		{
-			Math::Vector3 normal1 = collisionResultList[0].m_hitNormal;
-			normal1.Normalize();
-			Math::Vector3 normal2 = collisionResultList[1].m_hitNormal;
-			normal2.Normalize();
+			std::vector<Math::Vector3> normalList1 = collisionResultList[0].m_hitNormalList;
+			std::vector<Math::Vector3> normalList2 = collisionResultList[1].m_hitNormalList;
 
-			float dot = normal1.Dot(normal2);
+			bool flg = false;
 
-			dot = std::clamp(dot, -1.0f, 1.0f);
-			float deg = DirectX::XMConvertToDegrees(acos(dot));
+			for (auto& normal : normalList1)
+			{
+				normal.Normalize();
+				for (auto& normal2 : normalList2)
+				{
+					normal2.Normalize();
+					float dot = normal.Dot(normal2);
+					dot = std::clamp(dot, -1.0f, 1.0f);
+					float deg = DirectX::XMConvertToDegrees(acos(dot));
 
-			if (deg > 90)
+					if (deg <= m_doubleObjectHitMaxDegAng || deg >= m_doubleObjectHitMaxDegAng)
+					{
+						flg = true;
+					}
+				}
+			}
+			if (flg == false)
 			{
 				// Y座標以外、更新前の座標に戻す
 				m_pos.x = m_oldPos.x;
 				m_pos.z = m_oldPos.z;
+			}
+			else
+			{
+				if (collisionResultList[0].m_overlapDistance > collisionResultList[1].m_overlapDistance)
+				{
+					KdCollider::CollisionResult result = collisionResultList[0];
+					// Y軸の補正はなし
+					result.m_hitDir.Normalize();
+					Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+					// 当たった時のスフィアの座標
+					Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
+					m_pos.x = hitSpherePos.x + pos.x;
+					m_pos.z = hitSpherePos.z + pos.z;
+				}
+				else
+				{
+					KdCollider::CollisionResult result = collisionResultList[1];
+					// Y軸の補正はなし
+					result.m_hitDir.Normalize();
+					Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+					// 当たった時のスフィアの座標
+					Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
+					m_pos.x = hitSpherePos.x + pos.x;
+					m_pos.z = hitSpherePos.z + pos.z;
+				}
 			}
 		}
 		// 一つのオブジェクトに当たった場合

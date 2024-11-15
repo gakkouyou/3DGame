@@ -264,7 +264,7 @@ static bool HitCheckAndPosUpdate(DirectX::XMVECTOR& finalPos, DirectX::XMVECTOR&
 // スフィアとの当たり判定結果をリザルトにセットする
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 static void SetSphereResult(CollisionMeshResult& result, bool isHit, const DirectX::XMVECTOR& hitPos,
-	const DirectX::XMVECTOR& finalPos, const DirectX::XMVECTOR& beginPos, const DirectX::XMVECTOR normal = {})
+	const DirectX::XMVECTOR& finalPos, const DirectX::XMVECTOR& beginPos, const std::vector<DirectX::XMVECTOR> normal = {})
 {
 	result.m_hit = isHit;
 
@@ -276,7 +276,7 @@ static void SetSphereResult(CollisionMeshResult& result, bool isHit, const Direc
 
 	result.m_hitDir = DirectX::XMVector3Normalize(result.m_hitDir);
 
-	result.m_hitNormal = normal;
+	result.m_hitNormalList = normal;
 }
 
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
@@ -371,7 +371,7 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingSphere& sphere,
 
 	// 全ての面と判定
 	// ※判定はメッシュのローカル空間で行われる
-	std::vector<Math::Vector3> v;
+	std::vector<std::vector<Math::Vector3>> vList;
 	for (UINT faceIdx = 0; faceIdx < faceNum; faceIdx++)
 	{
 		DirectX::XMVECTOR nearPoint;
@@ -385,7 +385,8 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingSphere& sphere,
 		// 面を形成する頂点座標をvに格納
 		if (HitCheckAndPosUpdate(finalPos, finalHitPos, nearPoint, objScale, radiusSqr, sphere.Radius))
 		{
-			v = {vertices[idx[0]], vertices[idx[1]], vertices[idx[2]]};
+			std::vector<Math::Vector3> tmp = { vertices[idx[0]], vertices[idx[1]], vertices[idx[2]] };
+			vList.push_back(tmp);
 			isHit = true;
 		}
 
@@ -396,25 +397,31 @@ bool MeshIntersect(const KdMesh& mesh, const DirectX::BoundingSphere& sphere,
 	// リザルトに結果を格納
 	if (pResult && isHit)
 	{
-		// 面の法線を求める
-		// 3頂点のワールド座標を算出
-		Math::Vector3 a = XMVector3TransformCoord(v[0], matrix);
-		Math::Vector3 b = XMVector3TransformCoord(v[1], matrix);
-		Math::Vector3 c = XMVector3TransformCoord(v[2], matrix);
+		std::vector<DirectX::XMVECTOR> normalList;
 
-		// ベクトル作成
-		Math::Vector3 ab = b - a;
-		ab.Normalize();
-		Math::Vector3 ac = c - a;
-		ac.Normalize();
+		for (auto& v : vList)
+		{
+			// 面の法線を求める
+			// 3頂点のワールド座標を算出
+			Math::Vector3 a = XMVector3TransformCoord(v[0], matrix);
+			Math::Vector3 b = XMVector3TransformCoord(v[1], matrix);
+			Math::Vector3 c = XMVector3TransformCoord(v[2], matrix);
 
-		// 外積を求める = 法線
-		Math::Vector3 n;
-		n = ab.Cross(ac);
-		n.Normalize();
+			// ベクトル作成
+			Math::Vector3 ab = b - a;
+			ab.Normalize();
+			Math::Vector3 ac = c - a;
+			ac.Normalize();
+
+			// 外積を求める = 法線
+			Math::Vector3 n;
+			n = ab.Cross(ac);
+			n.Normalize();
+			normalList.push_back(n);
+		}
 
 		SetSphereResult(*pResult, isHit, XMVector3TransformCoord(finalHitPos, matrix),
-			XMVector3TransformCoord(finalPos, matrix), XMLoadFloat3(&sphere.Center), n);
+			XMVector3TransformCoord(finalPos, matrix), XMLoadFloat3(&sphere.Center), normalList);
 	}
 
 	return isHit;

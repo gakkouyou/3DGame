@@ -12,6 +12,8 @@ public:
 
 	void Display() { m_displayFlg = true; }
 
+	void SetPauseFlg(bool _pauseFlg) override { m_pauseFlg = _pauseFlg; }
+
 private:
 	struct Texture
 	{
@@ -44,4 +46,6 @@ private:
 	// 表示するまでの時間
 	int m_displayCount = 0;
 	const int m_displayTime = 300;
+
+	bool m_pauseFlg = false;
 };

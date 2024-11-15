@@ -17,8 +17,6 @@
 
 #include "../../../main.h"
 
-#include <../Library/tinygltf/json.hpp>
-
 void Player::Update()
 {
 	// デバッグモード中は更新しない
@@ -65,7 +63,7 @@ void Player::Update()
 	// 死んでいたら操作を受け付けない
 	if (m_aliveFlg == false)
 	{
-		m_stopFlg = true;
+		SetStopFlg(true);
 	}
 
 	// 無限ジャンプ
@@ -353,14 +351,14 @@ void Player::Update()
 	if (m_situationType & SituationType::Walk || m_situationType & SituationType::Run)
 	{
 		// 回転
-		RotationCharacter(m_angle, m_moveVec);
+		RotationCharacter(m_angle, m_moveVec, 10.0f);
 
 		// 回転行列
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
 
 	// 運び状態を解除する
-	if (GetAsyncKeyState('F') & 0x8000)
+	if (GetAsyncKeyState('Z') & 0x8000)
 	{
 		if (m_situationType & SituationType::Carry)
 		{
@@ -385,10 +383,6 @@ void Player::Update()
 	{
 		m_actionKeyFlg = false;
 	}
-
-
-
-
 
 	// ゴールの処理
 	if (m_goalFlg)
@@ -812,6 +806,18 @@ void Player::BackPos()
 	m_pos.z = m_oldPos.z;
 }
 
+void Player::SetStopFlg(const bool _stopFlg)
+{
+	if (m_stopFlg == _stopFlg) return;
+	m_stopFlg = _stopFlg;
+
+	// UIにも渡す
+	if (m_wpGameUI.expired() == false)
+	{
+		m_wpGameUI.lock()->SetStopFlg(_stopFlg);
+	}
+}
+
 const bool Player::IsCameraTracking() const
 {
 	// 当たった運ぶオブジェクトがある時
@@ -1048,13 +1054,10 @@ void Player::HitJudgeGround()
 			if (obj->Intersects(boxInfo, nullptr))
 			{
 				hitFlg = true;
+				// 当たったオブジェクトが細かく当たり判定をしないといけないオブジェクトだった場合フラグを立てる
 				if (obj->CheckFineHitJudge() == true)
 				{
-					//Math::Vector3 vec = m_pos - obj->GetPos();
-					//if (vec.Length() < obj->GetFineHitJudgeArea())
-					{
-						fineHitFlg = true;
-					}
+					fineHitFlg = true;
 				}
 				break;
 			}
@@ -1106,6 +1109,7 @@ void Player::HitJudgeGround()
 					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
 				}
 			}
+			// 細かく当たり判定をする
 			else
 			{
 				for (int i = 0; i < 3; i++)
@@ -1157,21 +1161,61 @@ void Player::HitJudgeGround()
 			// 複数のオブジェクトに当たっていた場合
 			if (multiHitFlg == true)
 			{
-				Math::Vector3 normal1 = collisionResultList[0].m_hitNormal;
-				normal1.Normalize();
-				Math::Vector3 normal2 = collisionResultList[1].m_hitNormal;
-				normal2.Normalize();
+				std::vector<Math::Vector3> normalList1 = collisionResultList[0].m_hitNormalList;
+				std::vector<Math::Vector3> normalList2 = collisionResultList[1].m_hitNormalList;
 
-				float dot = normal1.Dot(normal2);
+				bool flg = false;
 
-				dot = std::clamp(dot, -1.0f, 1.0f);
-				float deg = DirectX::XMConvertToDegrees(acos(dot));
+				Application::Instance().m_log.AddLog("MultiHit\n");
 
-				if (deg > m_doubleObjectHitDegAng)
+				for (auto& normal : normalList1)
+				{
+					normal.Normalize();
+					for (auto& normal2 : normalList2)
+					{
+						normal2.Normalize();
+						float dot = normal.Dot(normal2);
+						dot = std::clamp(dot, -1.0f, 1.0f);
+						float deg = DirectX::XMConvertToDegrees(acos(dot));
+
+						if (deg > 170 || deg < 10)
+						{
+							flg = true;
+							break;
+						}
+						Application::Instance().m_log.AddLog("%f\n", deg);
+					}
+				}
+				if (flg == false)
 				{
 					// Y座標以外、更新前の座標に戻す
 					m_pos.x = m_oldPos.x;
 					m_pos.z = m_oldPos.z;
+				}
+				else
+				{
+					if (collisionResultList[0].m_overlapDistance > collisionResultList[1].m_overlapDistance)
+					{
+						KdCollider::CollisionResult result = collisionResultList[0];
+						// Y軸の補正はなし
+						result.m_hitDir.Normalize();
+						Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+						// 当たった時のスフィアの座標
+						Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
+						m_pos.x = hitSpherePos.x + pos.x;
+						m_pos.z = hitSpherePos.z + pos.z;
+					}
+					else
+					{
+						KdCollider::CollisionResult result = collisionResultList[1];
+						// Y軸の補正はなし
+						result.m_hitDir.Normalize();
+						Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
+						// 当たった時のスフィアの座標
+						Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
+						m_pos.x = hitSpherePos.x + pos.x;
+						m_pos.z = hitSpherePos.z + pos.z;
+					}
 				}
 			}
 			// 一つのオブジェクトに当たった場合
@@ -1196,6 +1240,7 @@ void Player::HitJudgeGround()
 	sphereInfo.m_sphere.Center.y += 1.85f;
 	sphereInfo.m_type = KdCollider::TypeGround;
 	std::vector<KdCollider::CollisionResult> collisionResult;
+
 	// 複数に当たったかどうかのフラグ
 	bool multiHitFlg = false;
 	m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, 0.3f, kRedColor);
@@ -1278,7 +1323,8 @@ void Player::HitJudgeEvent()
 				case ObjectType::Goal:
 				{
 					m_goalFlg = true;
-					m_stopFlg = true;
+					// 操作を止める
+					SetStopFlg(true);
 
 					if (m_goalSEFlg == false)
 					{
@@ -1307,7 +1353,7 @@ void Player::HitJudgeEvent()
 					// ワープポイント
 				case ObjectType::WarpPoint:
 					// リスポーン座標にワープ
-					if (GetAsyncKeyState('F') & 0x8000)
+					if (GetAsyncKeyState('Z') & 0x8000)
 					{
 						m_pos = m_respawnPos;
 					}
@@ -1320,7 +1366,8 @@ void Player::HitJudgeEvent()
 
 					// 最終ゴール
 				case ObjectType::FinalGoal:
-					m_stopFlg = true;
+					// 操作を止める
+					SetStopFlg(true);
 					m_finalGoalFlg = true;
 					break;
 				}
@@ -1374,11 +1421,12 @@ void Player::HitJudgeEvent()
 	if (spHitObject)
 	{
 		spHitObject->OnHit();
-		if (GetAsyncKeyState('F') & 0x8000)
+		if (GetAsyncKeyState('Z') & 0x8000)
 		{
 			if (m_actionKeyFlg == false)
 			{
-				m_stopFlg = true;
+				// 操作を受け付けなくする
+				SetStopFlg(true);
 				m_beginGameSceneFlg = true;
 
 				// キーフラグ
@@ -1612,7 +1660,7 @@ void Player::HitJudgeCarryObject()
 				{
 					m_wpGameUI.lock()->SetDrawType(GameUI::DrawType::HoldBox);
 				}
-				if (GetAsyncKeyState('F') & 0x8000)
+				if (GetAsyncKeyState('Z') & 0x8000)
 				{
 					// 運んでいる状態なら処理しない
 					if ((m_situationType & SituationType::Carry) == 0)

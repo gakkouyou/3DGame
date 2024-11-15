@@ -45,45 +45,46 @@ void StageSelectObject::Update()
 
 void StageSelectObject::GenerateDepthMapFromLight()
 {
+	// ステージセレクトのモデル
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_objMat);
 	}
+	// 土台
 	if (m_spSphereModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
 	}
-	if (m_spClockPartsModel)
+	// 時計のパーツ(クリアの時だけ表示)
+	if (SceneManager::Instance().GetStageInfo()[m_param.modelNum - 1] != SceneManager::StageInfo::NotClear)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
+		if (m_spClockPartsModel)
+		{
+			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
+		}
 	}
 }
 
 void StageSelectObject::DrawLit()
 {
+	// ステージセレクトのモデル
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_objMat);
 	}
-
+	// 土台
 	if (m_spSphereModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spSphereModel, m_mWorld);
 	}
-	if (m_spClockPartsModel)
+	// 時計のパーツ(クリアの時だけ表示)
+	if (SceneManager::Instance().GetStageInfo()[m_param.modelNum - 1] != SceneManager::StageInfo::NotClear)
 	{
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
+		if (m_spClockPartsModel)
+		{
+			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spClockPartsModel, m_partsMat);
+		}
 	}
-}
-
-void StageSelectObject::DrawUnLit()
-{
-	
-}
-
-void StageSelectObject::DrawSprite()
-{
-
 }
 
 void StageSelectObject::Init()
@@ -114,33 +115,6 @@ void StageSelectObject::SetParam(const Param& _param)
 	{
 		m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/StageObject/stage" + std::to_string(_param.modelNum) + ".gltf");
 		m_spClockPartsModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/StageSelect/Stage" + std::to_string(_param.modelNum) + "/ClockParts/clockParts.gltf");
-
-		//switch (_param.modelNum)
-		//{
-		//	// ステージ１のモデル
-		//case 1:
-		//	m_spModel->Load("Asset/Models/EventObject/Clock/Body/body.gltf");
-		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
-		//	break;
-
-		//	// ステージ２のモデル
-		//case 2:
-		//	m_spModel->Load("Asset/Models/EventObject/Clock/Needle/needle.gltf");
-		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
-		//	break;
-
-		//	// ステージ３のモデル
-		//case 3:
-		//	m_spModel->Load("Asset/Models/EventObject/Clock/Bell/bell.gltf");
-		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
-		//	break;
-
-		//	// 発表用のモデル
-		//case 4:
-		//	m_spModel->Load("Asset/Models/EventObject/Clock/clock.gltf");
-		//	m_pCollider->RegisterCollisionShape("Goal", m_spModel, KdCollider::TypeEvent);
-		//	break;
-		//}
 	}
 
 	m_param = _param;

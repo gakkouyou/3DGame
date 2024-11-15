@@ -74,3 +74,6 @@
 
 // Effekseer管理クラス
 #include "Effekseer/KdEffekseerManager.h"
+
+// JSON
+#include <../Library/tinygltf/json.hpp>

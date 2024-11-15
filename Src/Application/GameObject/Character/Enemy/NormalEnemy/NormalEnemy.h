@@ -111,6 +111,10 @@ private:
 	// 地面にいるかどうか
 	bool m_isGround = false;
 
+	// 二つのオブジェクトに触れた時、何度以上の角度なら座標を戻すかの角度
+	const float m_doubleObjectHitMinDegAng = 80.0f;
+	const float m_doubleObjectHitMaxDegAng = 100.0f;
+
 	// ターゲットが視野角内にいるかどうかの判定
 	bool TargetViewingAngleCheck();
 

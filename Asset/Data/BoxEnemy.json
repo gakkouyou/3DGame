@@ -3,8 +3,8 @@
         "BoxEnemy": {
             "m_enemyChangeLength": 10.0,
             "m_enemyTime": 840,
-            "m_jumpPow": 0.10000000149011612,
-            "m_moveSpeed": 0.05000000074505806,
+            "m_jumpPow": 0.1,
+            "m_moveSpeed": 0.05,
             "m_shakeTime": 780,
             "name": "BoxEnemy"
         }

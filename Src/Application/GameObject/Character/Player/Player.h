@@ -5,7 +5,6 @@ class CameraBase;
 class TerrainController;
 class CarryObjectController;
 class CarryObjectBase;
-class EnemyController;
 class EventObjectController;
 class GameUI;
 class Tutorial;
@@ -14,7 +13,7 @@ class Player : public CharacterBase
 {
 public:
 	Player()									{}
-	~Player()							override { DataSave(); }
+	~Player()							override{}
 
 	// 更新
 	void Update()						override;
@@ -30,6 +29,9 @@ public:
 
 	// 更新前の座標に戻す
 	void BackPos();
+
+	// 当たった時の処理
+	void OnHit()	override;
 
 	//--------------------
 	// セッター
@@ -51,9 +53,6 @@ public:
 
 	// 操作説明セット
 	void SetTutorial(const std::shared_ptr<Tutorial>& _tutorial) { m_wpTutorial = _tutorial; }
-
-	// EnemyControllerをセットする
-	void SetEnemyController(const std::weak_ptr<EnemyController>& _wpEnemyController) { m_wpEnemyController = _wpEnemyController; }
 
 	// EventObjectControllerをセットする
 	void SetEventObjectController(const std::weak_ptr<EventObjectController>& _wpEventObjectController) { m_wpEventObjectController = _wpEventObjectController; }
@@ -106,16 +105,28 @@ private:
 	// 運べるオブジェクトとの当たり判定
 	void HitJudgeCarryObject();
 
+	// アニメーションをセットする関数
+	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
+
+	// アニメーションの変更をまとめた関数
+	void ChangeAnimation();
+
+	// ゴールした時の処理
+	void GoalProcess();
+
 	// ステージに入った時の座標
 	const Math::Vector3 m_stageStartPos = { 0, 0.26f, -5.0f };
-
-	// カメラのウィークポインタ
-	std::weak_ptr<CameraBase> m_wpCamera;
+	// 移動前の座標
+	Math::Vector3 m_oldPos;
+	// リスポーン座標
+	Math::Vector3 m_respawnPos;
 
 	// 今の状況
 	UINT m_situationType	= Idle;
 	// 更新前の状況
 	UINT m_oldSituationType = Idle;
+	// 最後に地面にいた時の状態
+	UINT m_lastGroundSituationType = 0;
 
 	// ジャンプ力
 	float m_jumpPow	= 0;
@@ -149,24 +160,16 @@ private:
 	// 運べるオブジェクト
 	HitMoveTerrain m_carryObject;
 
-	// エフェクシア用フラグ
-	bool m_effectFlg = false;
-	// エフェクシア用ウィークポインタ
-	std::weak_ptr<KdEffekseerObject> m_wpEffekseer;
-
 	// ゴールのフラグ
 	bool m_goalFlg	= false;
 
-	// ゴールした時の処理
-	void GoalProcess();
-
-	// 止めるフラグ
-	bool m_stopFlg = false;
-
 	// ゴールの処理
-	int m_goalStayCount	= 0;
-	const int m_goalStayTime	= 60;
+	int m_goalStayCount = 0;
+	const int m_goalStayTime = 60;
 	Math::Vector3 m_goalPos = Math::Vector3::Zero;
+
+	// 止めるフラグ(操作を受け付けなくなる)
+	bool m_stopFlg = false;
 
 	// 足元の煙用
 	int m_smokeCount	= 0;
@@ -185,6 +188,7 @@ private:
 		bool flg = false;						// 既に鳴っているかどうかのフラグ
 	};
 
+	// 歩いた時の音の種類
 	enum WalkSoundType
 	{
 		Grass,
@@ -206,30 +210,8 @@ private:
 	// きのこで跳ねた時の音
 	Sound m_boundSound;
 
-	// 移動前の座標
-	Math::Vector3 m_oldPos;
-
 	// 何かアクションを起こすキー制御
 	bool m_actionKeyFlg = false;
-
-
-	// 運んでいるオブジェクト
-	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
-
-	// アニメーションをセットする関数
-	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
-
-	// アニメーションの変更をまとめた関数
-	void ChangeAnimation();
-
-	// EnemyController
-	std::weak_ptr<EnemyController> m_wpEnemyController;
-
-	// 最後に地面にいた時の状態
-	UINT m_lastGroundSituationType = 0;
-
-	// リスポーン座標
-	Math::Vector3 m_respawnPos;
 
 	// ステージセレクトシーンからゲームシーンに移る時のフラグ
 	bool m_beginGameSceneFlg = false;
@@ -237,11 +219,19 @@ private:
 	// 最終ゴールのフラグ
 	bool m_finalGoalFlg = false;
 
-	bool flg[4] = { false, false, false, false };
-
 	// ゴール音のフラグ
 	bool m_goalSEFlg = false;
 	bool m_goalBGMFlg = false;
+
+	// シーンを始めた時の着地音防止フラグ
+	bool m_firstLandFlg = false;
+
+	// 二つのオブジェクトに触れた時、何度以上の角度なら座標を戻すかの角度
+	const float m_doubleObjectHitMinDegAng = 80.0f;
+	const float m_doubleObjectHitMaxDegAng = 100.0f;
+
+	// カメラのウィークポインタ
+	std::weak_ptr<CameraBase> m_wpCamera;
 
 	// EventObjectController
 	std::weak_ptr<EventObjectController> m_wpEventObjectController;
@@ -252,9 +242,8 @@ private:
 	// 操作説明
 	std::weak_ptr<Tutorial> m_wpTutorial;
 
-	// 二つのオブジェクトに触れた時、何度以上の角度なら座標を戻すかの角度
-	const float m_doubleObjectHitMinDegAng = 80.0f;
-	const float m_doubleObjectHitMaxDegAng = 100.0f;
+	// 運んでいるオブジェクト
+	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;
@@ -266,6 +255,4 @@ private:
 	std::string m_name = "Player";
 	// JSONのデータをロードする
 	void DataLoad();
-	// JSONのデータをセーブする
-	void DataSave();
 };

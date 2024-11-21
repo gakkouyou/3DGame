@@ -42,27 +42,16 @@ void FlyEnemy::Update()
 	// 行列
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(0.25f);
-
 	// 死亡モーション
 	if (m_aliveFlg == false)
 	{
-		scaleMat = Math::Matrix::CreateScale({ 0.25f, 0.05f, 0.25f });
-		m_deathCount++;
-
-		if (m_deathCount >= m_deathTime)
-		{
-			m_isExpired = true;
-
-			// 煙を生み出す
-			std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
-			smoke->Init();
-			smoke->SetPos(m_pos);
-			smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
-			SceneManager::Instance().AddObject(smoke);
-		}
+		DeathProcess();
 	}
 
+	// 拡縮行列
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
+
+	// 回転行列
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_param.rotDegAng));
 
 	m_mWorld = scaleMat * rotMat * transMat;
@@ -119,4 +108,22 @@ void FlyEnemy::OnHit()
 {
 	// 死ぬ
 	m_aliveFlg = false;
+}
+
+void FlyEnemy::DeathProcess()
+{
+	m_scale = m_deathScale;
+	m_deathCount++;
+
+	if (m_deathCount >= m_deathTime)
+	{
+		m_isExpired = true;
+
+		// 煙を生み出す
+		std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
+		smoke->Init();
+		smoke->SetPos(m_pos);
+		smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
+		SceneManager::Instance().AddObject(smoke);
+	}
 }

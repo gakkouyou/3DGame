@@ -37,7 +37,7 @@ void GameUI::DrawSprite()
 
 	if (m_spPauseTex)
 	{
-		KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPauseTex, m_pausePos.x, m_pausePos.y);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPauseTex, (int)m_pausePos.x, (int)m_pausePos.y);
 	}
 
 	if (m_oldDrawType == DrawType::Max) return;
@@ -47,7 +47,7 @@ void GameUI::DrawSprite()
 	Math::Color color = { 1, 1, 1, tex.alpha };
 	if (tex.spTex)
 	{
-		KdShaderManager::Instance().m_spriteShader.DrawTex(tex.spTex, tex.pos.x, tex.pos.y, nullptr, &color);
+		KdShaderManager::Instance().m_spriteShader.DrawTex(tex.spTex, (int)tex.pos.x, (int)tex.pos.y, nullptr, &color);
 	}
 }
 

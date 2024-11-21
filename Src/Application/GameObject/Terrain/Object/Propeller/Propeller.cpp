@@ -51,8 +51,6 @@ void Propeller::Update()
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_param.pos);
 
 	m_mWorld = scaleMat * rotMat * transMat;
-
-	m_pDebugWire->AddDebugSphere(m_param.pos, m_fineHitJudgeArea);
 }
 
 void Propeller::Init()

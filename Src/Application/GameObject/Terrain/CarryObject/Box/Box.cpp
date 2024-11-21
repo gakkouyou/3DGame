@@ -9,7 +9,7 @@ void Box::Update()
 	// デバッグモード中は持てるエリアを描画
 	if (SceneManager::Instance().GetDebug())
 	{
-		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+		//m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
 	m_oldPos = m_pos;
@@ -43,15 +43,6 @@ void Box::Update()
 		}
 	}
 
-	// 音座標更新
-	for (int i = 0; i < LandSoundType::MaxNum; i++)
-	{
-		if (m_wpLandSound[i].lock()->IsPlaying() == true)
-		{
-			m_wpLandSound[i].lock()->SetPos(m_pos);
-		}
-	}
-
 	// Y座標が一定以下になるとリスポーン
 	if (m_pos.y < m_underLine)
 	{
@@ -76,28 +67,43 @@ void Box::PostUpdate()
 	// 着地した瞬間
 	if (landFlg == false && m_landFlg == true)
 	{
-		// 何の地面に乗っているかによって、音を変える
-		if (!m_wpHitTerrain.expired())
+		if (m_firstLandFlg == false)
 		{
-			ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
-			switch (type)
+			m_firstLandFlg = true;
+		}
+		else
+		{
+			// 何の地面に乗っているかによって、音を変える
+			if (!m_wpHitTerrain.expired())
 			{
-				// 草の音
-			case ObjectType::NormalGround:
-			case ObjectType::SlopeGround:
-			case ObjectType::RotationGround:
-				m_wpLandSound[LandSoundType::Grass].lock()->Play();
-				break;
+				ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
+				switch (type)
+				{
+					// 草の音
+				case ObjectType::NormalGround:
+				case ObjectType::SlopeGround:
+				case ObjectType::RotationGround:
+					m_wpLandSound[LandSoundType::Grass].lock()->Play();
+					break;
 
-			case ObjectType::BoundGround:
-				m_wpLandSound[LandSoundType::Bound].lock()->Play();
-				break;
+				case ObjectType::BoundGround:
+					m_wpLandSound[LandSoundType::Bound].lock()->Play();
+					break;
 
-				// コツコツ見たいな音
-			default:
-				m_wpLandSound[LandSoundType::Tile].lock()->Play();
-				break;
+					// コツコツ見たいな音
+				default:
+					m_wpLandSound[LandSoundType::Tile].lock()->Play();
+					break;
+				}
 			}
+		}
+	}
+	// 音座標更新
+	for (int i = 0; i < LandSoundType::MaxNum; i++)
+	{
+		if (m_wpLandSound[i].lock()->IsPlaying() == true)
+		{
+			m_wpLandSound[i].lock()->SetPos(m_pos);
 		}
 	}
 
@@ -262,14 +268,14 @@ void Box::Init()
 	m_wpLandSound[LandSoundType::Grass] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/grassWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Grass].expired())
 	{
-		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.06f);
+		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(2.0f);
 		m_wpLandSound[LandSoundType::Grass].lock()->Stop();
 	}
 	// かたい地面を着地した音
 	m_wpLandSound[LandSoundType::Tile] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/tileWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Tile].expired())
 	{
-		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.06f);
+		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(1.0f);
 		m_wpLandSound[LandSoundType::Tile].lock()->Stop();
 	}
 	// キノコではねた時の音
@@ -305,7 +311,14 @@ void Box::Reset()
 {
 	CarryObjectBase::Reset();
 
+	m_degAng = 0;
+
 	m_pCollider->SetEnable("Box", true);
+
+	m_landFlg = false;
+	m_firstLandFlg = false;
+
+	m_mWorld = Math::Matrix::CreateTranslation(m_pos);
 }
 
 void Box::HitJudge()

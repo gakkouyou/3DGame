@@ -76,6 +76,9 @@ public:
 	// リセット処理(シーンを変えずにリセットする際に使用)
 	virtual void Reset() {}
 
+	// ゴールしたことを伝える用
+	virtual void SetGoal() {}
+
 	// オブジェクトのタイプ
 	enum class ObjectType
 	{
@@ -97,7 +100,6 @@ public:
 		FlyEnemy,		// 飛ぶ敵
 
 		Goal,			// ゴール
-		Candy,			// コイン的な
 		SavePoint,		// セーブポイント
 		WarpPoint,		// ワープポイント
 		StageSelectObject,	// ステージセレクトのオブジェクト

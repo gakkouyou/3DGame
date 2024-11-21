@@ -602,7 +602,7 @@ void KdPointToTriangle(const XMVECTOR& p, const XMVECTOR& a, const XMVECTOR& b, 
 // ボックスとの当たり判定結果をリザルトにセットする
 // ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// ///// /////
 static void SetBoxResult(CollisionMeshResult& result, bool isHit, Math::Vector3 hitPos,
-	const Math::Vector3& finalPos, const Math::Vector3 beginPos)
+	const Math::Vector3& finalPos, const Math::Vector3)
 {
 	result.m_hit = isHit;
 

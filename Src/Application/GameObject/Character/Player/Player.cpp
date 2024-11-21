@@ -10,8 +10,6 @@
 #include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
 #include "../../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Terrain/CarryObject/CarryObjectBase.h"
-#include "../../../Tool/ObjectController/EnemyController/EnemyController.h"
-#include "../Enemy/EnemyBase.h"
 #include "../../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 #include "../../EventObject/EventObjectBase.h"
 
@@ -207,7 +205,7 @@ void Player::Update()
 		m_situationType &= (~SituationType::Run);
 
 		// 音をなっていない状態にする
-		m_nowWalkSoundFlg = false;
+		//m_nowWalkSoundFlg = false;
 	}
 	// 動いていてかつ空中なら、空中に出る前の移動状態にする
 	else if (m_situationType & SituationType::Air)
@@ -421,6 +419,7 @@ void Player::PostUpdate()
 		{
 			// ジャンプ音のフラグをfalseに
 			m_jumpSound.flg = false;
+			m_nowWalkSoundFlg = false;
 		}
 	}
 
@@ -431,7 +430,12 @@ void Player::PostUpdate()
 	}
 
 	// 何の地面に乗っているかによって、音を変える
-	if (!m_wpHitTerrain.expired())
+	// 運べるオブジェクトの場合の音
+	if (m_carryObject.hitFlg == true)
+	{
+		m_walkSoundType = WalkSoundType::Tile;
+	}
+	else if (!m_wpHitTerrain.expired())
 	{
 		ObjectType type = m_wpHitTerrain.lock()->GetObjectType();
 		switch (type)
@@ -453,15 +457,24 @@ void Player::PostUpdate()
 		}
 	}
 
-	// Walk or Run 状態の時に空中にいなかったら歩く音を鳴らすようにする
-	if (((m_situationType & Walk) || (m_situationType & Run)) && ((m_situationType & Air) == 0))
+	// 空中にいなかったら歩く音を鳴らすようにする
+	if (((m_situationType & Air) == 0))
 	{
 		if (m_nowWalkSoundFlg == false)
 		{
-			if (m_wpWalkSound[m_walkSoundType].expired() == false)
+			// シーン開始後の着地音防止
+			if (m_firstLandFlg == false)
 			{
-				m_wpWalkSound[m_walkSoundType].lock()->Play();
+				m_firstLandFlg = true;
 				m_nowWalkSoundFlg = true;
+			}
+			else
+			{
+				if (m_wpWalkSound[m_walkSoundType].expired() == false)
+				{
+					m_wpWalkSound[m_walkSoundType].lock()->Play();
+					m_nowWalkSoundFlg = true;
+				}
 			}
 		}
 	}
@@ -672,10 +685,16 @@ void Player::PostUpdate()
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
 
-	// アニメーションの更新
-	// 止まっていたらアニメーションしない
-	m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
-	m_spModel->CalcNodeMatrices();
+	if (m_aliveFlg == true)
+	{
+		// アニメーションの更新
+		// 止まっていたらアニメーションしない
+		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
+		m_spModel->CalcNodeMatrices();
+	}
+
+	// 3D音用
+	KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
 }
 
 void Player::GenerateDepthMapFromLight()
@@ -723,6 +742,10 @@ void Player::Init()
 
 	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 
+	// コライダー
+	m_pCollider = std::make_unique<KdCollider>();
+	m_pCollider->RegisterCollisionShape("Player", m_spModel, KdCollider::TypeDamageLine);
+
 	// 移動が出来なくなるフラグ
 	m_stopFlg = true;
 
@@ -731,7 +754,7 @@ void Player::Init()
 	m_wpWalkSound[WalkSoundType::Grass] = KdAudioManager::Instance().Play("Asset/Sounds/SE/grassWalk.wav", false);
 	if (!m_wpWalkSound[WalkSoundType::Grass].expired())
 	{
-		m_wpWalkSound[WalkSoundType::Grass].lock()->SetVolume(0.15f);
+		m_wpWalkSound[WalkSoundType::Grass].lock()->SetVolume(0.3f);
 		m_wpWalkSound[WalkSoundType::Grass].lock()->Stop();
 	}
 	m_nowWalkSoundFlg = false;
@@ -747,7 +770,7 @@ void Player::Init()
 	m_jumpSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/jump.wav", false);
 	if (!m_jumpSound.wpSound.expired())
 	{
-		m_jumpSound.wpSound.lock()->SetVolume(0.06f);
+		m_jumpSound.wpSound.lock()->SetVolume(0.03f);
 		m_jumpSound.wpSound.lock()->Stop();
 	}
 	m_jumpSound.flg = false;
@@ -756,7 +779,7 @@ void Player::Init()
 	m_stampSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/stamp.wav", false);
 	if (!m_stampSound.wpSound.expired())
 	{
-		m_stampSound.wpSound.lock()->SetVolume(0.06f);
+		m_stampSound.wpSound.lock()->SetVolume(0.03f);
 		m_stampSound.wpSound.lock()->Stop();
 	}
 	m_stampSound.flg = false;
@@ -798,12 +821,20 @@ void Player::Reset()
 	m_smokeCount = 0;
 
 	m_jumpSound.flg = false;
+
+	m_firstLandFlg = false;
+	m_pauseFlg = false;
 }
 
 void Player::BackPos()
 {
 	m_pos.x = m_oldPos.x;
 	m_pos.z = m_oldPos.z;
+}
+
+void Player::OnHit()
+{
+	m_aliveFlg = false;
 }
 
 void Player::SetStopFlg(const bool _stopFlg)
@@ -895,7 +926,7 @@ void Player::HitJudgeGround()
 		rayInfo.m_type = KdCollider::TypeGround;
 
 		// レイ判定
-		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
 		// 当たっていなかったら右足からのレイ判定をする
 		if (hitFlg == false)
@@ -907,7 +938,7 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
 
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		}
 
 		// 当たっていなかったら左足からのレイ判定をする
@@ -920,7 +951,7 @@ void Player::HitJudgeGround()
 			rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
 
 			// レイ判定
-			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain, true);
+			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		}
 
 		// 当たっていた時の処理
@@ -1022,7 +1053,7 @@ void Player::HitJudgeGround()
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
 	{
-		const float radius = 0.35f;
+		//const float radius = 0.35f;
 
 		// ボックス判定
 		KdCollider::BoxInfo boxInfo;
@@ -1032,6 +1063,7 @@ void Player::HitJudgeGround()
 		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
 		// キャラクターの高さ
 		float charaHighLength = rightBackUpPos.y;
+		float radius = abs(rightBackUpPos.x - leftFrontUpPos.x);
 		// 中心座標(キャラクターの真ん中)
 		boxInfo.m_Abox.Center = m_pos;
 		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
@@ -1045,7 +1077,7 @@ void Player::HitJudgeGround()
 		// 当たり判定の結果格納リスト
 		std::list<KdCollider::CollisionResult> resultList;
 
-		bool hitFlg = false;
+		bool boxHitFlg = false;
 
 		bool fineHitFlg = false;
 
@@ -1053,7 +1085,7 @@ void Player::HitJudgeGround()
 		{
 			if (obj->Intersects(boxInfo, nullptr))
 			{
-				hitFlg = true;
+				boxHitFlg = true;
 				// 当たったオブジェクトが細かく当たり判定をしないといけないオブジェクトだった場合フラグを立てる
 				if (obj->CheckFineHitJudge() == true)
 				{
@@ -1063,7 +1095,7 @@ void Player::HitJudgeGround()
 			}
 		}
 
-		if (hitFlg == true)
+		if (boxHitFlg == true)
 		{
 			// スフィアの情報
 			KdCollider::SphereInfo sphereInfo;
@@ -1075,7 +1107,7 @@ void Player::HitJudgeGround()
 			sphereInfo.m_sphere.Center = m_pos;
 			// スフィアの半径
 			sphereInfo.m_sphere.Radius = radius;
-			sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
+			sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius - 0.1f;
 			// スフィアのタイプ
 			sphereInfo.m_type = KdCollider::TypeGround;
 
@@ -1085,28 +1117,23 @@ void Player::HitJudgeGround()
 			std::vector<KdCollider::CollisionResult> collisionResultList;
 			// 複数に当たったかどうかのフラグ
 			bool multiHitFlg = false;
-			float maxOverLap = 0;
 
 			if (fineHitFlg == false)
 			{
+				const float checkNum = 3;
+				const float upY = 0.5f;
 				if (m_situationType & SituationType::Air)
 				{
-					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
 				}
 				if (hitFlg == false)
 				{
-					sphereInfo.m_sphere.Center.y += 0.5f;
-					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-				}
-				if (hitFlg == false)
-				{
-					sphereInfo.m_sphere.Center.y += 0.5f;
-					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-				}
-				if (hitFlg == false)
-				{
-					sphereInfo.m_sphere.Center.y += 0.5f;
-					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+					for (int i = 1; i <= checkNum; i++)
+					{
+						sphereInfo.m_sphere.Center.y += upY;
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+						if (hitFlg == true) break;
+					}
 				}
 			}
 			// 細かく当たり判定をする
@@ -1114,47 +1141,26 @@ void Player::HitJudgeGround()
 			{
 				for (int i = 0; i < 3; i++)
 				{
-					sphereInfo.m_sphere.Center = m_oldPos + (movePos / 2) * i;
+					sphereInfo.m_sphere.Center = m_oldPos + (movePos / 2.0f) * (float)i;
 					sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
+
+					const float checkNum = 6;
+					const float upY = 0.25f;
 
 					if (m_situationType & SituationType::Air)
 					{
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
 					}
 					if (hitFlg == false)
 					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
+						for (int i = 1; i <= checkNum; i++)
+						{
+							sphereInfo.m_sphere.Center.y += upY;
+							hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+							if (hitFlg == true) break;
+						}
 					}
-					if (hitFlg == false)
-					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-					}
-					if (hitFlg == false)
-					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-					}
-					if (hitFlg == false)
-					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-					}
-					if (hitFlg == false)
-					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-					}
-					if (hitFlg == false)
-					{
-						sphereInfo.m_sphere.Center.y += 0.25f;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg, true);
-					}
-					if (hitFlg == true)
-					{
-						break;
-					}
+					if (hitFlg == true) break;
 				}
 			}
 
@@ -1177,13 +1183,12 @@ void Player::HitJudgeGround()
 						float dot = normal.Dot(normal2);
 						dot = std::clamp(dot, -1.0f, 1.0f);
 						float deg = DirectX::XMConvertToDegrees(acos(dot));
-
-						if (deg > 170 || deg < 10)
+						Application::Instance().m_log.AddLog("%f\n", deg);
+						if (deg < 10)
 						{
 							flg = true;
 							break;
 						}
-						Application::Instance().m_log.AddLog("%f\n", deg);
 					}
 				}
 				if (flg == false)
@@ -1191,6 +1196,7 @@ void Player::HitJudgeGround()
 					// Y座標以外、更新前の座標に戻す
 					m_pos.x = m_oldPos.x;
 					m_pos.z = m_oldPos.z;
+					Application::Instance().m_log.AddLog("old");
 				}
 				else
 				{
@@ -1229,6 +1235,12 @@ void Player::HitJudgeGround()
 				Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
 				m_pos.x = hitSpherePos.x + pos.x;
 				m_pos.z = hitSpherePos.z + pos.z;
+				Application::Instance().m_log.AddLog("singleHit\n");
+
+				for (auto& normal : result.m_hitNormalList)
+				{
+					Application::Instance().m_log.AddLog("x:%f y:%f z:%f\n", normal.x, normal.y, normal.z);
+				}
 			}
 		}
 	}
@@ -1237,13 +1249,12 @@ void Player::HitJudgeGround()
 	KdCollider::SphereInfo sphereInfo;
 	sphereInfo.m_sphere.Center = m_pos;
 	sphereInfo.m_sphere.Radius = 0.35f;
-	sphereInfo.m_sphere.Center.y += 1.85f;
+	sphereInfo.m_sphere.Center.y += 1.75f;
 	sphereInfo.m_type = KdCollider::TypeGround;
 	std::vector<KdCollider::CollisionResult> collisionResult;
 
 	// 複数に当たったかどうかのフラグ
 	bool multiHitFlg = false;
-	m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, 0.3f, kRedColor);
 
 	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
 	// 複数のオブジェクトに当たっていた場合
@@ -1375,45 +1386,39 @@ void Player::HitJudgeEvent()
 		}
 	}
 
-
 	std::shared_ptr<KdGameObject> spHitObject = nullptr;
 	// ステージセレクトのオブジェクトとの視野角判定
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
-		if (obj->GetObjectType() == ObjectType::StageSelectObject)
+		// ステージセレクトのオブジェクトでなければ飛ばす
+		if (obj->GetObjectType() != ObjectType::StageSelectObject) continue;
+
+		// プレイヤーとオブジェクトの距離
+		Math::Vector3 vec = obj->GetPos() - m_pos;
+		// 一番近いオブジェクトのみ処理をするために、すでに判定をしたオブジェクトより遠かったらスキップする
+		if (spHitObject)
 		{
-			if (SceneManager::Instance().GetDebug() == true)
+			Math::Vector3 maxVec = spHitObject->GetPos() - m_pos;
+			if (vec.Length() < maxVec.Length())
 			{
-				m_pDebugWire->AddDebugSphere(obj->GetPos(), 4.0f);
+				continue;
 			}
+		}
+		// プレイヤーの正面
+		Math::Vector3 forwardVec = m_mWorld.Backward();
 
-			// プレイヤーとオブジェクトの距離
-			Math::Vector3 vec = obj->GetPos() - m_pos;
-			// 一番近いオブジェクトのみ処理をするために、すでに判定をしたオブジェクトより遠かったらスキップする
-			if (spHitObject)
+		// 設定されている距離より短かったら視野角判定
+		if (vec.Length() < 4.0f)
+		{
+			// 視野角判定
+			vec.Normalize();
+			float dot = forwardVec.Dot(vec);
+			dot = std::clamp(dot, -1.0f, 1.0f);
+			float deg = DirectX::XMConvertToDegrees(acos(dot));
+			// 視野角内ならステージに入れるようにする
+			if (deg < 90)
 			{
-				Math::Vector3 maxVec = spHitObject->GetPos() - m_pos;
-				if (vec.Length() < maxVec.Length())
-				{
-					continue;
-				}
-			}
-			// プレイヤーの正面
-			Math::Vector3 forwardVec = m_mWorld.Backward();
-
-			// 設定されている距離より短かったら視野角判定
-			if (vec.Length() < 4.0f)
-			{
-				// 視野角判定
-				vec.Normalize();
-				float dot = forwardVec.Dot(vec);
-				dot = std::clamp(dot, -1.0f, 1.0f);
-				float deg = DirectX::XMConvertToDegrees(acos(dot));
-				// 視野角内ならステージに入れるようにする
-				if (deg < 90)
-				{
-					spHitObject = obj;
-				}
+				spHitObject = obj;
 			}
 		}
 	}
@@ -1423,7 +1428,7 @@ void Player::HitJudgeEvent()
 		spHitObject->OnHit();
 		if (GetAsyncKeyState('Z') & 0x8000)
 		{
-			if (m_actionKeyFlg == false)
+			if (m_actionKeyFlg == false && m_stopFlg == false)
 			{
 				// 操作を受け付けなくする
 				SetStopFlg(true);
@@ -1431,6 +1436,9 @@ void Player::HitJudgeEvent()
 
 				// キーフラグ
 				m_actionKeyFlg = true;
+
+				std::shared_ptr<KdSoundInstance> spSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/select.wav");
+				spSound->SetVolume(0.2f);
 			}
 		}
 		else
@@ -1526,6 +1534,10 @@ void Player::HitJudgeEnemy()
 				else
 				{
 					m_aliveFlg = false;
+					m_pauseFlg = true;
+
+					std::shared_ptr<KdSoundInstance> spDeathSound =  KdAudioManager::Instance().Play("Asset/Sounds/SE/death.wav", false);
+					spDeathSound->SetVolume(0.1f);
 				}
 			}
 		}
@@ -1771,31 +1783,6 @@ void Player::DataLoad()
 		// 敵を踏んだ時のジャンプ力
 		m_enemyJumpPow = objData["m_enemyJumpPow"];
 	}
-}
-
-void Player::DataSave()
-{
-	nlohmann::json objData;
-
-	// リストごと
-	nlohmann::json objStat;
-	objStat["m_runSpeed"]		= m_runSpeed;
-	objStat["m_walkSpeed"]		= m_walkSpeed;
-	objStat["m_jumpPow"]		= m_jumpPow;
-	objStat["m_boundJumpPow"]	= m_boundJumpPow;
-	objStat["m_enemyJumpPow"]	= m_enemyJumpPow;
-	objStat["name"] = m_name.data();
-
-	// ゲームオブジェクトに追加
-	objData["GameObject"][m_name.data()] = objStat;
-
-	// ファイルに書き込む
-	std::ofstream file(m_path.data());
-	if (!file.is_open()) return;
-
-	// JSONデータをファイルに書き込む
-	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
-	file.close();
 }
 
 void Player::GoalProcess()

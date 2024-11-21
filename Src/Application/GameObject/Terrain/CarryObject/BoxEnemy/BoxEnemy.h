@@ -28,6 +28,9 @@ public:
 
 	void Reset();
 
+	// ゴールした時の処理
+	void SetGoal() override { m_isExpired = true; }
+
 private:
 	// 当たり判定
 	void HitJudge();
@@ -115,8 +118,6 @@ private:
 	std::string m_name = "BoxEnemy";
 	// JSONのデータをロードする
 	void DataLoad();
-	// JSONのデータをセーブする
-	void DataSave();
 
 // ステートパターン
 private:
@@ -125,9 +126,9 @@ private:
 	public:
 		virtual ~StateBase() {}
 
-		virtual void Enter	(BoxEnemy& _owner) {}
-		virtual void Update	(BoxEnemy& _owner) {}
-		virtual void Exit	(BoxEnemy& _owner) {}
+		virtual void Enter	(BoxEnemy&) {}
+		virtual void Update	(BoxEnemy&) {}
+		virtual void Exit	(BoxEnemy&) {}
 	};
 
 	// 待機中

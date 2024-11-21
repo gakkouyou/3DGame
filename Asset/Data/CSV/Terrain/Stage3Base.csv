@@ -26,7 +26,7 @@ NormalGround,NormalGround20,5,5,87,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround21,5,5,82,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround22,20,5,82,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround23,20,5,87,0,0,0,1,1,1,0,0,0,0,0,,0
-DropGround,DropGround1,29,5,84.5,0,0,0,1,1,4.6,0.1,60,0,0,0,,0
+DropGround,DropGround1,27.5,5,84.5,0,0,0,1,1,4.6,0.1,60,0,0,0,,0
 BoundGround,BoundGround2,34.5,6,87,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround24,34.5,0,87,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround25,39.5,11,87,0,0,0,1,1,1,0,0,0,0,0,,0
@@ -50,7 +50,6 @@ NormalGround,NormalGround31,74,10.3,97,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround32,74,10.3,102,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround33,74,10.3,107,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround34,74,10.3,112,0,0,0,1,1,1,0,0,0,0,0,,0
-DropGround,DropGround6,25,5,84.5,0,0,0,1,1,4.6,0.1,60,0,0,0,,0
 NormalGround,NormalGround35,5,5,67,0,0,0,1,1,1,0,0,0,0,0,,0
 NormalGround,NormalGround36,79,10.3,87,0,0,0,1,1,1,0,0,0,0,0,,0
 FenceBar,FenceBar1,-4.8,0.25,-7.3,0,0,0,1,1,1.9,0,0,0,90,0,,0

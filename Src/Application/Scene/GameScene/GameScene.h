@@ -9,6 +9,7 @@ class Goal;
 class Result;
 class Pause;
 class GameUI;
+class EnemyController;
 
 class GameScene : public BaseScene
 {
@@ -50,6 +51,9 @@ private:
 	// ポーズ画面
 	std::weak_ptr<Pause> m_wpPause;
 
+	// 敵のエディタ
+	std::weak_ptr<EnemyController> m_wpEnemyController;
+
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
 
@@ -71,5 +75,7 @@ private:
 	bool m_oldPauseFlg	= false;
 
 	std::weak_ptr<KdSoundInstance> m_bgm;
-	float m_vol = 0.06f;
+	float m_vol = 0.03f;
+	// bgmフェードアウトさせる時の数値
+	const float m_sumVol = 0.002f;
 };

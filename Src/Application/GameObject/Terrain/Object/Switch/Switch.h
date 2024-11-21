@@ -33,6 +33,11 @@ private:
 	// OnHitに入ったかどうかをチェックするフラグ
 	bool m_onHitFlg = false;
 
+	// 音のフラグ
+	bool m_soundFlg = false;
+	// 音
+	std::shared_ptr<KdSoundInstance3D> m_spSound = nullptr;
+
 	// スイッチの土台？
 	std::weak_ptr<SwitchBaseModel> m_wpBase;
 };

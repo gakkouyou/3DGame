@@ -70,4 +70,7 @@ private:
 
 	// 地面に付いた瞬間かどうかを判断するフラグ
 	bool m_landFlg = true;
+
+	// ステージが始まった最初の着地音をなくすフラグ
+	bool m_firstLandFlg = true;
 };

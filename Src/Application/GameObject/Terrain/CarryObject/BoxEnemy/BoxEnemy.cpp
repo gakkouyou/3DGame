@@ -51,16 +51,6 @@ void BoxEnemy::Update()
 		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
-
-	// 音座標更新
-	for (int i = 0; i < LandSoundType::MaxNum; i++)
-	{
-		if (m_wpLandSound[i].lock()->IsPlaying() == true)
-		{
-			m_wpLandSound[i].lock()->SetPos(m_pos);
-		}
-	}
-
 	// Y座標が一定以下になると死亡
 	if (m_pos.y < m_underLine)
 	{
@@ -84,7 +74,7 @@ void BoxEnemy::PostUpdate()
 	HitJudge();
 
 	// 着地した瞬間
-	if (isGround == true && m_isGround == false)
+	if (isGround == false && m_isGround == true)
 	{
 		// 何の地面に乗っているかによって、音を変える
 		if (!m_wpHitTerrain.expired())
@@ -108,6 +98,14 @@ void BoxEnemy::PostUpdate()
 				m_wpLandSound[LandSoundType::Tile].lock()->Play();
 				break;
 			}
+		}
+	}
+	// 音座標更新
+	for (int i = 0; i < LandSoundType::MaxNum; i++)
+	{
+		if (m_wpLandSound[i].lock()->IsPlaying() == true)
+		{
+			m_wpLandSound[i].lock()->SetPos(m_pos);
 		}
 	}
 	// 運ばれていない時の処理
@@ -277,7 +275,6 @@ void BoxEnemy::DrawLit()
 void BoxEnemy::Init()
 {
 	DataLoad();
-	DataSave();
 
 	srand(timeGetTime());
 
@@ -327,15 +324,17 @@ void BoxEnemy::Init()
 	m_wpLandSound[LandSoundType::Grass] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/grassWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Grass].expired())
 	{
-		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(0.06f);
+		m_wpLandSound[LandSoundType::Grass].lock()->SetVolume(2.0f);
 		m_wpLandSound[LandSoundType::Grass].lock()->Stop();
+		m_wpLandSound[LandSoundType::Grass].lock()->SetCurveDistanceScaler(0.7f);
 	}
 	// かたい地面を着地した音
 	m_wpLandSound[LandSoundType::Tile] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/tileWalk.wav", m_pos, false);
 	if (!m_wpLandSound[LandSoundType::Tile].expired())
 	{
-		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(0.06f);
+		m_wpLandSound[LandSoundType::Tile].lock()->SetVolume(1.0f);
 		m_wpLandSound[LandSoundType::Tile].lock()->Stop();
+		m_wpLandSound[LandSoundType::Tile].lock()->SetCurveDistanceScaler(0.7f);
 	}
 	// キノコではねた時の音
 	m_wpLandSound[LandSoundType::Bound] = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/bound.wav", m_pos, false);
@@ -343,6 +342,7 @@ void BoxEnemy::Init()
 	{
 		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
+		m_wpLandSound[LandSoundType::Bound].lock()->SetCurveDistanceScaler(0.7f);
 	}
 
 	// 最初の当たり判定は箱のみ
@@ -708,32 +708,6 @@ void BoxEnemy::DataLoad()
 		m_shakeTime			= objData["m_shakeTime"];			// 震えるまでの時間
 		m_enemyChangeLength = objData["m_enemyChangeLength"];	// 箱から敵になる、プレイヤーからの距離
 	}
-}
-
-void BoxEnemy::DataSave()
-{
-	nlohmann::json objData;
-
-	// リストごと
-	nlohmann::json objStat;
-	objStat["m_moveSpeed"]			= m_moveSpeed;			// 移動量
-	objStat["m_jumpPow"]			= m_jumpPow;			// ジャンプ力
-	objStat["m_enemyTime"]			= m_enemyTime;			// 敵に戻るまでの時間
-	objStat["m_shakeTime"]			= m_shakeTime;			// 震えるまでの時間
-	objStat["m_enemyChangeLength"]	= m_enemyChangeLength;	// 箱から敵になる、プレイヤーからの距離
-
-	objStat["name"] = m_name.data();
-
-	// ゲームオブジェクトに追加
-	objData["GameObject"][m_name.data()] = objStat;
-
-	// ファイルに書き込む
-	std::ofstream file(m_path.data());
-	if (!file.is_open()) return;
-
-	// JSONデータをファイルに書き込む
-	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
-	file.close();
 }
 
 void BoxEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)

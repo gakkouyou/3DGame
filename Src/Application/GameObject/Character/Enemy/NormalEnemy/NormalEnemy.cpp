@@ -115,26 +115,14 @@ void NormalEnemy::PostUpdate()
 	// 回転行列
 	m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
-	Math::Matrix scaleMat = Math::Matrix::CreateScale(1.f);
-
 	// 死亡モーション
 	if (m_aliveFlg == false)
 	{
-		scaleMat = Math::Matrix::CreateScale({ 1.0f, 0.2f, 1.0f });
-		m_deathCount++;
-
-		if (m_deathCount >= m_deathTime)
-		{
-			m_isExpired = true;
-
-			// 煙を生み出す
-			std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
-			smoke->Init();
-			smoke->SetPos(m_pos);
-			smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
-			SceneManager::Instance().AddObject(smoke);
-		}
+		DeathProcess();
 	}
+
+	/// 拡縮行列
+	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
 	m_mWorld = scaleMat * m_rotMat * transMat;
 }
@@ -452,6 +440,24 @@ void NormalEnemy::HitEnemy()
 	}
 }
 
+void NormalEnemy::DeathProcess()
+{
+	m_scale = m_deathScale;
+	m_deathCount++;
+
+	if (m_deathCount >= m_deathTime)
+	{
+		m_isExpired = true;
+
+		// 煙を生み出す
+		std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
+		smoke->Init();
+		smoke->SetPos(m_pos);
+		smoke->SetSmokeType(Smoke::SmokeType::DeathSmoke);
+		SceneManager::Instance().AddObject(smoke);
+	}
+}
+
 void NormalEnemy::SetParam(Param _param)
 {
 	m_param = _param;
@@ -509,29 +515,6 @@ void NormalEnemy::DataLoad()
 		m_jumpPow		= objData["m_jumpPow"];
 		m_findJumpPow	= objData["m_findJumpPow"];
 	}
-}
-
-void NormalEnemy::DataSave()
-{
-	nlohmann::json objData;
-
-	// リストごと
-	nlohmann::json objStat;
-	objStat["m_moveSpeed"]	= m_moveSpeed;	// 移動量
-	objStat["m_jumpPow"]	= m_jumpPow;	// ジャンプ力
-	objStat["m_findJumpPow"]= m_findJumpPow;// 見つけた時のジャンプ力
-	objStat["name"]			= m_name.data();
-
-	// ゲームオブジェクトに追加
-	objData["GameObject"][m_name.data()] = objStat;
-
-	// ファイルに書き込む
-	std::ofstream file(m_path.data());
-	if (!file.is_open()) return;
-
-	// JSONデータをファイルに書き込む
-	file << std::setw(4) << objData << std::endl;	//Pretty print with 4-space indent
-	file.close();
 }
 
 

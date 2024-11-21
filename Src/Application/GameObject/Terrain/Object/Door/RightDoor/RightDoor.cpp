@@ -2,6 +2,7 @@
 #include "../LeftDoor/LeftDoor.h"
 #include "../DoorWall/DoorWall.h"
 #include "../../../../../Scene/SceneManager.h"
+#include "../../../../Character/Player/Player.h"
 
 void RightDoor::Update()
 {
@@ -13,6 +14,33 @@ void RightDoor::Update()
 		if (m_param.pos.x < m_param.startPos.x)
 		{
 			m_param.pos.x = m_param.startPos.x;
+
+			//// ドアが閉まりきったらプレイヤーとレイ判定
+			//KdCollider::RayInfo rayInfo;
+			//rayInfo.m_dir = Math::Vector3::Left;
+			//rayInfo.m_pos = m_param.startPos;
+			//rayInfo.m_pos.y += 0.2f;
+			//rayInfo.m_range = 0.3f;
+			//rayInfo.m_type = KdCollider::TypeDamageLine;
+
+			//KdCollider::SphereInfo sphereInfo;
+			//sphereInfo.m_sphere.Center = rayInfo.m_pos;
+			//sphereInfo.m_sphere.Radius = 0.01f;
+			//sphereInfo.m_type = KdCollider::TypeDamageLine;
+			//m_pDebugWire->AddDebugSphere(sphereInfo.m_sphere.Center, 0.01f);
+
+			////m_pDebugWire->AddDebugLine(rayInfo.m_pos, rayInfo.m_dir, rayInfo.m_range);
+
+			//for (auto& obj : SceneManager::Instance().GetObjList())
+			//{
+			//	if (obj->Intersects(sphereInfo, nullptr))
+			//	{
+			//		obj->OnHit();
+			//		break;
+			//	}
+			//}
+
+
 		}
 	}
 	m_activeFlg = false;
@@ -50,6 +78,8 @@ void RightDoor::Init()
 
 	// アルファディザ有効
 	m_ditherFlg = true;
+
+	m_pDebugWire = std::make_unique<KdDebugWireFrame>();
 }
 
 void RightDoor::Reset()

@@ -145,7 +145,7 @@ void GameScene::Event()
 		if (m_wpPlayer.lock()->GetGoalFlg())
 		{
 			// 音をフェードアウト
-			m_vol -= 0.002f;
+			m_vol -= m_sumVol;
 			if (m_vol < 0)
 			{
 				m_vol = 0;
@@ -155,43 +155,43 @@ void GameScene::Event()
 				m_bgm.lock()->SetVolume(m_vol);
 			}
 
-			if (!m_wpCamera.expired())
+			// オブジェクトにゴールしたことを伝える
+			for (auto& obj : GetObjList())
 			{
-				// カメラのゴール時の演出をスタート
-				m_wpCamera.lock()->SetGoalFlg(true);
+				obj->SetGoal();
+			}
 
-				// 動き終わった後の処理
-				if (m_wpCamera.lock()->GetGoalProcessFinish())
+			if (!m_wpCamera.expired() && m_wpCamera.lock()->GetGoalProcessFinish())
+			{
+				// カメラが動き終わった時の処理
+				if (!m_wpResult.expired())
 				{
-					if (!m_wpResult.expired())
+					// ステージクリアのリザルトを出す
+					m_wpResult.lock()->StageClear();
+
+					if (m_wpResult.lock()->GetClearFinish())
 					{
-						// ステージクリアのリザルトを出す
-						m_wpResult.lock()->StageClear();
-
-						if (m_wpResult.lock()->GetClearFinish())
+						if (!m_wpSceneChange.expired())
 						{
-							if (!m_wpSceneChange.expired())
+							// シーンを終了
+							m_wpSceneChange.lock()->EndScene();
+
+							// 処理が終了したらシーンを変更
+							if (m_wpSceneChange.lock()->GetFinishFlg())
 							{
-								// シーンを終了
-								m_wpSceneChange.lock()->EndScene();
-
-								// 処理が終了したらシーンを変更
-								if (m_wpSceneChange.lock()->GetFinishFlg())
+								// 初クリアかどうかをチェック
+								if (SceneManager::Instance().GetStageInfo()[m_nowStage - 1] == SceneManager::StageInfo::NotClear)
 								{
-									// 初クリアかどうかをチェック
-									if (SceneManager::Instance().GetStageInfo()[m_nowStage - 1] == SceneManager::StageInfo::NotClear)
-									{
-										SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::FirstClear;
-									}
-
-									// ステージのCSVをリセット
-									ResetCSV();
-
-									// CSVに書き込む
-									//SceneManager::Instance().StageInfoCSVWriter();
-									// シーンを変更
-									SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
+									SceneManager::Instance().WorkStageInfo()[m_nowStage - 1] = SceneManager::StageInfo::FirstClear;
 								}
+
+								// ステージのCSVをリセット
+								ResetCSV();
+
+								// CSVに書き込む
+								//SceneManager::Instance().StageInfoCSVWriter();
+								// シーンを変更
+								SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 							}
 						}
 					}
@@ -212,15 +212,6 @@ void GameScene::Init()
 
 	KdShaderManager::Instance().WorkAmbientController().SetDirLightShadowArea({50,50},50);
 
-	// ②フォグ(霧)                                                 ↓距離 ↓高さ
-	//KdShaderManager::Instance().WorkAmbientController().SetFogEnable(true, true);
-
-	// 距離フォグ                                                        ↓色RGB      ↓密度
-	//KdShaderManager::Instance().WorkAmbientController().SetDistanceFog({ 0, 0, 0.5 }, 0.001);
-
-	// 高さフォグ                                                    ↓色       ↓上↓下↓距離
-	//KdShaderManager::Instance().WorkAmbientController().SetheightFog({ 0, 0, 0.5 }, 10, -10, 0.001f);
-
 	// ステージをゲット
 	m_nowStage = SceneManager::Instance().GetNowStage();
 
@@ -229,6 +220,9 @@ void GameScene::Init()
 	backGround->Init();
 	AddObject(backGround);
 
+	// ===========================================================================
+	// 地形によって挙動が変わるオブジェクトの後に更新するように書く
+	// ===========================================================================
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage);
 	// CSVファイルを指定する
@@ -236,7 +230,9 @@ void GameScene::Init()
 	terrainController->Init();
 	AddObject(terrainController);
 
+	// プレイヤー作成
 	std::shared_ptr<Player> player = std::make_shared<Player>();
+
 	// 運ぶオブジェクト作成
 	std::shared_ptr<CarryObjectController> carryObjectController = std::make_shared<CarryObjectController>();
 	// CSVファイルを指定する
@@ -248,12 +244,11 @@ void GameScene::Init()
 
 	AddObject(carryObjectController);
 
-	// プレイヤー
+	// プレイヤー初期化
 	player->Init();
 	AddObject(player);
 	// 保持
 	m_wpPlayer = player;
-
 
 
 	// TPSカメラ
@@ -303,10 +298,6 @@ void GameScene::Init()
 	// 保持
 	m_wpSceneChange = sceneChange;
 
-	// 地形作成
-
-
-
 	// 敵作成
 	std::shared_ptr<EnemyController> enemyController = std::make_shared<EnemyController>();
 	csvName = "Asset/Data/CSV/Enemy/Stage" + std::to_string(m_nowStage) + ".csv";
@@ -317,8 +308,8 @@ void GameScene::Init()
 	enemyController->SetTerrainController(terrainController);
 	enemyController->Init();
 	AddObject(enemyController);
-
-
+	// 保持
+	m_wpEnemyController = enemyController;
 
 	// EventObject作成
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
@@ -330,10 +321,6 @@ void GameScene::Init()
 	eventObjectController->SetCamera(tpsCamera);
 	eventObjectController->Init();
 	AddObject(eventObjectController);
-
-	// ===========================================================================
-	// 地形によって挙動が変わるオブジェクトの後に更新するように書く
-	// ===========================================================================
 
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す

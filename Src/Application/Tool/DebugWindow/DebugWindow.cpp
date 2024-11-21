@@ -36,7 +36,7 @@ void DebugWindow::Draw()
 
 
 		// ログウィンドウ
-	Application::Instance().m_log.Draw("Log Window");
+	//Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
 		if (ImGui::Begin("DebugWindow"))
@@ -520,20 +520,12 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::Goal);
 			}
 			ImGui::SameLine();
-
-			// キャンディー(コイン的な)
-			if (ImGui::Button("Candy"))
-			{
-				spObjectController->ConfirmedObject();
-				spObjectController->CreateObject(KdGameObject::ObjectType::Candy);
-			}
 			// セーブポイント
 			if (ImGui::Button("SavePoint"))
 			{
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::SavePoint);
 			}
-			ImGui::SameLine();
 
 			// ワープポイント
 			if (ImGui::Button("WarpPoint"))
@@ -541,14 +533,14 @@ void DebugWindow::EventObjectWindow()
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::WarpPoint);
 			}
-			
+			ImGui::SameLine();
+
 			// ステージセレクトのオブジェクト
 			if (ImGui::Button("StageSelectObject"))
 			{
 				spObjectController->ConfirmedObject();
 				spObjectController->CreateObject(KdGameObject::ObjectType::StageSelectObject);
 			}
-			ImGui::SameLine();
 
 			// 最終ゴール
 			if (ImGui::Button("FinalGoal"))

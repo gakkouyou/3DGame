@@ -18,6 +18,14 @@ public:
 	void OnHit()				override;
 
 private:
+	// 死亡時の処理
+	void DeathProcess()	override;
+
+	// 拡縮
+	Math::Vector3 m_scale = { 0.25f, 0.25f, 0.25f };
+	// 死亡時の拡縮
+	const Math::Vector3 m_deathScale = { 0.25f, 0.05f, 0.25f };
+
 	// sinカーブ用の角度
 	float m_angle	= 0;
 

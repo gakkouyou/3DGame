@@ -158,8 +158,7 @@ void TPSCamera::PostUpdate()
 
 	CameraBase::Update();
 
-	KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
-
+	// しすいだいかりんぐ
 	DirectX::BoundingFrustum frustum;
 	DirectX::BoundingFrustum::CreateFromMatrix(frustum, m_spCamera->GetProjMatrix());
 	frustum.Transform(frustum, m_mWorld);
@@ -183,9 +182,6 @@ void TPSCamera::PostUpdate()
 			count++;
 		}
 	}
-
-	//Application::Instance().m_log.Clear();
-	//Application::Instance().m_log.AddLog("obj:%d draw:%d", count, drawCount);
 }
 
 void TPSCamera::Init()

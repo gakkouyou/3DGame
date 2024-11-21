@@ -41,7 +41,7 @@ void WarpPoint::DrawBright()
 	if (m_spOutModel)
 	{
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
-		Math::Color color = { 0.3, 0.3, 0.3, 1 };
+		Math::Color color = { 0.3f, 0.3f, 0.3f, 1 };
 		//KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_mWorld, color);
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spOutModel, m_outMat, color);
 	}
@@ -49,7 +49,7 @@ void WarpPoint::DrawBright()
 	{
 		KdShaderManager::Instance().ChangeBlendState(KdBlendState::Add);
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		Math::Color color = { 0.1, 0.1, 0.1, 1 };
+		Math::Color color = { 0.1f, 0.1f, 0.1f, 1 };
 
 		Math::Matrix scaleMat = Math::Matrix::CreateScale(0.98f);
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(-m_degAng));

@@ -7,7 +7,6 @@
 
 #include "../../../GameObject/EventObject/EventObjectBase.h"
 #include "../../../GameObject/EventObject/Goal/Goal.h"
-#include "../../../GameObject/EventObject/Candy/Candy.h"
 #include "../../../GameObject/EventObject/SavePoint/SavePoint.h"
 #include "../../../GameObject/EventObject/WarpPoint/WarpPoint.h"
 #include "../../../GameObject/EventObject/StageSelectObject/StageSelectObject.h"
@@ -93,16 +92,6 @@ void EventObjectController::ConfirmedObject()
 				m_objectCount.Goal++;
 				// 名前を決める
 				data.name = data.type + std::to_string(m_objectCount.Goal);
-				break;
-
-				// キャンディーの場合
-			case ObjectType::Candy:
-				// タイプのセット
-				data.type = "Candy";
-				// カウントを進める
-				m_objectCount.Candy++;
-				// 名前を決める
-				data.name = data.type + std::to_string(m_objectCount.Candy);
 				break;
 
 				// セーブポイントの場合
@@ -243,16 +232,6 @@ void EventObjectController::CreateObject(ObjectType _object)
 		break;
 	}
 
-	// キャンディー
-	case ObjectType::Candy:
-	{
-		std::shared_ptr<Candy> object = std::make_shared<Candy>();
-		object->Init();
-		SceneManager::Instance().AddObject(object);
-		m_wpTargetObject = object;
-		break;
-	}
-
 	// セーブポイント
 	case ObjectType::SavePoint:
 	{
@@ -330,26 +309,6 @@ void EventObjectController::BeginCreateObject()
 			{
 				m_wpCamera.lock()->SetTarget(object);
 			}
-			// リストに追加
-			m_wpObjectList.push_back(object);
-		}
-		// キャンディー
-		else if (data.type == "Candy")
-		{
-			std::shared_ptr<Candy> object = std::make_shared<Candy>();
-			// パラメータをセットする
-			EventObjectBase::Param setParam{ data.pos };
-			object->SetParam(setParam);
-			object->Init();
-			SceneManager::Instance().AddObject(object);
-			// カウントを進める
-			m_objectCount.Candy++;
-			// 名前の数値をリセットする
-			std::string name = data.type + std::to_string(m_objectCount.Candy);
-			// 名前をセットする
-			object->SetObjectName(name);
-			// 配列の名前を変更する
-			data.name = name;
 			// リストに追加
 			m_wpObjectList.push_back(object);
 		}

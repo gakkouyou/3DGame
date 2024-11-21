@@ -45,6 +45,9 @@ void TitleCamera::Update()
 		if (GetAsyncKeyState(VK_SPACE) & 0x8000)
 		{
 			m_animationFlg = true;
+			
+			std::shared_ptr<KdSoundInstance> spSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/select.wav");
+			spSound->SetVolume(0.2f);
 		}
 	}
 }

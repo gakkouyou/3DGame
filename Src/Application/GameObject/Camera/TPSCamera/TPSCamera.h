@@ -12,8 +12,8 @@ public:
 
 	void Reset()			override;
 
-	// ゴールしたかどうかをセット
-	void SetGoalFlg(bool _goalFlg) { m_goalFlg = _goalFlg; }
+	// ゴールした時の処理
+	void SetGoal() override { m_goalFlg = true; }
 	// ゴールの座標をセット
 	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalProcess.targetPos = _goalPos; }
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }

@@ -37,7 +37,13 @@ public:
 	// パラメータをゲットする
 	virtual const Param GetParam()const { return m_param; }
 
+	// ゴールした時の処理
+	void SetGoal() override { m_isExpired = true; }
+
 protected:
+	// 死んだときの処理
+	virtual void DeathProcess() {}
+
 	// ターゲット
 	std::weak_ptr<Player> m_wpTarget;
 

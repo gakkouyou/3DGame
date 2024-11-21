@@ -4,6 +4,7 @@
 
 class LeftDoor;
 class DoorWall;
+class Player;
 
 class RightDoor : public TerrainBase
 {

@@ -68,7 +68,7 @@ void Pause::Update()
 		}
 
 		// 確定させる
-		if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+		if ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState('Z') & 0x8000))
 		{
 			m_select = m_nowSelect;
 

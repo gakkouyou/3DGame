@@ -1,9 +1,9 @@
 {
     "GameObject": {
         "NormalEnemy": {
-            "m_findJumpPow": 0.10000000149011612,
-            "m_jumpPow": 0.05000000074505806,
-            "m_moveSpeed": 0.05000000074505806,
+            "m_findJumpPow": 0.1,
+            "m_jumpPow": 0.05,
+            "m_moveSpeed": 0.05,
             "name": "NormalEnemy"
         }
     }

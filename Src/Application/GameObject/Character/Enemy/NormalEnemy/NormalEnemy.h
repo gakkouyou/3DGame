@@ -4,8 +4,8 @@
 class NormalEnemy : public EnemyBase
 {
 public:
-	NormalEnemy() {}
-	~NormalEnemy()	override { DataSave(); }
+	NormalEnemy()				{}
+	~NormalEnemy()		override{}
 
 	void Update()		override;
 	void PostUpdate()	override;
@@ -29,6 +29,9 @@ private:
 	// 敵同士での当たり判定
 	void HitEnemy();
 
+	// 死んだときの処理
+	void DeathProcess()	override;
+
 	// 追尾していない時に動くための変数
 	struct Move
 	{
@@ -50,6 +53,10 @@ private:
 	float m_degAng = 0;
 	// 回転行列
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
+	// 拡縮
+	Math::Vector3 m_scale = { 1.0f, 1.0f, 1.0f };
+	// 死んだときの拡縮
+	const Math::Vector3 m_deathScale = { 1.0f, 0.2f, 1.0f };
 
 	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
@@ -57,7 +64,7 @@ private:
 	// ホーミング用構造体
 	struct HomingStruct
 	{
-		const float viewingAngle	= 60.0f;// 視野角
+		const float viewingAngle	= 90.0f;// 視野角
 		const float minRotDegAng	= 5.0f;	// 回転する際の制限
 	};
 
@@ -124,8 +131,6 @@ private:
 	std::string m_name = "NormalEnemy";
 	// JSONのデータをロードする
 	void DataLoad();
-	// JSONのデータをセーブする
-	void DataSave();
 
 	// ステートパターン
 private:

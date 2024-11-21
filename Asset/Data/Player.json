@@ -2,10 +2,10 @@
     "GameObject": {
         "Player": {
             "m_boundJumpPow": 0.25,
-            "m_enemyJumpPow": 0.15000000596046448,
+            "m_enemyJumpPow": 0.15,
             "m_jumpPow": 0.125,
             "m_runSpeed": 0.125,
-            "m_walkSpeed": 0.05999999865889549,
+            "m_walkSpeed": 0.06,
             "name": "Player"
         }
     }

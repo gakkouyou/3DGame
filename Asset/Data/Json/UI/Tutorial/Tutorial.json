@@ -1,0 +1,18 @@
+{
+	"Tutorial": {
+		"m_tex[Type::MoveKey].pos.x"	: 450,
+		"m_tex[Type::MoveKey].pos.y"	: 300,
+		"m_tex[Type::MoveText].pos.x"	: 550,
+		"m_tex[Type::MoveText].pos.y"	: 300,
+		"m_tex[Type::JumpKey].pos.x"	: 450,
+		"m_tex[Type::JumpKey].pos.y"	: 250,
+		"m_tex[Type::JumpText].pos.x"	: 550,
+		"m_tex[Type::JumpText].pos.y"	: 250,
+		"m_tex[Type::ActionKey].pos.x"	: 450,
+		"m_tex[Type::ActionKey].pos.y"	: 200,
+		"m_tex[Type::ActionText].pos.x"	: 550,
+		"m_tex[Type::ActionText].pos.y"	: 200,
+		"m_addAlpha"					: 0.05,
+		"m_displayTime"					: 300
+	}
+}

@@ -1,5 +1,5 @@
 ﻿#include "Tutorial.h"
-#include "../../Scene/SceneManager.h"
+#include "../../../Scene/SceneManager.h"
 
 void Tutorial::Update()
 {
@@ -79,20 +79,49 @@ void Tutorial::DrawSprite()
 
 void Tutorial::Init()
 {
+	DataLoad();
+
 	std::string path = "Asset/Textures/Tutorial/";
 
+	// 移動
 	m_tex[Type::MoveKey].spTex = KdAssets::Instance().m_textures.GetData(path + "moveKey.png");
-	m_tex[Type::MoveKey].pos = { 450, 300 };
 	m_tex[Type::MoveText].spTex = KdAssets::Instance().m_textures.GetData(path + "moveText.png");
-	m_tex[Type::MoveText].pos = { 550, 300 };
-
+	// ジャンプ
 	m_tex[Type::JumpKey].spTex = KdAssets::Instance().m_textures.GetData(path + "jumpKey.png");
-	m_tex[Type::JumpKey].pos = { 450, 250 };
 	m_tex[Type::JumpText].spTex = KdAssets::Instance().m_textures.GetData(path + "jumpText.png");
-	m_tex[Type::JumpText].pos = { 550, 250 };
-
+	// アクション
 	m_tex[Type::ActionKey].spTex = KdAssets::Instance().m_textures.GetData(path + "actionKey.png");
-	m_tex[Type::ActionKey].pos = { 450, 200 };
 	m_tex[Type::ActionText].spTex = KdAssets::Instance().m_textures.GetData(path + "actionText.png");
-	m_tex[Type::ActionText].pos = { 550, 200 };
+}
+
+void Tutorial::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	m_tex[Type::MoveKey].pos.x		= data["Tutorial"]["m_tex[Type::MoveKey].pos.x"];	// 移動キー座標
+	m_tex[Type::MoveKey].pos.y		= data["Tutorial"]["m_tex[Type::MoveKey].pos.y"];
+	m_tex[Type::MoveText].pos.x		= data["Tutorial"]["m_tex[Type::MoveText].pos.x"];	// 移動テキスト
+	m_tex[Type::MoveText].pos.y		= data["Tutorial"]["m_tex[Type::MoveText].pos.y"];
+
+	m_tex[Type::JumpKey].pos.x		= data["Tutorial"]["m_tex[Type::JumpKey].pos.x"];	// ジャンプキー座標
+	m_tex[Type::JumpKey].pos.y		= data["Tutorial"]["m_tex[Type::JumpKey].pos.y"];
+	m_tex[Type::JumpText].pos.x		= data["Tutorial"]["m_tex[Type::JumpText].pos.x"];	// ジャンプテキスト
+	m_tex[Type::JumpText].pos.y		= data["Tutorial"]["m_tex[Type::JumpText].pos.y"];
+
+	m_tex[Type::ActionKey].pos.x	= data["Tutorial"]["m_tex[Type::ActionKey].pos.x"];	// アクションキー座標
+	m_tex[Type::ActionKey].pos.y	= data["Tutorial"]["m_tex[Type::ActionKey].pos.y"];
+	m_tex[Type::ActionText].pos.x	= data["Tutorial"]["m_tex[Type::ActionText].pos.x"];// アクションテキスト
+	m_tex[Type::ActionText].pos.y	= data["Tutorial"]["m_tex[Type::ActionText].pos.y"];
+
+	// アルファ値加算量
+	m_addAlpha = data["Tutorial"]["m_addAlpha"];
+	
+	// 止まってから表示するまでの時間
+	m_displayTime = data["Tutorial"]["m_displayTime"];
 }

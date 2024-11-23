@@ -14,7 +14,7 @@
 #include "../../GameObject/BackGround/BackGround.h"
 #include "../../GameObject/Character/Player/Player.h"
 #include "../../GameObject/UI/StageSelectUI/StageSelectUI.h"
-#include "../../GameObject/Tutorial/Tutorial.h"
+#include "../../GameObject/UI/Tutorial/Tutorial.h"
 
 void StageSelectScene::Event()
 {

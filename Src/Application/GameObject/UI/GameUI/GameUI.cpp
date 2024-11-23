@@ -53,6 +53,8 @@ void GameUI::DrawSprite()
 
 void GameUI::Init()
 {
+	DataLoad();
+
 	m_tex[DrawType::Warp].spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Game/UI/warp.png");
 	m_tex[DrawType::Warp].pos = { 0, -300 };
 	m_tex[DrawType::Warp].addAlpha = 0.05f;
@@ -80,4 +82,23 @@ void GameUI::Reset()
 
 	m_drawType = DrawType::Max;
 	m_oldDrawType = DrawType::Max;
+}
+
+void GameUI::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	m_tex[DrawType::Warp].pos.x			= data["GameUI"]["m_tex[DrawType::Warp].pos.x"];
+	m_tex[DrawType::Warp].pos.y			= data["GameUI"]["m_tex[DrawType::Warp].pos.y"];
+	m_tex[DrawType::Warp].addAlpha		= data["GameUI"]["m_tex[DrawType::Warp].addAlpha"];
+
+	m_tex[DrawType::HoldBox].pos.x		= data["GameUI"]["m_tex[DrawType::HoldBox].pos.x"];
+	m_tex[DrawType::HoldBox].pos.y		= data["GameUI"]["m_tex[DrawType::HoldBox].pos.y"];
+	m_tex[DrawType::HoldBox].addAlpha	= data["GameUI"]["m_tex[DrawType::HoldBox].addAlpha"];
 }

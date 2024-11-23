@@ -48,4 +48,58 @@ private:
 	Sound m_morning;
 	// からすの鳴き声
 	Sound m_evening;
+
+// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	(ResultScene&)	{}
+		virtual void Update	(ResultScene&)	{}
+		virtual void Exit	(ResultScene&)	{}
+	};
+
+	// シーン開始
+	class SceneStart : public StateBase
+	{
+	public:
+		~SceneStart()	override {}
+
+		void Enter	(ResultScene& _owner)	override;
+		void Update	(ResultScene& _owner)	override;
+	};
+
+	// 朝
+	class Morning : public StateBase
+	{
+	public:
+		~Morning()	override {}
+
+		void Update	(ResultScene& _owner)	override;
+		void Exit	(ResultScene& _owner)	override;
+	};
+
+	// 夕方
+	class Evening : public StateBase
+	{
+	public:
+		~Evening()	override {}
+
+		void Enter	(ResultScene& _owner)	override;
+		void Update	(ResultScene& _owner)	override;
+	};
+
+	// 夜
+	class Night : public StateBase
+	{
+	public:
+		~Night()	override {}
+
+		void Enter(ResultScene& _owner)	override;
+		void Update(ResultScene& _owner)	override;
+	};
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

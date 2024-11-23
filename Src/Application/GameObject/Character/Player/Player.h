@@ -115,7 +115,7 @@ private:
 	void GoalProcess();
 
 	// ステージに入った時の座標
-	const Math::Vector3 m_stageStartPos = { 0, 0.26f, -5.0f };
+	Math::Vector3 m_stageStartPos;
 	// 移動前の座標
 	Math::Vector3 m_oldPos;
 	// リスポーン座標
@@ -142,7 +142,7 @@ private:
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
 
 	// スケール
-	const float m_scale = 8.f;
+	float m_scale = 0.0f;
 
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
 	struct HitMoveTerrain
@@ -173,8 +173,8 @@ private:
 
 	// 足元の煙用
 	int m_smokeCount	= 0;
-	int m_walkSmokeTime = 30;
-	int m_runSmokeTime	= 16;
+	int m_walkSmokeTime = 0;
+	int m_runSmokeTime	= 0;
 
 	// 走り状態の時のスピード
 	float m_runSpeed	= 0;
@@ -250,9 +250,8 @@ private:
 	bool m_mugenJumpKeyFlg = false;
 
 	// JSONファイルのパス
-	std::string_view m_path = "Asset/Data/Player.json";
+	std::string_view m_path = "Asset/Data/Json/Character/Player/Player.json";
 
-	std::string m_name = "Player";
 	// JSONのデータをロードする
 	void DataLoad();
 };

@@ -10,7 +10,7 @@
 #include "../../GameObject/Effect/Smoke/Smoke.h"
 #include "../../GameObject/Pause/Pause.h"
 #include "../../GameObject/UI/GameUI/GameUI.h"
-#include "../../GameObject/Tutorial/Tutorial.h"
+#include "../../GameObject/UI/Tutorial/Tutorial.h"
 
 #include "../../Tool/DebugWindow/DebugWindow.h"
 #include "../../Tool/ObjectController/TerrainController/TerrainController.h"

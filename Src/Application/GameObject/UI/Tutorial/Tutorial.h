@@ -39,13 +39,19 @@ private:
 
 	// アルファ値系
 	float m_alpha = 0.0f;		// アルファ値
-	float m_addAlpha = 0.05f;	// アルファ値に加算する数値
+	float m_addAlpha = 0;	// アルファ値に加算する数値
 	float m_maxAlpha = 1.0f;	// アルファ値の上限
 	float m_minAlpha = 0.0f;	// アルファ値の下限
 
 	// 表示するまでの時間
 	int m_displayCount = 0;
-	const int m_displayTime = 300;
+	int m_displayTime = 0;
 
 	bool m_pauseFlg = false;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/UI/Tutorial/Tutorial.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

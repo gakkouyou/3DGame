@@ -12,9 +12,9 @@ public:
 	void Init()		override;
 
 	// 一つめのアニメーションを始める
-	void SetFirstAnimationStart()	{ m_animation |= FirstAnimationStart; }
+	void MorningAnimationStart() { ChangeActionState(std::make_shared<FirstAnimation>()); }
 	// 二つ目のアニメーションを始める
-	void SetThirdAnimationStart()	{ m_animation |= ThirdAnimationStart; }
+	void EveningAnimationStart()	{ m_animation |= ThirdAnimationStart; }
 
 	// 一つ目のアニメーションが終了したかどうか
 	const bool GetSecondAnimationEnd()	const { return m_animation & SecondAnimationEnd; }
@@ -73,7 +73,7 @@ private:
 	const float m_endPosZ = -2;
 
 	// 一つ目のアニメーション
-	void FirstAnimation();
+	//void FirstAnimation();
 	// 二つ目のアニメーション
 	void SecondAnimation();
 	// 三つ目のアニメーション
@@ -86,4 +86,64 @@ private:
 
 	int m_runSmokeTime = 16;
 	int m_smokeCount = 0;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/Title/ResultPlayer/ResultPlayer.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
+
+// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	(ResultPlayer&)	{}
+		virtual void Update	(ResultPlayer&)	{}
+		virtual void Exit	(ResultPlayer&)	{}
+	};
+
+	// １つ目のアニメーション
+	class FirstAnimation : public StateBase
+	{
+	public:
+		~FirstAnimation()	override {}
+
+		void Enter	(ResultPlayer& _owner)	override;
+		void Update	(ResultPlayer& _owner)	override;
+		void Exit	(ResultPlayer& _owner)	override;
+	};
+	
+	// ２つ目のアニメーション
+	class SecondAnimation : public StateBase
+	{
+	public:
+		~SecondAnimation()	override {}
+
+		void Enter	(ResultPlayer& _owner)	override;
+		void Update	(ResultPlayer& _owner)	override;
+	};
+
+	// ３つ目のアニメーション
+	class ThirdAnimation : public StateBase
+	{
+	public:
+		~ThirdAnimation()	override {}
+
+		void Enter	(ResultPlayer& _owner)	override;
+		void Update	(ResultPlayer& _owner)	override;
+	};
+
+	// ４つ目のアニメーション
+	class FourthAnimation : public StateBase
+	{
+	public:
+		~FourthAnimation()	override {}
+
+		void Update	(ResultPlayer& _owner)	override;
+	};
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

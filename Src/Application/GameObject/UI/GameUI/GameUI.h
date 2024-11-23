@@ -47,4 +47,10 @@ private:
 
 	// ストップフラグ
 	bool m_stopFlg = false;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/UI/GameUI/GameUI.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

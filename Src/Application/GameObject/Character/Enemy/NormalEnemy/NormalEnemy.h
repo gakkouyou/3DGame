@@ -126,9 +126,8 @@ private:
 	bool TargetViewingAngleCheck();
 
 	// JSONファイルのパス
-	std::string_view m_path = "Asset/Data/NormalEnemy.json";
+	std::string_view m_path = "Asset/Data/Json/Character/Enemy/NormalEnemy/NormalEnemy.json";
 
-	std::string m_name = "NormalEnemy";
 	// JSONのデータをロードする
 	void DataLoad();
 

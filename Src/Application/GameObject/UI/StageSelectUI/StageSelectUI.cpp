@@ -46,36 +46,43 @@ void StageSelectUI::DrawSprite()
 
 void StageSelectUI::Init()
 {
+	DataLoad();
+
 	// ステージ
-	if (!m_stage.spTex)
-	{
-		m_stage.spTex = std::make_shared<KdTexture>();
-		m_stage.spTex->Load("Asset/Textures/StageSelect/UI/stage.png");
-	}
-	m_stage.pos = { -500, 300 };
-
+	m_stage.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/StageSelect/UI/stage.png");
 	// 数字
-	if (!m_number.spTex)
-	{
-		m_number.spTex = std::make_shared<KdTexture>();
-		m_number.spTex->Load("Asset/Textures/StageSelect/UI/number.png");
-	}
-	m_number.pos = { -370, 305 };
-
+	m_number.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/StageSelect/UI/number.png");
 	// "Clear!"
-	if (!m_clear.spTex)
-	{
-		m_clear.spTex = std::make_shared<KdTexture>();
-		m_clear.spTex->Load("Asset/Textures/StageSelect/UI/clear.png");
-	}
-	m_clear.pos = { -500, 230 };
-
+	m_clear.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/StageSelect/UI/clear.png");
 	// 「ステージにはいる」
 	m_stageIn.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/StageSelect/UI/stageInText.png");
-	m_stageIn.pos = { 0, -300 };
 }
 
 void StageSelectUI::OnHit()
 {
 	m_onHitFlg = true;
+}
+
+void StageSelectUI::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	// Stage
+	m_stage.pos.x	= data["StageSelectUI"]["m_stage.pos.x"];
+	m_stage.pos.y	= data["StageSelectUI"]["m_stage.pos.y"];
+	// Stageの数
+	m_number.pos.x	= data["StageSelectUI"]["m_number.pos.x"];
+	m_number.pos.y	= data["StageSelectUI"]["m_number.pos.y"];
+	// "Clear!"
+	m_clear.pos.x	= data["StageSelectUI"]["m_clear.pos.x"];
+	m_clear.pos.y	= data["StageSelectUI"]["m_clear.pos.y"];
+	// "ステージにはいる
+	m_stageIn.pos.x = data["StageSelectUI"]["m_stageIn.pos.x"];
+	m_stageIn.pos.y = data["StageSelectUI"]["m_stageIn.pos.y"];
 }

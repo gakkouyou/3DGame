@@ -262,8 +262,8 @@
     <Filter Include="Src\Application\GameObject\UI\GameUI">
       <UniqueIdentifier>{67fd26b4-a9bf-4a2a-9129-ebe12be0f072}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\Tutorial">
-      <UniqueIdentifier>{a2fba0e3-641f-45b1-bf14-01b10f61ffdd}</UniqueIdentifier>
+    <Filter Include="Src\Application\GameObject\UI\Tutorial">
+      <UniqueIdentifier>{1b2c76c8-f2c3-44b3-873c-f940bd6c73a6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -600,8 +600,8 @@
     <ClInclude Include="Src\Application\GameObject\UI\GameUI\GameUI.h">
       <Filter>Src\Application\GameObject\UI\GameUI</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\Tutorial\Tutorial.h">
-      <Filter>Src\Application\GameObject\Tutorial</Filter>
+    <ClInclude Include="Src\Application\GameObject\UI\Tutorial\Tutorial.h">
+      <Filter>Src\Application\GameObject\UI\Tutorial</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -908,8 +908,8 @@
     <ClCompile Include="Src\Application\GameObject\UI\GameUI\GameUI.cpp">
       <Filter>Src\Application\GameObject\UI\GameUI</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\Tutorial\Tutorial.cpp">
-      <Filter>Src\Application\GameObject\Tutorial</Filter>
+    <ClCompile Include="Src\Application\GameObject\UI\Tutorial\Tutorial.cpp">
+      <Filter>Src\Application\GameObject\UI\Tutorial</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

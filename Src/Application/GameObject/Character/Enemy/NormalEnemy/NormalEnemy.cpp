@@ -509,12 +509,9 @@ void NormalEnemy::DataLoad()
 	file >> data;
 
 	// JSONデータを格納していく
-	for (const auto& objData : data["GameObject"])
-	{
-		m_moveSpeed		= objData["m_moveSpeed"];
-		m_jumpPow		= objData["m_jumpPow"];
-		m_findJumpPow	= objData["m_findJumpPow"];
-	}
+	m_moveSpeed		= data["NormalEnemy"]["m_moveSpeed"];	// 移動速度
+	m_jumpPow		= data["NormalEnemy"]["m_jumpPow"];		// ジャンプ力
+	m_findJumpPow	= data["NormalEnemy"]["m_findJumpPow"];	// 見つけた時のジャンプ力
 }
 
 

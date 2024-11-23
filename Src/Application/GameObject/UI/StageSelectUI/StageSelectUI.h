@@ -43,4 +43,10 @@ private:
 
 	// OnHitに入ったかどうか
 	bool m_onHitFlg = false;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/UI/StageSelectUI/StageSelectUI.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

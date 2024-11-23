@@ -1,0 +1,16 @@
+{
+	"Player": {
+		"m_boundJumpPow": 0.25,
+		"m_enemyJumpPow": 0.15,
+		"m_jumpPow": 0.125,
+		"m_runSpeed": 0.125,
+		"m_walkSpeed": 0.06,
+		"m_stageStartPos.x": 0,
+		"m_stageStartPos.y": 0.26,
+		"m_stageStartPos.z": -5.0,
+		"m_enableStepHeight": 0.35,
+		"m_scale": 8.0,
+		"m_walkSmokeTime": 30,
+		"m_runSmokeTime": 16
+	}
+}

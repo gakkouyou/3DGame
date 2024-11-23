@@ -4,7 +4,7 @@
 
 #include "../../Effect/Smoke/Smoke.h"
 #include "../../UI/GameUI/GameUI.h"
-#include "../../Tutorial/Tutorial.h"
+#include "../../UI/Tutorial/Tutorial.h"
 
 #include "../../Terrain/TerrainBase.h"
 #include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
@@ -734,9 +734,6 @@ void Player::Init()
 
 	m_baseObjectType = BaseObjectType::Player;
 
-	// 段差許容範囲
-	m_enableStepHeight = 0.35f;
-
 	m_pos = m_stageStartPos;
 	m_respawnPos = m_pos;
 
@@ -1053,8 +1050,6 @@ void Player::HitJudgeGround()
 	// 地面(壁)とのスフィア判定
 	// BOX当たってたらにするかも
 	{
-		//const float radius = 0.35f;
-
 		// ボックス判定
 		KdCollider::BoxInfo boxInfo;
 		// 右前上のノード
@@ -1063,7 +1058,7 @@ void Player::HitJudgeGround()
 		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
 		// キャラクターの高さ
 		float charaHighLength = rightBackUpPos.y;
-		float radius = abs(rightBackUpPos.x - leftFrontUpPos.x);
+		float radius = abs(rightBackUpPos.z - leftFrontUpPos.z);
 		// 中心座標(キャラクターの真ん中)
 		boxInfo.m_Abox.Center = m_pos;
 		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
@@ -1072,8 +1067,6 @@ void Player::HitJudgeGround()
 		boxInfo.m_type = KdCollider::TypeGround;
 
 		Math::Matrix mat = Math::Matrix::CreateTranslation(boxInfo.m_Abox.Center);
-		//m_pDebugWire->AddDebugBox(mat, boxInfo.m_Abox.Extents);
-
 		// 当たり判定の結果格納リスト
 		std::list<KdCollider::CollisionResult> resultList;
 
@@ -1120,7 +1113,9 @@ void Player::HitJudgeGround()
 
 			if (fineHitFlg == false)
 			{
-				const float checkNum = 3;
+				// 当たり判定の回数
+				const int checkNum = 3;
+				// スフィアのY座標を上げていく
 				const float upY = 0.5f;
 				if (m_situationType & SituationType::Air)
 				{
@@ -1139,12 +1134,16 @@ void Player::HitJudgeGround()
 			// 細かく当たり判定をする
 			else
 			{
-				for (int i = 0; i < 3; i++)
+				// 細かく判定をする回数
+				const int fineNum = 3;
+				for (int i = 0; i < fineNum; i++)
 				{
 					sphereInfo.m_sphere.Center = m_oldPos + (movePos / 2.0f) * (float)i;
 					sphereInfo.m_sphere.Center.y += sphereInfo.m_sphere.Radius;
 
-					const float checkNum = 6;
+					// 当たり判定の回数
+					const int checkNum = 6;
+					// スフィアのY座標を上げていく
 					const float upY = 0.25f;
 
 					if (m_situationType & SituationType::Air)
@@ -1243,35 +1242,35 @@ void Player::HitJudgeGround()
 				}
 			}
 		}
-	}
-	// 頭判定
-	bool hitFlg = false;
-	KdCollider::SphereInfo sphereInfo;
-	sphereInfo.m_sphere.Center = m_pos;
-	sphereInfo.m_sphere.Radius = 0.35f;
-	sphereInfo.m_sphere.Center.y += 1.75f;
-	sphereInfo.m_type = KdCollider::TypeGround;
-	std::vector<KdCollider::CollisionResult> collisionResult;
+		// 頭判定
+		bool hitFlg = false;
+		KdCollider::SphereInfo sphereInfo;
+		sphereInfo.m_sphere.Center = m_pos;
+		sphereInfo.m_sphere.Radius = radius;
+		sphereInfo.m_sphere.Center.y += 1.75f;
+		sphereInfo.m_type = KdCollider::TypeGround;
+		std::vector<KdCollider::CollisionResult> collisionResult;
 
-	// 複数に当たったかどうかのフラグ
-	bool multiHitFlg = false;
+		// 複数に当たったかどうかのフラグ
+		bool multiHitFlg = false;
 
-	hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-	// 複数のオブジェクトに当たっていた場合
-	//if (multiHitFlg == true)
-	{
-		// Y座標のみ、更新前の座標に戻す
-		if (hitFlg == true)
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
+		// 複数のオブジェクトに当たっていた場合
+		//if (multiHitFlg == true)
 		{
-			KdCollider::CollisionResult result = collisionResult.front();
-			// ひっかかり防止
-			if (result.m_hitDir.y > 0)
+			// Y座標のみ、更新前の座標に戻す
+			if (hitFlg == true)
 			{
-				result.m_hitDir *= -1;
+				KdCollider::CollisionResult result = collisionResult.front();
+				// ひっかかり防止
+				if (result.m_hitDir.y > 0)
+				{
+					result.m_hitDir *= -1;
+				}
+				result.m_hitDir.Normalize();
+				Math::Vector3 pos = result.m_overlapDistance * result.m_hitDir;
+				m_pos.y += pos.y;
 			}
-			result.m_hitDir.Normalize();
-			Math::Vector3 pos = result.m_overlapDistance * result.m_hitDir;
-			m_pos.y += pos.y;
 		}
 	}
 }
@@ -1770,19 +1769,18 @@ void Player::DataLoad()
 	file >> data;
 
 	// JSONデータを格納していく
-	for (const auto& objData : data["GameObject"])
-	{
-		// 走る速度
-		m_runSpeed = objData["m_runSpeed"];
-		// 歩く速度
-		m_walkSpeed = objData["m_walkSpeed"];
-		// ジャンプ力
-		m_jumpPow	= objData["m_jumpPow"];
-		// 跳ねる床を踏んだ時のジャンプ力
-		m_boundJumpPow = objData["m_boundJumpPow"];
-		// 敵を踏んだ時のジャンプ力
-		m_enemyJumpPow = objData["m_enemyJumpPow"];
-	}
+	m_runSpeed			= data["Player"]["m_runSpeed"];			// 走る速度
+	m_walkSpeed			= data["Player"]["m_walkSpeed"];		// 歩く速度
+	m_jumpPow			= data["Player"]["m_jumpPow"];			// ジャンプ力
+	m_boundJumpPow		= data["Player"]["m_boundJumpPow"];		// 跳ねる床を踏んだ時のジャンプ力
+	m_enemyJumpPow		= data["Player"]["m_enemyJumpPow"];		// 敵を踏んだ時のジャンプ力
+	m_stageStartPos.x	= data["Player"]["m_stageStartPos.x"];	// 初期座標
+	m_stageStartPos.y	= data["Player"]["m_stageStartPos.y"];
+	m_stageStartPos.z	= data["Player"]["m_stageStartPos.z"];
+	m_enableStepHeight	= data["Player"]["m_enableStepHeight"];	// 段差許容範囲
+	m_scale				= data["Player"]["m_scale"];			// 拡縮
+	m_walkSmokeTime		= data["Player"]["m_walkSmokeTime"];	// 歩く時の煙や音が出る間隔
+	m_runSmokeTime		= data["Player"]["m_runSmokeTime"];		// 走る時の煙や音が出る間隔
 }
 
 void Player::GoalProcess()

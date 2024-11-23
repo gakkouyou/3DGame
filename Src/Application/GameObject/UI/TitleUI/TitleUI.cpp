@@ -65,17 +65,27 @@ void TitleUI::DrawSprite()
 
 void TitleUI::Init()
 {
-	if (!m_title.spTex)
-	{
-		m_title.spTex = std::make_shared<KdTexture>();
-		m_title.spTex->Load("Asset/Textures/Title/title.png");
-	}
-	m_title.pos = { 0, 100 };
+	DataLoad();
 
-	if (!m_pushSpace.spTex)
-	{
-		m_pushSpace.spTex = std::make_shared<KdTexture>();
-		m_pushSpace.spTex->Load("Asset/Textures/Title/pushSpace.png");
-	}
-	m_pushSpace.pos = { 0, -200 };
+	m_title.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Title/title.png");
+
+	m_pushSpace.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Title/pushSpace.png");
+}
+
+void TitleUI::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	// タイトル
+	m_title.pos.x		= data["TitleUI"]["m_title.pos.x"];
+	m_title.pos.y		= data["TitleUI"]["m_title.pos.y"];
+	// "Push Space"
+	m_pushSpace.pos.x	= data["TitleUI"]["m_pushSpace.pos.x"];
+	m_pushSpace.pos.y	= data["TitleUI"]["m_pushSpace.pos.y"];
 }

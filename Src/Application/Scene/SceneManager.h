@@ -103,13 +103,13 @@ private :
 
 	// 次のシーンの種類を保持している変数
 	//SceneType m_nextSceneType = SceneType::Title;
-	SceneType m_nextSceneType = SceneType::Game;
+	//SceneType m_nextSceneType = SceneType::Game;
 	//SceneType m_nextSceneType = SceneType::StageSelect;
-	//SceneType m_nextSceneType = SceneType::Result;
+	SceneType m_nextSceneType = SceneType::Result;
 
 	// プレイするステージ
 	//UINT m_nowStage	= Stage::AllGimmick;
-	UINT m_nowStage = Stage::Stage1;
+	UINT m_nowStage = Stage::Stage3;
 	//UINT m_nowStage	= 0;
 
 	// ステージのクリア状況

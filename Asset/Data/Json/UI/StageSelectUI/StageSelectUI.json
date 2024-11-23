@@ -1,0 +1,12 @@
+{
+	"StageSelectUI": {
+		"m_stage.pos.x": -500,
+		"m_stage.pos.y": 300,
+		"m_number.pos.x": -370,
+		"m_number.pos.y": 305,
+		"m_clear.pos.x": -500,
+		"m_clear.pos.y": 230,
+		"m_stageIn.pos.x": 0,
+		"m_stageIn.pos.y": -300
+	}
+}

@@ -1,0 +1,25 @@
+{
+	"House": {
+		"m_housePos[0].x"	: 0,
+		"m_housePos[0].y"	: 0,
+		"m_housePos[0].z"	: 0,
+		"m_housePos[1].x"	: -20,
+		"m_housePos[1].y"	: 0,
+		"m_housePos[1].z"	: 0,
+		"m_housePos[2].x"	: 20,
+		"m_housePos[2].y"	: 0,
+		"m_housePos[2].z"	: 0,
+		"m_roadPos.x"		: 0,
+		"m_roadPos.y"		: 0,
+		"m_roadPos.z"		: -10,
+		"m_roadScale"		: 2,
+		"m_treePos[0].x"	: -10,
+		"m_treePos[0].y"	: 0,
+		"m_treePos[0].z"	: -7,
+		"m_treePos[1].x"	: 8.5,
+		"m_treePos[1].y"	: 0,
+		"m_treePos[1].z"	: -7,
+		"m_addDegAng"		: 2.0,
+		"m_maxDegAng"		: 90.0
+	}
+}

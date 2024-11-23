@@ -73,7 +73,7 @@ void ResultPlayer::Init()
 	}
 }
 
-void ResultPlayer::FirstAnimation()
+//void ResultPlayer::FirstAnimation()
 {
 	m_stayCount++;
 	if (m_stayCount < m_stayTime) return;
@@ -293,4 +293,17 @@ void ResultPlayer::FourthAnimation()
 	{
 		m_animation |= FourthAnimationEnd;
 	}
+}
+
+void ResultPlayer::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+
 }

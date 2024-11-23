@@ -1,0 +1,10 @@
+{
+	"GameUI": {
+		"m_tex[DrawType::Warp].pos.x": 0,
+		"m_tex[DrawType::Warp].pos.y": -300,
+		"m_tex[DrawType::Warp].addAlpha": 0,
+		"m_tex[DrawType::HoldBox].pos.x": 0,
+		"m_tex[DrawType::HoldBox].pos.y": -300,
+		"m_tex[DrawType::HoldBox].addAlpha": 0
+	}
+}

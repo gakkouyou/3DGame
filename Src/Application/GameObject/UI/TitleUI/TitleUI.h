@@ -32,4 +32,10 @@ private:
 	float m_degAng = 90;
 	float m_addDegAng = 2;
 	float m_pushSpaceAlpha = 0;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/UI/TitleUI/TitleUI.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

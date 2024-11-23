@@ -19,9 +19,16 @@ public:
 private:
 	// 家のモデル
 	std::shared_ptr<KdModelData> m_spModel[3] = { nullptr, nullptr, nullptr };
+	Math::Vector3 m_housePos[3];
+	Math::Matrix m_houseMat[3];
 
 	// 道路のモデル
 	std::shared_ptr<KdModelData> m_spRoadModel = nullptr;
+	// 道路の座標
+	Math::Vector3 m_roadPos;
+	// 道路の拡縮
+	float m_roadScale = 0;
+	// 道路の行列
 	Math::Matrix m_roadMat;
 
 	// ドアのモデル
@@ -33,6 +40,9 @@ private:
 
 	// 木のモデル
 	std::shared_ptr<KdModelData> m_spTreeModel = nullptr;
+	// 木の座標
+	Math::Vector3 m_treePos[2];
+	// 木の行列
 	Math::Matrix m_treeMat[2];
 
 	// ベッドの座標
@@ -43,8 +53,8 @@ private:
 
 	// ドアの角度
 	float m_degAng = 0;
-	const float m_addDegAng = 2.0f;
-	const float m_maxDegAng = 90;
+	float m_addDegAng = 0;
+	float m_maxDegAng = 0;
 
 	// ドアを開ける音
 	bool m_openSoundFlg = false;
@@ -53,4 +63,10 @@ private:
 	// ドアを閉める音
 	bool m_closeSoundFlg = false;
 	std::weak_ptr<KdSoundInstance> m_wpCloseSound;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/Title/House/House.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

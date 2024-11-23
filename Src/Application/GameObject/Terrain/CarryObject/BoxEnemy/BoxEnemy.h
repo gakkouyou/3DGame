@@ -113,9 +113,8 @@ private:
 	bool m_isCarry = false;
 
 	// JSONファイルのパス
-	std::string_view m_path = "Asset/Data/BoxEnemy.json";
+	std::string_view m_path = "Asset/Data/Json/Terrain/CarryObject/BoxEnemy/BoxEnemy.json";
 
-	std::string m_name = "BoxEnemy";
 	// JSONのデータをロードする
 	void DataLoad();
 

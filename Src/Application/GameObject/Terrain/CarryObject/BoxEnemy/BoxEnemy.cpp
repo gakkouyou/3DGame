@@ -700,14 +700,11 @@ void BoxEnemy::DataLoad()
 	file >> data;
 
 	// JSONデータを格納していく
-	for (const auto& objData : data["GameObject"])
-	{
-		m_moveSpeed			= objData["m_moveSpeed"];			// 移動量
-		m_jumpPow			= objData["m_jumpPow"];				// ジャンプ力
-		m_enemyTime			= objData["m_enemyTime"];			// 敵に戻るまでの時間
-		m_shakeTime			= objData["m_shakeTime"];			// 震えるまでの時間
-		m_enemyChangeLength = objData["m_enemyChangeLength"];	// 箱から敵になる、プレイヤーからの距離
-	}
+	m_moveSpeed			= data["BoxEnemy"]["m_moveSpeed"];			// 移動量
+	m_jumpPow			= data["BoxEnemy"]["m_jumpPow"];			// ジャンプ力
+	m_enemyTime			= data["BoxEnemy"]["m_enemyTime"];			// 敵に戻るまでの時間
+	m_shakeTime			= data["BoxEnemy"]["m_shakeTime"];			// 震えるまでの時間
+	m_enemyChangeLength = data["BoxEnemy"]["m_enemyChangeLength"];	// 箱から敵になる、プレイヤーからの距離
 }
 
 void BoxEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)

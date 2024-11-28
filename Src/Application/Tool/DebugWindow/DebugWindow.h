@@ -97,6 +97,10 @@ private:
 	// EventObject用のウィンドウ
 	void EventObjectWindow();
 
+	// ログウィンドウ表示用
+	bool m_logKeyFlg = false;
+	bool m_log = false;
+
 private:
 
 	DebugWindow() { Init(); }

@@ -48,7 +48,7 @@ void BoxEnemy::Update()
 
 	if (SceneManager::Instance().GetDebug())
 	{
-		m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
+		//m_pDebugWire->AddDebugSphere(m_pos, m_param.area, kGreenColor);
 	}
 
 	// Y座標が一定以下になると死亡
@@ -274,6 +274,8 @@ void BoxEnemy::DrawLit()
 
 void BoxEnemy::Init()
 {
+	CarryObjectBase::Init();
+
 	DataLoad();
 
 	srand(timeGetTime());
@@ -294,6 +296,9 @@ void BoxEnemy::Init()
 	{
 		m_edgePos[i] = m_edgeBasePos[i] + m_pos;
 	}
+
+	// 最初の角度
+	m_degAng = m_baseDegAng;
 
 	// 中心座標
 	m_centerPos = m_spModel->FindNode("Center")->m_worldTransform.Translation();
@@ -421,7 +426,7 @@ void BoxEnemy::Reset()
 	m_enemyFlg = false;
 
 	// 角度
-	m_degAng = 180;
+	m_degAng = m_baseDegAng;
 
 	// 初期状態は待機状態
 	m_nowAction = std::make_shared<Idle>();
@@ -659,33 +664,22 @@ void BoxEnemy::HitJudge()
 		// 当たった結果
 		std::list<KdCollider::CollisionResult> resultList;
 
-		for (auto& obj : SceneManager::Instance().GetObjList())
-		{
-			obj->Intersects(sphereInfo, &resultList);
-		}
-
-		// めり込み具合
-		float maxOverLap = 0;
-		// 当たったかどうかのフラグ
+		// 当たったかどうか
 		bool hitFlg = false;
-		// 当たった方向
-		Math::Vector3 hitDir;
 
-		for (auto& result : resultList)
-		{
-			if (result.m_overlapDistance > maxOverLap)
-			{
-				maxOverLap = result.m_overlapDistance;
-				hitDir = result.m_hitDir;
-				hitFlg = true;
-			}
-		}
+		hitFlg = SphereHitJudge(sphereInfo, resultList, true);
 
+		// 押し出し
 		if (hitFlg == true)
 		{
-			hitDir.y = 0;
-			hitDir.Normalize();
-			m_pos += hitDir * maxOverLap;
+			Math::Vector3 adjustVec;
+			for (auto& result : resultList)
+			{
+				result.m_hitDir.Normalize();
+				adjustVec += result.m_hitDir * result.m_overlapDistance;
+			}
+
+			m_pos += adjustVec;
 		}
 	}
 }
@@ -705,6 +699,10 @@ void BoxEnemy::DataLoad()
 	m_enemyTime			= data["BoxEnemy"]["m_enemyTime"];			// 敵に戻るまでの時間
 	m_shakeTime			= data["BoxEnemy"]["m_shakeTime"];			// 震えるまでの時間
 	m_enemyChangeLength = data["BoxEnemy"]["m_enemyChangeLength"];	// 箱から敵になる、プレイヤーからの距離
+	m_underLine			= data["BoxEnemy"]["m_underLine"];			// 死亡するライン
+	m_stayTime			= data["BoxEnemy"]["m_stayTime"];			// ジャンプの待機時間
+	m_maxDegAng			= data["BoxEnemy"]["m_maxDegAng"];			// ガタガタの角度制限
+	m_baseDegAng		= data["BoxEnemy"]["m_baseDegAng"];			// 初期の角度
 }
 
 void BoxEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)
@@ -724,7 +722,7 @@ void BoxEnemy::Idle::Enter(BoxEnemy& _owner)
 	// 箱状態にする
 	_owner.m_enemyFlg = false;
 	// 角度をリセット
-	_owner.m_degAng = 180;
+	_owner.m_degAng = _owner.m_baseDegAng;
 
 	// 当たり判定の切り替え
 	_owner.m_pCollider->SetEnable("BoxEnemyEnemy", false);
@@ -953,6 +951,8 @@ void BoxEnemy::Carry::Update(BoxEnemy& _owner)
 		_owner.ChangeActionState(std::make_shared<Box>());
 		_owner.m_carryFlg = false;
 		_owner.m_isCarry = false;
+		// 当たり判定有効化
+		_owner.m_pCollider->SetEnable("BoxEnemyBox", true);
 		return;
 	}
 
@@ -963,12 +963,6 @@ void BoxEnemy::Carry::Update(BoxEnemy& _owner)
 		_owner.ChangeActionState(std::make_shared<Shake>());
 		return;
 	}
-}
-
-void BoxEnemy::Carry::Exit(BoxEnemy& _owner)
-{
-	// 当たり判定有効化
-	_owner.m_pCollider->SetEnable("BoxEnemyBox", true);
 }
 
 void BoxEnemy::Shake::Enter(BoxEnemy& _owner)

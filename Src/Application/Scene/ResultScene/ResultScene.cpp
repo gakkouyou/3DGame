@@ -11,113 +11,10 @@
 
 void ResultScene::Event()
 {
-	if (m_sceneStartFlg == false)
+	// 状態毎の更新
+	if (m_nowAction)
 	{
-		if (m_wpSceneChange.expired() == false)
-		{
-			m_wpSceneChange.lock()->StartScene(0, true, { 1, 1, 1 });
-
-			if (m_wpSceneChange.lock()->GetFinishFlg() == true)
-			{
-				if (m_wpPlayer.expired() == false)
-				{
-					m_wpPlayer.lock()->SetFirstAnimationStart();
-				}
-				m_sceneStartFlg = true;
-				m_wpSceneChange.lock()->Reset();
-			}
-		}
-	}
-
-	if (m_wpPlayer.expired() == false)
-	{
-		if (m_wpPlayer.lock()->GetAnimationEnd() == false)
-		{
-			// プレイヤーの二つ目のアニメーションが終わった時の処理
-			if (m_wpPlayer.lock()->GetSecondAnimationEnd())
-			{
-				if (m_wpBackGround.expired() == false)
-				{
-					// 空をオレンジにしていく
-					m_wpBackGround.lock()->OrangeAnimation();
-
-					// オレンジになりきったら、プレイヤーの三つ目のアニメーションを始める
-					if (m_wpBackGround.lock()->GetOrangeAnimationEnd())
-					{
-						m_wpPlayer.lock()->SetThirdAnimationStart();
-						// からすの鳴き声を鳴らす
-						if (m_evening.sound.expired() == false)
-						{
-							if (m_evening.flg == false)
-							{
-								m_evening.sound.lock()->Play();
-								m_evening.flg = true;
-							}
-						}
-					}
-				}
-				
-				// すずめの鳴き声をフェードアウト
-				if (m_morning.sound.expired() == false)
-				{
-					m_morning.vol -= m_morning.sumVol;
-					if (m_morning.vol < 0)
-					{
-						m_morning.vol = 0;
-					}
-					m_morning.sound.lock()->SetVolume(m_morning.vol);
-				}
-			}
-
-			// ドアを開ける
-			if (m_wpPlayer.lock()->GetOpenDoor())
-			{
-				if (m_wpHouse.expired() == false)
-				{
-					// ドアを開ける
-					m_wpHouse.lock()->OpenDoor();
-				}
-			}
-
-			// ドアを閉める
-			if (m_wpPlayer.lock()->GetCloseDoor())
-			{
-				if (m_wpHouse.expired() == false)
-				{
-					// ドアを閉める
-					m_wpHouse.lock()->CloseDoor();
-				}
-			}
-		}
-		// プレイヤーのアニメーションが完全に終了したときの処理
-		else
-		{
-			// 夕方から夜にしていく
-			if (m_wpBackGround.expired() == false)
-			{
-				m_wpBackGround.lock()->BlackAnimation();
-			}
-			// bgmをフェードアウトさせる
-			if (m_bgm.sound.expired() == false)
-			{
-				m_bgm.vol -= m_bgm.sumVol;
-				if (m_bgm.vol < 0)
-				{
-					m_bgm.vol = 0;
-				}
-				m_bgm.sound.lock()->SetVolume(m_bgm.vol);
-			}
-			// 烏の鳴き声をフェードアウトさせる
-			if (m_evening.sound.expired() == false)
-			{
-				m_evening.vol -= m_evening.sumVol;
-				if (m_evening.vol < 0)
-				{
-					m_evening.vol = 0;
-				}
-				m_evening.sound.lock()->SetVolume(m_evening.vol);
-			}
-		}
+		m_nowAction->Update(*this);
 	}
 }
 
@@ -190,6 +87,8 @@ void ResultScene::Init()
 		m_evening.sound.lock()->SetVolume(m_evening.vol);
 		m_evening.sound.lock()->Stop();
 	}
+
+	ChangeActionState(std::make_shared<SceneStart>());
 }
 
 void ResultScene::ChangeActionState(std::shared_ptr<StateBase> _nextState)
@@ -217,17 +116,16 @@ void ResultScene::SceneStart::Update(ResultScene& _owner)
 	// フェードインがまだ終了していないなら終了
 	if (_owner.m_wpSceneChange.lock()->GetFinishFlg() == false) return;
 
-	//=========================================
-	// フェードインが終了した後の処理
-	//=========================================
+	// フェードインが終了したら朝のアニメーションに移行
+	_owner.ChangeActionState(std::make_shared<Morning>());
+}
 
+void ResultScene::SceneStart::Exit(ResultScene& _owner)
+{
 	// プレイヤーの朝のアニメーションスタート
 	_owner.m_wpPlayer.lock()->MorningAnimationStart();
 	// シーンチェンジリセット
 	_owner.m_wpSceneChange.lock()->Reset();
-
-	// 朝に移行
-	_owner.ChangeActionState(std::make_shared<Morning>());
 }
 
 void ResultScene::Morning::Update(ResultScene& _owner)
@@ -255,8 +153,8 @@ void ResultScene::Morning::Update(ResultScene& _owner)
 		}
 	}
 
-	// プレイヤーの二つ目のアニメーションが終了していなければ終了
-	if (_owner.m_wpPlayer.lock()->GetSecondAnimationEnd() == false) return;
+	// プレイヤーの朝のアニメーションが終了していなければ終了
+	if (_owner.m_wpPlayer.lock()->GetMorningAnimationEnd() == false) return;
 
 	// すずめの鳴き声をフェードアウト
 	if (_owner.m_morning.sound.expired() == false)
@@ -309,8 +207,29 @@ void ResultScene::Evening::Update(ResultScene& _owner)
 {
 	// プレイヤーが存在しなければ終了
 	if (_owner.m_wpPlayer.expired() == true) return;
-	// プレイヤーのアニメーションが完全に終了したら夜に移行
-	if (_owner.m_wpPlayer.lock()->GetAnimationEnd() == false) return;
+
+	// ドアを開ける
+	if (_owner.m_wpPlayer.lock()->GetOpenDoor())
+	{
+		if (_owner.m_wpHouse.expired() == false)
+		{
+			// ドアを開ける
+			_owner.m_wpHouse.lock()->OpenDoor();
+		}
+	}
+
+	// ドアを閉める
+	if (_owner.m_wpPlayer.lock()->GetCloseDoor())
+	{
+		if (_owner.m_wpHouse.expired() == false)
+		{
+			// ドアを閉める
+			_owner.m_wpHouse.lock()->CloseDoor();
+		}
+	}
+
+	// プレイヤーの夕方のアニメーションが終了したら夜に移行
+	if (_owner.m_wpPlayer.lock()->GetEveningAnimationEnd() == false) return;
 	_owner.ChangeActionState(std::make_shared<Night>());
 }
 

@@ -53,17 +53,19 @@ void SavePoint::Update()
 	m_flagMat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(m_degAng));
 	m_flagMat.Translation(m_pos);
 
-	//Math::Vector3 goalPos = (m_spPoleModel->FindNode("FlagPoint")->m_worldTransform * m_mWorld).Translation();
-
-	//Math::Vector3 pos = Math::Vector3::Lerp(m_pos, goalPos, m_progress);
-
-	//m_progress += m_speed;
-	//if (m_progress >= 1)
-	//{
-	//	m_progress = 1;
-	//}
-
-	//m_flagMat.Translation(pos);
+	// エフェクト
+	// 立っていたら終了
+	if (m_situationType != SituationType::NotStand) return;
+	// 少しずつ大きくする
+	m_effectScale += m_addEffectScale;
+	// リセット
+	if (m_effectScale >= 1.5f)
+	{
+		m_effectScale = 0.0f;
+	}
+	Math::Matrix scaleMat = Math::Matrix::CreateScale({ m_effectScale, 1.0f, m_effectScale });
+	m_effectMat = scaleMat;
+	m_effectMat.Translation(m_pos);
 }
 
 void SavePoint::GenerateDepthMapFromLight()
@@ -113,19 +115,25 @@ void SavePoint::DrawLit()
 
 void SavePoint::DrawUnLit()
 {
-	//if (m_spModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-	//}
+	if (m_situationType != SituationType::NotStand) return;
+	if (m_spEffectModel)
+	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, m_effectMat);
+		KdShaderManager::Instance().UndoRasterizerState();
+	}
 }
 
 void SavePoint::DrawBright()
 {
-	//Math::Color color = { 0.3, 0.3, 0.3, 1 };
-	//if (m_spModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld, color);
-	//}
+	if (m_situationType != SituationType::NotStand) return;
+	Math::Color color = { 0.3, 0.3, 0.3, 1 };
+	if (m_spEffectModel)
+	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, m_effectMat, color);
+		KdShaderManager::Instance().UndoRasterizerState();
+	}
 }
 
 void SavePoint::Init()
@@ -138,12 +146,14 @@ void SavePoint::Init()
 	// 土台
 	m_spBaseModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Base/base.gltf");
 
+	// エフェクト
+	m_spEffectModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Effect/effect.gltf");
+
 	m_objectType = ObjectType::SavePoint;
 
 	if (m_situationType == SituationType::NotStand)
 	{
 		m_pCollider = std::make_unique<KdCollider>();
-		//m_pCollider->RegisterCollisionShape("SavePoint", m_spModel, KdCollider::TypeEvent);
 		m_pCollider->RegisterCollisionShape("SavePoint", m_spBaseModel, KdCollider::TypeEvent | KdCollider::TypeDebug);
 	}
 }

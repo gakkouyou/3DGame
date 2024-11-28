@@ -79,8 +79,6 @@ void SceneManager::ChangeScene(SceneType sceneType)
 	case SceneType::Result:
 		m_currentScene = std::make_shared<ResultScene>();
 		break;
-	case SceneType::First:
-		return;
 	}
 	m_currentScene->Init();
 
@@ -195,46 +193,4 @@ void SceneManager::CSVReset()
 		}
 		ifs.close();
 	}
-}
-
-void SceneManager::StageInfoCSVLoader()
-{
-	std::ifstream ifs("Asset/Data/CSV/StageInfo.csv");
-
-	if (!ifs.is_open())
-	{
-		return;
-	}
-
-	std::string lineString;
-
-	while (std::getline(ifs, lineString))
-	{
-		std::istringstream iss(lineString);
-		std::string commaString;
-
-		while (std::getline(iss, commaString, ','))
-		{
-			m_stageInfoList.push_back(stoi(commaString));
-		}
-	}
-	ifs.close();
-
-	//m_stageInfoList[Stage::Stage1 - 1] = 2;
-}
-
-void SceneManager::StageInfoCSVWriter()
-{
-	std::ofstream ofs("Asset/Data/CSV/StageInfo.csv");
-
-	for (int i = 0; i < (int)m_stageInfoList.size(); i++)
-	{
-		ofs << m_stageInfoList[i];
-
-		if (i != (int)m_stageInfoList.size() - 1)
-		{
-			ofs << ",";
-		}
-	}
-	ofs << std::endl;
 }

@@ -1,0 +1,6 @@
+{
+	"Gravity": {
+		"m_gravityPow": 0.005,
+		"m_maxGravity": 0.6
+	}
+}

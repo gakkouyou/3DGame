@@ -22,11 +22,14 @@ public:
 	void SetParam(const Param& _param)	override;
 
 private:
-	// モデル
-	//std::shared_ptr<KdModelData> m_spModel = nullptr;
-
 	// 土台のモデル
 	std::shared_ptr<KdModelData> m_spBaseModel = nullptr;
+
+	// エフェクト
+	std::shared_ptr<KdModelData> m_spEffectModel = nullptr;
+	float m_effectScale = 0;
+	float m_addEffectScale = 0.02f;
+	Math::Matrix m_effectMat;
 
 	Math::Matrix m_flagMat;
 

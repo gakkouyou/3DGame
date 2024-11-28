@@ -24,6 +24,10 @@ void CarryObjectBase::DrawLit()
 	}
 }
 
+void CarryObjectBase::Init()
+{
+	BaseDataLoad();
+}
 
 void CarryObjectBase::Reset()
 {
@@ -170,7 +174,7 @@ bool CarryObjectBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vec
 	return hit;
 }
 
-bool CarryObjectBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg)
+bool CarryObjectBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::list<KdCollider::CollisionResult>& _collisionResult, const bool _debugFlg)
 {
 	//==================
 	// 球判定
@@ -184,39 +188,23 @@ bool CarryObjectBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, 
 		}
 	}
 
-	// 球に当たったオブジェクト情報を格納
-	std::list<KdCollider::CollisionResult> retSphereList;
-
 	// 球に当たったオブジェクトを格納するリスト
 	std::vector<std::weak_ptr<KdGameObject>> retObjList;
 
-	int hitCount = 0;
+	bool hitFlg = false;
 
 	// 当たり判定！！！！！！！！！！！！！！！
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
-		if (obj->Intersects(_sphereInfo, &retSphereList))
+		if (obj->Intersects(_sphereInfo, &_collisionResult))
 		{
 			// 当たったオブジェクトをリストで保持
 			retObjList.push_back(obj);
-			hitCount++;
+			hitFlg = true;
 		}
 	}
-	// 当たったオブジェクトが一つだった場合
-	if (hitCount == 1)
-	{
-		_collisionResult = retSphereList.front();
-		return true;
-	}
-	// 当たったオブジェクトが複数だった場合
-	else if (hitCount >= 2)
-	{
-		_multiHit = true;
-		return true;
-	}
 
-	// 当たらなかった場合
-	return false;
+	return hitFlg;
 }
 
 bool CarryObjectBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg)
@@ -287,4 +275,18 @@ bool CarryObjectBase::SphereHitGround(const KdCollider::SphereInfo& _sphereInfo,
 
 	// 当たらなかった場合
 	return hitFlg;
+}
+
+void CarryObjectBase::BaseDataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_basePath.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	m_gravityPow = data["Gravity"]["m_gravityPow"];	// 重力
+	m_maxGravity = data["Gravity"]["m_maxGravity"];	// 重力の上限
 }

@@ -18,6 +18,46 @@ void Result::Update()
 		}
 	}
 
+	if (m_goalFlg == true)
+	{
+		m_stayCount++;
+		if (m_stayCount > m_stayTime)
+		{
+			// 紙吹雪
+			int create = rand();
+			if (create % 100 < 60)
+			{
+				Tex paper;
+				float x = rand() % (int)Screen::Width - Screen::Width / 2;
+				float y = Screen::Height / 2 + 30.0f;
+				float moveX = rand() % 7 - 3.0f;
+				float moveY = -(rand() % 5 + 5.0f);
+				Math::Color color = { (rand() % 10 + 1) / 10.0f , (rand() % 10 + 1) / 10.0f, (rand() % 10 + 1) / 10.0f, 1 };
+				paper.pos = { x, y };
+				paper.move = { moveX, moveY };
+				paper.angle = rand() % 360;
+				paper.color = color;
+				m_paper.push_back(paper);
+			}
+
+			auto it = m_paper.begin();
+			while (it != m_paper.end())
+			{
+				Math::Vector2 pos = it->pos;
+				if (abs(pos.x) > Screen::Width / 2 + 30.0f || pos.y < -Screen::Height / 2 - 30.0f)
+				{
+					it = m_paper.erase(it);
+				}
+				else
+				{
+					it->pos += it->move;
+					it->angle += 0.5f;
+					it++;
+				}
+			}
+		}
+	}
+
 	// ゲームオーバー時の処理
 	if (m_gameOverFlg)
 	{
@@ -61,6 +101,15 @@ void Result::DrawSprite()
 			KdShaderManager::Instance().m_spriteShader.DrawTex(m_clear.spTex, (int)m_clear.pos.x, (int)m_clear.pos.y, nullptr, &color);
 		}
 	}
+
+	if (m_goalFlg == true)
+	{
+		for (auto& paper : m_paper)
+		{
+			Math::Rectangle rect = { 0, 0, (long)m_spPaperTex->GetWidth(), (long)m_spPaperTex->GetHeight() };
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPaperTex, paper.pos.x, paper.pos.y, rect.width, rect.height, &rect, &paper.color);
+		}
+	}
 	
 	if (m_gameOverFlg)
 	{
@@ -73,19 +122,13 @@ void Result::DrawSprite()
 
 void Result::Init()
 {
-	if (!m_clear.spTex)
-	{
-		m_clear.spTex = std::make_shared<KdTexture>();
-		m_clear.spTex->Load("Asset/Textures/Result/stageClear.png");
-	}
+	m_clear.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Result/stageClear.png");
 	m_clear.alphaAdd = 0.05f;
 
-	if (!m_miss.spTex)
-	{
-		m_miss.spTex = std::make_shared<KdTexture>();
-		m_miss.spTex->Load("Asset/Textures/Result/miss.png");
-	}
+	m_miss.spTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Result/miss.png");
 	m_miss.pos = { 0, Screen::HalfHeight + (float)m_miss.spTex->GetHeight() };
+
+	m_spPaperTex = KdAssets::Instance().m_textures.GetData("Asset/Textures/Result/paper.png");
 }
 
 void Result::Reset()

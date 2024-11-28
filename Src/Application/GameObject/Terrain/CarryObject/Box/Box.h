@@ -55,7 +55,7 @@ private:
 	bool m_rayDownFlg	= false;
 
 	// 下に落ちたら、リスポーンさせる
-	const float m_underLine		= -30.0f;
+	float m_underLine	= 0;
 
 	Math::Vector3 m_oldPos;
 
@@ -73,4 +73,10 @@ private:
 
 	// ステージが始まった最初の着地音をなくすフラグ
 	bool m_firstLandFlg = true;
+
+	// JSONファイルのパス
+	std::string_view m_path = "Asset/Data/Json/Terrain/CarryObject/Box/Box.json";
+
+	// JSONのデータをロードする
+	void DataLoad();
 };

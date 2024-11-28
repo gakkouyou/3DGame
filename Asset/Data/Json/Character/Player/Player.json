@@ -11,6 +11,7 @@
 		"m_enableStepHeight": 0.35,
 		"m_scale": 8.0,
 		"m_walkSmokeTime": 30,
-		"m_runSmokeTime": 16
+		"m_runSmokeTime": 16,
+		"m_underLine": -15
 	}
 }

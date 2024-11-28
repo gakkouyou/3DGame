@@ -1,7 +1,18 @@
 {
 	"NormalEnemy": {
-		"m_findJumpPow": 0.1,
-		"m_jumpPow": 0.05,
-		"m_moveSpeed": 0.05
+		"m_findJumpPow"				: 0.1,
+		"m_jumpPow"					: 0.05,
+		"m_moveSpeed"				: 0.05,
+		"m_move.minRotAng"			: 3.0,
+		"m_move.stayTime"			: 60,
+		"m_deathScale.x"			: 1.0,
+		"m_deathScale.y"			: 0.2,
+		"m_deathScale.z"			: 1.0,
+		"m_homing.viewingAngle"		: 90.0,
+		"m_homing.minRotDegAng"		: 5.0,
+		"m_lostTarget.maxLotAng"	: 45.0,
+		"m_lostTarget.lotAng"		: 1.5,
+		"m_lostTarget.stayTime"		: 60,
+		"m_deathTime"				: 45
 	}
 }

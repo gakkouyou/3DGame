@@ -57,6 +57,8 @@ public:
 	// EventObjectControllerをセットする
 	void SetEventObjectController(const std::weak_ptr<EventObjectController>& _wpEventObjectController) { m_wpEventObjectController = _wpEventObjectController; }
 
+	void CameraFinish() { m_goalJumpFlg = true; }
+
 	//--------------------
 	// ゲッター
 	//--------------------
@@ -121,6 +123,9 @@ private:
 	// リスポーン座標
 	Math::Vector3 m_respawnPos;
 
+	// これ以上下に行くと死ぬライン
+	float m_underLine = 0;
+
 	// 今の状況
 	UINT m_situationType	= Idle;
 	// 更新前の状況
@@ -167,6 +172,8 @@ private:
 	int m_goalStayCount = 0;
 	const int m_goalStayTime = 60;
 	Math::Vector3 m_goalPos = Math::Vector3::Zero;
+	bool m_goalJumpFlg = false;
+	bool m_oldGoalJumpFlg = false;
 
 	// 止めるフラグ(操作を受け付けなくなる)
 	bool m_stopFlg = false;

@@ -36,7 +36,8 @@ private:
 	void HitJudge();
 
 	// 角度
-	float m_degAng = 180;
+	float m_degAng = 0;
+	float m_baseDegAng = 0;
 
 	enum Dir
 	{
@@ -54,7 +55,7 @@ private:
 	Math::Vector3 m_centerPos;
 
 	// 下に落ちたら、リスポーンさせる
-	float m_underLine = -30.0f;
+	float m_underLine = 0;
 
 	// レイを少し上から出す処理をやめるフラグ
 	bool m_rayDownFlg = false;
@@ -68,7 +69,7 @@ private:
 	// カウント
 	int m_enemyCount = 0;
 	// ガタガタの角度制限
-	const int m_maxDegAng = 10;
+	int m_maxDegAng	= 0;
 	// ガタガタの行列
 	Math::Matrix m_shakeMat;
 
@@ -80,11 +81,11 @@ private:
 	bool m_enemyFlg = false;
 
 	// 移動系
-	float		m_jumpPow	= 0;	// ジャンプ力
-	float		m_moveSpeed	= 0;	// 移動速度
-	const int	m_stayTime	= 30;	// ジャンプの待機時間
-	int			m_stayCount = 0;	// ジャンプの待機のカウント
-	bool		m_isGround	= false;// 地面にいるかどうか
+	float	m_jumpPow	= 0;	// ジャンプ力
+	float	m_moveSpeed	= 0;	// 移動速度
+	int		m_stayTime	= 0;	// ジャンプの待機時間
+	int		m_stayCount = 0;	// ジャンプの待機のカウント
+	bool	m_isGround	= false;// 地面にいるかどうか
 
 
 	// 追尾していいかのフラグ
@@ -177,7 +178,6 @@ private:
 
 		void Enter	(BoxEnemy& _owner)	override;
 		void Update	(BoxEnemy& _owner)	override;
-		void Exit	(BoxEnemy& _owner)	override;
 	};
 
 	// 震える状態

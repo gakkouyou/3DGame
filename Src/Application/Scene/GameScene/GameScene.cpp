@@ -169,6 +169,9 @@ void GameScene::Event()
 					// ステージクリアのリザルトを出す
 					m_wpResult.lock()->StageClear();
 
+					// プレイヤーにカメラが動き終わったことを伝える
+					m_wpPlayer.lock()->CameraFinish();
+
 					if (m_wpResult.lock()->GetClearFinish())
 					{
 						if (!m_wpSceneChange.expired())
@@ -188,8 +191,6 @@ void GameScene::Event()
 								// ステージのCSVをリセット
 								ResetCSV();
 
-								// CSVに書き込む
-								//SceneManager::Instance().StageInfoCSVWriter();
 								// シーンを変更
 								SceneManager::Instance().SetNextScene(SceneManager::SceneType::StageSelect);
 							}

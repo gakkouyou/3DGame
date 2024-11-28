@@ -62,6 +62,7 @@ private:
 		pause	= 1 << 0,
 		up		= 1 << 1,
 		down	= 1 << 2,
+		space	= 1 << 3,
 	};
 	UINT m_keyFlg	= 0;
 

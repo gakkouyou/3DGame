@@ -11,19 +11,19 @@ public:
 	void DrawLit()	override;
 	void Init()		override;
 
-	// 一つめのアニメーションを始める
-	void MorningAnimationStart() { ChangeActionState(std::make_shared<FirstAnimation>()); }
-	// 二つ目のアニメーションを始める
-	void EveningAnimationStart()	{ m_animation |= ThirdAnimationStart; }
+	// 朝のアニメーションを始める
+	void MorningAnimationStart() { m_morningAnimationStart = true; }
+	// 夕方のアニメーションを始める
+	void EveningAnimationStart()	{ m_eveningAnimationStart = true; }
 
-	// 一つ目のアニメーションが終了したかどうか
-	const bool GetSecondAnimationEnd()	const { return m_animation & SecondAnimationEnd; }
+	// 朝のアニメーションが終了したかどうか
+	const bool GetMorningAnimationEnd()	const { return m_animation & MorningAnimationEnd; }
 	// ドアを開けていいか
 	const bool GetOpenDoor()	const { return m_animation & OpenDoor; }
 	// ドアを閉めていいか
 	const bool GetCloseDoor()	const { return m_animation & CloseDoor; }
-	// アニメーションが完全に終了したかどうか
-	const bool GetAnimationEnd()	const { return m_animation & FourthAnimationEnd; }
+	// 夕方のアニメーションが終了したかどうか
+	const bool GetEveningAnimationEnd()	const { return m_animation & EveningAnimationEnd; }
 
 private:
 	// モデル
@@ -33,59 +33,49 @@ private:
 	std::shared_ptr<KdAnimator>	m_spAnimator = nullptr;
 
 	// 動くスピード
-	const float m_speed = 0.1f;
-	// 動く方向
-	const Math::Vector3 m_moveVec = { 1, 0, 0 };
+	float m_moveSpeed = 0;
 	// 回転角度
 	float m_degAng = 0;
+	
+	// 拡縮
+	float m_scale = 0;
+	Math::Matrix m_scaleMat;
 
 	// 初期座標
-	const Math::Vector3 m_startPos = { -1.5, 0, -2 };
+	Math::Vector3 m_startPos;
 	// ゴールの座標
-	const Math::Vector3 m_goalPos = { 16, 0, -10 };
+	Math::Vector3 m_goalPos;
 
 	enum Animation
 	{
-		FirstAnimationStart		= 1 << 0,
-		FirstAnimationEnd		= 1 << 1,
-		SecondAnimationStart	= 1 << 2,
-		OpenDoor				= 1 << 3,
-		CloseDoor				= 1 << 4,
-		SecondAnimationEnd		= 1 << 5,
-		ThirdAnimationStart		= 1 << 6,
-		ThirdAnimationEnd		= 1 << 7,
-		FourthAnimationStart	= 1 << 8,
-		FourthAnimationEnd		= 1 << 9,
+		OpenDoor				= 1 << 0,
+		CloseDoor				= 1 << 1,
+		MorningAnimationEnd		= 1 << 2,
+		EveningAnimationEnd		= 1 << 3,
 	};
 
 	UINT m_animation = 0;
 
 	// アニメーションスタートOKになってから実際に動き始めるまでの時間とカウント
 	int m_stayCount = 0;
-	const int m_stayTime = 60;
-
-	// ３つ目のアニメーションがスタートしてから実際に動き始めるまでの時間とカウント
-	const int m_thirdAnimationStayTime = 120;
+	int m_stayTime = 0;
 
 	// ドアを閉める座標
-	const float m_closeDoorPosZ = -6.5;
+	float m_closeDoorPosZ = 0;
 	// アニメーション終了の座標
-	const float m_endPosZ = -2;
-
-	// 一つ目のアニメーション
-	//void FirstAnimation();
-	// 二つ目のアニメーション
-	void SecondAnimation();
-	// 三つ目のアニメーション
-	void ThirdAnimation();
-	// 四つ目のアニメーション
-	void FourthAnimation();
+	float m_animationEndPosZ = 0;
 
 	std::weak_ptr<KdSoundInstance> m_wpSound;	// 歩く音
 	bool m_soundFlg = false;						// 既に鳴っているかどうかのフラグ
 
-	int m_runSmokeTime = 16;
+	int m_runSmokeTime = 0;
 	int m_smokeCount = 0;
+
+	// 朝のアニメーションを開始するフラグ
+	bool m_morningAnimationStart = false;
+
+	// 夕方のアニメーションを開始するフラグ
+	bool m_eveningAnimationStart = false;
 
 	// JSONファイルのパス
 	std::string_view m_path = "Asset/Data/Json/Title/ResultPlayer/ResultPlayer.json";
@@ -105,13 +95,21 @@ private:
 		virtual void Exit	(ResultPlayer&)	{}
 	};
 
+	// 待機中
+	class Stay : public StateBase
+	{
+	public:
+		~Stay()	override {}
+
+		void Update	(ResultPlayer& _owner)	override;
+	};
+
 	// １つ目のアニメーション
 	class FirstAnimation : public StateBase
 	{
 	public:
 		~FirstAnimation()	override {}
 
-		void Enter	(ResultPlayer& _owner)	override;
 		void Update	(ResultPlayer& _owner)	override;
 		void Exit	(ResultPlayer& _owner)	override;
 	};
@@ -122,8 +120,8 @@ private:
 	public:
 		~SecondAnimation()	override {}
 
-		void Enter	(ResultPlayer& _owner)	override;
 		void Update	(ResultPlayer& _owner)	override;
+		void Exit	(ResultPlayer& _owner)	override;
 	};
 
 	// ３つ目のアニメーション
@@ -132,8 +130,8 @@ private:
 	public:
 		~ThirdAnimation()	override {}
 
-		void Enter	(ResultPlayer& _owner)	override;
 		void Update	(ResultPlayer& _owner)	override;
+		void Exit	(ResultPlayer& _owner)	override;
 	};
 
 	// ４つ目のアニメーション
@@ -143,6 +141,7 @@ private:
 		~FourthAnimation()	override {}
 
 		void Update	(ResultPlayer& _owner)	override;
+		void Exit	(ResultPlayer& _owner)	override;
 	};
 	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
 	std::shared_ptr<StateBase> m_nowAction = nullptr;

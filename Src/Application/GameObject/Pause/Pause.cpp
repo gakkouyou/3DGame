@@ -14,7 +14,7 @@ void Pause::Update()
 		if ((m_keyFlg & KeyFlg::pause) == 0)
 		{
 			m_pauseFlg = !m_pauseFlg;
-			m_keyFlg |= KeyFlg::pause;
+			m_keyFlg |= KeyFlg::pause | KeyFlg::space;
 
 			// ポーズ画面の開始は必ずつづけるから始まる
 			m_nowSelect = Select::Return;
@@ -70,6 +70,9 @@ void Pause::Update()
 		// 確定させる
 		if ((GetAsyncKeyState(VK_SPACE) & 0x8000) || (GetAsyncKeyState('Z') & 0x8000))
 		{
+			// キー制御
+			if (m_keyFlg & KeyFlg::space) return;
+
 			m_select = m_nowSelect;
 
 			switch (m_select)
@@ -89,6 +92,10 @@ void Pause::Update()
 				break;
 			}
 		}
+		else
+		{
+			m_keyFlg &= (~KeyFlg::space);
+		}
 	}
 }
 
@@ -96,26 +103,24 @@ void Pause::DrawSprite()
 {
 	if (m_pauseFlg)
 	{
-	/*	if (m_whiteFrame.spTex)
-		{
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_whiteFrame.spTex, m_whiteFrame.pos.x, m_whiteFrame.pos.y, 500, 500);
-		}*/
-
 		if (m_grayFrame.spTex)
 		{
 			Math::Color color = { 1, 1, 1, 1 };
+			// 選ばれていたら黄色にする
 			if (m_nowSelect == Select::Return)
 			{
 				color = { 1, 1, 0, 1 };
 			}
 			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, (int)m_return.pos.x, (int)m_return.pos.y, nullptr, &color);
 			color = { 1, 1, 1, 1 };
+			// 選ばれていたら黄色にする
 			if (m_nowSelect == Select::Again)
 			{
 				color = { 1, 1, 0, 1 };
 			}
 			KdShaderManager::Instance().m_spriteShader.DrawTex(m_grayFrame.spTex, (int)m_again.pos.x, (int)m_again.pos.y, nullptr, &color);
 			color = { 1, 1, 1, 1 };
+			// 選ばれていたら黄色にする
 			if (m_nowSelect == Select::Back)
 			{
 				color = { 1, 1, 0, 1 };

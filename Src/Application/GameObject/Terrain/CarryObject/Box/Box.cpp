@@ -50,6 +50,7 @@ void Box::Update()
 		// 少し上から
 		m_pos.y += 1.0f;
 		m_gravity = 0;
+		m_degAng = 0;
 	}
 
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
@@ -231,6 +232,10 @@ void Box::PostUpdate()
 
 void Box::Init()
 {
+	CarryObjectBase::Init();
+
+	DataLoad();
+
 	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Terrain/CarryObject/Box/Box.gltf");
 
 	// 角っこの座標
@@ -526,4 +531,17 @@ void Box::HitJudge()
 			}
 		}
 	}
+}
+
+void Box::DataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_path.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	m_underLine = data["Box"]["m_underLine"];
 }

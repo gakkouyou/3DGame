@@ -13,7 +13,6 @@ public :
 		StageSelect,
 		Game,
 		Result,
-		First,
 	};
 
 	void PreUpdate();
@@ -50,11 +49,6 @@ public :
 	// ステージのクリア状況のリストのゲット
 	const std::vector<UINT>& GetStageInfo() const { return m_stageInfoList; }
 
-	// ステージのクリア状況のCSVをロードする
-	void StageInfoCSVLoader();
-	// ステージのクリア状況をCSVに書き込む
-	void StageInfoCSVWriter();
-
 	// デバッグモードかどうか
 	bool GetDebug() const;
 
@@ -85,11 +79,10 @@ private :
 	// インスタンス生成(アプリ起動)時にコンストラクタで自動実行
 	void Init()
 	{
-		// CSVを読み込む
-		StageInfoCSVLoader();
-
-		// 開始シーンに切り替え
-		ChangeScene(m_currentSceneType);
+		for (int i = 0; i < Stage::Max; i++)
+		{
+			m_stageInfoList.push_back(0);
+		}
 	}
 
 	// シーン切り替え関数
@@ -99,18 +92,13 @@ private :
 	std::shared_ptr<BaseScene> m_currentScene = nullptr;
 
 	// 現在のシーンの種類を保持している変数
-	SceneType m_currentSceneType = SceneType::First;
+	SceneType m_currentSceneType = SceneType::Result;
 
 	// 次のシーンの種類を保持している変数
-	//SceneType m_nextSceneType = SceneType::Title;
-	//SceneType m_nextSceneType = SceneType::Game;
-	//SceneType m_nextSceneType = SceneType::StageSelect;
-	SceneType m_nextSceneType = SceneType::Result;
+	SceneType m_nextSceneType = SceneType::Game;
 
 	// プレイするステージ
-	//UINT m_nowStage	= Stage::AllGimmick;
-	UINT m_nowStage = Stage::Stage3;
-	//UINT m_nowStage	= 0;
+	UINT m_nowStage = 3;
 
 	// ステージのクリア状況
 	std::vector<UINT> m_stageInfoList;

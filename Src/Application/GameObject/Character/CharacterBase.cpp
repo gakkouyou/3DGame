@@ -21,6 +21,11 @@ void CharacterBase::DrawLit()
 	}
 }
 
+void CharacterBase::Init()
+{
+	BaseDataLoad();
+}
+
 void CharacterBase::Reset()
 {
 	// 座標
@@ -210,7 +215,7 @@ bool CharacterBase::RayHitJudge(const KdCollider::RayInfo& _rayInfo, Math::Vecto
 	return hit;
 }
 
-bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::vector<KdCollider::CollisionResult>& _collisionResult, bool& _multiHit, const bool _debugFlg, Math::Color _color)
+bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::list<KdCollider::CollisionResult>& _collisionResult, const bool _debugFlg, Math::Color _color)
 {
 	//==================
 	// 球判定
@@ -224,32 +229,17 @@ bool CharacterBase::SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, st
 		}
 	}
 
-	_multiHit = false;
-
-	// 球に当たったオブジェクト情報を格納
-	std::list<KdCollider::CollisionResult> retSphereList;
-
 	bool hitFlg = false;
 
 	// 当たり判定！！！！！！！！！！！！！！！
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
-		if (obj->Intersects(_sphereInfo, &retSphereList))
+		if (obj->Intersects(_sphereInfo, &_collisionResult))
 		{
-			if (hitFlg == true)
-			{
-				_multiHit = true;
-			}
 			hitFlg = true;
 		}
 	}
 
-	for (auto& result : retSphereList)
-	{
-		_collisionResult.push_back(result);
-	}
-
-	// 当たらなかった場合
 	return hitFlg;
 }
 
@@ -345,4 +335,18 @@ bool CharacterBase::RotationCharacter(float& _degAng, Math::Vector3 _toVec, cons
 	}
 
 	return rotFlg;
+}
+
+void CharacterBase::BaseDataLoad()
+{
+	// JSONファイルを読み込む
+	std::ifstream file(m_basePath.data());
+	if (!file.is_open()) return;
+
+	nlohmann::json data;
+	file >> data;
+
+	// JSONデータを格納していく
+	m_gravityPow	= data["Gravity"]["m_gravityPow"];	// 重力
+	m_maxGravity	= data["Gravity"]["m_maxGravity"];	// 重力の上限
 }

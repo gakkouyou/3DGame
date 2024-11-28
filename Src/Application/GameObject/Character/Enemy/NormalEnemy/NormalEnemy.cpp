@@ -129,6 +129,8 @@ void NormalEnemy::PostUpdate()
 
 void NormalEnemy::Init()
 {
+	CharacterBase::Init();
+
 	DataLoad();
 
 	srand(timeGetTime());
@@ -320,77 +322,22 @@ void NormalEnemy::HitGround()
 		// 当たったかどうかのフラグ
 		bool hitFlg = false;
 		// 当たった結果
-		std::vector<KdCollider::CollisionResult> collisionResultList;
-		// 複数に当たったかどうかのフラグ
-		bool multiHitFlg = false;
+		std::list<KdCollider::CollisionResult> collisionResultList;
 
-		hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+		hitFlg = SphereHitJudge(sphereInfo, collisionResultList);
 
-		// 複数のオブジェクトに当たっていた場合
-		if (multiHitFlg == true)
+		// 押し出し
+		if (hitFlg == true)
 		{
-			std::vector<Math::Vector3> normalList1 = collisionResultList[0].m_hitNormalList;
-			std::vector<Math::Vector3> normalList2 = collisionResultList[1].m_hitNormalList;
-
-			bool flg = false;
-
-			for (auto& normal : normalList1)
+			Math::Vector3 adjustVec;
+			for (auto& result : collisionResultList)
 			{
-				normal.Normalize();
-				for (auto& normal2 : normalList2)
-				{
-					normal2.Normalize();
-					float dot = normal.Dot(normal2);
-					dot = std::clamp(dot, -1.0f, 1.0f);
-					float deg = DirectX::XMConvertToDegrees(acos(dot));
+				result.m_hitDir.Normalize();
+				adjustVec += result.m_hitDir * result.m_overlapDistance;
+			}
 
-					if (deg <= m_doubleObjectHitMaxDegAng || deg >= m_doubleObjectHitMaxDegAng)
-					{
-						flg = true;
-					}
-				}
-			}
-			if (flg == false)
-			{
-				// Y座標以外、更新前の座標に戻す
-				m_pos.x = m_oldPos.x;
-				m_pos.z = m_oldPos.z;
-			}
-			else
-			{
-				if (collisionResultList[0].m_overlapDistance > collisionResultList[1].m_overlapDistance)
-				{
-					KdCollider::CollisionResult result = collisionResultList[0];
-					// Y軸の補正はなし
-					result.m_hitDir.Normalize();
-					Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-					// 当たった時のスフィアの座標
-					Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
-					m_pos.x = hitSpherePos.x + pos.x;
-					m_pos.z = hitSpherePos.z + pos.z;
-				}
-				else
-				{
-					KdCollider::CollisionResult result = collisionResultList[1];
-					// Y軸の補正はなし
-					result.m_hitDir.Normalize();
-					Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-					// 当たった時のスフィアの座標
-					Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
-					m_pos.x = hitSpherePos.x + pos.x;
-					m_pos.z = hitSpherePos.z + pos.z;
-				}
-			}
-		}
-		// 一つのオブジェクトに当たった場合
-		else if (hitFlg)
-		{
-			KdCollider::CollisionResult result = collisionResultList.front();
-			// Y軸の補正はなし
-			result.m_hitDir.Normalize();
-			Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-			pos.y = 0;
-			m_pos += pos;
+			adjustVec.y = 0;
+			m_pos += adjustVec;
 		}
 	}
 }
@@ -411,7 +358,7 @@ void NormalEnemy::HitEnemy()
 	bool hitFlg = false;
 
 	// 当たった結果
-	std::vector<KdCollider::CollisionResult> collisionResultList;
+	std::list<KdCollider::CollisionResult> collisionResultList;
 
 	bool flg = false;
 	hitFlg = SphereHitJudge(sphereInfo, collisionResultList, flg);
@@ -509,9 +456,20 @@ void NormalEnemy::DataLoad()
 	file >> data;
 
 	// JSONデータを格納していく
-	m_moveSpeed		= data["NormalEnemy"]["m_moveSpeed"];	// 移動速度
-	m_jumpPow		= data["NormalEnemy"]["m_jumpPow"];		// ジャンプ力
-	m_findJumpPow	= data["NormalEnemy"]["m_findJumpPow"];	// 見つけた時のジャンプ力
+	m_moveSpeed				= data["NormalEnemy"]["m_moveSpeed"];			// 移動速度
+	m_jumpPow				= data["NormalEnemy"]["m_jumpPow"];				// ジャンプ力
+	m_findJumpPow			= data["NormalEnemy"]["m_findJumpPow"];			// 見つけた時のジャンプ力
+	m_move.minRotAng		= data["NormalEnemy"]["m_move.minRotAng"];		// 通常状態の角度制限
+	m_move.stayTime			= data["NormalEnemy"]["m_move.stayTime"];		// 通常状態の待機時間
+	m_deathScale.x			= data["NormalEnemy"]["m_deathScale.x"];		// 死んだときの拡縮
+	m_deathScale.y			= data["NormalEnemy"]["m_deathScale.y"];
+	m_deathScale.z			= data["NormalEnemy"]["m_deathScale.z"];
+	m_homing.viewingAngle	= data["NormalEnemy"]["m_homing.viewingAngle"];	// 視野角
+	m_homing.minRotDegAng	= data["NormalEnemy"]["m_homing.minRotDegAng"];	// 追尾状態の角度制限
+	m_lostTarget.maxLotAng	= data["NormalEnemy"]["m_lostTarget.maxLotAng"];// 見失った時の左右を見渡す角度
+	m_lostTarget.lotAng		= data["NormalEnemy"]["m_lostTarget.lotAng"];	// 見渡すときに動く角度
+	m_lostTarget.stayTime	= data["NormalEnemy"]["m_lostTarget.stayTime"];	// 各モーションの待機時間
+	m_deathTime				= data["NormalEnemy"]["m_deathTime"];			// 死亡モーション開始から死亡するまでの時間
 }
 
 

@@ -69,6 +69,7 @@ private:
 
 		void Enter	(ResultScene& _owner)	override;
 		void Update	(ResultScene& _owner)	override;
+		void Exit	(ResultScene& _owner)	override;
 	};
 
 	// 朝

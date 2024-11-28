@@ -38,9 +38,9 @@ private:
 		Math::Vector3	goalPos;			// ゴール座標
 		float			degAng = 0;			// 角度
 		bool			rotFlg = false;		// 回転中かのフラグ
-		const float		minRotAng = 3.0f;	// 回転を制限する
+		float			minRotAng = 0;	// 回転を制限する
 
-		const int		stayTime = 60;		// 待機時間
+		int				stayTime = 0;		// 待機時間
 		int				stayCount = 0;		// 待機カウント
 		bool			stayFlg = false;	// 待機フラグ
 	};
@@ -56,7 +56,7 @@ private:
 	// 拡縮
 	Math::Vector3 m_scale = { 1.0f, 1.0f, 1.0f };
 	// 死んだときの拡縮
-	const Math::Vector3 m_deathScale = { 1.0f, 0.2f, 1.0f };
+	Math::Vector3 m_deathScale;
 
 	// SetParamに入ったかどうかのフラグ
 	bool m_setParamFlg = false;
@@ -64,21 +64,21 @@ private:
 	// ホーミング用構造体
 	struct HomingStruct
 	{
-		const float viewingAngle	= 90.0f;// 視野角
-		const float minRotDegAng	= 5.0f;	// 回転する際の制限
+		float viewingAngle	= 0;// 視野角
+		float minRotDegAng	= 0;// 回転する際の制限
 	};
 
 	HomingStruct m_homing;
 
 	struct LostTargetAnimation
 	{
-		const float maxLotAng	= 45.0f;	// 左右に見渡す？時の角度の上限
-		const float lotAng		= 1.5f;		// 見渡すときに動く角度
-		float sumLotAng			= 0;		// 動いた角度の合計
-		const float stayTime	= 60;		// 各モーションごとの待機時間
-		float stayCount			= 0;		// 待機時間のカウント
-		bool stayFlg			= false;	// 待機フラグ
-		float oldDegAng			= 0;		// 元の角度を保持するため
+		float maxLotAng	= 0;	// 左右に見渡す？時の角度の上限
+		float lotAng	= 0;		// 見渡すときに動く角度
+		float sumLotAng = 0;		// 動いた角度の合計
+		float stayTime	= 0;		// 各モーションごとの待機時間
+		float stayCount	= 0;		// 待機時間のカウント
+		bool stayFlg	= false;	// 待機フラグ
+		float oldDegAng	= 0;		// 元の角度を保持するため
 		enum Dir
 		{
 			Left,	// 左を向く
@@ -112,8 +112,8 @@ private:
 	Math::Vector3 m_oldPos;
 
 	// 死亡モーション用
-	int m_deathCount = 0;
-	const int m_deathTime = 45;
+	int m_deathCount= 0;
+	int m_deathTime	= 0;
 
 	// 地面にいるかどうか
 	bool m_isGround = false;

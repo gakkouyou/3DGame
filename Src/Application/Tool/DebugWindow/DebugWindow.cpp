@@ -34,9 +34,20 @@ void DebugWindow::Draw()
 	//================================================================================
 	//return;
 
-
-		// ログウィンドウ
-	//Application::Instance().m_log.Draw("Log Window");
+	if (GetAsyncKeyState('L') & 0x8000)
+	{
+		if (m_logKeyFlg == false)
+		{
+			m_log = !m_log;
+			m_logKeyFlg = true;
+		}
+	}
+	else
+	{
+		m_logKeyFlg = false;
+	}
+	// ログウィンドウ
+	if(m_log) Application::Instance().m_log.Draw("Log Window");
 	if (SceneManager::Instance().GetDebug())
 	{
 		if (ImGui::Begin("DebugWindow"))

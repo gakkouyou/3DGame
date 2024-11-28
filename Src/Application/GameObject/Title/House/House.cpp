@@ -18,6 +18,9 @@ void House::Update()
 		{
 			m_degAng = m_maxDegAng;
 			m_openDoorFlg = false;
+
+			// ドアの音を鳴らせるようにする
+			m_closeSoundFlg = false;
 		}
 
 		Math::Vector3 pos = m_doorMat.Translation();
@@ -33,9 +36,14 @@ void House::Update()
 			m_degAng = 0;
 			m_closeDoorFlg = false;
 
-			if (m_wpCloseSound.expired() == false)
+			// 音を鳴らす
+			if (m_closeSoundFlg == false)
 			{
-				m_wpCloseSound.lock()->Play();
+				if (m_wpCloseSound.expired() == false)
+				{
+					m_wpCloseSound.lock()->Play();
+				}
+				m_closeSoundFlg = true;
 			}
 
 			// ドアの音を鳴らせるようにする

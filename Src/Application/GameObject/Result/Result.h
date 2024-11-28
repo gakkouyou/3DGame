@@ -15,6 +15,8 @@ public:
 	void StageClear() { m_clearFlg = true; }
 	void GameOver() { m_gameOverFlg = true; }
 
+	void SetGoal()		override { m_goalFlg = true; }
+
 	const bool GetClearFinish() const { return m_clearFinishFlg; }
 
 private:
@@ -44,4 +46,22 @@ private:
 	// ２回バウンドさせる
 	int m_boundCnt = 0;
 	const int m_boundMax	= 2;
+
+	struct Tex
+	{
+		std::shared_ptr<KdTexture> spTex = nullptr;
+		Math::Vector2 pos = {};
+		Math::Vector2 move = {};
+		float angle = 0;
+		Math::Color color = {};
+	};
+
+	std::list<Tex> m_paper{};	// 紙吹雪
+
+	std::shared_ptr<KdTexture> m_spPaperTex;
+
+	bool m_goalFlg = false;
+
+	const int m_stayTime = 60;
+	int m_stayCount = 0;
 };

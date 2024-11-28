@@ -318,17 +318,20 @@ void Player::Update()
 		}
 	}
 
-	// 重力
-	m_gravity += m_gravityPow;
-	m_pos.y -= m_gravity;
-	// 重力の制限
-	if (m_gravity >= m_maxGravity)
+	if (m_goalJumpFlg == false)
 	{
-		m_gravity = m_maxGravity;
+		// 重力
+		m_gravity += m_gravityPow;
+		m_pos.y -= m_gravity;
+		// 重力の制限
+		if (m_gravity >= m_maxGravity)
+		{
+			m_gravity = m_maxGravity;
+		}
 	}
 
 	// 落下死
-	if (m_pos.y < -15.0f && m_aliveFlg == true)
+	if (m_pos.y < m_underLine && m_aliveFlg == true)
 	{
 		// 万が一ステージセレクト画面で落ちたら、座標を初期座標に戻す
 		if (SceneManager::Instance().GetNowScene() == SceneManager::SceneType::StageSelect)
@@ -716,6 +719,8 @@ void Player::DrawLit()
 
 void Player::Init()
 {
+	CharacterBase::Init();
+
 	DataLoad();
 
 	if (!m_spModel)
@@ -868,6 +873,8 @@ const bool Player::IsCameraTracking() const
 // 当たり判定
 void Player::HitJudge()
 {
+	if (SceneManager::Instance().GetDebug()) return;
+
 	// 当たったオブジェクトリストをリセット
 	m_wpHitObjectList.clear();
 
@@ -901,7 +908,7 @@ void Player::HitJudgeGround()
 	//m_wpHitTerrain.reset();
 
 	// 地面とのレイ当たり判定
-	if(m_carryObject.hitFlg == false)
+	if (m_carryObject.hitFlg == false)
 	{
 		// 当たった座標
 		Math::Vector3 hitPos = Math::Vector3::Zero;
@@ -1107,7 +1114,7 @@ void Player::HitJudgeGround()
 			// 当たったかどうかのフラグ
 			bool hitFlg = false;
 			// 当たった結果
-			std::vector<KdCollider::CollisionResult> collisionResultList;
+			std::list<KdCollider::CollisionResult> collisionResultList;
 			// 複数に当たったかどうかのフラグ
 			bool multiHitFlg = false;
 
@@ -1119,14 +1126,14 @@ void Player::HitJudgeGround()
 				const float upY = 0.5f;
 				if (m_situationType & SituationType::Air)
 				{
-					hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+					hitFlg = SphereHitJudge(sphereInfo, collisionResultList);
 				}
 				if (hitFlg == false)
 				{
 					for (int i = 1; i <= checkNum; i++)
 					{
 						sphereInfo.m_sphere.Center.y += upY;
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList);
 						if (hitFlg == true) break;
 					}
 				}
@@ -1148,14 +1155,14 @@ void Player::HitJudgeGround()
 
 					if (m_situationType & SituationType::Air)
 					{
-						hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+						hitFlg = SphereHitJudge(sphereInfo, collisionResultList);
 					}
 					if (hitFlg == false)
 					{
-						for (int i = 1; i <= checkNum; i++)
+						for (int j = 1; j <= checkNum; j++)
 						{
 							sphereInfo.m_sphere.Center.y += upY;
-							hitFlg = SphereHitJudge(sphereInfo, collisionResultList, multiHitFlg);
+							hitFlg = SphereHitJudge(sphereInfo, collisionResultList);
 							if (hitFlg == true) break;
 						}
 					}
@@ -1163,84 +1170,20 @@ void Player::HitJudgeGround()
 				}
 			}
 
-			// 複数のオブジェクトに当たっていた場合
-			if (multiHitFlg == true)
+			// 押し戻し
+			if (hitFlg)
 			{
-				std::vector<Math::Vector3> normalList1 = collisionResultList[0].m_hitNormalList;
-				std::vector<Math::Vector3> normalList2 = collisionResultList[1].m_hitNormalList;
-
-				bool flg = false;
-
-				Application::Instance().m_log.AddLog("MultiHit\n");
-
-				for (auto& normal : normalList1)
+				Math::Vector3 adjustVec;
+				for (auto& result : collisionResultList)
 				{
-					normal.Normalize();
-					for (auto& normal2 : normalList2)
-					{
-						normal2.Normalize();
-						float dot = normal.Dot(normal2);
-						dot = std::clamp(dot, -1.0f, 1.0f);
-						float deg = DirectX::XMConvertToDegrees(acos(dot));
-						Application::Instance().m_log.AddLog("%f\n", deg);
-						if (deg < 10)
-						{
-							flg = true;
-							break;
-						}
-					}
+					result.m_hitDir.Normalize();
+					adjustVec += result.m_hitDir * result.m_overlapDistance;
 				}
-				if (flg == false)
-				{
-					// Y座標以外、更新前の座標に戻す
-					m_pos.x = m_oldPos.x;
-					m_pos.z = m_oldPos.z;
-					Application::Instance().m_log.AddLog("old");
-				}
-				else
-				{
-					if (collisionResultList[0].m_overlapDistance > collisionResultList[1].m_overlapDistance)
-					{
-						KdCollider::CollisionResult result = collisionResultList[0];
-						// Y軸の補正はなし
-						result.m_hitDir.Normalize();
-						Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-						// 当たった時のスフィアの座標
-						Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
-						m_pos.x = hitSpherePos.x + pos.x;
-						m_pos.z = hitSpherePos.z + pos.z;
-					}
-					else
-					{
-						KdCollider::CollisionResult result = collisionResultList[1];
-						// Y軸の補正はなし
-						result.m_hitDir.Normalize();
-						Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-						// 当たった時のスフィアの座標
-						Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
-						m_pos.x = hitSpherePos.x + pos.x;
-						m_pos.z = hitSpherePos.z + pos.z;
-					}
-				}
+
+				m_pos.x = sphereInfo.m_sphere.Center.x + adjustVec.x;
+				m_pos.z = sphereInfo.m_sphere.Center.z + adjustVec.z;
 			}
-			// 一つのオブジェクトに当たった場合
-			else if (hitFlg)
-			{
-				KdCollider::CollisionResult result = collisionResultList.front();
-				// Y軸の補正はなし
-				result.m_hitDir.Normalize();
-				Math::Vector3 pos = result.m_hitDir * result.m_overlapDistance;
-				// 当たった時のスフィアの座標
-				Math::Vector3 hitSpherePos = sphereInfo.m_sphere.Center;
-				m_pos.x = hitSpherePos.x + pos.x;
-				m_pos.z = hitSpherePos.z + pos.z;
-				Application::Instance().m_log.AddLog("singleHit\n");
 
-				for (auto& normal : result.m_hitNormalList)
-				{
-					Application::Instance().m_log.AddLog("x:%f y:%f z:%f\n", normal.x, normal.y, normal.z);
-				}
-			}
 		}
 		// 頭判定
 		bool hitFlg = false;
@@ -1249,28 +1192,20 @@ void Player::HitJudgeGround()
 		sphereInfo.m_sphere.Radius = radius;
 		sphereInfo.m_sphere.Center.y += 1.75f;
 		sphereInfo.m_type = KdCollider::TypeGround;
-		std::vector<KdCollider::CollisionResult> collisionResult;
+		std::list<KdCollider::CollisionResult> collisionResult;
 
-		// 複数に当たったかどうかのフラグ
-		bool multiHitFlg = false;
-
-		hitFlg = SphereHitJudge(sphereInfo, collisionResult, multiHitFlg);
-		// 複数のオブジェクトに当たっていた場合
-		//if (multiHitFlg == true)
+		hitFlg = SphereHitJudge(sphereInfo, collisionResult);
+		if (hitFlg == true)
 		{
-			// Y座標のみ、更新前の座標に戻す
-			if (hitFlg == true)
+			KdCollider::CollisionResult result = collisionResult.front();
+			// ひっかかり防止
+			if (result.m_hitDir.y > 0)
 			{
-				KdCollider::CollisionResult result = collisionResult.front();
-				// ひっかかり防止
-				if (result.m_hitDir.y > 0)
-				{
-					result.m_hitDir *= -1;
-				}
-				result.m_hitDir.Normalize();
-				Math::Vector3 pos = result.m_overlapDistance * result.m_hitDir;
-				m_pos.y += pos.y;
+				result.m_hitDir *= -1;
 			}
+			result.m_hitDir.Normalize();
+			Math::Vector3 pos = result.m_overlapDistance * result.m_hitDir;
+			m_pos.y += pos.y;
 		}
 	}
 }
@@ -1781,6 +1716,7 @@ void Player::DataLoad()
 	m_scale				= data["Player"]["m_scale"];			// 拡縮
 	m_walkSmokeTime		= data["Player"]["m_walkSmokeTime"];	// 歩く時の煙や音が出る間隔
 	m_runSmokeTime		= data["Player"]["m_runSmokeTime"];		// 走る時の煙や音が出る間隔
+	m_underLine			= data["Player"]["m_underLine"];		// これ以上下に行くと死ぬライン
 }
 
 void Player::GoalProcess()
@@ -1790,14 +1726,40 @@ void Player::GoalProcess()
 	{
 		m_pos.x = m_goalPos.x;
 		m_pos.z = m_goalPos.z;
+
+		// もし１ステージ目なら少し前に出す
+		if (SceneManager::Instance().GetNowStage() == 1)
+		{
+			m_pos.z -= 1.0f;
+		}
+
 		m_angle = 180;
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 
 		if (m_goalBGMFlg == false)
 		{
 			std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/BGM/clear.wav", false);
-			se->SetVolume(0.06f);
+			se->SetVolume(0.03f);
 		}
 		m_goalBGMFlg = true;
+	}
+
+	if (m_goalJumpFlg == true)
+	{
+		if (m_oldGoalJumpFlg == false)
+		{
+			SetAnimation("Jump", false);
+			m_situationType |= Jump;
+			m_gravity = -m_jumpPow;
+			m_oldGoalJumpFlg = true;
+		}
+
+		m_gravity += m_gravityPow;
+
+		if (m_gravity >= 0)
+		{
+			m_gravity = 0;
+		}
+		m_pos.y -= m_gravity;
 	}
 }

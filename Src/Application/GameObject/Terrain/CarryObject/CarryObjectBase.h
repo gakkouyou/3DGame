@@ -14,7 +14,7 @@ public:
 	virtual void PostUpdate()					override {}
 	virtual void GenerateDepthMapFromLight()	override;
 	virtual void DrawLit()						override;
-	virtual void Init()							override {}
+	virtual void Init()							override;
 
 	// プレイヤーのセット
 	void SetPlayer(const std::shared_ptr<Player>& _spPlayer) { m_wpPlayer = _spPlayer; }
@@ -66,8 +66,8 @@ protected:
 	//====================================
 	// スフィア判定
 	//====================================
-	// どう当たったか欲しい時に使う 複数のオブジェクトに当たった場合、リザルトは入れられない
-	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, KdCollider::CollisionResult& _collisionResult, bool& _multiHit, const bool _debugFlg = false);
+	// どう当たったか欲しい時に使う
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::list<KdCollider::CollisionResult>& _collisionResult, const bool _debugFlg = false);
 	// 当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 	// 地面とのスフィア判定
@@ -100,9 +100,9 @@ protected:
 	std::weak_ptr<Player> m_wpPlayer;
 
 	// 重力
-	float			m_gravity		= 0;
-	const float		m_gravityPow	= 0.005f;
-	const float		m_maxGravity	= 0.6f;
+	float	m_gravity		= 0;
+	float	m_gravityPow	= 0;
+	float	m_maxGravity	= 0;
 
 	// 持たれているかどうかのフラグ
 	bool m_carryFlg = false;
@@ -121,4 +121,10 @@ protected:
 
 	// 少し白くする
 	bool m_whiteFlg = false;
+
+	// JSONファイルのパス
+	std::string_view m_basePath = "Asset/Data/Json/Gravity.json";
+
+	// JSONのデータをロードする
+	void BaseDataLoad();
 };

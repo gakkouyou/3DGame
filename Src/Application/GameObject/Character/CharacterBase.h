@@ -11,9 +11,6 @@ public:
 	CharacterBase()											{}
 	virtual ~CharacterBase()					override	{}
 
-	// 初期化
-	virtual void Init()							override {}
-
 	// 更新
 	virtual void Update()						override {}
 	virtual void PostUpdate()					override {}
@@ -21,6 +18,9 @@ public:
 	// 描画
 	virtual void GenerateDepthMapFromLight()	override;
 	virtual void DrawLit()						override;
+
+	// 初期化
+	virtual void Init()							override;
 
 	// 生存フラグ
 	const bool GetAliveFlg() const { return m_aliveFlg; }
@@ -64,7 +64,7 @@ protected:
 	// スフィア判定
 	//====================================
 	// どう当たったか欲しい時に使う
-	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::vector<KdCollider::CollisionResult>& _collisionResult, bool& _multiHit, const bool _debugFlg = false, Math::Color _color = { 1.0f, 1.0f, 1.0f, 1.0f });
+	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, std::list<KdCollider::CollisionResult>& _collisionResult, const bool _debugFlg = false, Math::Color _color = { 1.0f, 1.0f, 1.0f, 1.0f });
 	// 当たったか当たってないかだけが欲しいときに使う
 	bool SphereHitJudge(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 
@@ -88,11 +88,11 @@ protected:
 
 	// 重力
 	float			m_gravity						= 0;
-	float			m_gravityPow					= 0.005f;
-	const float		m_maxGravity					= 0.6f;
+	float			m_gravityPow					= 0;
+	float			m_maxGravity					= 0;
 
 	// 当たり判定の段差許容範囲
-	float		m_enableStepHeight				= 0.21f;
+	float			m_enableStepHeight				= 0.21f;
 
 	// 当たったオブジェクトを保持
 	std::list<std::weak_ptr<KdGameObject>> m_wpHitObjectList;
@@ -110,4 +110,10 @@ protected:
 
 	// 運べるオブジェクト当たった奴
 	std::weak_ptr<CarryObjectBase> m_wpHitCarryObject;
+
+	// JSONファイルのパス
+	std::string_view m_basePath = "Asset/Data/Json/Gravity.json";
+
+	// JSONのデータをロードする
+	void BaseDataLoad();
 };

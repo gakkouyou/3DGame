@@ -13,16 +13,25 @@ public:
 	void Reset()			override;
 
 	// ゴールした時の処理
-	void SetGoal() override { m_goalFlg = true; }
+	void SetGoal() override { ChangeActionState(std::make_shared<Goal>()); }
 	// ゴールの座標をセット
 	void SetGoalPos(const Math::Vector3& _goalPos) { m_goalProcess.targetPos = _goalPos; }
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
 	void SetPauseFlg(bool _pauseFlg)override;
-
-	void SetFirstClearFlg(const bool _firstClearFlg);
-	const bool IsFirstClearProcess() const { return m_firstClear & FirstClear::StartProgressMax; }
-	const bool IsFirstClearEndProcess() const { return m_firstClear & FirstClear::EndProgressMax; }
+	
+	// 最終ゴールの演出開始
+	void SetFinalGoalProcess()	{ ChangeActionState(std::make_shared<FinalGoal>()); }
+	// 新たな道の演出開始
+	void SetSlopeProcess()		{ ChangeActionState(std::make_shared<NewRoad>()); }
+	// 元に戻る
+	void SetBackProcess()		{ ChangeActionState(std::make_shared<Back>()); }
+	// 最終ゴールに到着したかどうか
+	const bool GetFinalGoalProcessEnd()		const { return m_firstClear == FirstClear::FinalGoalProcessEnd; }
+	// 坂に到着したかどうか
+	const bool GetSlopeProcessEnd()			const { return m_firstClear == FirstClear::SlopeProcessEnd; }
+	// 元に戻ったかどうか
+	const bool GetFirstClearProcessEnd()	const { return m_firstClear == FirstClear::FirstClearEnd; }
 
 private:
 	// マップエディタモードの際に使用する座標
@@ -33,9 +42,6 @@ private:
 
 	// キーフラグ
 	bool m_shiftFlg				= false;
-
-	// ゴールフラグ
-	bool m_goalFlg				= false;
 
 	// 視点移動する際に使用する構造体
 	struct Move
@@ -54,6 +60,10 @@ private:
 	};
 	// ゴールの処理の時用
 	Move m_goalProcess;
+	// 最終ゴールをターゲットとした時の視点移動
+	Move m_finalGoalProcess;
+	// 新しい道をターゲットとした時の視点移動
+	Move m_newRoadProcess;
 
 	void GoalProcess();
 
@@ -71,22 +81,121 @@ private:
 	const int	m_moveTime	= 60;
 	int			m_moveCount	= 0;
 
-	enum FirstClear
+	const float m_trackingLerp	= 0.1f;	// 追尾時の線形補間の数値
+	const float m_trackingUp	= 2.0f;	// これ以上上に上がったら追尾
+	const float m_trackingDown	= 0.0f;	// これ以上下に下がったら追尾
+
+	enum class FirstClear
 	{
-		NowStartProcess = 1 << 0,
-		StartProgressMax = 1 << 1,
-		NowEndProcess = 1 << 2,
-		EndProgressMax = 1 << 3,
+		FinalGoalProcessEnd,
+		SlopeProcessEnd,
+		FirstClearEnd,
+		None,
 	};
 
 	// 初めてステージをクリアしたときの処理
 	void FirstClearProcess();
-	UINT m_firstClear = 0;
+	FirstClear m_firstClear = FirstClear::None;
 	// スタートの行列
 	Math::Matrix m_startMat;
 	// ゴールの座標
 	Math::Matrix m_goalMat;
+	// スタートのクォータニオン
+	Math::Quaternion m_startQua;
+	// ゴールのクォータニオン
+	Math::Quaternion m_goalQua;
+	// ゴールのローカル行列
+	Math::Matrix m_localGoalMat;
+	// 最終ゴールの演出の際のローカル行列
+	Math::Matrix m_finalGoalMat;
 	float m_progress = 0;
 	const float m_addProgress = 0.01f;
 	Math::Matrix m_targetMat;
+
+// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	(TPSCamera&) {}
+		virtual void Update	(TPSCamera&) {}
+		virtual void Exit	(TPSCamera&) {}
+	};
+
+	// 追尾中
+	class Tracking : public StateBase
+	{
+	public:
+		~Tracking()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+	};
+
+	// ゴールした時
+	class Goal : public StateBase
+	{
+	public:
+		~Goal()	override {}
+
+		void Update	(TPSCamera& _owner)	override;
+		void Exit	(TPSCamera& _owner)	override;
+	};
+
+	// 最終ゴールを見る
+	class FinalGoal : public StateBase
+	{
+	public:
+		~FinalGoal()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+	};
+
+	// 新たな道を見る
+	class NewRoad : public StateBase
+	{
+	public:
+		~NewRoad()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+	};
+
+	// 元に戻る
+	class Back : public StateBase
+	{
+	public:
+		~Back()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+	};
+
+	// ポーズ
+	class Pause : public StateBase
+	{
+	public:
+		~Pause()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+		void Exit	(TPSCamera& _owner)	override;
+	};
+
+	// デバッグ
+	class Debug : public StateBase
+	{
+	public:
+		~Debug()	override {}
+
+		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+		void Exit	(TPSCamera& _owner) override;
+	};
+
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

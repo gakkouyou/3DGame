@@ -9,6 +9,8 @@
 #include "../../GameObject/EventObject/EventObjectBase.h"
 #include "../../GameObject/Terrain/TerrainBase.h"
 
+#include "../../GameObject/EventObject/FinalGoal/FinalGoal.h"
+
 #include "../../GameObject/SceneChange/SceneChange.h"
 #include "../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../../GameObject/BackGround/BackGround.h"
@@ -37,34 +39,30 @@ void StageSelectScene::Event()
 	{
 		StartScene();
 	}
-	// 演出しているオブジェクトがある場合
+	// 最終ゴールの演出
+	if (m_finalGoalEffectFlg == true)
+	{
+		FinalGoalEffectProcess();
+	}
+	// 坂の演出
+	if (m_slopeEffectFlg == true)
+	{
+		SlopeEffectProcess();
+	}
+
+	// カメラが元に戻ったらプレイヤーを動けるようにする
 	if (m_wpFirstClearObject.expired() == false)
 	{
 		if (m_wpCamera.expired() == false)
 		{
-			// カメラがアニメーションをし終わったらする処理
-			if (m_wpCamera.lock()->IsFirstClearProcess() == true)
+			if (m_wpCamera.lock()->GetFirstClearProcessEnd() == true)
 			{
-				// 出現するオブジェクトの演出
-				m_wpFirstClearObject.lock()->Active();
-				// 演出が終わった時の処理
-				if (m_wpFirstClearObject.lock()->IsActive() == false)
+				// ウィークポインタリセット
+				m_wpFirstClearObject.reset();
+				// プレイヤーを動けるようにする
+				if (m_wpPlayer.expired() == false)
 				{
-					// カメラを元に戻す演出をする
-					m_wpCamera.lock()->SetFirstClearFlg(false);
-
-					if (m_wpCamera.lock()->IsFirstClearEndProcess() == true)
-					{
-						// ウィークポインタリセット
-						m_wpFirstClearObject.reset();
-						// プレイヤーを動けるようにする
-						if (m_wpPlayer.expired() == false)
-						{
-							m_wpPlayer.lock()->SetStopFlg(false);
-						}
-						// 初クリア状態をクリア状態に変更
-						SceneManager::Instance().WorkStageInfo()[SceneManager::Instance().GetNowStage() - 1] = SceneManager::StageInfo::Clear;
-					}
+					m_wpPlayer.lock()->SetStopFlg(false);
 				}
 			}
 		}
@@ -105,101 +103,6 @@ void StageSelectScene::Event()
 					// 全ての音を止める
 					KdAudioManager::Instance().StopAllSound();
 				}
-			}
-		}
-	}
-}
-
-void StageSelectScene::StartScene()
-{
-	if (!m_wpSceneChange.expired())
-	{
-		m_wpSceneChange.lock()->StartScene(5);
-
-		if (m_wpSceneChange.lock()->GetFinishFlg())
-		{
-			// ステージ初クリアの際の処理
-			if (m_firstClearFlg)
-			{
-				FirstClearProcess();
-
-				// もし初クリアだが演出がない場合はプレイヤーを動けるようにする
-				if (m_wpFirstClearObject.expired() == true)
-				{
-					// プレイヤーを動けるようにする
-					if (m_wpPlayer.expired() == false)
-					{
-						m_wpPlayer.lock()->SetStopFlg(false);
-					}
-				}
-			}
-			// 違ったらプレイヤーを動けるようにする
-			else
-			{
-				if (m_wpPlayer.expired() == false)
-				{
-					m_wpPlayer.lock()->SetStopFlg(false);
-				}
-			}
-			m_sceneStartFlg = true;
-			m_wpSceneChange.lock()->Reset();
-		}
-		else
-		{
-			// 終わるまでプレイヤーを止める
-			if (!m_wpPlayer.expired())
-			{
-				m_wpPlayer.lock()->SetStopFlg(true);
-			}
-		}
-	}
-}
-
-void StageSelectScene::FirstClearProcess()
-{
-	// オブジェクトをまだ見つけていない時のみ実行
-	if (m_wpFirstClearObject.expired() == true)
-	{
-		if (m_wpTerrainController.expired() == false)
-		{
-			// 坂を出す演出をする
-			// ターゲットの坂を探すための文字列を作成
-			std::string string = "Stage" + std::to_string(SceneManager::Instance().GetNowStage());
-			int count = 0;
-			for (auto& obj : m_wpTerrainController.lock()->GetObjList())
-			{
-				if (obj.expired() == false)
-				{
-					if (obj.lock()->GetParam().targetName == string)
-					{
-						// 坂なら保持する
-						if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::SlopeGround)
-						{
-							// 保持
-							m_wpFirstClearObject = obj;
-							// カメラにターゲットをセット
-							if (m_wpCamera.expired() == false)
-							{
-								m_wpCamera.lock()->SetTarget(obj.lock());
-								// 演出スタート
-								m_wpCamera.lock()->SetFirstClearFlg(true);
-							}
-						}
-						// 坂以外
-						else
-						{
-							// アクティブにする
-							obj.lock()->Active();
-						}
-						
-						// CSVの中身を書き換える
-						// 坂がもう出た状態に書き換える
-						std::vector<TerrainController::Data>& dataList = m_wpTerrainController.lock()->WorkCSVData();
-						dataList[count].yetActive = 1;
-						m_wpTerrainController.lock()->CSVWriter();
-					}
-				}
-				count++;
 			}
 		}
 	}
@@ -270,6 +173,7 @@ void StageSelectScene::Init()
 
 	// EventObjectController
 	std::shared_ptr<EventObjectController> eventObjectController = std::make_shared<EventObjectController>();
+	eventObjectController->SetStageSelectScene(this);
 	eventObjectController->SetCSV("Asset/Data/CSV/EventObject/StageSelect");	// CSVセット
 	eventObjectController->SetCamera(camera);									// カメラセット
 	eventObjectController->SetStageSelectUI(ui);								// UIセット
@@ -339,6 +243,12 @@ void StageSelectScene::Init()
 		}
 	}
 
+	// 最終ゴールに初クリアかどうかを伝える
+	if (m_wpFinalGoal.expired() == false)
+	{
+		m_wpFinalGoal.lock()->SetFirstClearFlg(m_firstClearFlg);
+	}
+
 	// ツール用マウスクリックで当たり判定をするクラス
 	std::shared_ptr<MouseClickHit> mouseClickHit = std::make_shared<MouseClickHit>();
 	AddObject(mouseClickHit);
@@ -349,4 +259,157 @@ void StageSelectScene::Init()
 	// 音
 	std::shared_ptr<KdSoundInstance> bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageSelectBGM.wav", true);
 	bgm->SetVolume(0.06f);
+}
+
+// シーン開始時の処理
+void StageSelectScene::StartScene()
+{
+	if (!m_wpSceneChange.expired())
+	{
+		m_wpSceneChange.lock()->StartScene(5);
+
+		if (m_wpSceneChange.lock()->GetFinishFlg())
+		{
+			// ステージ初クリアの際の処理
+			if (m_firstClearFlg)
+			{
+				FirstClearProcess();
+
+				// もし初クリアだが演出がない場合はプレイヤーを動けるようにする
+				if (m_wpFirstClearObject.expired() == true)
+				{
+					// プレイヤーを動けるようにする
+					if (m_wpPlayer.expired() == false)
+					{
+						m_wpPlayer.lock()->SetStopFlg(false);
+					}
+				}
+			}
+			// 初クリアでなかったらプレイヤーを動けるようにする
+			else
+			{
+				if (m_wpPlayer.expired() == false)
+				{
+					m_wpPlayer.lock()->SetStopFlg(false);
+				}
+			}
+			m_sceneStartFlg = true;
+			m_wpSceneChange.lock()->Reset();
+		}
+		else
+		{
+			// 終わるまでプレイヤーを止める
+			if (!m_wpPlayer.expired())
+			{
+				m_wpPlayer.lock()->SetStopFlg(true);
+			}
+		}
+	}
+}
+
+// 初クリアしたときの処理
+void StageSelectScene::FirstClearProcess()
+{
+	// オブジェクトをまだ見つけていない時のみ実行
+	if (m_wpFirstClearObject.expired() == true)
+	{
+		if (m_wpTerrainController.expired() == false)
+		{
+			// 坂を出す演出をする
+			// ターゲットの坂を探すための文字列を作成
+			std::string string = "Stage" + std::to_string(SceneManager::Instance().GetNowStage());
+			int count = 0;
+			for (auto& obj : m_wpTerrainController.lock()->GetObjList())
+			{
+				if (obj.expired() == false)
+				{
+					if (obj.lock()->GetParam().targetName == string)
+					{
+						// 坂なら保持する
+						if (obj.lock()->GetObjectType() == KdGameObject::ObjectType::SlopeGround)
+						{
+							// 保持
+							m_wpFirstClearObject = obj;
+						}
+						// 坂以外
+						else
+						{
+							// アクティブにする
+							obj.lock()->Active();
+						}
+
+						// CSVの中身を書き換える
+						// 坂がもう出た状態に書き換える
+						std::vector<TerrainController::Data>& dataList = m_wpTerrainController.lock()->WorkCSVData();
+						dataList[count].yetActive = 1;
+						m_wpTerrainController.lock()->CSVWriter();
+					}
+				}
+				count++;
+			}
+		}
+		// カメラのアニメーション開始
+		m_finalGoalEffectFlg = true;
+		if (m_wpCamera.expired() == false)
+		{
+			// ターゲット設定
+			m_wpCamera.lock()->SetTarget(m_wpFinalGoal.lock());
+			m_wpCamera.lock()->SetFinalGoalProcess();
+		}
+		// 初クリア状態をクリア状態に変更
+		SceneManager::Instance().WorkStageInfo()[SceneManager::Instance().GetNowStage() - 1] = SceneManager::StageInfo::Clear;
+	}
+}
+
+void StageSelectScene::SlopeEffectProcess()
+{
+	std::shared_ptr<TerrainBase> spSlope = m_wpFirstClearObject.lock();
+	// 坂がないなら終了
+	if (!spSlope) return;
+
+	std::shared_ptr<TPSCamera> spCamera = m_wpCamera.lock();
+	// カメラがないなら終了
+	if (!spCamera) return;
+
+	// まだ坂に向かっている途中なら終了
+	if (spCamera->GetSlopeProcessEnd() == false) return;
+
+	// カメラが坂に到着したら最終ゴールの演出をする
+	spSlope->Active();
+
+	// 終了したらカメラを元に戻す
+	if (spSlope->IsActive() == false)
+	{
+		m_slopeEffectFlg = false;
+
+		spCamera->SetBackProcess();
+	}
+}
+
+void StageSelectScene::FinalGoalEffectProcess()
+{
+	std::shared_ptr<FinalGoal> spFinalGoal = m_wpFinalGoal.lock();
+	// 最終ゴールがないなら終了
+	if (!spFinalGoal) return;
+
+	std::shared_ptr<TPSCamera> spCamera = m_wpCamera.lock();
+	// カメラがないなら終了
+	if (!spCamera) return;
+
+	// まだ最終ゴールに向かっている途中なら終了
+	if (spCamera->GetFinalGoalProcessEnd() == false) return;
+
+	// カメラが最終ゴールに到着したら最終ゴールの演出を始める
+	spFinalGoal->FirstClearProcess();
+
+	// 終了したら坂の演出を開始する
+	if (spFinalGoal->IsFirstClearProcess() == true)
+	{
+		m_finalGoalEffectFlg = false;
+		m_slopeEffectFlg = true;
+
+		// ターゲット変更
+		spCamera->SetTarget(m_wpFirstClearObject.lock());
+		spCamera->SetSlopeProcess();
+	}
 }

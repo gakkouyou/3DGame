@@ -19,6 +19,12 @@ void Pause::Update()
 			// ポーズ画面の開始は必ずつづけるから始まる
 			m_nowSelect = Select::Return;
 			m_select	= Select::None;
+
+			// 音を鳴らす
+			if (m_pauseSE.expired() == false)
+			{
+				m_pauseSE.lock()->Play();
+			}
 		}
 	}
 	else
@@ -90,6 +96,11 @@ void Pause::Update()
 				// 動かせなくする
 				m_stopFlg = true;
 				break;
+			}
+
+			if (!m_selectSE.expired())
+			{
+				m_selectSE.lock()->Play();
 			}
 		}
 		else
@@ -185,6 +196,22 @@ void Pause::Init()
 	}
 
 	m_stopFlg = true;
+
+	// 選択したときの音
+	m_selectSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/select.wav");
+	if (!m_selectSE.expired())
+	{
+		m_selectSE.lock()->SetVolume(0.2f);
+		m_selectSE.lock()->Stop();
+	}
+
+	// ポーズ画面を開いた時の音
+	m_pauseSE = KdAudioManager::Instance().Play("Asset/Sounds/SE/pause.wav");
+	if (!m_pauseSE.expired())
+	{
+		m_pauseSE.lock()->SetVolume(0.1f);
+		m_pauseSE.lock()->Stop();
+	}
 }
 
 void Pause::Reset()

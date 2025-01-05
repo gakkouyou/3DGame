@@ -30,11 +30,17 @@ private:
 	const float m_scale = 0.5f;
 
 	// 少し回転させる
-	float m_moveDegAng = 1.0f;
+	float m_moveDegAng = 0.5f;
 	float m_degAng = 0;
+	const float m_addMoveDegAng = 0.5f;	// ゴールした時の演出の際に、くるくる回す時の加算量
+
+	// 正面を向く角度
+	const float m_forwardDegAng = 90.0f;
 
 	// 上下にふよふよさせる
 	float m_sinAngle = 0;
+	// ふよふよさせる高さ
+	const float m_height = 0.5f;
 
 	// ゴールフラグ
 	bool m_goalFlg	= false;

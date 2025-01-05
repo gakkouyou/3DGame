@@ -67,7 +67,7 @@ void GameScene::Event()
 				}
 
 				// ゲームシーンは終了せずに終了
-				GameEnd(60);
+				GameEnd(m_restartTime);
 			}
 		}
 	}
@@ -222,7 +222,7 @@ void GameScene::Init()
 	AddObject(backGround);
 
 	// ===========================================================================
-	// 地形によって挙動が変わるオブジェクトの後に更新するように書く
+	// 地形によって挙動が変わるオブジェクトの前に更新するように書く
 	// ===========================================================================
 	std::shared_ptr<TerrainController> terrainController = std::make_shared<TerrainController>();
 	std::string csvName = "Asset/Data/CSV/Terrain/Stage" + std::to_string(m_nowStage);
@@ -358,7 +358,7 @@ void GameScene::StartGameScene()
 {
 	if (!m_wpSceneChange.expired())
 	{
-		m_wpSceneChange.lock()->StartScene(5);
+		m_wpSceneChange.lock()->StartScene(m_fadeInTime);
 
 		if (m_wpSceneChange.lock()->GetFinishFlg())
 		{
@@ -480,7 +480,7 @@ void GameScene::GameSceneReStart()
 		}
 		else
 		{
-			m_wpSceneChange.lock()->StartScene(5);
+			m_wpSceneChange.lock()->StartScene(m_fadeInTime);
 		}
 	}
 }

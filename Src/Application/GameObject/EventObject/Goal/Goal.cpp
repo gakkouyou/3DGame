@@ -25,7 +25,8 @@ void Goal::Update()
 		}
 
 		Math::Vector3 pos = m_pos;
-		pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
+		pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle)) * m_height;
+		Application::Instance().m_log.AddLog("%f\n", pos.y);
 
 		// 回転させる
 		m_degAng += m_moveDegAng;
@@ -46,17 +47,17 @@ void Goal::Update()
 		if (m_goalStayCount > m_goalStayTime)
 		{
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
-			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90));
+			Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_forwardDegAng));
 
 			m_mWorld = scaleMat * rotMat * transMat;
 		}
 		else
 		{
 			m_degAng += m_moveDegAng;
-			m_moveDegAng += 0.5f;
+			m_moveDegAng += m_addMoveDegAng;
 
 			Math::Vector3 pos = m_pos;
-			pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle));
+			pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle)) * m_height;
 
 			Math::Matrix transMat = Math::Matrix::CreateTranslation(pos);
 

@@ -8,6 +8,7 @@
 		"m_underLine"			: -30.0,
 		"m_stayTime"			: 30,
 		"m_maxDegAng"			: 10,
-		"m_baseDegAng"			: 180
+		"m_baseDegAng"			: 180,
+		"m_jumpChargeTime"		: 30
 	}
 }

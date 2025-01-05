@@ -183,6 +183,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.h" />
@@ -290,6 +291,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\CarryObject\CarryObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.cpp" />

@@ -4,6 +4,7 @@ class CameraBase;
 class Player;
 class EventObjectBase;
 class StageSelectUI;
+class StageSelectScene;
 
 class EventObjectController : public KdGameObject
 {
@@ -61,6 +62,9 @@ public:
 	// 動かすオブジェクトのセット
 	void SetObject(std::weak_ptr<EventObjectBase> _wpTargetObject);
 
+	// ステージセレクトシーンのセット
+	void SetStageSelectScene(StageSelectScene* _pStageSelectScene) { m_pStageSelectScene = _pStageSelectScene; }
+
 private:
 	// CSVファイルの名前
 	std::string m_fileName;
@@ -77,6 +81,8 @@ private:
 	std::weak_ptr<Player>		m_wpPlayer;
 	// ステージセレクトのUI
 	std::weak_ptr<StageSelectUI> m_wpStageSelectUI;
+	// ステージセレクトシーン
+	StageSelectScene* m_pStageSelectScene = nullptr;
 
 	// 最初にCSVから読み込んだデータを基にオブジェクトを作成する
 	void BeginCreateObject();

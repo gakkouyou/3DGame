@@ -97,6 +97,9 @@ void KdAmbientController::SetDirLight(const Math::Vector3& dir, const Math::Vect
 
 	m_parameter.m_directionalLightColor = col;
 
+	KdShaderManager::Instance().WriteCBDirectionalLight(
+		m_parameter.m_directionalLightDir, m_parameter.m_directionalLightColor);
+
 	m_dirtyLightDir = true;
 }
 
@@ -160,14 +163,14 @@ void KdAmbientController::WriteLightParams()
 		m_dirtyLightAmb = false;
 	}
 
-	// 平行光
-	if (m_dirtyLightDir)
-	{
-		KdShaderManager::Instance().WriteCBDirectionalLight(
-			m_parameter.m_directionalLightDir, m_parameter.m_directionalLightColor);
+	//// 平行光
+	//if (m_dirtyLightDir)
+	//{
+	//	KdShaderManager::Instance().WriteCBDirectionalLight(
+	//		m_parameter.m_directionalLightDir, m_parameter.m_directionalLightColor);
 
-		m_dirtyLightDir = false;
-	}
+	//	m_dirtyLightDir = false;
+	//}
 
 	// 点光源
 	if (m_pointLights.size() || m_pointLightsNum != 0)

@@ -108,6 +108,8 @@ void MouseClickHit::ClickHit()
 		{
 			for (auto& obj : m_wpTerrainController.lock()->GetObjList())
 			{
+				// 存在しなければ飛ばす
+				if (obj.expired() == true) continue;
 				if (hitObj->GetObjectName() == obj.lock()->GetObjectName())
 				{
 					m_wpTerrainController.lock()->SetObject(obj);
@@ -122,6 +124,8 @@ void MouseClickHit::ClickHit()
 		{
 			for (auto& obj : m_wpEventController.lock()->GetObjList())
 			{
+				// 存在しなければ飛ばす
+				if (obj.expired() == true) continue;
 				if (hitObj->GetObjectName() == obj.lock()->GetObjectName())
 				{
 					m_wpEventController.lock()->SetObject(obj);
@@ -136,6 +140,8 @@ void MouseClickHit::ClickHit()
 		{
 			for (auto& obj : m_wpEnemyController.lock()->GetObjList())
 			{
+				// 存在しなければ飛ばす
+				if (obj.expired() == true) continue;
 				if (hitObj->GetObjectName() == obj.lock()->GetObjectName())
 				{
 					m_wpEnemyController.lock()->SetObject(obj);
@@ -150,6 +156,8 @@ void MouseClickHit::ClickHit()
 		{
 			for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
 			{
+				// 存在しなければ飛ばす
+				if (obj.expired() == true) continue;
 				if (hitObj->GetObjectName() == obj.lock()->GetObjectName())
 				{
 					m_wpCarryObjectController.lock()->SetObject(obj);
@@ -163,6 +171,7 @@ void MouseClickHit::ClickHit()
 
 void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
 {
+	// 指定されたのが地形じゃなければ地形を確定
 	if (_objectType != BaseObjectType::Ground)
 	{
 		if (m_wpTerrainController.expired() == false)
@@ -170,6 +179,7 @@ void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
 			m_wpTerrainController.lock()->ConfirmedObject();
 		}
 	}
+	// 指定されたのがイベントじゃなければイベントを確定
 	if (_objectType != BaseObjectType::Event)
 	{
 		if (m_wpEventController.expired() == false)
@@ -177,6 +187,7 @@ void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
 			m_wpEventController.lock()->ConfirmedObject();
 		}
 	}
+	// 指定されたのが敵じゃなければ敵を確定
 	if (_objectType != BaseObjectType::Enemy)
 	{
 		if (m_wpEnemyController.expired() == false)
@@ -184,6 +195,7 @@ void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
 			m_wpEnemyController.lock()->ConfirmedObject();
 		}
 	}
+	// 指定されたのが運べるオブジェクトじゃなければ運べるオブジェクトを確定
 	if (_objectType != BaseObjectType::CarryObject)
 	{
 		if (m_wpCarryObjectController.expired() == false)

@@ -115,19 +115,19 @@ void SavePoint::DrawLit()
 
 void SavePoint::DrawUnLit()
 {
-	if (m_situationType != SituationType::NotStand) return;
-	if (m_spEffectModel)
-	{
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, m_effectMat);
-		KdShaderManager::Instance().UndoRasterizerState();
-	}
+	//if (m_situationType != SituationType::NotStand) return;
+	//if (m_spEffectModel)
+	//{
+	//	KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, m_effectMat);
+	//	KdShaderManager::Instance().UndoRasterizerState();
+	//}
 }
 
 void SavePoint::DrawBright()
 {
 	if (m_situationType != SituationType::NotStand) return;
-	Math::Color color = { 0.3, 0.3, 0.3, 1 };
+	Math::Color color = { 1.0f, 1.0f, 1.0f, 1 - (1/m_effectScaleMax*m_effectScale)};
 	if (m_spEffectModel)
 	{
 		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
@@ -144,7 +144,7 @@ void SavePoint::Init()
 	m_spModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/savePoint.gltf");
 
 	// 土台
-	m_spBaseModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Base/base.gltf");
+	m_spBaseModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Base/base2.gltf");
 
 	// エフェクト
 	m_spEffectModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/EventObject/SavePoint/Effect/effect.gltf");

@@ -29,6 +29,7 @@ private:
 	std::shared_ptr<KdModelData> m_spEffectModel = nullptr;
 	float m_effectScale = 0;
 	float m_addEffectScale = 0.02f;
+	float m_effectScaleMax = 1.5f;
 	Math::Matrix m_effectMat;
 
 	Math::Matrix m_flagMat;

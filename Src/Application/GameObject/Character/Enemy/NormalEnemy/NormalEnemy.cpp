@@ -5,6 +5,8 @@
 #include "../../Player/Player.h"
 #include "../../../Effect/Smoke/Smoke.h"
 
+#include "../../../Terrain/MoveObjectRideProcess/MoveObjectRideProcess.h"
+
 void NormalEnemy::Update()
 {
 	if (m_aliveFlg == false) return;
@@ -22,12 +24,7 @@ void NormalEnemy::Update()
 		{
 			if (m_wpHitTerrain.expired() == false)
 			{
-				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
-
-				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
-
-				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-				m_pos = m_mWorld.Translation();
+				m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_moveGround.transMat, m_wpHitTerrain.lock()->GetPos());
 			}
 		}
 
@@ -86,27 +83,20 @@ void NormalEnemy::PostUpdate()
 		// 無かったら終了
 		if (!spHitTerrain) return;
 		Math::Vector3 terrainPos = spHitTerrain->GetPos();
-		// プレイヤーから回転床までの距離
-		Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
-		vec.z = 0;
-		float length = vec.Length();
-		// 移動する前の回転床から見たプレイヤーの角度
-		float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
+		// 回転床が回転する角度
+		Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
 
-		if (degAng <= 90 && degAng >= -90)
+		// Z軸回転の場合
+		if (rotDegAng.z != 0)
 		{
-			degAng -= 90;
-			if (degAng < 0)
-			{
-				degAng += 360;
-			}
-			degAng = 360 - degAng;
-
-			// 回転床が回転する角度
-			float lotDegAng = spHitTerrain->GetParam().degAng.z;
-			degAng += lotDegAng;
-			m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-			m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
+			// 回転床に乗った時の処理
+			MoveObjectRideProcess::Instance().RotationGroundRide(m_pos, terrainPos, rotDegAng);
+		}
+		// Y軸回転の場合
+		else if (rotDegAng.y != 0)
+		{
+			// プロペラに乗った時の処理
+			MoveObjectRideProcess::Instance().PropellerRide(m_pos, terrainPos, rotDegAng, m_degAng);
 		}
 	}
 
@@ -121,7 +111,7 @@ void NormalEnemy::PostUpdate()
 		DeathProcess();
 	}
 
-	/// 拡縮行列
+	// 拡縮行列
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
 	m_mWorld = scaleMat * m_rotMat * transMat;

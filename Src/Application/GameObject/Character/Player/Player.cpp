@@ -13,6 +13,8 @@
 #include "../../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 #include "../../EventObject/EventObjectBase.h"
 
+#include "../../Terrain/MoveObjectRideProcess/MoveObjectRideProcess.h"
+
 #include "../../../main.h"
 
 void Player::Update()
@@ -20,23 +22,24 @@ void Player::Update()
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) return;
 	// ポーズ画面中は更新しない
-	if (m_pauseFlg == true) return;
+	if (m_pauseFlg == true)
+	{
+		// ポーズから戻ってきたときにアクションをしてしまう事を防止
+		m_actionKeyFlg = true;
+		return;
+	}
 
 	// 動く床に乗っていた時の処理
 	if (m_moveGround.hitFlg == true)
 	{
+		// 一緒に動く
 		if (m_wpHitTerrain.expired() == false)
 		{
-			Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
-
-			Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
-
-			m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-			m_pos = m_mWorld.Translation();
+			m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_moveGround.transMat, m_wpHitTerrain.lock()->GetPos());
 		}
 	}
 
-	// 運べるオブジェクトに乗っている時の処理(地面に触れている場合)
+	// 運べるオブジェクトに乗っている時の処理(箱べるオブジェクトが地面に触れている場合)
 	if (m_carryObjectHitTerrain.hitFlg)
 	{
 		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
@@ -45,14 +48,10 @@ void Player::Update()
 			switch (spHitTerrain->GetObjectType())
 			{
 				// 動く床の場合
+				// 動く床に乗っている運べるオブジェクトに乗っている時に、一緒に動く
 			case ObjectType::MoveGround:
 			{
-				Math::Matrix localMatFromRideObject = m_mWorld * m_carryObjectHitTerrain.transMat.Invert();
-
-				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(spHitTerrain->GetPos());
-
-				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-				m_pos = m_mWorld.Translation();
+				m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_carryObjectHitTerrain.transMat, spHitTerrain->GetPos());
 			}
 			}
 		}
@@ -93,7 +92,9 @@ void Player::Update()
 	{
 		m_situationType = SituationType::Idle;
 	}
-	// 移動初期化
+	// 入力前の移動ベクトルを保持
+	Math::Vector3 oldMoveVec = m_moveVec;
+	// 移動ベクトル初期化
 	m_moveVec = Math::Vector3::Zero;
 
 	if (m_stopFlg == false)
@@ -119,7 +120,7 @@ void Player::Update()
 		// WASDで移動
 		if (GetAsyncKeyState(VK_UP) & 0x8000)
 		{
-			m_moveVec.z += 1.0f;
+			m_moveVec += Math::Vector3::Backward;
 			// 運んでいる状態なら歩く
 			if (m_situationType & SituationType::Carry)
 			{
@@ -134,7 +135,7 @@ void Player::Update()
 		}
 		if (GetAsyncKeyState(VK_LEFT) & 0x8000)
 		{
-			m_moveVec.x -= 1.0f;
+			m_moveVec += Math::Vector3::Left;
 			// 運んでいる状態なら歩く
 			if (m_situationType & SituationType::Carry)
 			{
@@ -149,7 +150,7 @@ void Player::Update()
 		}
 		if (GetAsyncKeyState(VK_DOWN) & 0x8000)
 		{
-			m_moveVec.z -= 1.0f;
+			m_moveVec += Math::Vector3::Forward;
 			// 運んでいる状態なら歩く
 			if (m_situationType & SituationType::Carry)
 			{
@@ -164,7 +165,7 @@ void Player::Update()
 		}
 		if (GetAsyncKeyState(VK_RIGHT) & 0x8000)
 		{
-			m_moveVec.x += 1.0f;
+			m_moveVec += Math::Vector3::Right;
 			// 運んでいる状態なら歩く
 			if (m_situationType & SituationType::Carry)
 			{
@@ -234,7 +235,7 @@ void Player::Update()
 				SceneManager::Instance().AddObject(smoke);
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
-				m_nowWalkSoundFlg = false;
+				m_nowWalkSEFlg = false;
 			}
 			// 煙を出すカウント
 			m_smokeCount++;
@@ -254,7 +255,7 @@ void Player::Update()
 				// 煙を出すカウントをリセット
 				m_smokeCount = 0;
 				// 歩く音をもう一度鳴らせるようにする
-				m_nowWalkSoundFlg = false;
+				m_nowWalkSEFlg = false;
 			}
 			// 煙を出すカウント
 			m_smokeCount++;
@@ -286,36 +287,33 @@ void Player::Update()
 					m_gravity = -m_jumpPow;
 
 					// ジャンプ音を鳴らす
-					if (m_jumpSound.flg == false)
+					if (m_jumpSE.flg == false)
 					{
-						if (!m_jumpSound.wpSound.expired())
+						if (!m_jumpSE.wpSound.expired())
 						{
-							m_jumpSound.wpSound.lock()->Play();
-							m_jumpSound.flg = true;
+							m_jumpSE.wpSound.lock()->Play();
+							m_jumpSE.flg = true;
 						}
 					}
 				}
 			}
 		}
 	}
-
-	// 移動
-	// 歩き
+		// 移動
+		// 歩き
 	if (m_situationType & SituationType::Walk)
 	{
 		m_pos += m_moveVec * m_walkSpeed;
 	}
-	// 走り
+		// 走り
 	else if (m_situationType & SituationType::Run)
 	{
+		// 高速ダッシュ
 		if (GetAsyncKeyState(VK_CONTROL) & 0x8000)
 		{
 			m_pos += m_moveVec * 1.0f;
 		}
-		else
-		{
-			m_pos += m_moveVec * m_runSpeed;
-		}
+		m_pos += m_moveVec * m_runSpeed;
 	}
 
 	if (m_goalJumpFlg == false)
@@ -352,37 +350,70 @@ void Player::Update()
 	if (m_situationType & SituationType::Walk || m_situationType & SituationType::Run)
 	{
 		// 回転
-		RotationCharacter(m_angle, m_moveVec, 10.0f);
+		RotationCharacter(m_angle, m_moveVec, m_maxAngle);
 
 		// 回転行列
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 	}
 
-	// 運び状態を解除する
-	if (GetAsyncKeyState('Z') & 0x8000)
+	if (m_stopFlg == false)
 	{
-		if (m_situationType & SituationType::Carry)
+		if (GetAsyncKeyState('Z') & 0x8000)
 		{
 			if (m_actionKeyFlg == false)
 			{
-				if (m_wpCarryObject.expired() == false)
+				// 運び状態を解除する
+				if (m_situationType & SituationType::Carry)
 				{
-					// 運ばれていない状態にする
-					m_wpCarryObject.lock()->CarryFlg(false);
-					m_wpCarryObject.reset();
+					if (m_wpCarryObject.expired() == false)
+					{
+						// 運ばれていない状態にする
+						m_wpCarryObject.lock()->CarryFlg(false);
+						m_wpCarryObject.reset();
+					}
+					// 状態の切り替え
+					m_situationType &= (~SituationType::Carry);
+					// 歩き状態の解除
+					m_situationType &= (~SituationType::Walk);
+					// キーフラグ
+					m_actionKeyFlg = true;
+					// 音を鳴らす
+					if (m_letGoSE.wpSound.expired() == false)
+					{
+						m_letGoSE.wpSound.lock()->Play();
+					}
 				}
-				// 状態の切り替え
-				m_situationType &= (~SituationType::Carry);
-				// 歩き状態の解除
-				m_situationType &= (~SituationType::Walk);
-				// キーフラグ
-				m_actionKeyFlg = true;
+				// 運んでいなくて、持てる状態でないなら空ぶる
+				else
+				{
+					// 箱を持てない状態、かつ空中ではない、かつステージに入れない状態の時、空ぶる
+					if (m_holdFlg == false && !(m_situationType & SituationType::Air) && m_stageSelectObjectFlg == false)
+					{
+						m_stopFlg = true;
+						m_missingShotFlg = true;
+						SetAnimation("Carry", true);
+						// キーフラグ
+						m_actionKeyFlg = true;
+					}
+				}
 			}
 		}
+		else
+		{
+			m_actionKeyFlg = false;
+		}
 	}
-	else
+
+	if (m_missingShotFlg == true)
 	{
-		m_actionKeyFlg = false;
+		m_missingShotCount++;
+		if (m_missingShotCount > m_missingShotTime)
+		{
+			m_missingShotCount = 0;
+			m_stopFlg = false;
+			m_missingShotFlg = false;
+			SetAnimation("Idle", true);
+		}
 	}
 
 	// ゴールの処理
@@ -421,8 +452,8 @@ void Player::PostUpdate()
 		if (m_oldSituationType & SituationType::Air)
 		{
 			// ジャンプ音のフラグをfalseに
-			m_jumpSound.flg = false;
-			m_nowWalkSoundFlg = false;
+			m_jumpSE.flg = false;
+			m_nowWalkSEFlg = false;
 		}
 	}
 
@@ -436,7 +467,7 @@ void Player::PostUpdate()
 	// 運べるオブジェクトの場合の音
 	if (m_carryObject.hitFlg == true)
 	{
-		m_walkSoundType = WalkSoundType::Tile;
+		m_walkSEType = WalkSEType::Tile;
 	}
 	else if (!m_wpHitTerrain.expired())
 	{
@@ -447,7 +478,7 @@ void Player::PostUpdate()
 		case ObjectType::NormalGround:
 		case ObjectType::SlopeGround:
 		case ObjectType::RotationGround:
-			m_walkSoundType = WalkSoundType::Grass;
+			m_walkSEType = WalkSEType::Grass;
 			break;
 
 		case ObjectType::BoundGround:
@@ -455,7 +486,7 @@ void Player::PostUpdate()
 
 			// コツコツ見たいな音
 		default:
-			m_walkSoundType = WalkSoundType::Tile;
+			m_walkSEType = WalkSEType::Tile;
 			break;
 		}
 	}
@@ -463,20 +494,20 @@ void Player::PostUpdate()
 	// 空中にいなかったら歩く音を鳴らすようにする
 	if (((m_situationType & Air) == 0))
 	{
-		if (m_nowWalkSoundFlg == false)
+		if (m_nowWalkSEFlg == false)
 		{
 			// シーン開始後の着地音防止
 			if (m_firstLandFlg == false)
 			{
 				m_firstLandFlg = true;
-				m_nowWalkSoundFlg = true;
+				m_nowWalkSEFlg = true;
 			}
 			else
 			{
-				if (m_wpWalkSound[m_walkSoundType].expired() == false)
+				if (m_wpWalkSE[m_walkSEType].expired() == false)
 				{
-					m_wpWalkSound[m_walkSoundType].lock()->Play();
-					m_nowWalkSoundFlg = true;
+					m_wpWalkSE[m_walkSEType].lock()->Play();
+					m_nowWalkSEFlg = true;
 				}
 			}
 		}
@@ -484,9 +515,9 @@ void Player::PostUpdate()
 	// 止める
 	else
 	{
-		if (m_wpWalkSound[m_walkSoundType].expired() == false)
+		if (m_wpWalkSE[m_walkSEType].expired() == false)
 		{
-			m_wpWalkSound[m_walkSoundType].lock()->Stop();
+			m_wpWalkSE[m_walkSEType].lock()->Stop();
 		}
 	}
 
@@ -500,65 +531,23 @@ void Player::PostUpdate()
 		// 無かったら終了
 		if (!spHitTerrain) return;
 		Math::Vector3 terrainPos = spHitTerrain->GetPos();
-		// プレイヤーから回転床までの距離
-		Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
 		// 回転床が回転する角度
-		Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+		Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
 
 		// Z軸回転の場合
-		if (lotDegAng.z != 0)
+		if (rotDegAng.z != 0)
 		{
-			vec.z = 0;
-			float length = vec.Length();
-			// 移動する前の回転床から見たプレイヤーの角度
-			float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-
-			if (degAng <= 90 && degAng >= -90)
-			{
-				degAng -= 90;
-				if (degAng < 0)
-				{
-					degAng += 360;
-				}
-				degAng = 360 - degAng;
-
-				degAng += lotDegAng.z;
-				m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-				m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
-			}
+			// 回転床に乗った時の処理
+			MoveObjectRideProcess::Instance().RotationGroundRide(m_pos, terrainPos, rotDegAng);
 		}
 		// Y軸回転の場合
-		else if (lotDegAng.y != 0)
+		else if (rotDegAng.y != 0)
 		{
-			vec = m_pos - spHitTerrain->GetPos();
-			vec.y = 0;
-			float length = vec.Length();
-			// 移動する前の回転床から見たプレイヤーの角度
-			float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
+			// プロペラに乗った時の処理
+			MoveObjectRideProcess::Instance().PropellerRide(m_pos, terrainPos, rotDegAng, m_angle);
 
-			//if (degAng <= 90 && degAng >= -90)
-			{
-				degAng -= 90;
-				if (degAng < 0)
-				{
-					degAng += 360;
-				}
-				if (degAng >= 360)
-				{
-					degAng -= 360;
-				}
-				degAng = 360 - degAng;
-
-				// 回転床が回転する角度
-				degAng -= lotDegAng.y;
-				m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-				m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
-
-				// プレイヤーの角度を変える
-				m_angle += lotDegAng.y;
-				// 回転行列
-				m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-			}
+			// 回転行列
+			m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 		}
 	}
 
@@ -570,115 +559,30 @@ void Player::PostUpdate()
 		{
 			switch (spHitTerrain->GetObjectType())
 			{
-					// 動く床の場合
-				case ObjectType::MoveGround:
-				{
-					// 動く床の動く前の逆行列
-					Math::Matrix inverseMatrix = m_carryObjectHitTerrain.transMat.Invert();
-					// 動く床から見たプレイヤーの座標行列
-					Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-					// 動く床の動いた後の行列
-					Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitTerrain->GetMatrix().Translation());
-
-					// 座標を確定
-					m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
-					break;
-				}
 				// 回る床の場合(Z軸)
 				case ObjectType::RotationGround:
 				{
 					Math::Vector3 terrainPos = spHitTerrain->GetPos();
-					// プレイヤーから回転床までの距離
-					Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
 					// 回転床が回転する角度
-					Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+					Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
 
-					// Z軸回転の場合
-					if (lotDegAng.z != 0)
-					{
-						vec.z = 0;
-						float length = vec.Length();
-						// 移動する前の回転床から見たプレイヤーの角度
-						float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-
-						if (degAng <= 90 && degAng >= -90)
-						{
-							degAng -= 90;
-							if (degAng < 0)
-							{
-								degAng += 360;
-							}
-							degAng = 360 - degAng;
-
-							degAng += lotDegAng.z;
-							m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-							m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
-						}
-					}
+					// 回転床に乗った時の処理
+					MoveObjectRideProcess::Instance().RotationGroundRide(m_pos, terrainPos, rotDegAng);
 					break;
 				}
 				case ObjectType::Propeller:
 				{
 					Math::Vector3 terrainPos = spHitTerrain->GetPos();
-					// プレイヤーから回転床までの距離
-					Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
 					// 回転床が回転する角度
-					Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
-					// Y軸回転の場合
-					if (lotDegAng.y != 0)
-					{
-						vec = m_pos - spHitTerrain->GetPos();
-						vec.y = 0;
-						float length = vec.Length();
-						// 移動する前の回転床から見たプレイヤーの角度
-						float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
+					Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
+					
+					// プロペラに乗った時の処理
+					MoveObjectRideProcess::Instance().PropellerRide(m_pos, terrainPos, rotDegAng, m_angle);
 
-						//if (degAng <= 90 && degAng >= -90)
-						{
-							degAng -= 90;
-							if (degAng < 0)
-							{
-								degAng += 360;
-							}
-							if (degAng >= 360)
-							{
-								degAng -= 360;
-							}
-							degAng = 360 - degAng;
-
-							// 回転床が回転する角度
-							degAng -= lotDegAng.y;
-							m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-							m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
-
-							// プレイヤーの角度を変える
-							m_angle += lotDegAng.y;
-							// 回転行列
-							m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
-						}
-					}
+					// 回転行列
+					m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 				}
 			}
-		}
-	}
-	// 運べるオブジェクトに乗っている時の処理(地面に触れていない場合)
-	else if (m_carryObject.hitFlg)
-	{
-		// 動く前の逆行列
-		Math::Matrix inverseMatrix = m_carryObject.transMat.Invert();
-		// 動く床から見たプレイヤーの座標行列
-		Math::Matrix playerMat = Math::Matrix::CreateTranslation(m_pos) * inverseMatrix;
-
-		// 動く床の場合
-		std::shared_ptr<KdGameObject> spHitObject = m_wpHitCarryObject.lock();
-		if (spHitObject)
-		{
-			// 動く床の動いた後の行列
-			Math::Matrix afterMoveGroundMat = Math::Matrix::CreateTranslation(spHitObject->GetMatrix().Translation());
-
-			// 座標を確定
-			m_pos = afterMoveGroundMat.Translation() + playerMat.Translation();
 		}
 	}
 
@@ -691,12 +595,11 @@ void Player::PostUpdate()
 	if (m_aliveFlg == true)
 	{
 		// アニメーションの更新
-		// 止まっていたらアニメーションしない
 		m_spAnimator->AdvanceTime(m_spModel->WorkNodes());
 		m_spModel->CalcNodeMatrices();
 	}
 
-	// 3D音用
+	// 3D音のリスナーにプレイヤーを設定
 	KdAudioManager::Instance().SetListnerMatrix(m_mWorld);
 }
 
@@ -704,7 +607,9 @@ void Player::GenerateDepthMapFromLight()
 {
 	if (m_spModel)
 	{
+		KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 0, -1, 0 }, { 3, 3, 3 });
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		KdShaderManager::Instance().WorkAmbientController().SetDirLight({ 1, -1, 1 }, { 3, 3, 3 });
 	}
 }
 
@@ -713,7 +618,6 @@ void Player::DrawLit()
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
-
 	}
 }
 
@@ -753,47 +657,42 @@ void Player::Init()
 
 	// 音
 	// 草の上を歩いた音
-	m_wpWalkSound[WalkSoundType::Grass] = KdAudioManager::Instance().Play("Asset/Sounds/SE/grassWalk.wav", false);
-	if (!m_wpWalkSound[WalkSoundType::Grass].expired())
-	{
-		m_wpWalkSound[WalkSoundType::Grass].lock()->SetVolume(0.3f);
-		m_wpWalkSound[WalkSoundType::Grass].lock()->Stop();
-	}
-	m_nowWalkSoundFlg = false;
+	SoundLoad(m_wpWalkSE[WalkSEType::Grass], "Asset/Sounds/SE/grassWalk.wav", 0.3f);
 	// かたい地面を歩いた音
-	m_wpWalkSound[WalkSoundType::Tile] = KdAudioManager::Instance().Play("Asset/Sounds/SE/tileWalk.wav", false);
-	if (!m_wpWalkSound[WalkSoundType::Tile].expired())
-	{
-		m_wpWalkSound[WalkSoundType::Tile].lock()->SetVolume(0.15f);
-		m_wpWalkSound[WalkSoundType::Tile].lock()->Stop();
-	}
+	SoundLoad(m_wpWalkSE[WalkSEType::Tile], "Asset/Sounds/SE/tileWalk.wav", 0.15f);
+	// 歩いているSEを鳴らしているかのフラグ
+	m_nowWalkSEFlg = false;
 
 	// ジャンプ音
-	m_jumpSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/jump.wav", false);
-	if (!m_jumpSound.wpSound.expired())
-	{
-		m_jumpSound.wpSound.lock()->SetVolume(0.03f);
-		m_jumpSound.wpSound.lock()->Stop();
-	}
-	m_jumpSound.flg = false;
+	SoundLoad(m_jumpSE.wpSound, "Asset/Sounds/SE/jump.wav", 0.03f);
+	m_jumpSE.flg = false;
 
 	// 敵を踏んだ時の音
-	m_stampSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/stamp.wav", false);
-	if (!m_stampSound.wpSound.expired())
-	{
-		m_stampSound.wpSound.lock()->SetVolume(0.03f);
-		m_stampSound.wpSound.lock()->Stop();
-	}
-	m_stampSound.flg = false;
+	SoundLoad(m_stampSE.wpSound, "Asset/Sounds/SE/stamp.wav", 0.03f);
+	m_stampSE.flg = false;
 
 	// キノコではねた時の音
-	m_boundSound.wpSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/bound.wav", false);
-	if (!m_boundSound.wpSound.expired())
-	{
-		m_boundSound.wpSound.lock()->SetVolume(0.06f);
-		m_boundSound.wpSound.lock()->Stop();
-	}
-	m_boundSound.flg = false;
+	SoundLoad(m_boundSE.wpSound, "Asset/Sounds/SE/bound.wav", 0.06f);
+	m_boundSE.flg = false;
+
+	// 落下死したときの音
+	SoundLoad(m_dropSE.wpSound, "Asset/Sounds/SE/drop.wav", 0.06f);
+
+	// ゴールした時のSE
+	SoundLoad(m_goalSE.wpSound, "Asset/Sounds/SE/goal.wav", 0.06f);
+	m_goalSE.flg = false;
+
+	// ゴールした時のBGM
+	SoundLoad(m_goalBGM.wpSound, "Asset/Sounds/BGM/clear.wav", 0.03f);
+
+	// ステージを選択したときの音
+	SoundLoad(m_stageSelectSE.wpSound, "Asset/Sounds/SE/select.wav", 0.2f);
+
+	// 箱を持った時の音
+	SoundLoad(m_holdSE.wpSound, "Asset/Sounds/SE/hold.wav", 0.03f);
+
+	// 箱を離した時の音
+	SoundLoad(m_letGoSE.wpSound, "Asset/Sounds/SE/letGo.wav", 0.03f);
 }
 
 void Player::Reset()
@@ -822,10 +721,14 @@ void Player::Reset()
 	// 煙カウント
 	m_smokeCount = 0;
 
-	m_jumpSound.flg = false;
+	m_jumpSE.flg = false;
 
 	m_firstLandFlg = false;
 	m_pauseFlg = false;
+
+	m_holdFlg = false;
+	m_missingShotCount = 0;
+	m_missingShotFlg = false;
 }
 
 void Player::BackPos()
@@ -884,14 +787,11 @@ void Player::HitJudge()
 	// 地面との当たり判定
 	HitJudgeGround();
 
-	if (m_stopFlg == false || (SceneManager::Instance().GetNowScene() == SceneManager::SceneType::StageSelect))
-	{
-		// 触れたらイベントが発生する
-		HitJudgeEvent();
+	// 触れたらイベントが発生する
+	HitJudgeEvent();
 
-		// 敵との当たり判定
-		HitJudgeEnemy();
-	}
+	// 敵との当たり判定
+	HitJudgeEnemy();
 }
 
 void Player::HitJudgeGround()
@@ -965,7 +865,7 @@ void Player::HitJudgeGround()
 			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 
 			// 音のフラグをリセットする
-			m_boundSound.flg = false;	// きのこで跳ねた時の音
+			m_boundSE.flg = false;	// きのこで跳ねた時の音
 
 			if (spHitObject)
 			{
@@ -984,12 +884,12 @@ void Player::HitJudgeGround()
 					m_situationType |= SituationType::Jump;
 
 					// 跳ねた時の音を鳴らす
-					if (m_boundSound.flg == false)
+					if (m_boundSE.flg == false)
 					{
-						if (!m_boundSound.wpSound.expired())
+						if (!m_boundSE.wpSound.expired())
 						{
-							m_boundSound.wpSound.lock()->Play();
-							m_boundSound.flg = true;
+							m_boundSE.wpSound.lock()->Play();
+							m_boundSE.flg = true;
 						}
 					}
 					break;
@@ -1065,7 +965,8 @@ void Player::HitJudgeGround()
 		Math::Vector3 leftFrontUpPos = m_spModel->FindNode("LeftFrontUp")->m_worldTransform.Translation();
 		// キャラクターの高さ
 		float charaHighLength = rightBackUpPos.y;
-		float radius = abs(rightBackUpPos.z - leftFrontUpPos.z);
+		float radius = 0.35f;
+		//float radius = abs(rightBackUpPos.z - leftFrontUpPos.z);
 		// 中心座標(キャラクターの真ん中)
 		boxInfo.m_Abox.Center = m_pos;
 		boxInfo.m_Abox.Center.y += charaHighLength / 2.0f;
@@ -1115,8 +1016,6 @@ void Player::HitJudgeGround()
 			bool hitFlg = false;
 			// 当たった結果
 			std::list<KdCollider::CollisionResult> collisionResultList;
-			// 複数に当たったかどうかのフラグ
-			bool multiHitFlg = false;
 
 			if (fineHitFlg == false)
 			{
@@ -1267,15 +1166,19 @@ void Player::HitJudgeEvent()
 					// ゴール
 				case ObjectType::Goal:
 				{
+					// ゴールしたフラグを立てる
 					m_goalFlg = true;
 					// 操作を止める
 					SetStopFlg(true);
 
-					if (m_goalSEFlg == false)
+					// ゴールした時のSEを鳴らす
+					if (m_goalSE.flg == false)
 					{
-						std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/SE/goal.wav", false);
-						se->SetVolume(0.06f);
-						m_goalSEFlg = true;
+						if (m_goalSE.wpSound.expired() == false)
+						{
+							m_goalSE.wpSound.lock()->Play();
+						}
+						m_goalSE.flg = true;
 					}
 					break;
 				}
@@ -1285,6 +1188,7 @@ void Player::HitJudgeEvent()
 					// リスポーン地点を更新
 					m_respawnPos = spHitObject->GetPos();
 					m_respawnPos.z -= 1.0f;
+					// セーブポイントの旗を立っている状態にする
 					for (auto& data : m_wpEventObjectController.lock()->WorkCSVData())
 					{
 						if (data.name == spHitObject->GetObjectName())
@@ -1320,6 +1224,9 @@ void Player::HitJudgeEvent()
 		}
 	}
 
+
+	// フラグリセット
+	m_stageSelectObjectFlg = false;
 	std::shared_ptr<KdGameObject> spHitObject = nullptr;
 	// ステージセレクトのオブジェクトとの視野角判定
 	for (auto& obj : SceneManager::Instance().GetObjList())
@@ -1354,6 +1261,8 @@ void Player::HitJudgeEvent()
 			{
 				spHitObject = obj;
 			}
+
+			m_stageSelectObjectFlg = true;
 		}
 	}
 	// もし当たっていたら一番近いオブジェクトだけ処理をする
@@ -1371,8 +1280,10 @@ void Player::HitJudgeEvent()
 				// キーフラグ
 				m_actionKeyFlg = true;
 
-				std::shared_ptr<KdSoundInstance> spSound = KdAudioManager::Instance().Play("Asset/Sounds/SE/select.wav");
-				spSound->SetVolume(0.2f);
+				if (!m_stageSelectSE.wpSound.expired())
+				{
+					m_stageSelectSE.wpSound.lock()->Play();
+				}
 			}
 		}
 		else
@@ -1429,7 +1340,7 @@ void Player::HitJudgeEnemy()
 		if (hitFlg)
 		{
 			// 音のフラグをリセット
-			m_stampSound.flg = false;	// 敵を踏んだ時の音
+			m_stampSE.flg = false;	// 敵を踏んだ時の音
 			if (spHitObject)
 			{
 				// 敵の倒せる座標
@@ -1455,12 +1366,12 @@ void Player::HitJudgeEnemy()
 					}
 
 					// 敵を踏んだ時の音
-					if (m_stampSound.flg == false)
+					if (m_stampSE.flg == false)
 					{
-						if (!m_stampSound.wpSound.expired())
+						if (!m_stampSE.wpSound.expired())
 						{
-							m_stampSound.wpSound.lock()->Play();
-							m_stampSound.flg = true;
+							m_stampSE.wpSound.lock()->Play();
+							m_stampSE.flg = true;
 						}
 					}
 				}
@@ -1579,6 +1490,9 @@ void Player::HitJudgeCarryObject()
 		}
 	}
 
+	// フラグリセット
+	m_holdFlg = false;
+	// 物を持てるかどうか
 	for (auto& obj : m_wpCarryObjectController.lock()->GetObjList())
 	{
 		if (obj.expired() == true) continue;
@@ -1601,6 +1515,9 @@ void Player::HitJudgeCarryObject()
 			// 視野角内なら持てる用にする
 			if (deg < 90)
 			{
+				// 物を持てる状態にする
+				m_holdFlg = true;
+
 				obj.lock()->SetSelectWhite(true);
 				if (m_wpGameUI.expired() == false)
 				{
@@ -1623,6 +1540,11 @@ void Player::HitJudgeCarryObject()
 							m_situationType &= (~SituationType::Run);
 							// キーフラグ
 							m_actionKeyFlg = true;
+							// 音を鳴らす
+							if (m_holdSE.wpSound.expired() == false)
+							{
+								m_holdSE.wpSound.lock()->Play();
+							}
 						}
 					}
 				}
@@ -1637,6 +1559,8 @@ void Player::HitJudgeCarryObject()
 
 void Player::ChangeAnimation()
 {
+	if (m_missingShotFlg == true) return;
+
 	// 運び状態の場合
 	if (m_situationType & SituationType::Carry)
 	{
@@ -1717,43 +1641,53 @@ void Player::DataLoad()
 	m_walkSmokeTime		= data["Player"]["m_walkSmokeTime"];	// 歩く時の煙や音が出る間隔
 	m_runSmokeTime		= data["Player"]["m_runSmokeTime"];		// 走る時の煙や音が出る間隔
 	m_underLine			= data["Player"]["m_underLine"];		// これ以上下に行くと死ぬライン
+	m_maxAngle			= data["Player"]["m_maxAngle"];			// 回転角度制限
 }
 
 void Player::GoalProcess()
 {
+	m_missingShotFlg = false;
+
 	m_goalStayCount++;
 	if (m_goalStayCount > m_goalStayTime)
 	{
+		// Y座標以外ゴールの座標にする
 		m_pos.x = m_goalPos.x;
 		m_pos.z = m_goalPos.z;
 
-		// もし１ステージ目なら少し前に出す
+		// もし１ステージ目なら少し前に出す(土台がでかくて埋まってしまうので)
 		if (SceneManager::Instance().GetNowStage() == 1)
 		{
 			m_pos.z -= 1.0f;
 		}
 
+		// カメラ側に向かせる
 		m_angle = 180;
 		m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 
-		if (m_goalBGMFlg == false)
+		// ゴールのBGMを鳴らす
+		if (m_goalBGM.flg == false)
 		{
-			std::shared_ptr<KdSoundInstance> se = KdAudioManager::Instance().Play("Asset/Sounds/BGM/clear.wav", false);
-			se->SetVolume(0.03f);
+			if (m_goalBGM.wpSound.expired() == false)
+			{
+				m_goalBGM.wpSound.lock()->Play();
+			}
+			m_goalBGM.flg = true;
 		}
-		m_goalBGMFlg = true;
 	}
 
 	if (m_goalJumpFlg == true)
 	{
 		if (m_oldGoalJumpFlg == false)
 		{
+			// ゴールしてカメラが動き終わった際に、ジャンプする
 			SetAnimation("Jump", false);
 			m_situationType |= Jump;
 			m_gravity = -m_jumpPow;
 			m_oldGoalJumpFlg = true;
 		}
 
+		// 重力
 		m_gravity += m_gravityPow;
 
 		if (m_gravity >= 0)
@@ -1761,5 +1695,15 @@ void Player::GoalProcess()
 			m_gravity = 0;
 		}
 		m_pos.y -= m_gravity;
+	}
+}
+
+void Player::SoundLoad(std::weak_ptr<KdSoundInstance>& _wpSound, std::string _path, float _vol)
+{
+	_wpSound = KdAudioManager::Instance().Play(_path);
+	if (!_wpSound.expired())
+	{
+		_wpSound.lock()->SetVolume(_vol);
+		_wpSound.lock()->Stop();
 	}
 }

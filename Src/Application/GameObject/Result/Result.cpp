@@ -35,7 +35,7 @@ void Result::Update()
 				Math::Color color = { (rand() % 10 + 1) / 10.0f , (rand() % 10 + 1) / 10.0f, (rand() % 10 + 1) / 10.0f, 1 };
 				paper.pos = { x, y };
 				paper.move = { moveX, moveY };
-				paper.angle = rand() % 360;
+				paper.angle = float(rand() % 360);
 				paper.color = color;
 				m_paper.push_back(paper);
 			}
@@ -107,7 +107,7 @@ void Result::DrawSprite()
 		for (auto& paper : m_paper)
 		{
 			Math::Rectangle rect = { 0, 0, (long)m_spPaperTex->GetWidth(), (long)m_spPaperTex->GetHeight() };
-			KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPaperTex, paper.pos.x, paper.pos.y, rect.width, rect.height, &rect, &paper.color);
+			KdShaderManager::Instance().m_spriteShader.DrawTex(m_spPaperTex, (int)paper.pos.x, (int)paper.pos.y, rect.width, rect.height, &rect, &paper.color);
 		}
 	}
 	

@@ -299,10 +299,10 @@ void DebugWindow::TerrainWindow()
 			if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch || spObjectController->GetObjectType() == KdGameObject::ObjectType::SlopeGround || spObjectController->GetObjectType() == KdGameObject::ObjectType::TransparentWall)
 			{
 				ImGui::InputText("TargetName", &m_terrainParam.targetName);
-				ImGui::SameLine();
 				// スイッチの時だけ
 				if (spObjectController->GetObjectType() == KdGameObject::ObjectType::Switch)
 				{
+					ImGui::SameLine();
 					// ターゲットセレクトモードの切り替え
 					if (ImGui::Button("TargetSelect"))
 					{
@@ -313,7 +313,6 @@ void DebugWindow::TerrainWindow()
 
 			// 座標
 			ImGui::InputFloat("Pos.x", &m_terrainParam.startPos.x, 5.0f);
-			//ImGui::DragFloat("Pos.x", &m_terrainParam.startPos.x, 0.25f);
 			ImGui::InputFloat("Pos.y", &m_terrainParam.startPos.y, 5.0f);
 			ImGui::InputFloat("Pos.z", &m_terrainParam.startPos.z, 5.0f);
 

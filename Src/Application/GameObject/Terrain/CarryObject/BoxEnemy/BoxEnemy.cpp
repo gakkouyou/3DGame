@@ -4,6 +4,8 @@
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 
+#include "../../MoveObjectRideProcess/MoveObjectRideProcess.h"
+
 void BoxEnemy::Update()
 {
 	m_oldPos = m_pos;
@@ -15,12 +17,7 @@ void BoxEnemy::Update()
 	{
 		if (m_wpHitTerrain.expired() == false)
 		{
-			Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
-
-			Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
-
-			m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-			m_pos = m_mWorld.Translation();
+			m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_moveGround.transMat, m_wpHitTerrain.lock()->GetPos());
 		}
 	}
 
@@ -56,6 +53,11 @@ void BoxEnemy::Update()
 	{
 		// ステートを待機状態へ変更
 		ChangeActionState(std::make_shared<Idle>());
+		// 復活音
+		if (m_wpRespawnSound.expired() == false)
+		{
+			m_wpRespawnSound.lock()->Play();
+		}
 	}
 
 	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
@@ -101,13 +103,32 @@ void BoxEnemy::PostUpdate()
 		}
 	}
 	// 音座標更新
+	// 着地音
 	for (int i = 0; i < LandSoundType::MaxNum; i++)
 	{
+		if (m_wpLandSound[i].expired() == true) continue;
 		if (m_wpLandSound[i].lock()->IsPlaying() == true)
 		{
 			m_wpLandSound[i].lock()->SetPos(m_pos);
 		}
 	}
+	// ジャンプ音
+	if (m_wpJumpSound.expired() == false)
+	{
+		if (m_wpJumpSound.lock()->IsPlaying() == true)
+		{
+			m_wpJumpSound.lock()->SetPos(m_pos);
+		}
+	}
+	// 復活音
+	if (m_wpRespawnSound.expired() == false)
+	{
+		if (m_wpRespawnSound.lock()->IsPlaying() == true)
+		{
+			m_wpRespawnSound.lock()->SetPos(m_pos);
+		}
+	}
+
 	// 運ばれていない時の処理
 	if (m_isCarry == false)
 	{
@@ -120,65 +141,18 @@ void BoxEnemy::PostUpdate()
 			// 無かったら終了
 			if (!spHitTerrain) return;
 			Math::Vector3 terrainPos = spHitTerrain->GetPos();
-			// プレイヤーから回転床までの距離
-			Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
 			// 回転床が回転する角度
-			Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+			Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
 
 			// Z軸回転の場合
-			if (lotDegAng.z != 0)
+			if (rotDegAng.z != 0)
 			{
-				vec.z = 0;
-				float length = vec.Length();
-				// 移動する前の回転床から見た箱の角度
-				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-
-				if (degAng < -90)
-				{
-					m_rayDownFlg = true;
-				}
-
-				if (degAng <= 90 && degAng >= -90)
-				{
-					degAng -= 90;
-					if (degAng < 0)
-					{
-						degAng += 360;
-					}
-					degAng = 360 - degAng;
-
-					degAng += lotDegAng.z;
-					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-					m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
-				}
+				m_rayDownFlg = MoveObjectRideProcess::Instance().RotationGroundRide(m_pos, terrainPos, rotDegAng);
 			}
 			// Y軸回転の場合
-			else if (lotDegAng.y != 0)
+			else if (rotDegAng.y != 0)
 			{
-				vec.y = 0;
-				float length = vec.Length();
-				// 移動する前の回転床から見たプレイヤーの角度
-				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
-
-				//if (degAng <= 90 && degAng >= -90)
-				{
-					degAng -= 90;
-					if (degAng < 0)
-					{
-						degAng += 360;
-					}
-					if (degAng >= 360)
-					{
-						degAng -= 360;
-					}
-					degAng = 360 - degAng;
-
-					// 回転床が回転する角度
-					degAng -= lotDegAng.y;
-					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-					m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
-				}
-				m_degAng += lotDegAng.y;
+				MoveObjectRideProcess::Instance().PropellerRide(m_pos, terrainPos, rotDegAng, m_degAng);
 			}
 		}
 	}
@@ -225,6 +199,10 @@ void BoxEnemy::PostUpdate()
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
 
 	m_mWorld = rotMat * m_shakeMat * transMat;
+
+	// アニメーションの更新
+	m_spAnimator->AdvanceTime(m_spEnemyModel->WorkNodes());
+	m_spEnemyModel->CalcNodeMatrices();
 }
 
 void BoxEnemy::GenerateDepthMapFromLight()
@@ -318,9 +296,10 @@ void BoxEnemy::Init()
 	// 敵状態のモデル
 	if (!m_spEnemyModel)
 	{
-		m_spEnemyModel = std::make_shared<KdModelData>();
-		m_spEnemyModel->Load("Asset/Models/Terrain/CarryObject/BoxEnemy/boxEnemy.gltf");
+		m_spEnemyModel = std::make_shared<KdModelWork>();
+		m_spEnemyModel->SetModelData("Asset/Models/Terrain/CarryObject/BoxEnemy/BoxEnemy.gltf");
 	}
+	m_spAnimator = std::make_shared<KdAnimator>();
 
 	m_pCollider->RegisterCollisionShape("BoxEnemyEnemy", m_spEnemyModel, KdCollider::TypeDamage | KdCollider::TypeDebug);
 
@@ -348,6 +327,24 @@ void BoxEnemy::Init()
 		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
 		m_wpLandSound[LandSoundType::Bound].lock()->SetCurveDistanceScaler(0.7f);
+	}
+
+	// ジャンプの音
+	m_wpJumpSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/boxEnemyJump.wav", m_pos, false);
+	if (!m_wpJumpSound.expired())
+	{
+		m_wpJumpSound.lock()->SetVolume(0.3f);
+		m_wpJumpSound.lock()->Stop();
+		m_wpJumpSound.lock()->SetCurveDistanceScaler(0.3f);
+	}
+
+	// 復活音
+	m_wpRespawnSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/respawn.wav", m_pos, false);
+	if (!m_wpRespawnSound.expired())
+	{
+		m_wpRespawnSound.lock()->SetVolume(0.7f);
+		m_wpRespawnSound.lock()->Stop();
+		m_wpRespawnSound.lock()->SetCurveDistanceScaler(0.05f);
 	}
 
 	// 最初の当たり判定は箱のみ
@@ -667,7 +664,7 @@ void BoxEnemy::HitJudge()
 		// 当たったかどうか
 		bool hitFlg = false;
 
-		hitFlg = SphereHitJudge(sphereInfo, resultList, true);
+		hitFlg = SphereHitJudge(sphereInfo, resultList);
 
 		// 押し出し
 		if (hitFlg == true)
@@ -703,6 +700,7 @@ void BoxEnemy::DataLoad()
 	m_stayTime			= data["BoxEnemy"]["m_stayTime"];			// ジャンプの待機時間
 	m_maxDegAng			= data["BoxEnemy"]["m_maxDegAng"];			// ガタガタの角度制限
 	m_baseDegAng		= data["BoxEnemy"]["m_baseDegAng"];			// 初期の角度
+	m_jumpChargeTime	= data["BoxEnemy"]["m_jumpChargeTime"];		// ジャンプの前兆用の時間
 }
 
 void BoxEnemy::ChangeActionState(std::shared_ptr<StateBase> _nextState)
@@ -830,22 +828,44 @@ void BoxEnemy::JumpStay::Exit(BoxEnemy& _owner)
 
 void BoxEnemy::JumpMove::Enter(BoxEnemy& _owner)
 {
-	// ジャンプ
-	_owner.m_gravity = -_owner.m_jumpPow;
+	// ジャンプのアニメーションをする
+	_owner.m_spAnimator->SetAnimation(_owner.m_spEnemyModel->GetData()->GetAnimation("Jump"), false);
+
+	// ジャンプする前の溜め時間リセット
+	_owner.m_jumpChargeCount = 0;
 }
 
 void BoxEnemy::JumpMove::Update(BoxEnemy& _owner)
 {
-	// 接地していたらジャンプ待機状態へ移行
-	if (_owner.m_isGround == true)
-	{
-		_owner.ChangeActionState(std::make_shared<JumpStay>());
-		return;
-	}
 	// 踏まれていたら箱へ移行
 	if (_owner.m_onHitFlg == true)
 	{
 		_owner.ChangeActionState(std::make_shared<Box>());
+		return;
+	}
+
+	// ジャンプする前兆用のカウント
+	_owner.m_jumpChargeCount++;
+	// ジャンプする前兆が終了していないなら終了
+	if (_owner.m_jumpChargeCount < _owner.m_jumpChargeTime) return;
+
+	// ジャンプする瞬間
+	if (_owner.m_jumpChargeCount == _owner.m_jumpChargeTime)
+	{
+		// ジャンプ
+		_owner.m_gravity = -_owner.m_jumpPow;
+		// ジャンプ音
+		if (_owner.m_wpJumpSound.expired() == false)
+		{
+			_owner.m_wpJumpSound.lock()->Play();
+		}
+		return;
+	}
+
+	// 接地していたらジャンプ待機状態へ移行
+	if (_owner.m_isGround == true)
+	{
+		_owner.ChangeActionState(std::make_shared<JumpStay>());
 		return;
 	}
 
@@ -1025,6 +1045,12 @@ void BoxEnemy::Jump::Enter(BoxEnemy& _owner)
 
 	// 敵状態にする
 	_owner.m_enemyFlg = true;
+
+	// ジャンプ音を鳴らす
+	if (_owner.m_wpJumpSound.expired() == false)
+	{
+		_owner.m_wpJumpSound.lock()->Play();
+	}
 }
 
 void BoxEnemy::Jump::Update(BoxEnemy& _owner)

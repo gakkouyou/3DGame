@@ -4,6 +4,7 @@
 #include "../../../main.h"
 #include "../../../GameObject/Camera/TPSCamera/TPSCamera.h"
 #include "../../../GameObject/Character/Player/Player.h"
+#include "../../../Scene/StageSelectScene/StageSelectScene.h"
 
 #include "../../../GameObject/EventObject/EventObjectBase.h"
 #include "../../../GameObject/EventObject/Goal/Goal.h"
@@ -397,6 +398,10 @@ void EventObjectController::BeginCreateObject()
 			data.name = name;
 			// リストに追加
 			m_wpObjectList.push_back(object);
+			if (m_pStageSelectScene)
+			{
+				m_pStageSelectScene->SetFinalGoal(object);
+			}
 		}
 	}
 }

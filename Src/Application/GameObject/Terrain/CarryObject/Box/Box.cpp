@@ -4,6 +4,8 @@
 #include "Application/main.h"
 #include "../../../../Scene/SceneManager.h"
 
+#include "../../MoveObjectRideProcess/MoveObjectRideProcess.h"
+
 void Box::Update()
 {
 	// デバッグモード中は持てるエリアを描画
@@ -24,12 +26,7 @@ void Box::Update()
 		{
 			if (m_wpHitTerrain.expired() == false)
 			{
-				Math::Matrix localMatFromRideObject = m_mWorld * m_moveGround.transMat.Invert();
-
-				Math::Matrix hitTerrainTransMat = Math::Matrix::CreateTranslation(m_wpHitTerrain.lock()->GetPos());
-
-				m_mWorld = localMatFromRideObject * hitTerrainTransMat;
-				m_pos = m_mWorld.Translation();
+				m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_moveGround.transMat, m_wpHitTerrain.lock()->GetPos());
 			}
 		}
 
@@ -51,6 +48,11 @@ void Box::Update()
 		m_pos.y += 1.0f;
 		m_gravity = 0;
 		m_degAng = 0;
+		// 復活音を鳴らす
+		if (m_wpRespawnSound.expired() == false)
+		{
+			m_wpRespawnSound.lock()->Play();
+		}
 	}
 
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
@@ -100,11 +102,21 @@ void Box::PostUpdate()
 		}
 	}
 	// 音座標更新
+	// 着地音
 	for (int i = 0; i < LandSoundType::MaxNum; i++)
 	{
+		if (m_wpLandSound[i].expired() == true) continue;
 		if (m_wpLandSound[i].lock()->IsPlaying() == true)
 		{
 			m_wpLandSound[i].lock()->SetPos(m_pos);
+		}
+	}
+	// 復活音
+	if (m_wpRespawnSound.expired() == false)
+	{
+		if (m_wpRespawnSound.lock()->IsPlaying() == true)
+		{
+			m_wpRespawnSound.lock()->SetPos(m_pos);
 		}
 	}
 
@@ -121,66 +133,18 @@ void Box::PostUpdate()
 			// 無かったら終了
 			if (!spHitTerrain) return;
 			Math::Vector3 terrainPos = spHitTerrain->GetPos();
-			// プレイヤーから回転床までの距離
-			Math::Vector3 vec = m_pos - spHitTerrain->GetPos();
 			// 回転床が回転する角度
-			Math::Vector3 lotDegAng = spHitTerrain->GetParam().degAng;
+			Math::Vector3 rotDegAng = spHitTerrain->GetParam().degAng;
 
 			// Z軸回転の場合
-			if (lotDegAng.z != 0)
+			if (rotDegAng.z != 0)
 			{
-				vec.z = 0;
-				float length = vec.Length();
-				// 移動する前の回転床から見た箱の角度
-				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
-
-				if (degAng < -90)
-				{
-					m_rayDownFlg = true;
-				}
-
-				if (degAng <= 90 && degAng >= -90)
-				{
-					degAng -= 90;
-					if (degAng < 0)
-					{
-						degAng += 360;
-					}
-					degAng = 360 - degAng;
-
-					degAng += lotDegAng.z;
-					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-					m_pos.y = spHitTerrain->GetPos().y + length * sin(DirectX::XMConvertToRadians(degAng));
-				}
+				m_rayDownFlg = MoveObjectRideProcess::Instance().RotationGroundRide(m_pos, terrainPos, rotDegAng);
 			}
 			// Y軸回転の場合
-			else if (lotDegAng.y != 0)
+			else if (rotDegAng.y != 0)
 			{
-				vec.y = 0;
-				float length = vec.Length();
-				// 移動する前の回転床から見たプレイヤーの角度
-				float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.z));
-
-				//if (degAng <= 90 && degAng >= -90)
-				{
-					degAng -= 90;
-					if (degAng < 0)
-					{
-						degAng += 360;
-					}
-					if (degAng >= 360)
-					{
-						degAng -= 360;
-					}
-					degAng = 360 - degAng;
-
-					// 回転床が回転する角度
-					degAng -= lotDegAng.y;
-					m_pos.x = spHitTerrain->GetPos().x + length * cos(DirectX::XMConvertToRadians(degAng));
-					m_pos.z = spHitTerrain->GetPos().z + length * sin(DirectX::XMConvertToRadians(degAng));
-
-					m_degAng += lotDegAng.y;
-				}
+				MoveObjectRideProcess::Instance().PropellerRide(m_pos, terrainPos, rotDegAng, m_degAng);
 			}
 		}
 	}
@@ -289,6 +253,14 @@ void Box::Init()
 	{
 		m_wpLandSound[LandSoundType::Bound].lock()->SetVolume(0.06f);
 		m_wpLandSound[LandSoundType::Bound].lock()->Stop();
+	}
+	// 復活音
+	m_wpRespawnSound = KdAudioManager::Instance().Play3D("Asset/Sounds/SE/respawn.wav", m_pos, false);
+	if (!m_wpRespawnSound.expired())
+	{
+		m_wpRespawnSound.lock()->SetVolume(1.0f);
+		m_wpRespawnSound.lock()->Stop();
+		m_wpRespawnSound.lock()->SetCurveDistanceScaler(0.05f);
 	}
 }
 

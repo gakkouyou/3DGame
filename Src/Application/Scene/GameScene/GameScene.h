@@ -54,11 +54,11 @@ private:
 	// 敵のエディタ
 	std::weak_ptr<EnemyController> m_wpEnemyController;
 
+	// シーンが始まった時の処理用のフラグ
+	bool m_sceneStartFlg = false;
+
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
-
-	// シーンが開始した瞬間がわかるフラグ
-	bool m_sceneStartFlg = false;
 
 	// デバッグ用
 	bool m_debugFlg = false;
@@ -66,6 +66,12 @@ private:
 
 	// ゴールフラグ
 	bool m_goalFlg = false;
+
+	// ミスしたときのリスタートするまでの時間
+	const int m_restartTime = 60;
+
+	// フェードインを始めるまでの時間
+	const int m_fadeInTime = 5;
 
 	// 今のステージ
 	int m_nowStage	= 0;
@@ -78,4 +84,74 @@ private:
 	float m_vol = 0.03f;
 	// bgmフェードアウトさせる時の数値
 	const float m_sumVol = 0.002f;
+
+	// ステートパターン
+private:
+	class StateBase
+	{
+	public:
+		virtual ~StateBase() {}
+
+		virtual void Enter	(GameScene&)	{}
+		virtual void Update	(GameScene&)	{}
+		virtual void Exit	(GameScene&)	{}
+	};
+
+	// シーン開始
+	class SceneStart : public StateBase
+	{
+	public:
+		~SceneStart()	override {}
+
+		void Enter	(GameScene& _owner)	override;
+		void Update	(GameScene& _owner)	override;
+		void Exit	(GameScene& _owner)	override;
+	};
+
+	// ゲームシーンをリスタートする前の終了処理
+	class GameEnd : public StateBase
+	{
+	public:
+		~GameEnd()	override {}
+
+		void Enter	(GameScene& _owner)	override;
+		void Update	(GameScene& _owner)	override;
+		void Exit	(GameScene& _owner)	override;
+	};
+
+	// ゲームシーンをリスタートする時の処理
+	class GameRestart : public StateBase
+	{
+	public:
+		~GameRestart()	override {}
+
+		void Enter	(GameScene& _owner)	override;
+		void Update	(GameScene& _owner)	override;
+		void Exit	(GameScene& _owner)	override;
+	};
+
+	// ゲーム
+	class Game : public StateBase
+	{
+	public:
+		~Game()	override {}
+
+		void Enter(GameScene& _owner)	override;
+		void Update(GameScene& _owner)	override;
+		void Exit(GameScene& _owner)	override;
+	};
+
+	// ミス
+	class Miss : public StateBase
+	{
+	public:
+		~Miss()	override {}
+
+		void Enter(GameScene& _owner)	override;
+		void Update(GameScene& _owner)	override;
+		void Exit(GameScene& _owner)	override;
+	};
+
+	void ChangeActionState(std::shared_ptr<StateBase> _nextState);
+	std::shared_ptr<StateBase> m_nowAction = nullptr;
 };

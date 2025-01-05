@@ -68,4 +68,9 @@ private:
 
 	// カーソルを動かせなくなったり、ポーズ画面を開けなくなるフラグ
 	bool m_stopFlg = false;
+
+	// 選択したときの音
+	std::weak_ptr<KdSoundInstance> m_selectSE;
+	// ポーズ画面を開いた時の音
+	std::weak_ptr<KdSoundInstance> m_pauseSE;
 };

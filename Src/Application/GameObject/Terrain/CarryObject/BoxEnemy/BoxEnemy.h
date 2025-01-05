@@ -75,7 +75,7 @@ private:
 
 	// ↓敵の状態の時用
 	// モデル
-	std::shared_ptr<KdModelData> m_spEnemyModel = nullptr;
+	std::shared_ptr<KdModelWork> m_spEnemyModel = nullptr;
 
 	// 敵状態か箱状態かのフラグ
 	bool m_enemyFlg = false;
@@ -86,6 +86,8 @@ private:
 	int		m_stayTime	= 0;	// ジャンプの待機時間
 	int		m_stayCount = 0;	// ジャンプの待機のカウント
 	bool	m_isGround	= false;// 地面にいるかどうか
+	int		m_jumpChargeCount	= 0;	// ジャンプの前兆用のカウント
+	int		m_jumpChargeTime	= 0;	// ジャンプの前兆用の時間
 
 
 	// 追尾していいかのフラグ
@@ -101,6 +103,10 @@ private:
 
 	// 歩く音の配列
 	std::weak_ptr<KdSoundInstance3D> m_wpLandSound[LandSoundType::MaxNum];
+	// ジャンプ音
+	std::weak_ptr<KdSoundInstance3D> m_wpJumpSound;
+	// 復活音
+	std::weak_ptr<KdSoundInstance3D> m_wpRespawnSound;
 
 	bool m_setParamFlg = false;
 
@@ -112,6 +118,9 @@ private:
 
 	// 重力の処理をするかどうか
 	bool m_isCarry = false;
+
+	// アニメーション
+	std::shared_ptr<KdAnimator>		m_spAnimator = nullptr;
 
 	// JSONファイルのパス
 	std::string_view m_path = "Asset/Data/Json/Terrain/CarryObject/BoxEnemy/BoxEnemy.json";
@@ -137,8 +146,8 @@ private:
 	public:
 		~Idle()	override {}
 
-		void Enter(BoxEnemy& _owner)	override;
-		void Update(BoxEnemy& _owner)	override;
+		void Enter	(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
 	};
 
 	// ジャンプ待機中
@@ -147,8 +156,8 @@ private:
 	public:
 		~JumpStay()	override {}
 
-		void Update(BoxEnemy& _owner)	override;
-		void Exit(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
+		void Exit	(BoxEnemy& _owner)	override;
 	};
 
 	// ジャンプ移動
@@ -167,7 +176,7 @@ private:
 	public:
 		~Box()	override {}
 
-		void Update(BoxEnemy& _owner)	override;
+		void Update	(BoxEnemy& _owner)	override;
 	};
 
 	// 運ばれている時

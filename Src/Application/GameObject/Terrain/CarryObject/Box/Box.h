@@ -29,6 +29,8 @@ private:
 
 	// 歩く音の配列
 	std::weak_ptr<KdSoundInstance3D> m_wpLandSound[LandSoundType::MaxNum];
+	// 復活音
+	std::weak_ptr<KdSoundInstance3D> m_wpRespawnSound;
 
 	// 当たり判定
 	void HitJudge();

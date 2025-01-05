@@ -265,6 +265,9 @@
     <Filter Include="Src\Application\GameObject\UI\Tutorial">
       <UniqueIdentifier>{1b2c76c8-f2c3-44b3-873c-f940bd6c73a6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess">
+      <UniqueIdentifier>{87a1bdc9-fbb7-41ae-b271-e9bcf11d589b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -603,6 +606,9 @@
     <ClInclude Include="Src\Application\GameObject\UI\Tutorial\Tutorial.h">
       <Filter>Src\Application\GameObject\UI\Tutorial</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.h">
+      <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -910,6 +916,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\UI\Tutorial\Tutorial.cpp">
       <Filter>Src\Application\GameObject\UI\Tutorial</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.cpp">
+      <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

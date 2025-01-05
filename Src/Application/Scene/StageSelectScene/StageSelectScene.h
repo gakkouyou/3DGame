@@ -8,6 +8,7 @@ class SceneChange;
 class Player;
 class TerrainBase;
 class EventObjectController;
+class FinalGoal;
 
 class StageSelectScene : public BaseScene
 {
@@ -20,6 +21,8 @@ public:
 
 	const bool GetDebug() const override { return m_debugFlg; }
 
+	void SetFinalGoal(const std::weak_ptr<FinalGoal>& _wpFinalGoal) { m_wpFinalGoal = _wpFinalGoal; }
+
 private:
 
 	void Event() override;
@@ -29,6 +32,11 @@ private:
 
 	// ステージを初クリアしたときの処理
 	void FirstClearProcess();
+
+	// 坂の演出
+	void SlopeEffectProcess();
+	// 最終ゴールの演出
+	void FinalGoalEffectProcess();
 
 	// TPSカメラ
 	std::weak_ptr<TPSCamera> m_wpCamera;
@@ -45,6 +53,9 @@ private:
 	// EventObjectController
 	std::weak_ptr<EventObjectController> m_wpEventObjectController;
 
+	// 最終ゴール
+	std::weak_ptr<FinalGoal> m_wpFinalGoal;
+
 	// シーンをリセットした時のフラグ
 	bool m_resetFlg = false;
 
@@ -57,5 +68,10 @@ private:
 
 	// ステージ初クリアの際に演出を行うオブジェクトを保持
 	std::weak_ptr<TerrainBase> m_wpFirstClearObject;
+	// 坂の演出中のフラグ
+	bool m_slopeEffectFlg = false;
+	// 最終ゴールの演出中のフラグ
+	bool m_finalGoalEffectFlg = false;
+	// 初クリアかどうかのフラグ
 	bool m_firstClearFlg = false;
 };

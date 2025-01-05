@@ -116,6 +116,9 @@ private:
 	// ゴールした時の処理
 	void GoalProcess();
 
+	// 音を設定
+	void SoundLoad(std::weak_ptr<KdSoundInstance>& _wpSound, std::string _path, float _vol);
+
 	// ステージに入った時の座標
 	Math::Vector3 m_stageStartPos;
 	// 移動前の座標
@@ -142,6 +145,8 @@ private:
 
 	// 角度
 	float m_angle			= 0.0f;
+	// 回転角度制限
+	float m_maxAngle		= 0.0f;
 
 	// 回転行列
 	Math::Matrix m_rotMat	= Math::Matrix::Identity;
@@ -196,7 +201,7 @@ private:
 	};
 
 	// 歩いた時の音の種類
-	enum WalkSoundType
+	enum WalkSEType
 	{
 		Grass,
 		Tile,
@@ -204,18 +209,30 @@ private:
 	};
 
 	// 歩く音の配列
-	std::weak_ptr<KdSoundInstance> m_wpWalkSound[WalkSoundType::Max];
+	std::weak_ptr<KdSoundInstance> m_wpWalkSE[WalkSEType::Max];
 	// 音制御のフラグ
-	bool m_nowWalkSoundFlg	= false;
+	bool m_nowWalkSEFlg	= false;
 	// 歩く音のタイプ
-	UINT m_walkSoundType	= 0;
+	UINT m_walkSEType	= 0;
 
 	// ジャンプ
-	Sound m_jumpSound;
+	Sound m_jumpSE;
 	// 敵を踏んだ時の音
-	Sound m_stampSound;
+	Sound m_stampSE;
 	// きのこで跳ねた時の音
-	Sound m_boundSound;
+	Sound m_boundSE;
+	// 落ちた時の音
+	Sound m_dropSE;
+	// ゴールした時の効果音
+	Sound m_goalSE;
+	// ゴールした時のBGM
+	Sound m_goalBGM;
+	// ステージを選択した際のSE
+	Sound m_stageSelectSE;
+	// 物を持った時のSE
+	Sound m_holdSE;
+	// 物を離した時のSE
+	Sound m_letGoSE;
 
 	// 何かアクションを起こすキー制御
 	bool m_actionKeyFlg = false;
@@ -225,10 +242,6 @@ private:
 
 	// 最終ゴールのフラグ
 	bool m_finalGoalFlg = false;
-
-	// ゴール音のフラグ
-	bool m_goalSEFlg = false;
-	bool m_goalBGMFlg = false;
 
 	// シーンを始めた時の着地音防止フラグ
 	bool m_firstLandFlg = false;
@@ -251,6 +264,15 @@ private:
 
 	// 運んでいるオブジェクト
 	std::weak_ptr<CarryObjectBase> m_wpCarryObject;
+
+	// 物を持てる状態かどうか
+	bool m_holdFlg = false;
+	// ステージに入れる状態かどうか
+	bool m_stageSelectObjectFlg = false;
+	// 持てない状態でアクションキーを押すと、空ぶる
+	bool m_missingShotFlg = false;
+	int m_missingShotCount = 0;
+	int m_missingShotTime = 30;
 
 	// 無限ジャンプ
 	bool m_mugenJumpFlg = false;

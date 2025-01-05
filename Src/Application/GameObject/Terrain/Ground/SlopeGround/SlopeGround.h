@@ -22,17 +22,13 @@ public:
 	const Math::Matrix& GetMatrix() const override { return m_nonScaleMat; }
 
 private:
-	//// スケール
-	//Math::Vector3 m_scale;
-	//// スケールの大きくしていく値
-	//const Math::Vector3 m_addScale = { 0.01f, 0.01f, 0.01f };
+	// 初クリア時の演出用
+	float m_scale = 0;					// 拡縮
+	float m_addScale = 0.01f;			// 拡縮の加算値
+	const float m_addAddScale = 0.01f;	// 拡縮の加算値の加算値(大きくしていく値を大きくする)
+	const float m_maxScale = 1.4f;		// 上限の拡縮
 
-	float m_scale = 0;
-	float m_addScale = 0.01f;
-	const float m_addAddScale = 0.01f;
-	const float m_maxScale = 1.4f;
-
-	bool m_sumFlg = false;
+	bool m_sumFlg = false;				// 大きくするかどうか
 
 	int m_stayCount = 0;
 	const int m_stayTime = 60;

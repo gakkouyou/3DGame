@@ -12,6 +12,7 @@
 		"m_scale": 8.0,
 		"m_walkSmokeTime": 30,
 		"m_runSmokeTime": 16,
-		"m_underLine": -15
+		"m_underLine": -15,
+		"m_maxAngle": 15
 	}
 }

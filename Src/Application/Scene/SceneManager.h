@@ -98,7 +98,7 @@ private :
 	SceneType m_nextSceneType = SceneType::Game;
 
 	// プレイするステージ
-	UINT m_nowStage = 3;
+	UINT m_nowStage = 2;
 
 	// ステージのクリア状況
 	std::vector<UINT> m_stageInfoList;

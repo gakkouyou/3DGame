@@ -2,6 +2,7 @@
 #include "../../../Scene/SceneManager.h"
 #include "../../Terrain/TerrainBase.h"
 #include "../../../Tool/ObjectController/TerrainController/TerrainController.h"
+#include "../../Character/Player/Player.h"
 
 void CarryObjectBase::GenerateDepthMapFromLight()
 {
@@ -27,6 +28,8 @@ void CarryObjectBase::DrawLit()
 void CarryObjectBase::Init()
 {
 	BaseDataLoad();
+
+	m_progressSpeed = 1.0f / m_lerpTime;
 }
 
 void CarryObjectBase::Reset()
@@ -275,6 +278,48 @@ bool CarryObjectBase::SphereHitGround(const KdCollider::SphereInfo& _sphereInfo,
 
 	// 当たらなかった場合
 	return hitFlg;
+}
+
+void CarryObjectBase::HoldLerp()
+{
+	// プレイヤーが存在しないなら終了
+	if (m_wpPlayer.expired() == true) return;
+
+	// プレイヤー
+	std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
+
+	if (!spPlayer) return;
+
+	// プレイヤーのモデル
+	const std::shared_ptr<KdModelWork> spPlayerModel = spPlayer->GetModel();
+	// プレイヤーの角度
+	m_degAng = spPlayer->GetAngle();
+
+	// 運ぶオブジェクトを置く座標の計算
+	Math::Vector3 playerCarryPos = spPlayerModel->FindNode("CarryPoint")->m_worldTransform.Translation();
+	// 回転処理
+	playerCarryPos.x = playerCarryPos.z * sin(DirectX::XMConvertToRadians(m_degAng));
+	playerCarryPos.z = playerCarryPos.z * cos(DirectX::XMConvertToRadians(m_degAng));
+	// 座標足しこみ
+	playerCarryPos += spPlayer->GetPos();
+
+	// 回転込みの行列を作成
+	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
+	Math::Matrix transMat = Math::Matrix::CreateTranslation(m_pos);
+	Math::Matrix mat = rotMat * transMat;
+
+	Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation() - mat.Translation();
+
+	Math::Vector3 goalPos = playerCarryPos - carryPos;
+
+	m_pos = Math::Vector3::Lerp(m_pos, goalPos, m_progress);
+
+	m_progress += m_progressSpeed;
+	if (m_progress >= 1.0f)
+	{
+		m_progress = 0.0f;
+		m_lerpFlg = false;
+	}
 }
 
 void CarryObjectBase::BaseDataLoad()

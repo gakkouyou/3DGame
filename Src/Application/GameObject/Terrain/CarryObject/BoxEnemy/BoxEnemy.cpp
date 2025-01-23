@@ -21,6 +21,11 @@ void BoxEnemy::Update()
 		}
 	}
 
+	if (m_lerpFlg == true)
+	{
+		HoldLerp();
+	}
+
 	// 状態毎の更新
 	if (m_nowAction)
 	{
@@ -156,8 +161,8 @@ void BoxEnemy::PostUpdate()
 			}
 		}
 	}
-	// 運ばれている時の処理
-	else
+	// 運ばれている時の処理(もたれた瞬間は吸い寄せられる様に動かすため処理しない)
+	else if (m_lerpFlg == false)
 	{
 		// プレイヤー
 		std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
@@ -188,9 +193,10 @@ void BoxEnemy::PostUpdate()
 			m_edgePos[i] = (Math::Matrix::CreateTranslation(m_edgeBasePos[i]) * mat).Translation();
 		}
 
-		Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
+		// 座標調整
+		Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation() - mat.Translation();
 
-		m_pos += playerCarryPos - carryPos;
+		m_pos = playerCarryPos - carryPos;
 	}
 
 	// 行列確定
@@ -364,6 +370,9 @@ void BoxEnemy::CarryFlg(bool _carryFlg)
 		
 		// 敵に戻るカウントをリセット
 		m_enemyCount = 0;
+
+		// 吸い寄せられる
+		m_lerpFlg = true;
 	}
 	else
 	{

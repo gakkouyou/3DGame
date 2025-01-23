@@ -21,6 +21,8 @@ public:
 	// 描画
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()						override;
+	void DrawUnLit()					override;
+	void DrawBright()					override;
 	// 初期化
 	void Init()							override;
 
@@ -83,13 +85,14 @@ public:
 	// 今の状況
 	enum SituationType
 	{
-		Idle = 1 << 0,	// 止まっている
-		Walk = 1 << 1,	// 歩いている
-		Jump = 1 << 2,	// ジャンプしている
-		Air = 1 << 3,	// 空中にいる
-		WallHit = 1 << 4,	// 壁に触れている
-		Run = 1 << 5,	// 走っている
-		Carry = 1 << 6,	// 持っている
+		Idle			= 1 << 0,	// 止まっている
+		Walk			= 1 << 1,	// 歩いている
+		Jump			= 1 << 2,	// ジャンプしている
+		Air				= 1 << 3,	// 空中にいる
+		WallHit			= 1 << 4,	// 壁に触れている
+		Run				= 1 << 5,	// 走っている
+		Carry			= 1 << 6,	// 持っている
+		CarryAnimation	= 1 << 7,	// 持つときのアニメーション
 	};
 
 	// カメラがY軸を追尾すべきかどうか(乗っているオブジェクトによって判断)
@@ -115,6 +118,9 @@ private:
 
 	// ゴールした時の処理
 	void GoalProcess();
+
+	// 着地する場所を示すエフェクトの座標を決める
+	void LandingPosEffectPos(KdCollider::RayInfo _rayInfo);
 
 	// 音を設定
 	void SoundLoad(std::weak_ptr<KdSoundInstance>& _wpSound, std::string _path, float _vol);
@@ -192,6 +198,17 @@ private:
 	float m_runSpeed	= 0;
 	// 歩き状態の時のスピード
 	float m_walkSpeed	= 0;
+
+	// 物を持つときのアニメーション時間
+	float m_carryAnimationTime = 20;
+	float m_carryAnimationCount = 0;
+
+	// 着地エフェクト
+	std::shared_ptr<KdModelData>m_spEffectModel = nullptr;
+	bool m_landingEffectFlg = false;
+	Math::Vector3 m_landingEffectPos;
+	float m_landingEffectAlpha = 0.0f;
+	float m_maxLandingEffectLength = 5.0f;
 
 	// 音
 	struct Sound

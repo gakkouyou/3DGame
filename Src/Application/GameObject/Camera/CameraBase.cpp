@@ -53,6 +53,6 @@ void CameraBase::UpdateRotateByMouse()
 	m_DegAng.y += _mouseMove.x * 0.15f;
 
 	// 回転制御
-	//m_DegAng.x = std::clamp(m_DegAng.x, -45.f, 45.f);
-	m_DegAng.x = std::clamp(m_DegAng.x, -90.f, 90.f);
+	m_DegAng.x = std::clamp(m_DegAng.x, -45.f, 45.f);
+	//m_DegAng.x = std::clamp(m_DegAng.x, -90.f, 90.f);
 }

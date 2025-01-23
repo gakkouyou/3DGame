@@ -36,7 +36,6 @@ private:
 	void HitJudge();
 
 	// 角度
-	float m_degAng = 0;
 	float m_baseDegAng = 0;
 
 	enum Dir
@@ -79,6 +78,9 @@ private:
 
 	// 敵状態か箱状態かのフラグ
 	bool m_enemyFlg = false;
+
+	// 箱→敵に変わっていく時の色の変化
+	Math::Vector3 m_changeColor;
 
 	// 移動系
 	float	m_jumpPow	= 0;	// ジャンプ力

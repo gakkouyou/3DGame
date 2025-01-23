@@ -5,6 +5,23 @@
 
 void TPSCamera::PostUpdate()
 {
+	static Math::Matrix mat;
+
+	static bool flg = false;
+	if (SceneManager::Instance().GetDebug() == true)
+	{
+		if (flg == false)
+		{
+			mat = m_mWorld;
+		}
+		flg = true;
+	}
+	else
+	{
+		flg = false;
+		mat = m_mWorld;
+	}
+
 	if (m_nowAction)
 	{
 		m_nowAction->Update(*this);
@@ -15,7 +32,7 @@ void TPSCamera::PostUpdate()
 	// しすいだいかりんぐ
 	DirectX::BoundingFrustum frustum;
 	DirectX::BoundingFrustum::CreateFromMatrix(frustum, m_spCamera->GetProjMatrix());
-	frustum.Transform(frustum, m_mWorld);
+	frustum.Transform(frustum, mat);
 
 	int count = 0;
 	int drawCount = 0;

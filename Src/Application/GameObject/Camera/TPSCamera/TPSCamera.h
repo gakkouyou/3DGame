@@ -67,6 +67,9 @@ private:
 
 	void GoalProcess();
 
+	// 更新前のターゲットの座標
+	Math::Vector3 m_oldTargetPos;
+
 	// ポーズ画面かどうか
 	bool m_pauseFlg = false;
 	bool m_oldPauseFlg = false;

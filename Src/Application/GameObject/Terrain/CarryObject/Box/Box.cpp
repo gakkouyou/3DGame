@@ -18,6 +18,11 @@ void Box::Update()
 
 	if (m_pauseFlg) return;
 
+	if (m_lerpFlg == true)
+	{
+		HoldLerp();
+	}
+
 	// 運ばれていない時の処理
 	if (m_carryFlg == false)
 	{
@@ -148,8 +153,8 @@ void Box::PostUpdate()
 			}
 		}
 	}
-	// 運ばれている時の処理
-	else
+	// 運ばれている時の処理(もたれた瞬間は吸い寄せられる様に動かすため処理しない)
+	else if (m_lerpFlg == false)
 	{
 		// プレイヤー
 		std::shared_ptr<Player> spPlayer = m_wpPlayer.lock();
@@ -181,9 +186,9 @@ void Box::PostUpdate()
 			}
 
 			// 座標調整
-			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation();
+			Math::Vector3 carryPos = (m_spModel->FindNode("Carry")->m_worldTransform * mat).Translation() - mat.Translation();
 
-			m_pos += playerCarryPos - carryPos;
+			m_pos = playerCarryPos - carryPos;
 		}
 	}
 
@@ -271,6 +276,7 @@ void Box::CarryFlg(bool _carryFlg)
 	{
 		m_pCollider->SetEnable("Box", false);
 		m_gravity = 0;
+		m_lerpFlg = true;
 	}
 	else
 	{

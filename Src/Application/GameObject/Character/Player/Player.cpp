@@ -39,7 +39,7 @@ void Player::Update()
 		}
 	}
 
-	// 運べるオブジェクトに乗っている時の処理(箱べるオブジェクトが地面に触れている場合)
+	// 運べるオブジェクトに乗っている時の処理(運べるオブジェクトが地面に触れている場合)
 	if (m_carryObjectHitTerrain.hitFlg)
 	{
 		std::shared_ptr<TerrainBase> spHitTerrain = m_wpHitTerrain.lock();
@@ -54,6 +54,18 @@ void Player::Update()
 				m_pos = MoveObjectRideProcess::Instance().MoveGroundRide(m_mWorld, m_carryObjectHitTerrain.transMat, spHitTerrain->GetPos());
 			}
 			}
+		}
+	}
+
+	if (m_situationType & SituationType::CarryAnimation)
+	{
+		m_carryAnimationCount++;
+		if (m_carryAnimationCount > m_carryAnimationTime)
+		{
+			m_situationType &= (~SituationType::CarryAnimation);
+			m_situationType |= SituationType::Carry;
+			m_carryAnimationCount = 0;
+			m_stopFlg = false;
 		}
 	}
 
@@ -299,8 +311,8 @@ void Player::Update()
 			}
 		}
 	}
-		// 移動
-		// 歩き
+	// 移動
+	// 歩き
 	if (m_situationType & SituationType::Walk)
 	{
 		m_pos += m_moveVec * m_walkSpeed;
@@ -621,6 +633,33 @@ void Player::DrawLit()
 	}
 }
 
+void Player::DrawUnLit()
+{
+	//if (m_landingEffectFlg == false) return;
+	//Math::Matrix mat = Math::Matrix::CreateTranslation(m_landingEffectPos);
+	//if (m_spEffectModel)
+	//{
+	//	KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, mat);
+	//	KdShaderManager::Instance().UndoRasterizerState();
+	//}
+}
+
+void Player::DrawBright()
+{
+	if (m_goalFlg == true) return;
+
+	Math::Color color = { 0.0f, 0.0f, 1.0f, m_landingEffectAlpha };
+	if (m_landingEffectFlg == false) return;
+	Math::Matrix mat = Math::Matrix::CreateTranslation(m_landingEffectPos);
+	if (m_spEffectModel)
+	{
+		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
+		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, mat, color);
+		KdShaderManager::Instance().UndoRasterizerState();
+	}
+}
+
 void Player::Init()
 {
 	CharacterBase::Init();
@@ -637,6 +676,9 @@ void Player::Init()
 		m_spAnimator = std::make_shared<KdAnimator>();
 		SetAnimation("Idle", true);
 	}
+
+	// エフェクト
+	m_spEffectModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Effect/LandingPosEffect/Out/out.gltf");
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::Player;
@@ -831,6 +873,11 @@ void Player::HitJudgeGround()
 
 		// レイ判定
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+		// 着地場所チェック
+		if (m_landingEffectFlg == false)
+		{
+			LandingPosEffectPos(rayInfo);
+		}
 
 		// 当たっていなかったら右足からのレイ判定をする
 		if (hitFlg == false)
@@ -843,6 +890,12 @@ void Player::HitJudgeGround()
 
 			// レイ判定
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+
+			// 着地場所チェック
+			if (m_landingEffectFlg == false)
+			{
+				LandingPosEffectPos(rayInfo);
+			}
 		}
 
 		// 当たっていなかったら左足からのレイ判定をする
@@ -856,6 +909,12 @@ void Player::HitJudgeGround()
 
 			// レイ判定
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
+
+			// 着地場所チェック
+			if (m_landingEffectFlg == false)
+			{
+				LandingPosEffectPos(rayInfo);
+			}
 		}
 
 		// 当たっていた時の処理
@@ -1396,6 +1455,8 @@ void Player::HitJudgeCarryObject()
 	// 当たったオブジェクト系をリセット
 	m_carryObjectHitTerrain.hitFlg = false;
 	m_carryObjectHitTerrain.transMat = Math::Matrix::Identity;
+	// 着地エフェクトフラグリセット
+	m_landingEffectFlg = false;
 
 	m_carryObject.hitFlg = false;
 	m_carryObject.transMat = Math::Matrix::Identity;
@@ -1426,6 +1487,12 @@ void Player::HitJudgeCarryObject()
 	// レイ判定
 	hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
 
+	// 着地エフェクトフラグリセット
+	m_landingEffectFlg = false;
+
+	// 着地場所チェック
+	LandingPosEffectPos(rayInfo);
+
 	// 当たっていなかったら右足からのレイ判定をする
 	if (hitFlg == false)
 	{
@@ -1436,6 +1503,12 @@ void Player::HitJudgeCarryObject()
 		rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(-m_angle)) + m_pos.z;
 		// レイ判定
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
+
+		// 着地場所チェック
+		if (m_landingEffectFlg == false)
+		{
+			LandingPosEffectPos(rayInfo);
+		}
 	}
 
 	// 当たっていなかったら左足からのレイ判定をする
@@ -1448,6 +1521,12 @@ void Player::HitJudgeCarryObject()
 		rayInfo.m_pos.z = nodePos.x * sin(DirectX::XMConvertToRadians(m_angle)) + m_pos.z;
 		// レイ判定
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
+
+		// 着地場所チェック
+		if (m_landingEffectFlg == false)
+		{
+			LandingPosEffectPos(rayInfo);
+		}
 	}
 
 	// 当たっていた時の処理
@@ -1523,34 +1602,47 @@ void Player::HitJudgeCarryObject()
 				{
 					m_wpGameUI.lock()->SetDrawType(GameUI::DrawType::HoldBox);
 				}
-				if (GetAsyncKeyState('Z') & 0x8000)
+				if (m_stopFlg == false)
 				{
-					// 運んでいる状態なら処理しない
-					if ((m_situationType & SituationType::Carry) == 0)
+					if (GetAsyncKeyState('Z') & 0x8000)
 					{
-						if (m_actionKeyFlg == false)
+						// 運んでいる状態なら処理しない
+						if ((m_situationType & SituationType::Carry) == 0)
 						{
-							// 運ばれている状態にする
-							obj.lock()->CarryFlg(true);
-							// オブジェクトを保持
-							m_wpCarryObject = obj;
-							// 状態の切り替え
-							m_situationType |= SituationType::Carry;
-							// 走り状態を解除
-							m_situationType &= (~SituationType::Run);
-							// キーフラグ
-							m_actionKeyFlg = true;
-							// 音を鳴らす
-							if (m_holdSE.wpSound.expired() == false)
+							if (m_actionKeyFlg == false)
 							{
-								m_holdSE.wpSound.lock()->Play();
+								// 運ばれている状態にする
+								obj.lock()->CarryFlg(true);
+								// オブジェクトを保持
+								m_wpCarryObject = obj;
+								// 状態の切り替え
+								m_situationType |= SituationType::CarryAnimation;
+								// 走り状態を解除
+								m_situationType &= (~SituationType::Run);
+								// キーフラグ
+								m_actionKeyFlg = true;
+								// 音を鳴らす
+								if (m_holdSE.wpSound.expired() == false)
+								{
+									m_holdSE.wpSound.lock()->Play();
+								}
+								m_stopFlg = true;
+
+								// キャラクターの角度を箱の方に向ける
+								// 向きたい方向
+								Math::Vector3 objVec = obj.lock()->GetPos() - m_pos;
+								objVec.y = 0;
+								objVec.Normalize();
+
+								RotationCharacter(m_angle, objVec);
+								m_rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_angle));
 							}
 						}
 					}
-				}
-				else
-				{
-					m_actionKeyFlg = false;
+					else
+					{
+						m_actionKeyFlg = false;
+					}
 				}
 			}
 		}
@@ -1560,6 +1652,13 @@ void Player::HitJudgeCarryObject()
 void Player::ChangeAnimation()
 {
 	if (m_missingShotFlg == true) return;
+
+	// 持つ時のアニメーション
+	if (m_situationType & SituationType::CarryAnimation)
+	{
+		SetAnimation("CarryAnimation", false);
+		return;
+	}
 
 	// 運び状態の場合
 	if (m_situationType & SituationType::Carry)
@@ -1695,6 +1794,32 @@ void Player::GoalProcess()
 			m_gravity = 0;
 		}
 		m_pos.y -= m_gravity;
+	}
+}
+
+void Player::LandingPosEffectPos(KdCollider::RayInfo _rayInfo)
+{
+	// 着地場所チェック
+	KdCollider::RayInfo landingRayInfo = _rayInfo;
+	// 長さを長くする
+	landingRayInfo.m_range = 100;
+	// レイ判定
+	m_landingEffectFlg = RayHitJudge(landingRayInfo, m_landingEffectPos);
+	// 当たっていたら、x,z座標を現在の位置にする。y座標のみ当たった座標
+	if (m_landingEffectFlg)
+	{
+		m_landingEffectPos.x = m_pos.x;
+		m_landingEffectPos.z = m_pos.z;
+	}
+
+	float length = m_pos.y - m_landingEffectPos.y;
+	if (length > m_maxLandingEffectLength)
+	{
+		m_landingEffectAlpha = 1.0f;
+	}
+	else
+	{
+		m_landingEffectAlpha = length / m_maxLandingEffectLength;
 	}
 }
 

@@ -16,6 +16,11 @@ public:
 	{
 		Math::Vector3 basePos;	// オブジェクトの始めの座標
 		int modelNum = 0;		// モデルを使い分けるオブジェクト用
+
+		// カメラの視点を変えるオブジェクト用
+		Math::Vector3 m_localPos;	// プレイヤーからのローカル座標
+		Math::Vector3 m_degAng;		// 角度
+
 	};
 
 	virtual void SetParam(const Param& _param) { m_param = _param; }

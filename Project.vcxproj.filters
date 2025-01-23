@@ -268,6 +268,9 @@
     <Filter Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess">
       <UniqueIdentifier>{87a1bdc9-fbb7-41ae-b271-e9bcf11d589b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Src\Application\GameObject\EventObject\CameraChange">
+      <UniqueIdentifier>{400cd465-d80e-4bfd-ae30-14b33ca73367}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Pch.h">
@@ -609,6 +612,9 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.h">
       <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
     </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.h">
+      <Filter>Src\Application\GameObject\EventObject\CameraChange</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Pch.cpp">
@@ -919,6 +925,9 @@
     </ClCompile>
     <ClCompile Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.cpp">
       <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.cpp">
+      <Filter>Src\Application\GameObject\EventObject\CameraChange</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

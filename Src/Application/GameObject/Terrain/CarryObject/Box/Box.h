@@ -35,9 +35,6 @@ private:
 	// 当たり判定
 	void HitJudge();
 
-	// 角度
-	float m_degAng	= 0;
-
 	enum Dir
 	{
 		RightFront,

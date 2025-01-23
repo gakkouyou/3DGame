@@ -74,6 +74,10 @@ protected:
 	bool SphereHitGround(const KdCollider::SphereInfo& _sphereInfo, const bool _debugFlg = false);
 
 
+	// もたれた時に吸い寄せられる処理
+	void HoldLerp();
+
+
 	// 当たったら一緒に動くような地形に当たった際の処理のための構造体
 	struct HitMoveTerrain
 	{
@@ -109,6 +113,14 @@ protected:
 
 	// 動きを完全に停止させるフラグ
 	bool m_pauseFlg = false;
+
+	float m_degAng = 0;
+
+	// 持たれた時、プレイヤーの方に吸い寄せられる処理用
+	bool	m_lerpFlg = false;
+	float	m_progress = 0;
+	float	m_progressSpeed = 0;
+	int		m_lerpTime = 20;
 
 	// TerrainController
 	std::weak_ptr<TerrainController> m_wpTerrainController;

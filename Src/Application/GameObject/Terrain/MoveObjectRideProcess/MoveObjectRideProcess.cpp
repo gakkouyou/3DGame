@@ -21,6 +21,7 @@ bool MoveObjectRideProcess::RotationGroundRide(Math::Vector3& _pos, const Math::
 	// 移動する前の回転床から見た自分の角度
 	float degAng = DirectX::XMConvertToDegrees(atan2(vec.x, vec.y));
 
+	// 90度以上なら処理をしない
 	if (degAng > 90 || degAng < -90)
 	{
 		return true;

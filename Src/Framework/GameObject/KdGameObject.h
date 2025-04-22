@@ -53,9 +53,6 @@ public:
 	virtual bool IsVisible()	const { return false; }
 	virtual bool IsRideable()	const { return false; }
 
-	// 視錐台範囲内に入っているかどうか
-	virtual bool CheckInScreen(const DirectX::BoundingFrustum&) { return false; }
-
 	void SetDrawFlg(bool _flg) { m_drawFlg = _flg; }
 
 	// カメラからの距離を計算
@@ -95,6 +92,7 @@ public:
 		Door,			// ドア
 		SlopeGround,	// 坂
 		TransparentWall,// 透明な壁
+		Cloud,			// 雲
 
 		NormalEnemy,	// 敵
 		FlyEnemy,		// 飛ぶ敵
@@ -107,6 +105,8 @@ public:
 
 		Box,			// 箱
 		BoxEnemy,		// 箱の敵
+
+		CameraChange,	// カメラのターゲットを変えるオブジェクト
 
 		None,			// 分ける必要がないオブジェクト
 	};

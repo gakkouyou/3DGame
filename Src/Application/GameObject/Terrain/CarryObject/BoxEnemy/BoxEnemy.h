@@ -12,6 +12,7 @@ public:
 	void PostUpdate()					override;
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()						override;
+	void DrawBright()					override;
 	void Init()							override;
 
 	void CarryFlg(bool _carryFlg)		override;
@@ -34,6 +35,25 @@ public:
 private:
 	// 当たり判定
 	void HitJudge();
+
+	// スタンエフェクト
+	void StanEffect();
+
+	// スタンの時の星
+	std::shared_ptr<KdSquarePolygon> m_spStarPoly;
+	float m_starScale = 0.4f;
+	static const int m_trailNum = 2;
+	Math::Vector3 m_starLocalPos[2];
+	// トレイル
+	std::shared_ptr<KdTrailPolygon> m_spTrailPoly[m_trailNum];
+	float m_stanRadius = 1.0f;
+	float m_starDegAng = 0;
+	float m_addStarDegAng = 4.0f;
+	bool m_stanFlg = false;
+	float m_trailScale = 0.1f;
+
+	// Idle→Shakeになった際、Shakeの時間を短くするフラグ
+	bool m_idleFlg = false;
 
 	// 角度
 	float m_baseDegAng = 0;

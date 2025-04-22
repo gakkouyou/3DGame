@@ -12,6 +12,7 @@ public:
 	// 描画
 	virtual void GenerateDepthMapFromLight()	override;
 	virtual void DrawLit()						override;
+	virtual void DrawUnLit()					override;
 	virtual void DrawBright()					override;
 	// 初期化
 	virtual void Init()							override;
@@ -23,8 +24,6 @@ public:
 	virtual void Active() {}
 
 	virtual const bool IsActive()	const { return false; }
-
-	bool CheckInScreen(const DirectX::BoundingFrustum& frustum) override;
 
 	struct Param
 	{

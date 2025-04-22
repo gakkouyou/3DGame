@@ -8,11 +8,13 @@
 #include "../../GameObject/EventObject/EventObjectBase.h"
 #include "../../GameObject/Character/Enemy/EnemyBase.h"
 #include "../../GameObject/Terrain/CarryObject/CarryObjectBase.h"
+#include "../../GameObject/CameraChange/CameraChange.h"
 
 #include "../ObjectController/TerrainController/TerrainController.h"
 #include "../ObjectController/EventObjectController/EventObjectController.h"
 #include "../ObjectController/EnemyController/EnemyController.h"
 #include "../ObjectController/CarryObjectController/CarryObjectController.h"
+#include "../ObjectController/CameraChangeController/CameraChangeController.h"
 
 void MouseClickHit::Update()
 {
@@ -24,7 +26,27 @@ void MouseClickHit::Update()
 		if (m_rightClickFlg == true) return;
 		m_rightClickFlg = true;
 
-		ClickHit();
+		// 前のカメラチェンジモードの状態
+		bool oldFlg = m_cameraChangeModeFlg;
+		// 更新
+		m_cameraChangeModeFlg = DebugWindow::Instance().GetCameraChangeMode();
+
+		// もし変わっていたらオブジェクトを確定させる
+		if (m_cameraChangeModeFlg != oldFlg)
+		{
+			ConfirmedObject();
+		}
+
+		// カメラチェンジモードならカメラチェンジのオブジェクトと当たり判定
+		if (m_cameraChangeModeFlg == true)
+		{
+			CameraChangeHitCheck();
+		}
+		// それ以外
+		else
+		{
+			ClickHit();
+		}
 	}
 	else
 	{
@@ -203,4 +225,83 @@ void MouseClickHit::ConfirmedObject(BaseObjectType _objectType)
 			m_wpCarryObjectController.lock()->ConfirmedObject();
 		}
 	}
+	// カメラチェンジオブジェクトは問答無用で確定
+	if (m_wpCameraChangeController.expired() == false)
+	{
+		m_wpCameraChangeController.lock()->ConfirmedObject();
+	}
+}
+
+void MouseClickHit::CameraChangeHitCheck()
+{
+	std::shared_ptr<CameraChangeController> spController = m_wpCameraChangeController.lock();
+	if (!spController) return;
+
+	// マウスでオブジェクトを選択する
+	std::shared_ptr<const CameraBase> spCamera = m_wpCamera.lock();
+
+	// カメラが無かったら終了
+	if (!spCamera) return;
+
+	// マウス位置の取得
+	POINT mousePos;
+	GetCursorPos(&mousePos);
+	ScreenToClient(Application::Instance().GetWindowHandle(), &mousePos);
+
+	Math::Vector3	cameraPos = spCamera->GetPos();
+	Math::Vector3	rayDir = Math::Vector3::Zero;
+	float			rayRange = 100.0f;
+
+	// レイの方向取得
+	spCamera->GetCamera()->GenerateRayInfoFromClientPos(mousePos, cameraPos, rayDir, rayRange);
+
+	Math::Vector3 endRayPos = cameraPos + (rayDir * rayRange);
+
+	KdCollider::RayInfo rayInfo(KdCollider::TypeDebug, cameraPos, endRayPos);
+
+	// 当たり判定の結果
+	std::list<KdCollider::CollisionResult> resultList;
+
+	// 当たったオブジェクトのリスト
+	std::vector<std::weak_ptr<CameraChange>> hitObjList;
+
+	bool hitFlg = false;
+
+	// レイ判定
+	for (auto& obj : spController->GetObjList())
+	{
+		if (obj.expired() == true) continue;
+		if (obj.lock()->Intersects(rayInfo, &resultList))
+		{
+			hitObjList.push_back(obj);
+			hitFlg = true;
+		}
+	}
+
+	// もし当たっていなかったら全て確定させて処理を終了
+	if (hitFlg == false)
+	{
+		spController->ConfirmedObject();
+		return;
+	}
+
+	float maxOverLap = 0;
+	int count = 0;
+
+	// 一番近いオブジェクト
+	std::weak_ptr<CameraChange> hitObj;
+
+	// 一番近いオブジェクトを探す
+	for (auto& result : resultList)
+	{
+		if (result.m_overlapDistance > maxOverLap)
+		{
+			maxOverLap = result.m_overlapDistance;
+			hitObj = hitObjList[count];
+		}
+		count++;
+	}
+
+	// セットする
+	spController->SetObject(hitObj);
 }

@@ -19,6 +19,11 @@ public:
 	const bool GetGoalProcessFinish() const { return m_goalProcess.moveEndFlg; }
 
 	void SetPauseFlg(bool _pauseFlg)override;
+
+	// 特殊追尾オブジェクトセット
+	void SetCameraChange(const std::weak_ptr<KdGameObject>& _wpCameraChange) { m_wpCameraChange = _wpCameraChange; }
+	// 特殊追尾終了
+	void CameraChangeEnd() { m_wpCameraChange.reset(); }
 	
 	// 最終ゴールの演出開始
 	void SetFinalGoalProcess()	{ ChangeActionState(std::make_shared<FinalGoal>()); }
@@ -34,6 +39,9 @@ public:
 	const bool GetFirstClearProcessEnd()	const { return m_firstClear == FirstClear::FirstClearEnd; }
 
 private:
+	// カリング用の行列
+	Math::Matrix m_cullingMat;
+
 	// マップエディタモードの際に使用する座標
 	Math::Vector3 m_debugPos	= Math::Vector3::Zero;
 	// 移動ベクトル
@@ -88,6 +96,8 @@ private:
 	const float m_trackingUp	= 2.0f;	// これ以上上に上がったら追尾
 	const float m_trackingDown	= 0.0f;	// これ以上下に下がったら追尾
 
+	const float m_specialTrackingLerp = 0.06f;
+
 	enum class FirstClear
 	{
 		FinalGoalProcessEnd,
@@ -115,6 +125,9 @@ private:
 	const float m_addProgress = 0.01f;
 	Math::Matrix m_targetMat;
 
+	// 特殊追尾
+	std::weak_ptr<KdGameObject> m_wpCameraChange;
+
 // ステートパターン
 private:
 	class StateBase
@@ -134,6 +147,15 @@ private:
 		~Tracking()	override {}
 
 		void Enter	(TPSCamera& _owner)	override;
+		void Update	(TPSCamera& _owner)	override;
+	};
+
+	// 特殊追尾
+	class SpecialTracking : public StateBase
+	{
+	public:
+		~SpecialTracking()	override {}
+
 		void Update	(TPSCamera& _owner)	override;
 	};
 

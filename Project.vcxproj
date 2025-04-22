@@ -159,6 +159,7 @@
     <ClInclude Include="Src\Application\GameObject\BackGround\BackGround.h" />
     <ClInclude Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.h" />
     <ClInclude Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.h" />
+    <ClInclude Include="Src\Application\GameObject\CameraChange\CameraChange.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\CameraBase.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.h" />
     <ClInclude Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.h" />
@@ -169,7 +170,6 @@
     <ClInclude Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.h" />
     <ClInclude Include="Src\Application\GameObject\Character\Player\Player.h" />
     <ClInclude Include="Src\Application\GameObject\Effect\Smoke\Smoke.h" />
-    <ClInclude Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\EventObjectBase.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.h" />
     <ClInclude Include="Src\Application\GameObject\EventObject\Goal\Goal.h" />
@@ -185,6 +185,7 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.h" />
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Cloud\Cloud.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.h" />
     <ClInclude Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Src\Application\Scene\TitleScene\TitleScene.h" />
     <ClInclude Include="Src\Application\Tool\DebugWindow\DebugWindow.h" />
     <ClInclude Include="Src\Application\Tool\MouseClickHit\MouseClickHit.h" />
+    <ClInclude Include="Src\Application\Tool\ObjectController\CameraChangeController\CameraChangeController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.h" />
     <ClInclude Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.h" />
@@ -268,6 +270,7 @@
     <ClCompile Include="Src\Application\GameObject\BackGround\BackGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\BackGround\ResultBackGround\ResultBackGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\BackGround\TitleBackGround\TitleBackGround.cpp" />
+    <ClCompile Include="Src\Application\GameObject\CameraChange\CameraChange.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\CameraBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\ResultCamera\ResultCamera.cpp" />
     <ClCompile Include="Src\Application\GameObject\Camera\TitleCamera\TitleCamera.cpp" />
@@ -278,7 +281,6 @@
     <ClCompile Include="Src\Application\GameObject\Character\Enemy\NormalEnemy\NormalEnemy.cpp" />
     <ClCompile Include="Src\Application\GameObject\Character\Player\Player.cpp" />
     <ClCompile Include="Src\Application\GameObject\Effect\Smoke\Smoke.cpp" />
-    <ClCompile Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\EventObjectBase.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\FinalGoal\FinalGoal.cpp" />
     <ClCompile Include="Src\Application\GameObject\EventObject\Goal\Goal.cpp" />
@@ -294,6 +296,7 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\DropGround\DropGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Ground\SlopeGround\SlopeGround.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.cpp" />
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Cloud\Cloud.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\DoorWall\DoorWall.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\LeftDoor\LeftDoor.cpp" />
     <ClCompile Include="Src\Application\GameObject\Terrain\Object\Door\RightDoor\RightDoor.cpp" />
@@ -324,6 +327,7 @@
     <ClCompile Include="Src\Application\Scene\TitleScene\TitleScene.cpp" />
     <ClCompile Include="Src\Application\Tool\DebugWindow\DebugWindow.cpp" />
     <ClCompile Include="Src\Application\Tool\MouseClickHit\MouseClickHit.cpp" />
+    <ClCompile Include="Src\Application\Tool\ObjectController\CameraChangeController\CameraChangeController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\CarryObjectController\CarryObjectController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\EnemyController\EnemyController.cpp" />
     <ClCompile Include="Src\Application\Tool\ObjectController\EventObjectController\EventObjectController.cpp" />

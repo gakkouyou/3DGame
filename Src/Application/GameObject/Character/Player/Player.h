@@ -1,13 +1,14 @@
 ﻿#pragma once
 #include "../CharacterBase.h"
 
-class CameraBase;
+class TPSCamera;
 class TerrainController;
 class CarryObjectController;
 class CarryObjectBase;
 class EventObjectController;
 class GameUI;
 class Tutorial;
+class CameraChangeController;
 
 class Player : public CharacterBase
 {
@@ -22,7 +23,6 @@ public:
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()						override;
 	void DrawUnLit()					override;
-	void DrawBright()					override;
 	// 初期化
 	void Init()							override;
 
@@ -42,7 +42,7 @@ public:
 	void SetPauseFlg(const bool _pauseFlg)	override { if (m_aliveFlg == true) m_pauseFlg = _pauseFlg; }
 
 	// カメラセット
-	void SetCamera(const std::shared_ptr<CameraBase>& _spCamera) { m_wpCamera = _spCamera; }
+	void SetCamera(const std::shared_ptr<TPSCamera>& _spCamera) { m_wpCamera = _spCamera; }
 
 	// 動いていいかのフラグのセット(操作を受け付けなくなるが、更新自体はする) UIにも渡す
 	void SetStopFlg(const bool _stopFlg);
@@ -58,6 +58,9 @@ public:
 
 	// EventObjectControllerをセットする
 	void SetEventObjectController(const std::weak_ptr<EventObjectController>& _wpEventObjectController) { m_wpEventObjectController = _wpEventObjectController; }
+
+	// CameraChangeControllerをセットする
+	void SetCameraChangeController(const std::weak_ptr<CameraChangeController>& _wpCameraChangeController) { m_wpCameraChangeController = _wpCameraChangeController; }
 
 	void CameraFinish() { m_goalJumpFlg = true; }
 
@@ -93,6 +96,7 @@ public:
 		Run				= 1 << 5,	// 走っている
 		Carry			= 1 << 6,	// 持っている
 		CarryAnimation	= 1 << 7,	// 持つときのアニメーション
+		CoyoteTime		= 1 << 8,	// コヨーテタイム
 	};
 
 	// カメラがY軸を追尾すべきかどうか(乗っているオブジェクトによって判断)
@@ -109,6 +113,8 @@ private:
 	void HitJudgeEnemy();
 	// 運べるオブジェクトとの当たり判定
 	void HitJudgeCarryObject();
+	// カメラのターゲットを変えるオブジェクトとの当たり判定
+	void HitJudgeCameraChange();
 
 	// アニメーションをセットする関数
 	void SetAnimation(std::string_view _animationName, bool _loopFlg) { if (m_spAnimator && m_spModel) m_spAnimator->SetAnimation(m_spModel->GetData()->GetAnimation(_animationName), _loopFlg); }
@@ -203,12 +209,18 @@ private:
 	float m_carryAnimationTime = 20;
 	float m_carryAnimationCount = 0;
 
-	// 着地エフェクト
-	std::shared_ptr<KdModelData>m_spEffectModel = nullptr;
-	bool m_landingEffectFlg = false;
-	Math::Vector3 m_landingEffectPos;
-	float m_landingEffectAlpha = 0.0f;
-	float m_maxLandingEffectLength = 5.0f;
+	// 足跡
+	std::shared_ptr<KdSquarePolygon> m_spFootPrintsPoly = nullptr;
+	bool m_footPrintsFlg = false;
+	Math::Vector3 m_footPrintsPos;
+	float m_footPrintsAlpha = 0.0f;
+	float m_maxFootPrintsLength = 2.0f;
+	float m_footPrintsUpY = 0.03f;
+
+	// コヨーテタイム用
+	int m_coyoteTimeCount = 0;
+	int m_coyoteTime = 5;
+
 
 	// 音
 	struct Sound
@@ -268,10 +280,12 @@ private:
 	const float m_doubleObjectHitMaxDegAng = 100.0f;
 
 	// カメラのウィークポインタ
-	std::weak_ptr<CameraBase> m_wpCamera;
+	std::weak_ptr<TPSCamera> m_wpCamera;
 
 	// EventObjectController
 	std::weak_ptr<EventObjectController> m_wpEventObjectController;
+	// CameraChangeController
+	std::weak_ptr<CameraChangeController> m_wpCameraChangeController;
 
 	// ゲームのUI
 	std::weak_ptr<GameUI> m_wpGameUI;

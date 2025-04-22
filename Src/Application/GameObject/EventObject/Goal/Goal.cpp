@@ -26,7 +26,6 @@ void Goal::Update()
 
 		Math::Vector3 pos = m_pos;
 		pos.y += sin(DirectX::XMConvertToRadians(m_sinAngle)) * m_height;
-		Application::Instance().m_log.AddLog("%f\n", pos.y);
 
 		// 回転させる
 		m_degAng += m_moveDegAng;

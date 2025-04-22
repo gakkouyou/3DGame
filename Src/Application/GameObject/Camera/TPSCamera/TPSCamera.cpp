@@ -2,29 +2,18 @@
 #include "../../../Scene/SceneManager.h"
 #include "../../Character/Player/Player.h"
 #include "../../../main.h"
+#include "../../../Tool/DebugWindow/DebugWindow.h"
 
 void TPSCamera::PostUpdate()
 {
-	static Math::Matrix mat;
-
-	static bool flg = false;
-	if (SceneManager::Instance().GetDebug() == true)
-	{
-		if (flg == false)
-		{
-			mat = m_mWorld;
-		}
-		flg = true;
-	}
-	else
-	{
-		flg = false;
-		mat = m_mWorld;
-	}
-
 	if (m_nowAction)
 	{
 		m_nowAction->Update(*this);
+	}
+
+	if (DebugWindow::Instance().GetCullingStopMat() == false)
+	{
+		m_cullingMat = m_mWorld;
 	}
 
 	CameraBase::Update();
@@ -32,26 +21,23 @@ void TPSCamera::PostUpdate()
 	// しすいだいかりんぐ
 	DirectX::BoundingFrustum frustum;
 	DirectX::BoundingFrustum::CreateFromMatrix(frustum, m_spCamera->GetProjMatrix());
-	frustum.Transform(frustum, mat);
+	frustum.Transform(frustum, m_cullingMat);
 
 	int count = 0;
 	int drawCount = 0;
 
 	for (auto& obj : SceneManager::Instance().GetObjList())
 	{
-		if (obj->GetBaseObjectType() == BaseObjectType::Ground)
+		if (obj->Intersects(frustum))
 		{
-			if (obj->CheckInScreen(frustum))
-			{
-				obj->SetDrawFlg(true);
-				drawCount++;
-			}
-			else
-			{
-				obj->SetDrawFlg(false);
-			}
-			count++;
+			obj->SetDrawFlg(true);
+			drawCount++;
 		}
+		else
+		{
+			obj->SetDrawFlg(false);
+		}
+		count++;
 	}
 }
 
@@ -275,6 +261,13 @@ void TPSCamera::Tracking::Update(TPSCamera& _owner)
 		_owner.ChangeActionState(std::make_shared<Pause>());
 	}
 
+	// 特殊追尾状態に切替
+	if (_owner.m_wpCameraChange.expired() == false)
+	{
+		_owner.ChangeActionState(std::make_shared<SpecialTracking>());
+		return;
+	}
+
 	// ターゲットの行列(有効な場合利用する)
 	const std::shared_ptr<const Player>	spTarget = _owner.m_wpPlayer.lock();
 	if (!spTarget) return;
@@ -318,6 +311,44 @@ void TPSCamera::Tracking::Update(TPSCamera& _owner)
 		_owner.m_oldPlayerPos = targetPos;
 	}
 }
+
+void TPSCamera::SpecialTracking::Update(TPSCamera& _owner)
+{
+	// デバッグモードになったらデバッグモードに切替
+	if (SceneManager::Instance().GetDebug())
+	{
+		_owner.ChangeActionState(std::make_shared<Debug>());
+		return;
+	}
+
+	// ポーズ画面になったらポーズモードに切り替え
+	if (_owner.m_pauseFlg)
+	{
+		_owner.ChangeActionState(std::make_shared<Pause>());
+	}
+
+	// 特殊追尾オブジェクトがなくなったら終了
+	if (_owner.m_wpCameraChange.expired() == true)
+	{
+		_owner.ChangeActionState(std::make_shared<Tracking>());
+		return;
+	}
+
+	// ターゲットの行列(有効な場合利用する)
+	const std::shared_ptr<const KdGameObject>	spTarget = _owner.m_wpCameraChange.lock();
+	if (!spTarget) return;
+	// ターゲットの座標
+	Math::Vector3	targetPos = spTarget->GetPos();
+	// ターゲットの座標行列
+	Math::Matrix	targetMat = Math::Matrix::CreateTranslation(targetPos);
+
+	// 滑らかに動くようにする
+	targetMat.Translation(Math::Vector3::Lerp(_owner.m_mWorld.Translation() - _owner.m_mLocalPos.Translation(), targetPos, _owner.m_specialTrackingLerp));
+
+	// 行列確定
+	_owner.m_mWorld = _owner.m_mLocalPos * targetMat;
+}
+
 
 void TPSCamera::Goal::Update(TPSCamera& _owner)
 {

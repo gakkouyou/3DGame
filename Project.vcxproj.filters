@@ -268,8 +268,14 @@
     <Filter Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess">
       <UniqueIdentifier>{87a1bdc9-fbb7-41ae-b271-e9bcf11d589b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Src\Application\GameObject\EventObject\CameraChange">
+    <Filter Include="Src\Application\GameObject\CameraChange">
       <UniqueIdentifier>{400cd465-d80e-4bfd-ae30-14b33ca73367}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\Tool\ObjectController\CameraChangeController">
+      <UniqueIdentifier>{a8f2be61-3394-4ff9-a6b9-c63fe6d6ce65}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Application\GameObject\Terrain\Object\Cloud">
+      <UniqueIdentifier>{51dbfe94-11b5-405c-8afb-884cc2a5c716}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -612,8 +618,14 @@
     <ClInclude Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.h">
       <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
     </ClInclude>
-    <ClInclude Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.h">
-      <Filter>Src\Application\GameObject\EventObject\CameraChange</Filter>
+    <ClInclude Include="Src\Application\GameObject\CameraChange\CameraChange.h">
+      <Filter>Src\Application\GameObject\CameraChange</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\Tool\ObjectController\CameraChangeController\CameraChangeController.h">
+      <Filter>Src\Application\Tool\ObjectController\CameraChangeController</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\Application\GameObject\Terrain\Object\Cloud\Cloud.h">
+      <Filter>Src\Application\GameObject\Terrain\Object\Cloud</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -926,8 +938,14 @@
     <ClCompile Include="Src\Application\GameObject\Terrain\MoveObjectRideProcess\MoveObjectRideProcess.cpp">
       <Filter>Src\Application\GameObject\Terrain\MoveObjectRideProcess</Filter>
     </ClCompile>
-    <ClCompile Include="Src\Application\GameObject\EventObject\CameraChange\CameraChange.cpp">
-      <Filter>Src\Application\GameObject\EventObject\CameraChange</Filter>
+    <ClCompile Include="Src\Application\GameObject\CameraChange\CameraChange.cpp">
+      <Filter>Src\Application\GameObject\CameraChange</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\Tool\ObjectController\CameraChangeController\CameraChangeController.cpp">
+      <Filter>Src\Application\Tool\ObjectController\CameraChangeController</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\Application\GameObject\Terrain\Object\Cloud\Cloud.cpp">
+      <Filter>Src\Application\GameObject\Terrain\Object\Cloud</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -67,6 +67,8 @@ void StageSelectObject::GenerateDepthMapFromLight()
 
 void StageSelectObject::DrawLit()
 {
+	if (m_drawFlg == false) return;
+
 	// ステージセレクトのモデル
 	if (m_spModel)
 	{

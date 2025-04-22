@@ -153,7 +153,6 @@ void FinalGoal::FirstClearProcess()
 	Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(90));
 	Math::Matrix scaleMat = Math::Matrix::CreateScale(m_scale);
 
-	//m_mWorld = scaleMat * rotMat * transMat;
 	m_newMat = scaleMat * rotMat * transMat;
 }
 

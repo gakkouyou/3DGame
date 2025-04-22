@@ -15,6 +15,8 @@ void CharacterBase::GenerateDepthMapFromLight()
 
 void CharacterBase::DrawLit()
 {
+	if (m_drawFlg == false) return;
+
 	if (m_spModel)
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);

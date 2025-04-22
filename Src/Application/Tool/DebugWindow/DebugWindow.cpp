@@ -5,6 +5,7 @@
 #include "../ObjectController/EnemyController/EnemyController.h"
 #include "../ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../ObjectController/EventObjectController/EventObjectController.h"
+#include "../ObjectController/CameraChangeController/CameraChangeController.h"
 
 void DebugWindow::Draw()
 {
@@ -52,6 +53,9 @@ void DebugWindow::Draw()
 	{
 		if (ImGui::Begin("DebugWindow"))
 		{
+			// カリング用の行列の更新をするかどうか
+			ImGui::Checkbox("Culling", &m_cullingStopMatFlg);
+
 			// 一括セーブボタン
 			if (ImGui::Button("AllSave"))
 			{
@@ -78,6 +82,12 @@ void DebugWindow::Draw()
 					m_wpEventObjectController.lock()->ConfirmedObject();
 					m_wpEventObjectController.lock()->CSVWriter(true);
 				}
+
+				if (m_wpCameraChangeController.expired() == false)
+				{
+					m_wpCameraChangeController.lock()->ConfirmedObject();
+					m_wpCameraChangeController.lock()->CSVWriter();
+				}
 			}
 			ImGui::SameLine();
 			// 一括確定ボタン
@@ -102,7 +112,14 @@ void DebugWindow::Draw()
 				{
 					m_wpEventObjectController.lock()->ConfirmedObject();
 				}
+
+				if (m_wpCameraChangeController.expired() == false)
+				{
+					m_wpCameraChangeController.lock()->ConfirmedObject();
+				}
 			}
+
+			ImGui::Checkbox("CameraChangeObjectMode", &m_cameraChangeModeFlg);
 
 			if(ImGui::CollapsingHeader("Terrain"))
 			{
@@ -126,6 +143,12 @@ void DebugWindow::Draw()
 			{
 				// EventObject用のウィンドウ
 				EventObjectWindow();
+			}
+
+			if (ImGui::CollapsingHeader("CameraChange"))
+			{
+				// CameraChange用のウィンドウ
+				CameraChangeWindow();
 			}
 		}
 		ImGui::End();
@@ -293,6 +316,13 @@ void DebugWindow::TerrainWindow()
 				spObjectController->CreateObject(KdGameObject::ObjectType::TransparentWall);
 			}
 
+			// 雲
+			if (ImGui::Button("Cloud"))
+			{
+				spObjectController->ConfirmedObject();
+				spObjectController->CreateObject(KdGameObject::ObjectType::Cloud);
+			}
+
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 
 			// スイッチと坂と透明な床ならターゲットを設定できるようにする
@@ -358,7 +388,7 @@ void DebugWindow::EnemyWindow()
 		if (spObjectController)
 		{
 			// オブジェクト設置
-			ImGui::Text((const char*)u8"敵設置   MBUTTON");
+			ImGui::Text((const char*)u8"敵設置");
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 			// オブジェクトを確定させる
 			if (ImGui::Button((const char*)u8"確定"))
@@ -442,7 +472,7 @@ void DebugWindow::CarryObjectWindow()
 		if (spObjectController)
 		{
 			// オブジェクト設置
-			ImGui::Text((const char*)u8"運べるオブジェクト設置   PKEY");
+			ImGui::Text((const char*)u8"運べるオブジェクト設置");
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 			// オブジェクトを確定させる
 			if (ImGui::Button((const char*)u8"確定"))
@@ -502,7 +532,7 @@ void DebugWindow::EventObjectWindow()
 		if (spObjectController)
 		{
 			// オブジェクト設置
-			ImGui::Text((const char*)u8"イベントオブジェクト設置   EKEY");
+			ImGui::Text((const char*)u8"イベントオブジェクト設置");
 			ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
 			// オブジェクトを確定させる
 			if (ImGui::Button((const char*)u8"確定"))
@@ -573,4 +603,63 @@ void DebugWindow::EventObjectWindow()
 		}
 	}
 	//ImGui::End();
+}
+
+void DebugWindow::CameraChangeWindow()
+{
+	// Controllerがあるときに処理
+	std::shared_ptr<CameraChangeController> spObjectController = m_wpCameraChangeController.lock();
+	if (spObjectController)
+	{
+		// オブジェクト設置
+		ImGui::Text((const char*)u8"CameraChange設置");
+		ImGui::Text((const char*)spObjectController->GetObjectName().c_str());
+		// オブジェクトを確定させる
+		if (ImGui::Button((const char*)u8"確定"))
+		{
+			spObjectController->ConfirmedObject();
+		}
+		ImGui::SameLine();
+		// オブジェクトを削除する
+		if (ImGui::Button((const char*)u8"削除"))
+		{
+			spObjectController->DeleteObject();
+		}
+		ImGui::SameLine();
+		// セーブ
+		if (ImGui::Button((const char*)u8"セーブ"))
+		{
+			spObjectController->ConfirmedObject();
+			spObjectController->CSVWriter();
+		}
+		ImGui::SameLine();
+		// 選択している物以外デバッグワイヤーを出さない
+		
+
+		// カメラ変更用
+		if (ImGui::Button("Sphere"))
+		{
+			spObjectController->ConfirmedObject();
+			spObjectController->CreateObject(KdGameObject::ObjectType::CameraChange);
+
+			m_cameraChangeParam.area = 10.0f;
+		}
+
+		ImGui::Checkbox("Center", &m_cameraChangeCenterFlg);
+
+		if (m_cameraChangeCenterFlg) m_cameraChangeParam.targetPos = m_cameraChangeParam.pos;
+
+		// 座標
+		ImGui::DragFloat("Pos.x", &m_cameraChangeParam.pos.x, 0.25f);
+		ImGui::DragFloat("Pos.y", &m_cameraChangeParam.pos.y, 0.25f);
+		ImGui::DragFloat("Pos.z", &m_cameraChangeParam.pos.z, 0.25f);
+
+		// 範囲
+		ImGui::InputFloat("Area", &m_cameraChangeParam.area, 0.25f);
+
+		// ターゲット座標
+		ImGui::DragFloat("TargetPos.x", &m_cameraChangeParam.targetPos.x, 0.25f);
+		ImGui::DragFloat("TargetPos.y", &m_cameraChangeParam.targetPos.y, 0.25f);
+		ImGui::DragFloat("TargetPos.z", &m_cameraChangeParam.targetPos.z, 0.25f);
+	}
 }

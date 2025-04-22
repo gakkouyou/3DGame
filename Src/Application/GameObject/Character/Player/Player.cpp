@@ -1,6 +1,6 @@
 ﻿#include "Player.h"
 #include "../../../Scene/SceneManager.h"
-#include "../../Camera/CameraBase.h"
+#include "../../Camera/TPSCamera/TPSCamera.h"
 
 #include "../../Effect/Smoke/Smoke.h"
 #include "../../UI/GameUI/GameUI.h"
@@ -13,12 +13,17 @@
 #include "../../../Tool/ObjectController/EventObjectController/EventObjectController.h"
 #include "../../EventObject/EventObjectBase.h"
 
+#include "../../CameraChange/CameraChange.h"
+#include "../../../Tool/ObjectController/CameraChangeController/CameraChangeController.h"
+
 #include "../../Terrain/MoveObjectRideProcess/MoveObjectRideProcess.h"
 
 #include "../../../main.h"
 
 void Player::Update()
 {
+	Application::Instance().m_log.AddLog("%d\n", m_situationType);
+
 	// デバッグモード中は更新しない
 	if (SceneManager::Instance().GetDebug()) return;
 	// ポーズ画面中は更新しない
@@ -57,6 +62,7 @@ void Player::Update()
 		}
 	}
 
+	// 物を持つときのアニメーション
 	if (m_situationType & SituationType::CarryAnimation)
 	{
 		m_carryAnimationCount++;
@@ -293,7 +299,7 @@ void Player::Update()
 			if ((m_situationType & SituationType::Carry) == 0)
 			{
 				// 空中じゃなければジャンプする
-				if (!(m_situationType & SituationType::Air) || m_mugenJumpFlg == true)
+				if (!(m_situationType & SituationType::Air) || m_mugenJumpFlg == true || m_situationType & SituationType::CoyoteTime)
 				{
 					m_situationType |= SituationType::Jump;
 					m_gravity = -m_jumpPow;
@@ -307,6 +313,8 @@ void Player::Update()
 							m_jumpSE.flg = true;
 						}
 					}
+					m_situationType &= (~SituationType::CoyoteTime);
+					m_coyoteTimeCount = 0;
 				}
 			}
 		}
@@ -635,28 +643,24 @@ void Player::DrawLit()
 
 void Player::DrawUnLit()
 {
-	//if (m_landingEffectFlg == false) return;
-	//Math::Matrix mat = Math::Matrix::CreateTranslation(m_landingEffectPos);
-	//if (m_spEffectModel)
-	//{
-	//	KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, mat);
-	//	KdShaderManager::Instance().UndoRasterizerState();
-	//}
-}
+	// ゴールのBGMが鳴っていたら描画しない
+	if (m_goalBGM.flg == true) return;
 
-void Player::DrawBright()
-{
-	if (m_goalFlg == true) return;
+	// レイが当たっていたら描画しない
+	if (m_footPrintsFlg == false) return;
 
-	Math::Color color = { 0.0f, 0.0f, 1.0f, m_landingEffectAlpha };
-	if (m_landingEffectFlg == false) return;
-	Math::Matrix mat = Math::Matrix::CreateTranslation(m_landingEffectPos);
-	if (m_spEffectModel)
+	// ポリゴンが横になる様に回転
+	Math::Matrix mat = Math::Matrix::CreateRotationX(DirectX::XMConvertToRadians(90.0f));
+	// プレイヤーの向きによって向きが変わる様に
+	mat *= m_rotMat;
+	// Y座標を少し上から
+	m_footPrintsPos.y += m_footPrintsUpY;
+	mat.Translation(m_footPrintsPos);
+	// アルファ値変更
+	Math::Color color = { 1.0f, 1.0f, 1.0f, m_footPrintsAlpha };
+	if (m_spFootPrintsPoly)
 	{
-		KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, mat, color);
-		KdShaderManager::Instance().UndoRasterizerState();
+		KdShaderManager::Instance().m_StandardShader.DrawPolygon(*m_spFootPrintsPoly, mat, color);
 	}
 }
 
@@ -677,8 +681,9 @@ void Player::Init()
 		SetAnimation("Idle", true);
 	}
 
-	// エフェクト
-	m_spEffectModel = KdAssets::Instance().m_modeldatas.GetData("Asset/Models/Effect/LandingPosEffect/Out/out.gltf");
+	// 足跡
+	m_spFootPrintsPoly = std::make_shared<KdSquarePolygon>();
+	m_spFootPrintsPoly->SetMaterial("Asset/Textures/Game/footPrints.png");
 
 	// オブジェクトのタイプ
 	m_objectType = ObjectType::Player;
@@ -771,6 +776,8 @@ void Player::Reset()
 	m_holdFlg = false;
 	m_missingShotCount = 0;
 	m_missingShotFlg = false;
+
+	m_coyoteTimeCount = 0;
 }
 
 void Player::BackPos()
@@ -834,6 +841,9 @@ void Player::HitJudge()
 
 	// 敵との当たり判定
 	HitJudgeEnemy();
+
+	// カメラの特殊追尾判定
+	HitJudgeCameraChange();
 }
 
 void Player::HitJudgeGround()
@@ -874,7 +884,7 @@ void Player::HitJudgeGround()
 		// レイ判定
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 		// 着地場所チェック
-		if (m_landingEffectFlg == false)
+		if (m_footPrintsFlg == false)
 		{
 			LandingPosEffectPos(rayInfo);
 		}
@@ -892,7 +902,7 @@ void Player::HitJudgeGround()
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
 			// 着地場所チェック
-			if (m_landingEffectFlg == false)
+			if (m_footPrintsFlg == false)
 			{
 				LandingPosEffectPos(rayInfo);
 			}
@@ -911,7 +921,7 @@ void Player::HitJudgeGround()
 			hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitTerrain);
 
 			// 着地場所チェック
-			if (m_landingEffectFlg == false)
+			if (m_footPrintsFlg == false)
 			{
 				LandingPosEffectPos(rayInfo);
 			}
@@ -920,6 +930,9 @@ void Player::HitJudgeGround()
 		// 当たっていた時の処理
 		if (hitFlg)
 		{
+			m_coyoteTimeCount = 0;
+			m_situationType &= (~SituationType::CoyoteTime);
+
 			// 当たったオブジェクト
 			std::shared_ptr<TerrainBase> spHitObject = m_wpHitTerrain.lock();
 
@@ -1008,8 +1021,23 @@ void Player::HitJudgeGround()
 		}
 		else
 		{
-			// 空中にいる
-			m_situationType |= SituationType::Air;
+			if ((m_situationType & SituationType::Jump) == 0 && (m_situationType & SituationType::Air) == 0)
+			{
+				m_situationType |= SituationType::CoyoteTime;
+				m_coyoteTimeCount++;
+				if (m_coyoteTimeCount > m_coyoteTime)
+				{
+					m_coyoteTimeCount = 0;
+ 					m_situationType &= (~SituationType::CoyoteTime);
+					// 空中にいる
+					m_situationType |= SituationType::Air;
+				}
+			}
+			else
+			{
+				// 空中にいる
+				m_situationType |= SituationType::Air;
+			}
 		}
 	}
 
@@ -1456,7 +1484,7 @@ void Player::HitJudgeCarryObject()
 	m_carryObjectHitTerrain.hitFlg = false;
 	m_carryObjectHitTerrain.transMat = Math::Matrix::Identity;
 	// 着地エフェクトフラグリセット
-	m_landingEffectFlg = false;
+	m_footPrintsFlg = false;
 
 	m_carryObject.hitFlg = false;
 	m_carryObject.transMat = Math::Matrix::Identity;
@@ -1488,7 +1516,7 @@ void Player::HitJudgeCarryObject()
 	hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
 
 	// 着地エフェクトフラグリセット
-	m_landingEffectFlg = false;
+	m_footPrintsFlg = false;
 
 	// 着地場所チェック
 	LandingPosEffectPos(rayInfo);
@@ -1505,7 +1533,7 @@ void Player::HitJudgeCarryObject()
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
 
 		// 着地場所チェック
-		if (m_landingEffectFlg == false)
+		if (m_footPrintsFlg == false)
 		{
 			LandingPosEffectPos(rayInfo);
 		}
@@ -1523,7 +1551,7 @@ void Player::HitJudgeCarryObject()
 		hitFlg = RayHitJudge(rayInfo, hitPos, m_wpHitCarryObject);
 
 		// 着地場所チェック
-		if (m_landingEffectFlg == false)
+		if (m_footPrintsFlg == false)
 		{
 			LandingPosEffectPos(rayInfo);
 		}
@@ -1532,6 +1560,10 @@ void Player::HitJudgeCarryObject()
 	// 当たっていた時の処理
 	if (hitFlg)
 	{
+		// コヨーテタイム終了
+		m_situationType &= (~SituationType::CoyoteTime);
+		m_coyoteTimeCount = 0;
+
 		// 当たったオブジェクト
 		std::shared_ptr<CarryObjectBase> spHitObject = m_wpHitCarryObject.lock();
 
@@ -1645,6 +1677,59 @@ void Player::HitJudgeCarryObject()
 					}
 				}
 			}
+		}
+	}
+}
+
+void Player::HitJudgeCameraChange()
+{
+	// CameraChange用Controllerが無かったら終了
+	if (m_wpCameraChangeController.expired() == true) return;
+
+	std::weak_ptr<CameraChange> wpTarget;
+	float minLength = 0;
+	bool hitFlg = false;
+
+	// 距離チェック
+	for (auto& obj : m_wpCameraChangeController.lock()->GetObjList())
+	{
+		if (obj.expired() == true) continue;
+
+		Math::Vector3 difPos = m_pos - obj.lock()->GetParam().pos;
+		float length = difPos.Length();
+		if (length < obj.lock()->GetParam().area)
+		{
+			hitFlg = true;
+			// 初回は範囲内に入っていれば保持
+			if (wpTarget.expired() == true)
+			{
+				minLength = length;
+				wpTarget = obj;
+			}
+			else
+			{
+				// 範囲内に入っていればより近いほうを保持
+				if (length < minLength)
+				{
+					minLength = length;
+					wpTarget = obj;
+				}
+			}
+		}
+	}
+
+	if (hitFlg == false)
+	{
+		if (m_wpCamera.expired() == false)
+		{
+			m_wpCamera.lock()->CameraChangeEnd();
+		}
+	}
+	else
+	{
+		if (m_wpCamera.expired() == false)
+		{
+			m_wpCamera.lock()->SetCameraChange(wpTarget);
 		}
 	}
 }
@@ -1804,22 +1889,22 @@ void Player::LandingPosEffectPos(KdCollider::RayInfo _rayInfo)
 	// 長さを長くする
 	landingRayInfo.m_range = 100;
 	// レイ判定
-	m_landingEffectFlg = RayHitJudge(landingRayInfo, m_landingEffectPos);
+	m_footPrintsFlg = RayHitJudge(landingRayInfo, m_footPrintsPos);
 	// 当たっていたら、x,z座標を現在の位置にする。y座標のみ当たった座標
-	if (m_landingEffectFlg)
+	if (m_footPrintsFlg)
 	{
-		m_landingEffectPos.x = m_pos.x;
-		m_landingEffectPos.z = m_pos.z;
+		m_footPrintsPos.x = m_pos.x;
+		m_footPrintsPos.z = m_pos.z;
 	}
 
-	float length = m_pos.y - m_landingEffectPos.y;
-	if (length > m_maxLandingEffectLength)
+	float length = m_pos.y - m_footPrintsPos.y;
+	if (length > m_maxFootPrintsLength)
 	{
-		m_landingEffectAlpha = 1.0f;
+		m_footPrintsAlpha = 1.0f;
 	}
 	else
 	{
-		m_landingEffectAlpha = length / m_maxLandingEffectLength;
+		m_footPrintsAlpha = length / m_maxFootPrintsLength;
 	}
 }
 

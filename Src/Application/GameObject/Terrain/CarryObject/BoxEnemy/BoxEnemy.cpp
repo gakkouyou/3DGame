@@ -256,6 +256,25 @@ void BoxEnemy::DrawLit()
 	}
 }
 
+void BoxEnemy::DrawBright()
+{
+	if (m_stanFlg == false) return;
+	Math::Color color = { 1.0f, 1.0f, 1.0f, 0.8f };
+	for (int i = 0; i < m_trailNum; i++)
+	{
+		Math::Matrix starScaleMat = Math::Matrix::CreateScale(m_starScale);
+		Math::Matrix transMat = Math::Matrix::CreateTranslation(m_starLocalPos[i] + m_pos);
+		Math::Matrix starMat = starScaleMat * transMat;
+
+		KdShaderManager::Instance().m_StandardShader.DrawPolygon(*m_spStarPoly, starMat, color);
+
+		Math::Matrix scaleMat = Math::Matrix::CreateScale(m_trailScale);
+		scaleMat = scaleMat * transMat;
+		m_spTrailPoly[i]->AddPoint(scaleMat);
+		KdShaderManager::Instance().m_StandardShader.DrawPolygon(*m_spTrailPoly[i], Math::Matrix::Identity, color);
+	}
+}
+
 void BoxEnemy::Init()
 {
 	CarryObjectBase::Init();
@@ -279,6 +298,20 @@ void BoxEnemy::Init()
 	for (int i = 0; i < Max; i++)
 	{
 		m_edgePos[i] = m_edgeBasePos[i] + m_pos;
+	}
+
+	// スタンエフェクト
+	// 星
+	m_spStarPoly = std::make_shared<KdSquarePolygon>();
+	m_spStarPoly->SetMaterial("Asset/Textures/Game/StanEffect/star.png");
+
+	for (int i = 0; i < m_trailNum; i++)
+	{
+		m_spTrailPoly[i] = std::make_shared<KdTrailPolygon>();
+		m_spTrailPoly[i]->SetMaterial("Asset/Textures/Game/SanEffect/trail.png");
+
+		m_spTrailPoly[i]->SetLength(20);
+		m_spTrailPoly[i]->SetPattern(KdTrailPolygon::Trail_Pattern::eBillboard);
 	}
 
 	// 最初の角度
@@ -436,6 +469,15 @@ void BoxEnemy::Reset()
 
 	// 初期状態は待機状態
 	m_nowAction = std::make_shared<Idle>();
+
+	// スタンを終了
+	m_stanFlg = false;
+
+	// トレイルをリセット
+	for (int i = 0; i < m_trailNum; i++)
+	{
+		m_spTrailPoly[i]->ClearPoints();
+	}
 }
 
 void BoxEnemy::HitJudge()
@@ -690,6 +732,26 @@ void BoxEnemy::HitJudge()
 	}
 }
 
+void BoxEnemy::StanEffect()
+{
+	for (int i = 0; i < m_trailNum; i++)
+	{
+		float adjust = 360.0f / (i + 1);
+
+		float x = cos(DirectX::XMConvertToRadians(m_starDegAng + adjust)) * m_stanRadius;
+		float z = sin(DirectX::XMConvertToRadians(m_starDegAng + adjust)) * m_stanRadius;
+
+		m_starLocalPos[i] = { x, 2.0f, z };
+	}
+
+	m_starDegAng += m_addStarDegAng;
+	if (m_starDegAng > 360)
+	{
+		m_starDegAng -= 360;
+	}
+	m_stanFlg = true;
+}
+
 void BoxEnemy::DataLoad()
 {
 	// JSONファイルを読み込む
@@ -734,6 +796,14 @@ void BoxEnemy::Idle::Enter(BoxEnemy& _owner)
 	// 当たり判定の切り替え
 	_owner.m_pCollider->SetEnable("BoxEnemyEnemy", false);
 	_owner.m_pCollider->SetEnable("BoxEnemyBox", true);
+
+	// スタンを終了
+	_owner.m_stanFlg = false;
+	// トレイルをリセット
+	for (int i = 0; i < m_trailNum; i++)
+	{
+		_owner.m_spTrailPoly[i]->ClearPoints();
+	}
 }
 
 void BoxEnemy::Idle::Update(BoxEnemy& _owner)
@@ -747,6 +817,7 @@ void BoxEnemy::Idle::Update(BoxEnemy& _owner)
 
 	if (length < _owner.m_enemyChangeLength)
 	{
+		_owner.m_idleFlg = true;
 		_owner.ChangeActionState(std::make_shared<Shake>());
 		return;
 	}
@@ -955,6 +1026,9 @@ void BoxEnemy::Box::Update(BoxEnemy& _owner)
 		_owner.ChangeActionState(std::make_shared<Shake>());
 		return;
 	}
+
+	// スタンしているエフェクトを出す
+	_owner.StanEffect();
 }
 
 void BoxEnemy::Carry::Enter(BoxEnemy& _owner)
@@ -992,22 +1066,52 @@ void BoxEnemy::Carry::Update(BoxEnemy& _owner)
 		_owner.ChangeActionState(std::make_shared<Shake>());
 		return;
 	}
+
+	// スタンしているエフェクトを出す
+	_owner.StanEffect();
 }
 
 void BoxEnemy::Shake::Enter(BoxEnemy& _owner)
 {
 	// カウントを震え始める数値にする
 	_owner.m_enemyCount = _owner.m_shakeTime;
+
+	if (_owner.m_idleFlg == true)
+	{
+		_owner.m_enemyCount += 60;
+		_owner.m_idleFlg = false;
+	}
+
+	// スタンを終了
+	_owner.m_stanFlg = false;
+
+	// トレイルをリセット
+	for (int i = 0; i < _owner.m_trailNum; i++)
+	{
+		_owner.m_spTrailPoly[i]->ClearPoints();
+	}
 }
 
 void BoxEnemy::Shake::Update(BoxEnemy& _owner)
 {
-	// 持たれた状態になっていたら持たれている状態にする
+	// 運び状況に変更があった場合
 	if (_owner.m_carryFlg)
 	{
-		_owner.ChangeActionState(std::make_shared<Carry>());
-		_owner.m_carryFlg = false;
-		return;
+		// 持たれた状態になっていたら持たれている状態にする
+		if (_owner.m_isCarry == false)
+		{
+			_owner.ChangeActionState(std::make_shared<Carry>());
+			_owner.m_carryFlg = false;
+			return;
+		}
+		// 離されたら箱状態にする
+		else
+		{
+			_owner.ChangeActionState(std::make_shared<Box>());
+			_owner.m_carryFlg = false;
+			_owner.m_isCarry = false;
+			return;
+		}
 	}
 
 	// 角度をランダムで決める

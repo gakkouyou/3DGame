@@ -17,6 +17,7 @@
 #include "../../Tool/ObjectController/EnemyController/EnemyController.h"
 #include "../../Tool/ObjectController/CarryObjectController/CarryObjectController.h"
 #include "../../Tool/ObjectController/EventObjectController/EventObjectController.h"
+#include "../../Tool/ObjectController/CameraChangeController/CameraChangeController.h"
 #include "../../Tool/MouseClickHit/MouseClickHit.h"
 
 #include "../../main.h"
@@ -323,26 +324,35 @@ void GameScene::Init()
 	eventObjectController->Init();
 	AddObject(eventObjectController);
 
+	// CameraChange用のオブジェクト作成
+	std::shared_ptr<CameraChangeController> cameraChangeController = std::make_shared<CameraChangeController>();
+	// CSVファイルを指定する
+	csvName = "Asset/Data/CSV/CameraChange/Stage" + std::to_string(m_nowStage) + ".csv";
+	cameraChangeController->SetCSV(csvName);
+	cameraChangeController->SetCamera(tpsCamera);
+	cameraChangeController->Init();
+	AddObject(cameraChangeController);
+
 
 	// デバッグウィンドウにオブジェクトコントローラーを渡す
 	DebugWindow::Instance().SetTerrainController(terrainController);			// Terrain
 	DebugWindow::Instance().SetEnemyController(enemyController);				// Enemy
 	DebugWindow::Instance().SetCarryObjectController(carryObjectController);	// CarryObject
 	DebugWindow::Instance().SetEventObjectController(eventObjectController);	// EventObject
+	DebugWindow::Instance().SetCameraChangeController(cameraChangeController);	// CameraChange
 
 
 	// オブジェクトコントローラーにカメラを渡す
 	terrainController->SetCamera(tpsCamera);
 	enemyController->SetCamera(tpsCamera);
 	carryObjectController->SetCamera(tpsCamera);
+	cameraChangeController->SetCamera(tpsCamera);
 
 	// プレイヤーにterrainControllerを渡す
 	player->SetTerrainController(terrainController);
 	player->SetCarryObjectContoller(carryObjectController);
 	player->SetEventObjectController(eventObjectController);
-
-	m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
-	m_bgm.lock()->SetVolume(m_vol);
+	player->SetCameraChangeController(cameraChangeController);
 
 	// デバッグ用マウスクリック当たり判定クラス
 	std::shared_ptr<MouseClickHit> mouseClickHit = std::make_shared<MouseClickHit>();
@@ -351,7 +361,12 @@ void GameScene::Init()
 	mouseClickHit->SetEventController(eventObjectController);
 	mouseClickHit->SetEnemyController(enemyController);
 	mouseClickHit->SetCarryObjectController(carryObjectController);
+	mouseClickHit->SetCameraChangeController(cameraChangeController);
 	mouseClickHit->SetCamera(tpsCamera);
+
+	// BGM
+	m_bgm = KdAudioManager::Instance().Play("Asset/Sounds/BGM/stageBGM.wav", true);
+	m_bgm.lock()->SetVolume(m_vol);
 }
 
 void GameScene::StartGameScene()

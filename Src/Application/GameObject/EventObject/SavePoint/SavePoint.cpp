@@ -78,17 +78,6 @@ void SavePoint::GenerateDepthMapFromLight()
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_mWorld);
 	}
-
-
-	//if (m_spPoleModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
-	//}
-
-	//if (m_spFlagModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
-	//}
 }
 
 void SavePoint::DrawLit()
@@ -101,31 +90,12 @@ void SavePoint::DrawLit()
 	{
 		KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spBaseModel, m_mWorld);
 	}
-
-	//if (m_spPoleModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spPoleModel, m_mWorld);
-	//}
-
-	//if (m_spFlagModel)
-	//{
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spFlagModel, m_flagMat);
-	//}
-}
-
-void SavePoint::DrawUnLit()
-{
-	//if (m_situationType != SituationType::NotStand) return;
-	//if (m_spEffectModel)
-	//{
-	//	KdShaderManager::Instance().ChangeRasterizerState(KdRasterizerState::CullNone);
-	//	KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spEffectModel, m_effectMat);
-	//	KdShaderManager::Instance().UndoRasterizerState();
-	//}
 }
 
 void SavePoint::DrawBright()
 {
+	if (m_drawFlg == false) return;
+
 	if (m_situationType != SituationType::NotStand) return;
 	Math::Color color = { 1.0f, 1.0f, 1.0f, 1 - (1/m_effectScaleMax*m_effectScale)};
 	if (m_spEffectModel)

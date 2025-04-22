@@ -13,6 +13,9 @@ void WarpPoint::Update()
 
 void WarpPoint::DrawUnLit()
 {
+	if (m_drawFlg == false) return;
+
+	KdShaderManager::Instance().ChangeDepthStencilState(KdDepthStencilState::ZWriteDisable);
 	if (m_spOutModel)
 	{
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
@@ -34,10 +37,14 @@ void WarpPoint::DrawUnLit()
 		KdShaderManager::Instance().UndoRasterizerState();
 		KdShaderManager::Instance().UndoBlendState();
 	}
+	KdShaderManager::Instance().UndoDepthStencilState();
 }
 
 void WarpPoint::DrawBright()
 {
+	if (m_drawFlg == false) return;
+
+	KdShaderManager::Instance().ChangeDepthStencilState(KdDepthStencilState::ZWriteDisable);
 	if (m_spOutModel)
 	{
 		Math::Matrix rotMat = Math::Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_degAng));
@@ -59,6 +66,7 @@ void WarpPoint::DrawBright()
 		KdShaderManager::Instance().UndoRasterizerState();
 		KdShaderManager::Instance().UndoBlendState();
 	}
+	KdShaderManager::Instance().UndoDepthStencilState();
 }
 
 void WarpPoint::Init()

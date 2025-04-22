@@ -36,6 +36,17 @@ void TerrainBase::DrawLit()
 	}
 }
 
+void TerrainBase::DrawUnLit()
+{
+	if (m_drawType & eDrawTypeUnLit)
+	{
+		if (m_spModel)
+		{
+			KdShaderManager::Instance().m_StandardShader.DrawModel(*m_spModel, m_mWorld);
+		}
+	}
+}
+
 void TerrainBase::DrawBright()
 {
 	if (m_drawType & eDrawTypeBright)
@@ -51,11 +62,6 @@ void TerrainBase::Init()
 {
 	// 大まかなオブジェクトのタイプ
 	m_baseObjectType = BaseObjectType::Ground;
-}
-
-bool TerrainBase::CheckInScreen(const DirectX::BoundingFrustum& frustum)
-{
-	return Intersects(frustum);
 }
 
 void TerrainBase::SetTarget(const std::weak_ptr<TerrainBase>& _wpTarget)

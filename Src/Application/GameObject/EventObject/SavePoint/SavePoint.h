@@ -11,7 +11,6 @@ public:
 	void Update()						override;
 	void GenerateDepthMapFromLight()	override;
 	void DrawLit()						override;
-	void DrawUnLit()					override;
 	void DrawBright()					override;
 	void Init()							override;
 

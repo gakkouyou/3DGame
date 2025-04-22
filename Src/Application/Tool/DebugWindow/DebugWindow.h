@@ -4,6 +4,7 @@ class TerrainController;
 class EnemyController;
 class CarryObjectController;
 class EventObjectController;
+class CameraChangeController;
 
 class TerrainBase;
 
@@ -20,6 +21,7 @@ public:
 	void SetEnemyController			(const std::shared_ptr<EnemyController>& _spObjectController)		{ m_wpEnemyController = _spObjectController; }
 	void SetCarryObjectController	(const std::shared_ptr<CarryObjectController>& _spObjectController) { m_wpCarryObjectController = _spObjectController; }
 	void SetEventObjectController	(const std::shared_ptr<EventObjectController>& _spObjectController) { m_wpEventObjectController = _spObjectController; }
+	void SetCameraChangeController	(const std::shared_ptr<CameraChangeController>& _spObjectController){ m_wpCameraChangeController = _spObjectController; }
 
 	// Terrain用のパラメータ
 	struct TerrainParam
@@ -35,7 +37,7 @@ public:
 	// Terrainのパラメータゲット関数
 	const TerrainParam GetTerrainParam() const { return m_terrainParam; }
 	// Terrainのパラメータセット関数
-	void SetTerrainParam(TerrainParam _param) { m_terrainParam = _param; }
+	void SetTerrainParam(TerrainParam& _param) { m_terrainParam = _param; }
 
 	// Enemy用のパラメータ
 	struct EnemyParam
@@ -48,7 +50,7 @@ public:
 	// Enemyのパラメータゲット関数
 	const EnemyParam GetEnemyParam() const { return m_enemyParam; }
 	// Enemyのパラメータセット関数
-	void SetEnemyParam(EnemyParam _param) { m_enemyParam = _param; }
+	void SetEnemyParam(EnemyParam& _param) { m_enemyParam = _param; }
 
 	// 運べるオブジェクト用のパラメータ
 	struct CarryObjectParam
@@ -59,7 +61,7 @@ public:
 	// 運べるオブジェクト用のパラメータゲット関数
 	const CarryObjectParam GetCarryObjectParam() const { return m_carryObjectParam; }
 	// 運べるオブジェクト用のパラメータセット関数
-	void SetCarryObjectParam(CarryObjectParam _param) { m_carryObjectParam = _param; }
+	void SetCarryObjectParam(CarryObjectParam& _param) { m_carryObjectParam = _param; }
 
 	// EventObject用のパラメータ
 	struct EventObjectParam
@@ -67,12 +69,33 @@ public:
 		Math::Vector3 pos = Math::Vector3::Zero;
 		int stageNum = 0;
 	};
-	// 運べるオブジェクト用のパラメータゲット関数
+	// EventObjectのパラメータゲット関数
 	const EventObjectParam GetEventObjectParam() const { return m_eventObjectParam; }
-	// 運べるオブジェクト用のパラメータセット関数
-	void SetEventObjectParam(EventObjectParam _param) { m_eventObjectParam = _param; }
+	// EventObjectのパラメータセット関数
+	void SetEventObjectParam(EventObjectParam& _param) { m_eventObjectParam = _param; }
+
+	// CameraChange用のパラメータ
+	struct CameraChangeParam
+	{
+		Math::Vector3 pos = Math::Vector3::Zero;
+		float area = 10;
+		Math::Vector3 targetPos = Math::Vector3::Zero;
+	};
+	// CameraChange用のパラメータゲット関数
+	const CameraChangeParam GetCameraChangeParam()	const { return m_cameraChangeParam; }
+	// CameraChange用のパラメータセット関数
+	void SetCameraChangeParam(CameraChangeParam& _param) { m_cameraChangeParam = _param; }
+
+	// CameraChange用のモードかどうか
+	bool GetCameraChangeMode()	const { return m_cameraChangeModeFlg; }
+
+	// カリング用の行列を更新するかどうか
+	bool GetCullingStopMat() const { return m_cullingStopMatFlg; }
 
 private:
+	// カリング用の行列を更新するかどうか
+	bool m_cullingStopMatFlg = false;
+
 	// Terrain用
 	std::weak_ptr<TerrainController> m_wpTerrainController;
 	TerrainParam m_terrainParam;
@@ -96,6 +119,18 @@ private:
 	EventObjectParam m_eventObjectParam;
 	// EventObject用のウィンドウ
 	void EventObjectWindow();
+
+	// CameraChange用
+	std::weak_ptr<CameraChangeController> m_wpCameraChangeController;
+	CameraChangeParam m_cameraChangeParam;
+	// EventObject用のウィンドウ
+	void CameraChangeWindow();
+
+	// CameraChangeのオブジェクトの配置モードかどうか
+	bool m_cameraChangeModeFlg = false;
+
+	// CameraChangeの座標とターゲット座標を同じにするフラグ
+	bool m_cameraChangeCenterFlg = false;
 
 	// ログウィンドウ表示用
 	bool m_logKeyFlg = false;

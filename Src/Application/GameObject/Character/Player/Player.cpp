@@ -197,6 +197,8 @@ void Player::Update()
 			}
 		}
 
+		// Fork ブランチ テスト
+
 		// SHIFTキーを押すと、歩きになる
 		if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
 		{
